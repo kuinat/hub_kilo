@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
+import '../../global_widgets/card_widget.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../controllers/bookings_controller.dart';
 
@@ -24,7 +26,7 @@ class BookingsView extends GetView<BookingsController> {
         elevation: 0,
         automaticallyImplyLeading: false,
         leading: new IconButton(
-          icon: new Icon(Icons.sort, color: Get.theme.hintColor),
+          icon: new Icon(Icons.sort, color: Palette.background),
           onPressed: () => {Scaffold.of(context).openDrawer()},
         ),
         actions: [NotificationsButtonWidget()],
@@ -113,21 +115,26 @@ class BookingsView extends GetView<BookingsController> {
                     Expanded(
                         child: ListView.separated(
                             physics: AlwaysScrollableScrollPhysics(),
-                            itemCount: 15,
+                            itemCount: 5,
                             separatorBuilder: (context, index) {
                               return SizedBox(height: 5);
                             },
                             shrinkWrap: true,
                             primary: false,
                             itemBuilder: (context, index) {
-                              return Container(
-                                margin: EdgeInsets.only(left: 10, right: 10),
-                                child: Card(
-                                  child: Container(
-                                      padding: EdgeInsets.all(30),
-                                      child: Text('Sample text')
-                                  ),
-                                ),
+                              return CardWidget(
+                                depDate: Text(DateFormat("dd, MMM\nyyyy", "fr_FR").format(DateTime.now()).toString()),
+                                arrTown: Text('Yaounde'),
+                                depTown: Text('Paris'),
+                                arrDate: Text(DateFormat("dd, MMM\nyyyy", "fr_FR").format(DateTime.now().add(Duration(days: 1))).toString()),
+                                qty: 13,
+                                price: 150,
+                                color: background,
+                                text: Text(""),
+                                onPressed: () =>{  },
+                                user: "Test User",
+                                imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+
                               );
                             })
                     )

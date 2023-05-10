@@ -15,7 +15,7 @@ class SearchServicesListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (this.services.isEmpty) {
-        return CircularLoadingWidget(height: 300);
+        return CircularLoadingWidget(height: 400);
       } else {
         return ListView.builder(
           padding: EdgeInsets.only(bottom: 10, top: 10),

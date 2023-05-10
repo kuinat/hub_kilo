@@ -72,7 +72,7 @@ class TabBarLoadingWidget extends StatelessWidget implements PreferredSize {
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         children: List.generate(
-          4,
+          3,
           (index) => RawChip(
             elevation: 0,
             label: Text(''),

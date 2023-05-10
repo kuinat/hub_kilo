@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../models/media_model.dart';
-import '../../global_widgets/image_field_widget.dart';
+import '../../../../color_constants.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/delete_account_widget.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ProfileView extends GetView<ProfileController> {
   final bool hideAppBar;
@@ -31,7 +30,7 @@ class ProfileView extends GetView<ProfileController> {
                 automaticallyImplyLeading: false,
                 leading: new IconButton(
                   icon: new Icon(Icons.arrow_back_ios, color: Get.theme.hintColor),
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.pop(context),
                 ),
                 elevation: 0,
               ),
@@ -46,21 +45,24 @@ class ProfileView extends GetView<ProfileController> {
           ),
           child: Row(
             children: [
-              Expanded(
+              Obx(() => Expanded(
                 child: MaterialButton(
                   onPressed: () {
-                    controller.saveProfileForm();
+                    //controller.saveProfileForm();
+                    controller.buttonPressed.value = !controller.buttonPressed.value;
                   },
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary,
-                  child: Text("Save".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
+                  child: !controller.buttonPressed.value ? Text("Save".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
+                      : SizedBox(height: 10,
+                  child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                   elevation: 0,
                   highlightElevation: 0,
                   hoverElevation: 0,
                   focusElevation: 0,
                 ),
-              ),
+              )),
               SizedBox(width: 10),
               MaterialButton(
                 onPressed: () {
@@ -83,34 +85,71 @@ class ProfileView extends GetView<ProfileController> {
           child: ListView(
             primary: true,
             children: [
-              Text("Profile details".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, right: 22, left: 22),
-              Text("Change the following details and save them".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
-              Obx(() {
-                return ImageFieldWidget(
-                  label: "Image".tr,
-                  field: 'avatar',
-                  tag: controller.profileForm.hashCode.toString(),
-                  initialImage: controller.avatar.value,
-                  uploadCompleted: (uuid) {
-                    controller.avatar.value = new Media(id: uuid);
-                  },
-                  reset: (uuid) {
-                    controller.avatar.value = new Media(thumb: controller.myUser.value.avatar.thumb);
-                  },
-                );
-              }),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Profile details".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, left: 22),
+                      Text("Change the following \ndetails and save them".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
+                    ],
+                  ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: NetworkImage("https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80"),
+                        fit: BoxFit.cover
+                      )
+                    ),
+                  )
+                ],
+              ),
+              Card(
+                elevation: 5,
+                margin: EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
+                shadowColor: inactive,
+                child: ExpansionTile(
+                  title: Text("View Statistics".tr, style: Get.textTheme.bodyText2),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: Icon(Icons.airplanemode_active),
+                            title: Text('Travels'.tr, style: Get.textTheme.headline5),
+                            trailing: Text("3", style: Get.textTheme.headline6),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.assignment_outlined),
+                            title: Text('Bookings'.tr, style: Get.textTheme.headline5),
+                            trailing: Text("6", style: Get.textTheme.headline6),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                  initiallyExpanded: true,
+                )
+              ),
+
               TextFieldWidget(
-                onSaved: (input) => controller.myUser.value.name = input,
+                //onSaved: (input) => controller.user.value.name = input,
+                //initialValue: controller.user.value.name,
                 validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
-                initialValue: controller.myUser.value.name,
                 hintText: "John Doe".tr,
                 labelText: "Full Name".tr,
                 iconData: Icons.person_outline,
               ),
               TextFieldWidget(
-                onSaved: (input) => controller.myUser.value.email = input,
+                //onSaved: (input) => controller.user.value.email = input,
+                //initialValue: controller.user.value.email,
                 validator: (input) => !input.contains('@') ? "Should be a valid email" : null,
-                initialValue: controller.myUser.value.email,
                 hintText: "johndoe@gmail.com",
                 labelText: "Email".tr,
                 iconData: Icons.alternate_email,
@@ -118,12 +157,12 @@ class ProfileView extends GetView<ProfileController> {
               PhoneFieldWidget(
                 labelText: "Phone Number".tr,
                 hintText: "223 665 7896".tr,
-                initialCountryCode: controller.myUser.value.getPhoneNumber()?.countryISOCode,
-                initialValue: controller.myUser.value.getPhoneNumber()?.number,
+                /*initialCountryCode: controller.user.value.getPhoneNumber()?.countryISOCode,
+                initialValue: controller.user.value.getPhoneNumber()?.number,
                 onSaved: (phone) {
-                  return controller.myUser.value.phoneNumber = phone.completeNumber;
+                  return controller.user.value.phoneNumber = phone.completeNumber;
                 },
-                suffix: controller.myUser.value.verifiedPhone
+                suffix: controller.user.value.verifiedPhone
                     ? Text(
                         "Verified".tr,
                         style: Get.textTheme.caption.merge(TextStyle(color: Colors.green)),
@@ -131,19 +170,19 @@ class ProfileView extends GetView<ProfileController> {
                     : Text(
                         "Not Verified".tr,
                         style: Get.textTheme.caption.merge(TextStyle(color: Colors.redAccent)),
-                      ),
+                      ),*/
               ),
               TextFieldWidget(
-                onSaved: (input) => controller.myUser.value.address = input,
+                //onSaved: (input) => controller.user.value.address = input,
+                //initialValue: controller.user.value.address,
                 validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
-                initialValue: controller.myUser.value.address,
                 hintText: "123 Street, City 136, State, Country".tr,
                 labelText: "Address".tr,
                 iconData: Icons.map_outlined,
               ),
               TextFieldWidget(
-                onSaved: (input) => controller.myUser.value.bio = input,
-                initialValue: controller.myUser.value.bio,
+                //onSaved: (input) => controller.user.value.bio = input,
+                //initialValue: controller.user.value.bio,
                 hintText: "Your short biography here".tr,
                 labelText: "Short Biography".tr,
                 iconData: Icons.article_outlined,
@@ -151,14 +190,13 @@ class ProfileView extends GetView<ProfileController> {
               Text("Change password".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, right: 22, left: 22),
               Text("Fill your old password and type new password and confirm it".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
               Obx(() {
-                // TODO verify old password
                 return TextFieldWidget(
                   labelText: "Old Password".tr,
                   hintText: "••••••••••••".tr,
                   onSaved: (input) => controller.oldPassword.value = input,
                   onChanged: (input) => controller.oldPassword.value = input,
                   validator: (input) => input.length > 0 && input.length < 3 ? "Should be more than 3 letters".tr : null,
-                  initialValue: controller.oldPassword.value,
+                  //initialValue: controller.oldPassword.value,
                   obscureText: controller.hidePassword.value,
                   iconData: Icons.lock_outline,
                   keyboardType: TextInputType.visiblePassword,
@@ -188,7 +226,7 @@ class ProfileView extends GetView<ProfileController> {
                       return null;
                     }
                   },
-                  initialValue: controller.newPassword.value,
+                  //initialValue: controller.newPassword.value,
                   obscureText: controller.hidePassword.value,
                   iconData: Icons.lock_outline,
                   keyboardType: TextInputType.visiblePassword,
@@ -211,7 +249,7 @@ class ProfileView extends GetView<ProfileController> {
                       return null;
                     }
                   },
-                  initialValue: controller.confirmPassword.value,
+                  //initialValue: controller.confirmPassword.value,
                   obscureText: controller.hidePassword.value,
                   iconData: Icons.lock_outline,
                   keyboardType: TextInputType.visiblePassword,

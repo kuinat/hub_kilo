@@ -90,7 +90,7 @@ class ImageFieldWidget extends StatelessWidget {
     final controller = Get.put(ImageFieldController(), tag: tag);
     return Container(
       padding: EdgeInsets.only(top: 8, bottom: 10, left: 20, right: 20),
-      margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+      margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
       decoration: BoxDecoration(
           color: Get.theme.primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(10)),

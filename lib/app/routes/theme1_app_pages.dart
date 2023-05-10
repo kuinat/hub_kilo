@@ -1,11 +1,15 @@
 import 'package:get/get.dart' show GetPage, Transition;
 
 import '../middlewares/auth_middleware.dart';
+import '../modules/Forms/Views/add_travel_form.dart';
+import '../modules/Forms/binding/add_travel_binding.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/phone_verification_view.dart';
 import '../modules/auth/views/register_view.dart';
+import '../modules/available_travels/binding/available_travels_binding.dart';
+import '../modules/available_travels/view/available_travels_view.dart';
 import '../modules/category/bindings/category_binding.dart';
 import '../modules/category/views/categories_view.dart';
 import '../modules/category/views/category_view.dart';
@@ -39,6 +43,8 @@ import '../modules/settings/views/addresses_view.dart';
 import '../modules/settings/views/language_view.dart';
 import '../modules/settings/views/settings_view.dart';
 import '../modules/settings/views/theme_mode_view.dart';
+import '../modules/travel_inspect/bindings/travel_inspect_binding.dart';
+import '../modules/travel_inspect/views/travel_inspect_view.dart';
 import '../modules/validate_transaction/binding/validation_Biding.dart';
 import '../modules/validate_transaction/views/validate_transaction.dart';
 import '../modules/wallets/bindings/wallets_binding.dart';
@@ -56,9 +62,14 @@ class Theme1AppPages {
     GetPage(name: Routes.SETTINGS, page: () => SettingsView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_ADDRESSES, page: () => AddressesView(), binding: SettingsBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.SETTINGS_THEME_MODE, page: () => ThemeModeView(), binding: SettingsBinding()),
+    GetPage(name: Routes.ADD_TRAVEL_FORM, page: () => AddTravelsView(), binding: AddTravelBinding()),
     GetPage(name: Routes.SETTINGS_LANGUAGE, page: () => LanguageView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_ADDRESS_PICKER, page: () => AddressPickerView()),
-    GetPage(name: Routes.PROFILE, page: () => ProfileView(), binding: ProfileBinding(), middlewares: [AuthMiddleware()]),
+    GetPage(name: Routes.AVAILABLE_TRAVELS, page: ()=> AvailableTravelsView(), binding: AvailableTravelBinding()),
+    GetPage(name: Routes.TRAVEL_INSPECT, page: () => TravelInspectView(), binding: TravelInspectBinding()),
+    GetPage(name: Routes.PROFILE, page: () => ProfileView(), binding: ProfileBinding(),
+        //middlewares: [AuthMiddleware()]
+    ),
     GetPage(name: Routes.CATEGORY, page: () => CategoryView(), binding: CategoryBinding()),
     GetPage(name: Routes.CATEGORIES, page: () => CategoriesView(), binding: CategoryBinding()),
     GetPage(name: Routes.VALIDATE_TRANSACTION, page: () => ValidationView(), binding: ValidationBinding()),

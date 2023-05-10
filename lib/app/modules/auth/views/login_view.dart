@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/helper.dart';
 import '../../../../common/ui.dart';
-import '../../../models/setting_model.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginView extends GetView<AuthController> {
-  final Setting _settings = Get.find<SettingsService>().setting.value;
+  //final Setting _settings = Get.find<SettingsService>().setting.value;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +88,7 @@ class LoginView extends GetView<AuthController> {
                       TextFieldWidget(
                         labelText: "Email Address".tr,
                         hintText: "johndoe@gmail.com".tr,
-                        initialValue: controller.currentUser?.value?.email,
+                        //initialValue: controller.currentUser?.value?.email,
                         onSaved: (input) => controller.currentUser.value.email = input,
                         validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
                         iconData: Icons.alternate_email,
@@ -99,7 +97,7 @@ class LoginView extends GetView<AuthController> {
                         return TextFieldWidget(
                           labelText: "Password".tr,
                           hintText: "••••••••••••".tr,
-                          initialValue: controller.currentUser?.value?.password,
+                          //initialValue: controller.currentUser?.value?.password,
                           onSaved: (input) => controller.currentUser.value.password = input,
                           validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
                           obscureText: controller.hidePassword.value,
@@ -127,23 +125,24 @@ class LoginView extends GetView<AuthController> {
                       ).paddingSymmetric(horizontal: 20),
                       BlockButtonWidget(
                         onPressed: () {
-                          controller.login();
+                          controller.buttonPressed.value = !controller.buttonPressed.value;
+                          //controller.login();
                         },
                         color: Get.theme.colorScheme.secondary,
-                        text: Text(
+                        text: !controller.buttonPressed.value ? Text(
                           "Login".tr,
                           style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                        ),
+                        ) : SizedBox(height: 20,
+                              child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                       ).paddingSymmetric(vertical: 10, horizontal: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("You don't have an account?".tr),
                           TextButton(
                             onPressed: () {
                               Get.toNamed(Routes.REGISTER);
                             },
-                            child: Text("Register".tr),
+                            child: Text("You don't have an account?".tr),
                           ),
                         ],
                       ).paddingSymmetric(vertical: 20),

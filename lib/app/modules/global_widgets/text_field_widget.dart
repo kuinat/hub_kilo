@@ -10,11 +10,11 @@ import '../../../common/ui.dart';
 class TextFieldWidget extends StatelessWidget {
   const TextFieldWidget({
     Key key,
+    this.initialValue,
     this.onSaved,
     this.onChanged,
     this.validator,
     this.keyboardType,
-    this.initialValue,
     this.hintText,
     this.errorText,
     this.iconData,
@@ -24,23 +24,23 @@ class TextFieldWidget extends StatelessWidget {
     this.isFirst,
     this.isLast,
     this.style,
-    this.onTap,
     this.textAlign,
     this.suffix,
+    this.onTap,
   }) : super(key: key);
 
   final FormFieldSetter<String> onSaved;
   final ValueChanged<String> onChanged;
-  final Function onTap;
+  final Function() onTap;
   final FormFieldValidator<String> validator;
   final TextInputType keyboardType;
-  final String initialValue;
   final String hintText;
   final String errorText;
   final TextAlign textAlign;
   final String labelText;
   final TextStyle style;
   final IconData iconData;
+  final String initialValue;
   final bool obscureText;
   final bool isFirst;
   final bool isLast;
@@ -50,8 +50,8 @@ class TextFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20, bottom: 14, left: 20, right: 20),
-      margin: EdgeInsets.only(left: 20, right: 20, top: topMargin, bottom: bottomMargin),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+      margin: EdgeInsets.only(left: 5, right: 5, top: topMargin, bottom: bottomMargin),
       decoration: BoxDecoration(
           color: Get.theme.primaryColor,
           borderRadius: buildBorderRadius,
@@ -68,14 +68,14 @@ class TextFieldWidget extends StatelessWidget {
             textAlign: textAlign ?? TextAlign.start,
           ),
           TextFormField(
+            initialValue: initialValue,
             maxLines: keyboardType == TextInputType.multiline ? null : 1,
             key: key,
             keyboardType: keyboardType ?? TextInputType.text,
             onSaved: onSaved,
+            onTap: onTap,
             onChanged: onChanged,
             validator: validator,
-            onTap: onTap,
-            initialValue: initialValue ?? '',
             style: style ?? Get.textTheme.bodyText2,
             obscureText: obscureText ?? false,
             textAlign: textAlign ?? TextAlign.start,
