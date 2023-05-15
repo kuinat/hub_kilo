@@ -92,13 +92,13 @@ class ForgotPasswordView extends GetView<AuthController> {
                       TextFieldWidget(
                         labelText: "Email Address".tr,
                         hintText: "johndoe@gmail.com".tr,
-                        initialValue: controller.currentUser?.value?.email,
+                        //kController: ,
                         onSaved: (input) => controller.currentUser.value.email = input,
                         validator: (input) => !GetUtils.isEmail(input) ? "Should be a valid email".tr : null,
                         iconData: Icons.alternate_email,
                       ),
                       BlockButtonWidget(
-                        onPressed: controller.sendResetLink,
+                        //onPressed: controller.sendResetLink,
                         color: Get.theme.colorScheme.secondary,
                         text: Text(
                           "Send Reset Link".tr,
@@ -108,24 +108,22 @@ class ForgotPasswordView extends GetView<AuthController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("You don't have an account?".tr),
                           TextButton(
                             onPressed: () {
                               Get.offAllNamed(Routes.REGISTER);
                             },
-                            child: Text("Register".tr),
+                            child: Text("You don't have an account?".tr),
                           ),
                         ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("You remember your password!".tr),
                           TextButton(
                             onPressed: () {
                               Get.offAllNamed(Routes.REGISTER);
                             },
-                            child: Text("Login".tr),
+                            child: Text("You remember my password!".tr),
                           ),
                         ],
                       ),

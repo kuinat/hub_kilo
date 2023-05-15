@@ -221,7 +221,7 @@ class EServiceView extends GetView<EServiceController> {
                             ],
                           ),
                           actions: [
-                            // TODO view all reviews
+
                           ],
                         ),
                       ],
@@ -571,7 +571,7 @@ class EServiceView extends GetView<EServiceController> {
                     height: 24,
                     alignment: Alignment.center,
                     child: Text(
-                      "Book This Traveller".tr,
+                      "Book This Service".tr,
                       textAlign: TextAlign.center,
                       style: Get.textTheme.headline6.merge(
                         TextStyle(color: Get.theme.primaryColor),

@@ -19,6 +19,7 @@ class HomeController extends GetxController {
   final addresses = <Address>[].obs;
   final slider = <Slide>[].obs;
   final currentSlide = 0.obs;
+  //final buttonPressed = false.obs;
 
   final eServices = <EService>[].obs;
   final categories = <Category>[].obs;

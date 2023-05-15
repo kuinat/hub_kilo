@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../common/ui.dart';
 import '../../../models/my_user_model.dart';
@@ -12,7 +14,6 @@ import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/firebase_messaging_service.dart';
 import '../../../services/my_auth_service.dart';
-import '../../../services/settings_service.dart';
 import '../../root/controllers/root_controller.dart';
 
 class AuthController extends GetxController {
@@ -29,6 +30,7 @@ class AuthController extends GetxController {
   var birthDate = DateTime.now().obs;
   var confirmPassword = ''.obs;
   var password = ''.obs;
+  final buttonPressed = false.obs;
   UserRepository _userRepository;
 
   AuthController() {
@@ -44,6 +46,7 @@ class AuthController extends GetxController {
      // try {
         //await Get.find<FireBaseMessagingService>().setDeviceToken();
         currentUser.value = await _userRepository.login(currentUser.value);
+
         //await _userRepository.signInWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully successfully ".tr ));
         Timer(Duration(seconds: 1), () async {
@@ -56,7 +59,16 @@ class AuthController extends GetxController {
       // }
     }
     //await Get.find<RootController>().changePage(0);
-  }
+
+      //  // await _userRepository.signInWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
+      //   await Get.find<RootController>().changePage(0);
+      // } catch (e) {
+      //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      // } finally {
+      //   loading.value = false;
+      // }
+    }
+
 
   void register() async {
     Get.focusScope.unfocus();
@@ -94,6 +106,7 @@ class AuthController extends GetxController {
       // }
     }
     //await Get.find<RootController>().changePage(0);
+
   }
 
   // Future<void> verifyPhone() async {
@@ -102,7 +115,7 @@ class AuthController extends GetxController {
   //     await _userRepository.verifyPhone(smsSent.value);
   //     await Get.find<FireBaseMessagingService>().setDeviceToken();
   //     currentUser.value = await _userRepository.register(currentUser.value);
-  //     //await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
+  //     await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
   //     await Get.find<RootController>().changePage(0);
   //   } catch (e) {
   //     Get.back();
@@ -111,30 +124,31 @@ class AuthController extends GetxController {
   //     loading.value = false;
   //   }
   // }
-
+  //
   // Future<void> resendOTPCode() async {
   //   await _userRepository.sendCodeToPhone();
   // }
+  //
+  // void sendResetLink() async {
+  //   Get.focusScope.unfocus();
+  //   if (forgotPasswordFormKey.currentState.validate()) {
+  //     forgotPasswordFormKey.currentState.save();
+  //     loading.value = true;
+  //     try {
+  //       await _userRepository.sendResetLinkEmail(currentUser.value);
+  //       loading.value = false;
+  //       Get.showSnackbar(Ui.SuccessSnackBar(message: "The Password reset link has been sent to your email: ".tr + currentUser.value.email));
+  //       Timer(Duration(seconds: 5), () {
+  //         Get.offAndToNamed(Routes.LOGIN);
+  //       });
+  //     } catch (e) {
+  //       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+  //     } finally {
+  //       loading.value = false;
+  //     }
+  //   }
+  // }
 
-  void sendResetLink() async {
-    Get.focusScope.unfocus();
-    if (forgotPasswordFormKey.currentState.validate()) {
-      forgotPasswordFormKey.currentState.save();
-      loading.value = true;
-      try {
-        //await _userRepository.sendResetLinkEmail(currentUser.value);
-        loading.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "The Password reset link has been sent to your email: ".tr + currentUser.value.email));
-        Timer(Duration(seconds: 5), () {
-          Get.offAndToNamed(Routes.LOGIN);
-        });
-      } catch (e) {
-        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      } finally {
-        loading.value = false;
-      }
-    }
-  }
   chooseBirthDate() async {
     DateTime pickedDate = await showRoundedDatePicker(
 

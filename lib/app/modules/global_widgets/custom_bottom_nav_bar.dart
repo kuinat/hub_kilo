@@ -56,7 +56,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                 children: <Widget>[
                   Icon(
                     icon,
-                    size: 24,
+                    size: 20,
                     color: widget.currentIndex == index ? color : color.withOpacity(0.5),
                   ),
                   widget.currentIndex == index

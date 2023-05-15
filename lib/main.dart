@@ -6,10 +6,12 @@ import 'package:get_storage/get_storage.dart';
 
 import 'app/providers/firebase_provider.dart';
 import 'app/providers/laravel_provider.dart';
+import 'app/providers/odoo_provider.dart';
 import 'app/routes/theme1_app_pages.dart';
 import 'app/services/auth_service.dart';
 import 'app/services/firebase_messaging_service.dart';
 import 'app/services/global_service.dart';
+import 'app/services/my_auth_service.dart';
 import 'app/services/settings_service.dart';
 import 'app/services/translation_service.dart';
 
@@ -19,7 +21,9 @@ void initServices() async {
   await Get.putAsync(() => GlobalService().init());
   await Firebase.initializeApp();
   await Get.putAsync(() => AuthService().init());
+  await Get.putAsync(() => MyAuthService().init());
   await Get.putAsync(() => LaravelApiClient().init());
+  await Get.putAsync(() => OdooApiClient().init());
   await Get.putAsync(() => FirebaseProvider().init());
   await Get.putAsync(() => SettingsService().init());
   await Get.putAsync(() => TranslationService().init());
@@ -27,7 +31,9 @@ void initServices() async {
 }
 
 class Domain{
-  static var serverPort = "http://192.168.16.121:9000";
+
+  static var serverPort = "http://192.168.16.115:8069";
+
   static var apiKey = "NMMAG3K4IVS0L6VYEPXLJ1Z0RR77AR67";
   static var AppName = "Hub Kilo";
   static Map<String, String> getTokenHeaders() {
@@ -47,7 +53,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: Get.find<SettingsService>().setting.value.appName,
+      title: Domain.AppName,
       initialRoute: Theme1AppPages.INITIAL,
       onReady: () async {
         await Get.putAsync(() => FireBaseMessagingService().init());

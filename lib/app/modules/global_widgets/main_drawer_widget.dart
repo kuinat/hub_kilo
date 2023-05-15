@@ -151,7 +151,7 @@ class MainDrawerWidget extends StatelessWidget {
             icon: Icons.airplanemode_active_sharp,
             text: "Available Travels",
             onTap: (e) {
-              //Get.offAndToNamed(Routes.CATEGORIES);
+              Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
             },
           ),
           DrawerLinkWidget(
@@ -169,19 +169,18 @@ class MainDrawerWidget extends StatelessWidget {
               Get.offAndToNamed(Routes.NOTIFICATIONS);
             },
           ),
-          DrawerLinkWidget(
+          /*DrawerLinkWidget(
             icon: Icons.favorite_outline,
             text: "Favorites",
             onTap: (e) async {
               await Get.offAndToNamed(Routes.FAVORITES);
             },
-          ),
+          ),*/
           DrawerLinkWidget(
             icon: Icons.chat_outlined,
             text: "Messages",
             onTap: (e) async {
-              Get.back();
-              await Get.find<RootController>().changePage(2);
+              //await Get.find<RootController>().changePage(2);
             },
           ),
           DrawerLinkWidget(
@@ -202,13 +201,13 @@ class MainDrawerWidget extends StatelessWidget {
               color: Get.theme.focusColor.withOpacity(0.3),
             ),
           ),
-          DrawerLinkWidget(
+          /*DrawerLinkWidget(
             icon: Icons.account_balance_wallet_outlined,
             text: "Wallets",
             onTap: (e) async {
               await Get.offAndToNamed(Routes.WALLETS);
             },
-          ),
+          ),*/
           DrawerLinkWidget(
             icon: Icons.person_outline,
             text: "Account",
@@ -224,7 +223,7 @@ class MainDrawerWidget extends StatelessWidget {
               await Get.offAndToNamed(Routes.SETTINGS);
             },
           ),
-          DrawerLinkWidget(
+          /*DrawerLinkWidget(
             icon: Icons.translate_outlined,
             text: "Languages",
             onTap: (e) async {
@@ -237,7 +236,7 @@ class MainDrawerWidget extends StatelessWidget {
             onTap: (e) async {
               await Get.offAndToNamed(Routes.SETTINGS_THEME_MODE);
             },
-          ),
+          ),*/
           ListTile(
             dense: true,
             title: Text(

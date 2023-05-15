@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -11,15 +12,11 @@ import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterView extends GetView<AuthController> {
   final Setting _settings = Get.find<SettingsService>().setting.value;
-  String dropdownvalueGender = 'Select your gender'.tr;
-  String dropdownvaluePiece = 'Select an identity piece'.tr;
 
-  var selectedPiece = "Select an identity piece".obs;
   var selectedGender = "Select your gender".obs;
 
 
@@ -37,9 +34,6 @@ class RegisterView extends GetView<AuthController> {
   var birthDay= DateTime.now().obs ;
 
 
-
- 
-  
   @override
   Widget build(BuildContext context) {
     controller.registerFormKey = new GlobalKey<FormState>();
@@ -84,7 +78,7 @@ class RegisterView extends GetView<AuthController> {
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Text(
-                        "Welcome to the best Packages transport service!".tr,
+                        "Welcome to the best service provider system!".tr,
                         style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor)),
                         textAlign: TextAlign.center,
                       ),
@@ -246,12 +240,6 @@ class RegisterView extends GetView<AuthController> {
                           hintText: "••••••••••••".tr,
                           initialValue: controller.currentUser?.value?.password,
                           onSaved: (input) => controller.currentUser?.value?.password = input,
-                          validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                          obscureText: controller.hidePassword.value,
-                          iconData: Icons.lock_outline,
-                          keyboardType: TextInputType.visiblePassword,
-                          isLast: true,
-                          isFirst: false,
                           suffixIcon: IconButton(
                             onPressed: () {
                               controller.hidePassword.value = !controller.hidePassword.value;
@@ -320,29 +308,22 @@ class RegisterView extends GetView<AuthController> {
                           controller.register();
                         }
 
+                      controller.buttonPressed.value = !controller.buttonPressed.value;
                     },
                     color: Get.theme.colorScheme.secondary,
-                    text: Text(
+                    text: !controller.buttonPressed.value ? Text(
                       "Register".tr,
                       style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                    ),
+                    ) : SizedBox(height: 20,
+                        child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                   ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
                 ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("You already have an account?".tr),
-                    TextButton(
-                      onPressed: () {
-                        Get.toNamed(Routes.LOGIN);
-                      },
-                      child: Text("Login".tr),
-                    ),
-
-                ],).paddingOnly(bottom: 10)
-
-
+                TextButton(
+                  onPressed: () {
+                    Get.toNamed(Routes.LOGIN);
+                  },
+                  child: Text("You already have an account?".tr),
+                ).paddingOnly(bottom: 10),
               ],
             ),
           ],

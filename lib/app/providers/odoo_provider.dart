@@ -151,7 +151,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=9be9286f1720d6390c475a2354396e32bfdaa98d'
     };
-    var request = http.Request('GET', Uri.parse('http://192.168.0.100:8069/web/session/authenticate'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/web/session/authenticate'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "method": "call",
@@ -221,7 +221,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=876df4f26c8f83c635dd22902544d31f0eff091c'
     };
-    var request = http.Request('POST', Uri.parse('http://192.168.0.100:8069/create/new/partner'));
+    var request = http.Request('POST', Uri.parse(Domain.serverPort+'/create/new/partner'));
     request.body = json.encode(
         {
           "jsonrpc": "2.0",

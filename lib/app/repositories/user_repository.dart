@@ -10,10 +10,11 @@ import '../services/auth_service.dart';
 
 class UserRepository {
   LaravelApiClient _laravelApiClient;
-  OdooApiClient _odooApiClient;
   FirebaseProvider _firebaseProvider;
+  OdooApiClient _odooApiClient;
 
   UserRepository() {}
+
 
   Future<MyUser> login(MyUser myUser) {
     _odooApiClient = Get.find<OdooApiClient>();
@@ -30,40 +31,36 @@ class UserRepository {
   //   return _laravelApiClient.getUser(user);
   // }
 
-  // Future<MyUser> update(MyUser user) {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   return _laravelApiClient.updateUser(user);
-  // }
-  //
-  // Future<bool> sendResetLinkEmail(MyUser user) {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   return _laravelApiClient.sendResetLinkEmail(user);
-  // }
-  //
-  // Future<MyUser> getCurrentUser() {
-  //   return this.get(Get.find<AuthService>().user.value);
-  // }
+  Future<User> get(User user) {
+    _laravelApiClient = Get.find<LaravelApiClient>();
+    return _laravelApiClient.getUser(user);
+  }
 
-  // Future<void> deleteCurrentUser() async {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   _firebaseProvider = Get.find<FirebaseProvider>();
-  //   await _laravelApiClient.deleteUser(Get.find<AuthService>().user.value);
-  //   await _firebaseProvider.deleteCurrentUser();
-  //   Get.find<AuthService>().user.value = new MyUser();
-  //   GetStorage().remove('current_user');
-  // }
+  Future<User> update(User user) {
+    _laravelApiClient = Get.find<LaravelApiClient>();
+    return _laravelApiClient.updateUser(user);
+  }
 
-  // Future<User> register(User user) {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   return _laravelApiClient.register(user);
-  //
-  // }
+  Future<bool> sendResetLinkEmail(User user) {
+    _laravelApiClient = Get.find<LaravelApiClient>();
+    return _laravelApiClient.sendResetLinkEmail(user);
+  }
+
+  Future<User> getCurrentUser() {
+    return this.get(Get.find<AuthService>().user.value);
+  }
+
+  Future<void> deleteCurrentUser() async {
+    _laravelApiClient = Get.find<LaravelApiClient>();
+    _firebaseProvider = Get.find<FirebaseProvider>();
+    await _laravelApiClient.deleteUser(Get.find<AuthService>().user.value);
+    await _firebaseProvider.deleteCurrentUser();
+    Get.find<AuthService>().user.value = new User();
+    GetStorage().remove('current_user');
+  }
 
   Future<MyUser> register(MyUser myUser) {
-    // _laravelApiClient = Get.find<LaravelApiClient>();
-    // return _laravelApiClient.register(user);
     _odooApiClient = Get.find<OdooApiClient>();
-
     return _odooApiClient.register(myUser);
   }
 

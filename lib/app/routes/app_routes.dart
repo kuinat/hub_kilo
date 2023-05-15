@@ -16,6 +16,9 @@ class Routes {
   static const SETTINGS_ADDRESS_PICKER = '/settings/address_picker';
 
   static const PROFILE = '/profile';
+  static const ADD_TRAVEL_FORM = '/add_travel_form';
+  static const AVAILABLE_TRAVELS = '/available_travels';
+  static const TRAVEL_INSPECT = "/travel_inspect";
   static const CATEGORY = '/category';
   static const VALIDATE_TRANSACTION = '/validate_transaction';
   static const CATEGORIES = '/categories';
