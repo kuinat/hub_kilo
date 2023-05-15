@@ -214,7 +214,7 @@ class AccountView extends GetView<AccountController> {
                     icon: Icon(Icons.logout, color: Get.theme.colorScheme.secondary),
                     text: Text("Logout".tr),
                     onTap: (e) async {
-                      await Get.find<AuthService>().removeCurrentUser();
+                      await Get.find<MyAuthService>().removeCurrentUser();
                       Get.find<RootController>().changePage(0);
                     },
                   ),

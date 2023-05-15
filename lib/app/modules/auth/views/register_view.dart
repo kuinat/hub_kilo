@@ -320,7 +320,7 @@ class RegisterView extends GetView<AuthController> {
 
                     },
                     color: Get.theme.colorScheme.secondary,
-                    text: !controller.loading.isTrue?Text(
+                    text: !controller.loading.value?Text(
                       "Register".tr,
                       style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                     ): SizedBox(height: 20,
