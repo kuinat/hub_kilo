@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -108,10 +109,7 @@ class RegisterView extends GetView<AuthController> {
                 ],
               ),
               Obx(() {
-                if (controller.loading.isTrue) {
-                  return CircularLoadingWidget(height: 300);
-                } else {
-                  return Column(
+                 return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFieldWidget(
@@ -296,7 +294,7 @@ class RegisterView extends GetView<AuthController> {
                     ],
                   );
                 }
-              })
+              )
             ],
           ),
         ),
@@ -322,10 +320,11 @@ class RegisterView extends GetView<AuthController> {
 
                     },
                     color: Get.theme.colorScheme.secondary,
-                    text: Text(
+                    text: !controller.loading.isTrue?Text(
                       "Register".tr,
                       style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                    ),
+                    ): SizedBox(height: 20,
+                        child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                   ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
                 ),
 

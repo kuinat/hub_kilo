@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/helper.dart';
@@ -80,10 +81,7 @@ class LoginView extends GetView<AuthController> {
                 ],
               ),
               Obx(() {
-                if (controller.loading.isTrue)
-                  return CircularLoadingWidget(height: 300);
-                else {
-                  return Column(
+               return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFieldWidget(
@@ -129,10 +127,11 @@ class LoginView extends GetView<AuthController> {
                           controller.login();
                         },
                         color: Get.theme.colorScheme.secondary,
-                        text: Text(
+                        text: !controller.loading.isTrue? Text(
                           "Login".tr,
                           style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                        ),
+                        ): SizedBox(height: 20,
+                            child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                       ).paddingSymmetric(vertical: 10, horizontal: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -149,7 +148,7 @@ class LoginView extends GetView<AuthController> {
                     ],
                   );
                 }
-              }),
+              ),
             ],
           ),
         ),

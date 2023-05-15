@@ -41,19 +41,9 @@ class AuthController extends GetxController {
     if (loginFormKey.currentState.validate()) {
       loginFormKey.currentState.save();
       loading.value = true;
-     // try {
-        //await Get.find<FireBaseMessagingService>().setDeviceToken();
-        currentUser.value = await _userRepository.login(currentUser.value);
-        //await _userRepository.signInWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully successfully ".tr ));
-        Timer(Duration(seconds: 1), () async {
-          await Get.find<RootController>().changePage(0);
-        });
-      // } catch (e) {
-      //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      // } finally {
-      //   loading.value = false;
-      // }
+      currentUser.value = await _userRepository.login(currentUser.value);
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
+      await Get.toNamed(Routes.ROOT);
     }
     //await Get.find<RootController>().changePage(0);
   }
@@ -63,58 +53,18 @@ class AuthController extends GetxController {
     if (registerFormKey.currentState.validate()) {
       registerFormKey.currentState.save();
       loading.value = true;
-      //try {
 
-        currentUser.value = await _userRepository.register(currentUser.value);
+      currentUser.value = await _userRepository.register(currentUser.value);
 
-        loading.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
-        Timer(Duration(seconds: 1), () async {
-          await Get.find<RootController>().changePage(0);
-        });
+      loading.value = false;
 
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
+      await Get.toNamed(Routes.ROOT);
 
-
-        //await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
-
-        // if (Get.find<SettingsService>().setting.value.enableOtp) {
-        //   await _userRepository.sendCodeToPhone();
-        //   loading.value = false;
-        //   await Get.toNamed(Routes.PHONE_VERIFICATION);
-        // } else {
-        //   await Get.find<FireBaseMessagingService>().setDeviceToken();
-        //   currentUser.value = await _userRepository.register(currentUser.value);
-        //   await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
-        //   await Get.find<RootController>().changePage(0);
-        // }
-      // } catch (e) {
-      //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      // } finally {
-      //   loading.value = false;
-      // }
     }
-    //await Get.find<RootController>().changePage(0);
   }
 
-  // Future<void> verifyPhone() async {
-  //   try {
-  //     loading.value = true;
-  //     await _userRepository.verifyPhone(smsSent.value);
-  //     await Get.find<FireBaseMessagingService>().setDeviceToken();
-  //     currentUser.value = await _userRepository.register(currentUser.value);
-  //     //await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
-  //     await Get.find<RootController>().changePage(0);
-  //   } catch (e) {
-  //     Get.back();
-  //     Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-  //   } finally {
-  //     loading.value = false;
-  //   }
-  // }
 
-  // Future<void> resendOTPCode() async {
-  //   await _userRepository.sendCodeToPhone();
-  // }
 
   void sendResetLink() async {
     Get.focusScope.unfocus();
