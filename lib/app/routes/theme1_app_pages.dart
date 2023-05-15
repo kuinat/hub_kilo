@@ -63,7 +63,7 @@ class Theme1AppPages {
     GetPage(name: Routes.CATEGORIES, page: () => CategoriesView(), binding: CategoryBinding()),
     GetPage(name: Routes.VALIDATE_TRANSACTION, page: () => ValidationView(), binding: ValidationBinding()),
     GetPage(name: Routes.LOGIN, page: () => LoginView(), binding: AuthBinding(), transition: Transition.zoom),
-    GetPage(name: Routes.REGISTER, page: () => RegisterView(), binding: AuthBinding()),
+    GetPage(name: Routes.REGISTER, page: () => RegisterView(), binding: AuthBinding(), transition: Transition.zoom),
     GetPage(name: Routes.FORGOT_PASSWORD, page: () => ForgotPasswordView(), binding: AuthBinding()),
     GetPage(name: Routes.PHONE_VERIFICATION, page: () => PhoneVerificationView(), binding: AuthBinding()),
     GetPage(name: Routes.E_SERVICE, page: () => EServiceView(), binding: EServiceBinding(), transition: Transition.downToUp),

@@ -5,6 +5,7 @@ import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/my_auth_service.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/account_controller.dart';
@@ -13,7 +14,7 @@ import '../widgets/account_link_widget.dart';
 class AccountView extends GetView<AccountController> {
   @override
   Widget build(BuildContext context) {
-    //var _currentUser = Get.find<AuthService>().user;
+    var _currentUser = Get.find<MyAuthService>().myUser;
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -59,11 +60,11 @@ class AccountView extends GetView<AccountController> {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Text("Fikish Swagger",
+                        Text( _currentUser.value.name ?? '',
                           style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                         ),
                         SizedBox(height: 10),
-                        Text('elfikish@gmail.com', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+                        Text(_currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
                       ],
                     ),
                   ),

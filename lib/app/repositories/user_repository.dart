@@ -15,6 +15,11 @@ class UserRepository {
 
   UserRepository() {}
 
+  Future<MyUser> login(MyUser myUser) {
+    _odooApiClient = Get.find<OdooApiClient>();
+    return _odooApiClient.login(myUser);
+  }
+
   // Future<MyUser> login(MyUser user) {
   //   _laravelApiClient = Get.find<LaravelApiClient>();
   //   return _laravelApiClient.login(user);

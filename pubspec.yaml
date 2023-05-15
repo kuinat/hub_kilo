@@ -21,6 +21,10 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  #Date Picker
+  flutter_rounded_date_picker: ^3.0.2
+  flutter_localization: ^0.1.10
+  intl: ^0.17.0
   #qr Code
   qr_flutter: ^4.0.0
   barcode_scan2: ^4.2.1

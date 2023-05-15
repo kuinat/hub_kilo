@@ -7,6 +7,7 @@ import 'package:intl_phone_field/phone_number.dart';
 import '../services/settings_service.dart';
 
 class MyUser {
+  int id;
   String name;
   String email;
   String password;
@@ -14,10 +15,11 @@ class MyUser {
   String birthday;
   String birthplace;
   String sex;
-  bool isTraveller = false;
-  String typeOfPiece ='';
+  bool isTraveller ;
+
 
   MyUser({
+    this.id,
     this.name,
      this.email,
     this.password,
@@ -26,10 +28,11 @@ class MyUser {
     this.birthplace,
      this.sex,
      this.isTraveller,
-     this.typeOfPiece,
+
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) => MyUser(
+    id: json["partner_id"],
     name: json["name"] ,
     email: json["email"],
     password: json["password"],
@@ -38,7 +41,6 @@ class MyUser {
     birthplace: json["birthplace"],
     sex: json["sex"],
     isTraveller: json["is_traveller"],
-    typeOfPiece: json["type_of_piece"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -50,7 +52,7 @@ class MyUser {
     "birthplace": birthplace,
     "sex": sex,
     "is_traveller": isTraveller,
-    "type_of_piece": typeOfPiece,
+
   };
 
   PhoneNumber getPhoneNumber() {

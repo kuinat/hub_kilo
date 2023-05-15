@@ -9,7 +9,6 @@ import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginView extends GetView<AuthController> {
@@ -91,7 +90,7 @@ class LoginView extends GetView<AuthController> {
                         labelText: "Email Address".tr,
                         hintText: "johndoe@gmail.com".tr,
                         initialValue: controller.currentUser?.value?.email,
-                        onSaved: (input) => controller.currentUser.value.email = input,
+                        onSaved: (input) => controller.currentUser?.value?.email = input,
                         validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
                         iconData: Icons.alternate_email,
                       ),
@@ -100,7 +99,7 @@ class LoginView extends GetView<AuthController> {
                           labelText: "Password".tr,
                           hintText: "••••••••••••".tr,
                           initialValue: controller.currentUser?.value?.password,
-                          onSaved: (input) => controller.currentUser.value.password = input,
+                          onSaved: (input) => controller.currentUser?.value?.password = input,
                           validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
                           obscureText: controller.hidePassword.value,
                           iconData: Icons.lock_outline,

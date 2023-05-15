@@ -132,8 +132,10 @@ class OdooApiClient extends GetxService with ApiClient {
         isTraveller: data['is_traveller'],
         phone: data['phone'],
         sex: data['sex'],
-        typeOfPiece: data['type_of_piece'],
         name: data['name'],
+        birthplace: data['birthplace'],
+        id: data['partner_id']
+
       );
 
       return (user);
@@ -142,57 +144,125 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<MyUser> login(MyUser user) async {
-    Uri _uri = getApiBaseUri("login");
-    Get.log(_uri.toString());
-    var response = await _httpClient.postUri(
-      _uri,
-      data: json.encode(user.toJson()),
-      options: _optionsNetwork,
-    );
-    if (response.data['success'] == true) {
-      response.data['data']['auth'] = true;
-      return MyUser.fromJson(response.data['data']);
-    } else {
-      throw new Exception(response.data['message']);
-    }
-  }
+  Future<MyUser> login(MyUser myUser) async {
 
-  Future<MyUser> register(MyUser myUser) async {
+    print('email'+myUser.email);
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=28d721fe698e2ce4a8192e80a4acc13a58f3d34c'
+      'Cookie': 'session_id=9be9286f1720d6390c475a2354396e32bfdaa98d'
     };
-    var request = http.Request('POST', Uri.parse(Domain.serverPort+'/create/new/partner'));
-    print(myUser.name);
+    var request = http.Request('GET', Uri.parse('http://192.168.0.100:8069/web/session/authenticate'));
     request.body = json.encode({
       "jsonrpc": "2.0",
+      "method": "call",
       "params": {
-        "name": myUser.name,
-        "email": myUser.email,
-        "phone": myUser.phone,
-        "birthday": myUser.birthday,
-        "sex": myUser.sex,
-        "is_traveler": myUser.isTraveller,
-        "type_of_piece": myUser.typeOfPiece
+        "db": "odoo15",
+        "login": myUser.email,
+        "password": myUser.password
       }
     });
+
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
-    //print('response.statusCode'+response.statusCode.toString());
-
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      return myUser;
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result)['result'];
+      var user = MyUser(
+          email: myUser.email,
+          name: data['name'],
+          id: data['partner_id']
+
+      );
+
+      return (user);
     }
     else {
-      final error = await response.stream.bytesToString();
-      var errorMessage = json.decode(error)["error"];
-      throw new Exception(errorMessage);
+      print(response.reasonPhrase);
     }
 
+
+    // Uri _uri = getApiBaseUri("login");
+    // Get.log(_uri.toString());
+    // var response = await _httpClient.postUri(
+    //   _uri,
+    //   data: json.encode(user.toJson()),
+    //   options: _optionsNetwork,
+    // );
+    // if (response.data['success'] == true) {
+    //   response.data['data']['auth'] = true;
+    //   return MyUser.fromJson(response.data['data']);
+    // } else {
+    //   throw new Exception(response.data['message']);
+    // }
+  }
+
+  // Future<MyUser> login(MyUser user) async {
+  //   Uri _uri = getApiBaseUri("login");
+  //   Get.log(_uri.toString());
+  //   var response = await _httpClient.postUri(
+  //     _uri,
+  //     data: json.encode(user.toJson()),
+  //     options: _optionsNetwork,
+  //   );
+  //   if (response.data['success'] == true) {
+  //     response.data['data']['auth'] = true;
+  //     return MyUser.fromJson(response.data['data']);
+  //   } else {
+  //     throw new Exception(response.data['message']);
+  //   }
+  // }
+
+  Future<MyUser> register(MyUser myUser) async {
+    //print('birthday : '+myUser.birthday);
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'session_id=876df4f26c8f83c635dd22902544d31f0eff091c'
+    };
+    var request = http.Request('POST', Uri.parse('http://192.168.0.100:8069/create/new/partner'));
+    request.body = json.encode(
+        {
+          "jsonrpc": "2.0",
+          "params": {
+            "name": myUser.name,
+            "email": myUser.email,
+            "phone": myUser.phone,
+            "birthday": myUser.birthday,
+            "birthplace": myUser.birthplace,
+            "sex": myUser.sex,
+            "is_traveler": false,
+            "password": myUser.password,
+
+          }
+        }
+    );
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result)['result']['data'];
+      print(data);
+      var user = MyUser(
+          email: myUser.email,
+          birthday: data['birthday'],
+          isTraveller: data['is_traveller'],
+          phone: data['phone'],
+          sex: data['sex'],
+          name: data['name'],
+          birthplace: data['birthplace'],
+          id: data['partner_id']
+
+      );
+
+      return (user);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
 
 
 
