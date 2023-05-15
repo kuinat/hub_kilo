@@ -2,11 +2,14 @@
 import 'package:cupertino_stepper/cupertino_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import '../../../../color_constants.dart';
 import '../../../models/media_model.dart';
 import '../../../routes/app_routes.dart';
+import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/image_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
@@ -43,7 +46,26 @@ class AddTravelsView extends GetView<AddTravelController> {
               background: Colors.red,
               secondary: validateColor,
             )
-          ), child: _buildStepper(StepperType.vertical)))
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints.tightFor(
+                height: MediaQuery.of(context).size.height
+            ),
+            child: _buildStepper(StepperType.horizontal)
+          )),
+          /*OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation){
+                switch (orientation) {
+                  case Orientation.portrait:
+                    return _buildStepper(StepperType.vertical);
+                  case Orientation.landscape:
+                    return _buildStepper(StepperType.horizontal);
+                  default:
+                    throw UnimplementedError(orientation.toString());
+                }
+              }
+          )*/
+      )
       /*Container(
           height: Get.height,
           decoration: BoxDecoration(
@@ -130,7 +152,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                           ListTile(
                               leading: Icon(Icons.calendar_today),
                               title: Text(DateFormat('dd/MM/yyyy').format(controller.departureDate.value).toString(),
-                                style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black)),
+                                style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
                               )
                           )
                       )
@@ -161,7 +183,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                           ListTile(
                               leading: Icon(Icons.calendar_today),
                               title: Text(DateFormat('dd/MM/yyyy').format(controller.arrivalDate.value).toString(),
-                                style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black)),
+                                style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
                               )
                           ))
                     ],
@@ -230,15 +252,23 @@ class AddTravelsView extends GetView<AddTravelController> {
               child: ExpansionTile(
                 title: Text("Travel Type".tr, style: Get.textTheme.bodyText2),
                 children: List.generate(controller.transportType.length, (index) {
-                  var _category = controller.transportType.elementAt(index);
+                  var type = controller.transportType.elementAt(index);
                   return CheckboxListTile(
                     controlAffinity: ListTileControlAffinity.trailing,
-                    value: false,
+                    value: controller.list.contains(type),
                     onChanged: (value) {
+                      if(controller.list.isEmpty){
+                        controller.list.add(type);
+                      }else{
+                        controller.list.clear();
+                        controller.list.add(type);
+                      }
+                      controller.travelType.value = type;
+                      print(controller.travelType.value);
                       //controller.toggleCategory(value, _category);
                     },
                     title: Text(
-                      _category,
+                      type,
                       style: Get.textTheme.bodyText1,
                       overflow: TextOverflow.fade,
                       softWrap: false,
@@ -280,7 +310,7 @@ class AddTravelsView extends GetView<AddTravelController> {
 
   Widget overView(BuildContext context){
     return Container(
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+      padding: EdgeInsets.all(5),
       margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
       decoration: BoxDecoration(
           color: Get.theme.primaryColor,
@@ -292,20 +322,57 @@ class AddTravelsView extends GetView<AddTravelController> {
       child: Column(
         children: [
           Text("Verify your informations".tr, style: Get.textTheme.headline6),
-          ListTile(
-            //leading: Icon(Icons.calendar_today),
-            title: Text('Departure Date: ${DateFormat('dd/MM/yyyy').format(controller.departureDate.value)}'),
-            subtitle: Text('Arrival Date: ${DateFormat('dd/MM/yyyy').format(controller.arrivalDate.value)}'),
+          AccountWidget(
+            icon: FontAwesomeIcons.calendarDay,
+            text: Text('Departure \nDate'),
+            value: DateFormat('dd/MM/yyyy').format(controller.departureDate.value).toString(),
           ),
-          ListTile(
-            //leading: Icon(Icons.location_pin, color: specialColor),
-            title: Text('Departure Town: ${controller.departureTown.value}'),
-            subtitle: Text('Arrival Town: ${controller.arrivalTown.value}'),
+          AccountWidget(
+            icon: FontAwesomeIcons.calendarDay,
+            text: Text('Arrival \nDate'),
+            value: DateFormat('dd/MM/yyyy').format(controller.arrivalDate.value).toString(),
           ),
-          ListTile(
-            //leading: Icon(Icons.calendar_today),
-            title: Text('Quantity: ${controller.quantity.value}'),
-            subtitle: Text('Price /kg: ${controller.price.value} EUR'),
+          AccountWidget(
+            icon: FontAwesomeIcons.locationDot,
+            text: Text('Departure \nTown'),
+            value: controller.departureTown.value,
+          ),
+          AccountWidget(
+            icon: FontAwesomeIcons.locationDot,
+            text: Text('Arrival \nTown'),
+            value: controller.arrivalTown.value,
+          ),
+          AccountWidget(
+            icon: FontAwesomeIcons.shoppingBasket,
+            text: Text('Quantity'),
+            value: controller.quantity.value.toString(),
+          ),
+          AccountWidget(
+            icon: FontAwesomeIcons.moneyCheck,
+            text: Text('Price /kg'),
+            value: '${controller.price.value} EUR'
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 30,
+                  child: Icon( FontAwesomeIcons.plane, color: interfaceColor, size: 18),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 12),
+                  width: 1,
+                  height: 24,
+                  color: Get.theme.focusColor.withOpacity(0.3),
+                ),
+                Expanded(
+                  child: Text("Travel type"),
+                ),
+                controller.travelType.value == 'Air' ? FaIcon(FontAwesomeIcons.planeDeparture) :
+                controller.travelType.value == 'Sea' ? FaIcon(FontAwesomeIcons.ship) : FaIcon(FontAwesomeIcons.bus),
+              ],
+            ),
           ),
           Spacer(),
           Row(
@@ -341,15 +408,15 @@ class AddTravelsView extends GetView<AddTravelController> {
       steps: [
         for (var i = 0; i < 3; ++i)
           _buildStep(
-            title: Text('Step ${i + 1}'),
+            title: Text(''),
             isActive: i == controller.formStep.value,
             state: i == controller.formStep.value
                 ? StepState.editing
                 : i < controller.formStep.value ? StepState.complete : StepState.indexed,
           ),
         _buildStep(
-          title: Text('Completed'.tr),
-          state: StepState.complete,
+          title: Icon(FontAwesomeIcons.thumbsUp),
+          state: StepState.editing,
         )
       ],
     );
@@ -362,13 +429,12 @@ class AddTravelsView extends GetView<AddTravelController> {
   }) {
     return Step(
       title: title,
-      subtitle: Text('Date / place'),
+      //subtitle: Text('Date / place'),
       state: state,
       isActive: isActive,
       content: LimitedBox(
         maxWidth: Get.width - 20,
-        maxHeight: controller.formStep.value == 0 ? 450
-            : controller.formStep.value == 1 ? 450 : controller.formStep.value == 2 ? 250 : 400,
+        maxHeight: controller.formStep.value != 3 ? 450 : 600,
 
         child: controller.formStep.value == 0 ? stepOne(Get.context)
         : controller.formStep.value == 1 ? stepTwo(Get.context)

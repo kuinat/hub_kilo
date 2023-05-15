@@ -39,48 +39,50 @@ class ValidationView extends GetView<ValidationController> {
           height: MediaQuery.of(context).size.height,
           padding: EdgeInsets.only(top: 10, bottom: 50),
           decoration: Ui.getBoxDecoration(color: backgroundColor),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                      onTap: ()=>{
-                        controller.currentState.value = 0
-                      },
-                      child: Obx(()=> Card(
-                          color: controller.currentState.value == 0 ? interfaceColor : inactive,
-                          elevation: controller.currentState.value == 0 ? 10 : null,
-                          shadowColor:  inactive,
-                          child: Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Text('Validate Delivery'.tr, style: TextStyle(color: Get.theme.primaryColor))
-                          )
-                      ))
-                  ),
-                  SizedBox(width: 10),
-                  GestureDetector(
-                      onTap: ()=>{
-                        controller.currentState.value = 1
-                      },
-                      child: Obx(() => Card(
-                          color: controller.currentState.value == 1 ? interfaceColor : inactive,
-                          elevation: controller.currentState.value == 1 ? 10 : null,
-                          shadowColor: inactive,
-                          child: Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Text('Delivery Code'.tr, style: TextStyle(color: Get.theme.primaryColor))
-                          )
-                      )
-                      )
-                  )
-                ],
-              ),
-              SizedBox(height: 20),
-              Obx(() => controller.currentState.value == 0 ? confirmDelivery(context) :
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                        onTap: ()=>{
+                          controller.currentState.value = 0
+                        },
+                        child: Obx(()=> Card(
+                            color: controller.currentState.value == 0 ? interfaceColor : inactive,
+                            elevation: controller.currentState.value == 0 ? 10 : null,
+                            shadowColor:  inactive,
+                            child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Text('Validate Delivery'.tr, style: TextStyle(color: Get.theme.primaryColor))
+                            )
+                        ))
+                    ),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                        onTap: ()=>{
+                          controller.currentState.value = 1
+                        },
+                        child: Obx(() => Card(
+                            color: controller.currentState.value == 1 ? interfaceColor : inactive,
+                            elevation: controller.currentState.value == 1 ? 10 : null,
+                            shadowColor: inactive,
+                            child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Text('Delivery Code'.tr, style: TextStyle(color: Get.theme.primaryColor))
+                            )
+                        )
+                        )
+                    )
+                  ],
+                ),
+                SizedBox(height: 20),
+                Obx(() => controller.currentState.value == 0 ? confirmDelivery(context) :
                 myDeliveryCode(context)
-              )
-            ],
+                )
+              ],
+            )
           ),
         )
     );

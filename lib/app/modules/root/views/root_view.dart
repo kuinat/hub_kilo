@@ -26,11 +26,11 @@ class RootView extends GetView<RootController> {
               label: "Home".tr,
             ),
             CustomBottomNavigationItem(
-              icon: FontAwesomeIcons.bookOpen,
+              icon: FontAwesomeIcons.book,
               label: "Bookings".tr,
             ),
             CustomBottomNavigationItem(
-              icon: FontAwesomeIcons.planeDeparture,
+              icon: FontAwesomeIcons.planeCircleCheck,
               label: "My Travels".tr,
             ),
             CustomBottomNavigationItem(

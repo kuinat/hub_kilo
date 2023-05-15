@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../common/ui.dart';
 import '../../../models/user_model.dart';
@@ -28,6 +30,34 @@ class AuthController extends GetxController {
 
   void login() async {
     Get.focusScope.unfocus();
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; session_id=07fea672377d1e32d33c3684673d9f27b2d454b1'
+    };
+    var request = http.Request('GET', Uri.parse('http://192.168.16.118:8090/web/session/authenticate'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "db": "odoo15",
+        "login": "john@gmail.com",
+        "password": "john"
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final data = await response.stream.bytesToString();
+      print(data);
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Authentification success!"));
+      await Get.find<RootController>().changePage(0);
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
     /*if (loginFormKey.currentState.validate()) {
       loginFormKey.currentState.save();
       loading.value = true;
@@ -42,7 +72,6 @@ class AuthController extends GetxController {
         loading.value = false;
       }
     }*/
-    await Get.find<RootController>().changePage(0);
   }
 
   void register() async {

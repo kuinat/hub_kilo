@@ -25,11 +25,6 @@ class BookingsView extends GetView<BookingsController> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: new IconButton(
-          icon: new Icon(Icons.sort, color: Palette.background),
-          onPressed: () => {Scaffold.of(context).openDrawer()},
-        ),
-        actions: [NotificationsButtonWidget()],
       ),
       body: RefreshIndicator(
           onRefresh: () async {

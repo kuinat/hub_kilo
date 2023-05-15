@@ -22,6 +22,7 @@ class TextFieldWidget extends StatelessWidget {
     this.obscureText,
     this.suffixIcon,
     this.isFirst,
+    this.editable,
     this.isLast,
     this.style,
     this.textAlign,
@@ -39,6 +40,7 @@ class TextFieldWidget extends StatelessWidget {
   final TextAlign textAlign;
   final String labelText;
   final TextStyle style;
+  final bool editable;
   final IconData iconData;
   final String initialValue;
   final bool obscureText;
@@ -76,6 +78,7 @@ class TextFieldWidget extends StatelessWidget {
             onTap: onTap,
             onChanged: onChanged,
             validator: validator,
+            enabled: editable,
             style: style ?? Get.textTheme.bodyText2,
             obscureText: obscureText ?? false,
             textAlign: textAlign ?? TextAlign.start,

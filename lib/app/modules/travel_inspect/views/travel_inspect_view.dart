@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../color_constants.dart';
 import '../../../providers/laravel_provider.dart';
+import '../../../routes/app_routes.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../controllers/travel_inspect_controller.dart';
@@ -25,7 +25,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
           body: CircularLoadingWidget(height: Get.height),
         );
       } else {
-        var type = controller.travelCard['type'];
+        var type = controller.travelCard['travel_type'].toString();
         return Scaffold(
           bottomNavigationBar: buildBottomWidget(context),
           body: RefreshIndicator(
@@ -66,12 +66,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       Container(
                         padding: EdgeInsets.all(5),
                         alignment: Alignment.center,
-                        width: 100,
-                        child: Text(controller.travelCard['type'], style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
+                        width: 120,
+                        child: Text(controller.travelCard['travel_type'].toString(), style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
                         decoration: BoxDecoration(
-                            color: type != "air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
+                            color: type != "by_air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
                             border: Border.all(
-                              color: type != "air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
+                              color: type != "by_air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                       )
@@ -113,11 +113,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             children: [
                               ListTile(
                                 title: Text('Available Quantity (kg):', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                trailing: Text('12', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                trailing: Text(controller.travelCard['kilo_qty'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                               ),
                               ListTile(
                                 title: Text('Price /kg', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                trailing: Text('200', style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18))),
+                                trailing: Text(controller.travelCard['price_per_kilo'].toString(), style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18))),
                               ),
                               Divider(
                                 height: 26,
@@ -125,7 +125,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               ),
                               ListTile(
                                 title: Text('Article Accepted', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                                subtitle: Text('I don\'t transport drugs nor documents ', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
+                                subtitle: Text(controller.travelCard['type_of_luggage_accepted'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
                               ),
                             ],
                           )
@@ -134,8 +134,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
                           content: Column(
                             children: [
-                              Text(controller.travelCard['name'], style: Get.textTheme.headline1),
-                              Text(controller.travelCard['country'], style: Get.textTheme.headline2),
+                              Text(controller.travelCard['user']['user_name'], style: Get.textTheme.headline1),
+                              Text(controller.travelCard['user']['user_email'], style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18))),
                               Divider(height: 35, thickness: 1.3),
                               buildUserDetailsCard(context)
                             ],
@@ -174,7 +174,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 children: [
                   FaIcon(FontAwesomeIcons.planeDeparture),
                   SizedBox(height: 10),
-                  Text(DateFormat("dd/MM/yyyy").format(DateTime.now()).toString(),
+                  Text(controller.travelCard['departure_date'].toString(),
                       style: TextStyle(fontSize: 20, color: appColor)),
                 ],
               ),
@@ -183,7 +183,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 children: [
                   FaIcon(FontAwesomeIcons.planeArrival),
                   SizedBox(height: 10),
-                  Text(DateFormat("dd/MM/yyyy").format(DateTime.now().add(Duration(days: 1))).toString(),
+                  Text(controller.travelCard['arrival_date'].toString(),
                       style: TextStyle(fontSize: 20, color: appColor))
                 ],
               )
@@ -225,13 +225,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text("user name here",
+                    Text(controller.travelCard['user']['user_name'].toString(),
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       maxLines: 2,
                       style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.hintColor)),
                     ),
-                    Text("Some text here",
+                    Text(controller.travelCard['user']['user_email'].toString(),
                       overflow: TextOverflow.ellipsis,
                       style: Get.textTheme.caption,
                     ),
@@ -277,13 +277,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
               Container(
                 alignment: Alignment.topCenter,
                 width: width,
-                child: Text('Yaounde, Cameroun', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                child: Text(controller.travelCard['departure_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
               ),
               FaIcon(FontAwesomeIcons.arrowRight),
               Container(
                   alignment: Alignment.topCenter,
                   width: width,
-                  child: Text("Paris", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                  child: Text(controller.travelCard['arrival_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
               ),
             ],
           ),
@@ -304,7 +304,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
         ),
         child: Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
-          child: BlockButtonWidget(
+          child: 1  /*controller.travelCard['user']['id']*/ != 1 ?
+          BlockButtonWidget(
               text: Container(
                 height: 24,
                 alignment: Alignment.center,
@@ -322,13 +323,70 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   buildBookingSheet(context),
                   isScrollControlled: true,
                 );
-              }),
+              }) : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: specialColor,
+                ),
+                  onPressed: ()=>{
+                  showDialog(context: context,
+                      builder: (_)=>
+                  showDeleteWidget(context))
+                  },
+                  child: SizedBox(width: 100,height: 30,
+                      child: Center(child: Text('Delete')))
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: inactive,
+                  ),
+                  onPressed: ()=>{
+                    Get.toNamed(Routes.ADD_TRAVEL_FORM)
+                  },
+                  child: SizedBox(width: 100,height: 30,
+                      child: Center(child: Text('Edit')))
+              )
+            ],
+          )
         ),
       );
   }
 
-  Widget buildBookingSheet(BuildContext context){
+  Widget showDeleteWidget(BuildContext context){
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20.0))),
+      icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+      content: SizedBox(
+        height: MediaQuery.of(context).size.height/9,
+        child: Column(
+          children: [
+            Text('Do you really want to delete this post?', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+            Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(onPressed: ()=>{
+                  Navigator.pop(context)
+                },
+                    child: Text('Cancel', style: TextStyle(color: inactive))),
+                SizedBox(width: 10),
+                TextButton(onPressed: ()=>{
+                  Navigator.pop(context)
+                },
+                    child: Text('Delete', style: TextStyle(color: specialColor)))
+              ],
+            )
+          ]
+        )
+      ),
+      
+    );
+  }
 
+  Widget buildBookingSheet(BuildContext context){
     return Container(
       height: Get.height/1.8,
       decoration: BoxDecoration(

@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/ui.dart';
+import '../../../../main.dart';
 import '../../../models/media_model.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/phone_verification_bottom_sheet_widget.dart';
+import 'package:http/http.dart' as http;
 
 class AvailableTravelsController extends GetxController {
   //var user = new User().obs;
@@ -17,21 +21,11 @@ class AvailableTravelsController extends GetxController {
   final confirmPassword = "".obs;
   final smsSent = "".obs;
   final buttonPressed = false.obs;
-  var allTravels = [].obs;
-  Rx<List<Map<String, dynamic>>> items =
-  Rx<List<Map<String, dynamic>>>([]);
-  final allPlayers = [
-    {"name": "Rohit Sharma", "country": "India", "type": "air"},
-    {"name": "Virat Kohli ", "country": "India", "type": "land"},
-    {"name": "Glenn Maxwell", "country": "Australia", "type": "sea"},
-    {"name": "Aaron Finch", "country": "Australia", "type": "air"},
-    {"name": "Martin Guptill", "country": "New Zealand", "type": "air"},
-    {"name": "Trent Boult", "country": "New Zealand", "type": "air"},
-    {"name": "David Miller", "country": "South Africa", "type": "land"},
-    {"name": "Kagiso Rabada", "country": "South Africa", "type": "land"},
-    {"name": "Chris Gayle", "country": "West Indies", "type": "sea"},
-    {"name": "Jason Holder", "country": "West Indies", "type": "air"},
-  ].obs;
+  var allTravels = [];
+  var items = [].obs;
+  final isServer = false.obs;
+  /*Rx<List<Map<String, dynamic>>> items =
+  Rx<List<Map<String, dynamic>>>([]);*/
   GlobalKey<FormState> profileForm;
   UserRepository _userRepository;
 
@@ -41,9 +35,7 @@ class AvailableTravelsController extends GetxController {
 
   @override
   void onInit() {
-    //user.value = Get.find<AuthService>().user.value;
-    //avatar.value = new Media(thumb: user.value.avatar.thumb);
-    items.value = allPlayers;
+    initValues();
     super.onInit();
   }
 
@@ -53,6 +45,12 @@ class AvailableTravelsController extends GetxController {
     super.onReady();
   }
 
+  initValues()async{
+    allTravels = await getAllTravels();
+    items.value = allTravels;
+    print(items);
+  }
+
   Future refreshProfile({bool showMessage}) async {
     //await getUser();
     if (showMessage == true) {
@@ -60,9 +58,9 @@ class AvailableTravelsController extends GetxController {
     }
   }
 
-  void filterSearchResults(String query) {
+  /*void filterSearchResults(String query) {
     List dummySearchList = [];
-    dummySearchList = allPlayers;
+    dummySearchList = allTravels;
     if(query.isNotEmpty) {
       List dummyListData = [];
       dummyListData = dummySearchList.where((element) => element['name']
@@ -70,9 +68,9 @@ class AvailableTravelsController extends GetxController {
       items.value = dummyListData;
       return;
     } else {
-      items.value = allPlayers;
+      items.value = allTravels;
     }
-  }
+  }*/
 
   void saveProfileForm() async {
     Get.focusScope.unfocus();
@@ -118,7 +116,24 @@ class AvailableTravelsController extends GetxController {
     profileForm.currentState.reset();
   }
 
-  Future getUser() async {
+  Future getAllTravels() async {
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; session_id=8731877be51f7b3bdf564f2ebb623764d2f9fbcd'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/air/travels'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      isServer.value = !isServer.value;
+      final data = await response.stream.bytesToString();
+      return json.decode(data)['response'];
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
     try {
       //user.value = await _userRepository.getCurrentUser();
     } catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import '../../../../color_constants.dart';
+import 'package:intl/intl.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../controllers/profile_controller.dart';
@@ -21,19 +22,19 @@ class ProfileView extends GetView<ProfileController> {
         appBar: hideAppBar
             ? null
             : AppBar(
-                title: Text(
-                  "Profile".tr,
-                  style: context.textTheme.headline6,
-                ),
-                centerTitle: true,
-                backgroundColor: Colors.transparent,
-                automaticallyImplyLeading: false,
-                leading: new IconButton(
-                  icon: new Icon(Icons.arrow_back_ios, color: Get.theme.hintColor),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                elevation: 0,
-              ),
+          title: Text(
+            "Profile".tr,
+            style: context.textTheme.headline6,
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          leading: new IconButton(
+            icon: new Icon(Icons.arrow_back_ios, color: Get.theme.hintColor),
+            onPressed: () => Navigator.pop(context),
+          ),
+          elevation: 0,
+        ),
         bottomNavigationBar: Container(
           padding: EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
@@ -56,7 +57,7 @@ class ProfileView extends GetView<ProfileController> {
                   color: Get.theme.colorScheme.secondary,
                   child: !controller.buttonPressed.value ? Text("Save".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
                       : SizedBox(height: 10,
-                  child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                      child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                   elevation: 0,
                   highlightElevation: 0,
                   hoverElevation: 0,
@@ -100,92 +101,78 @@ class ProfileView extends GetView<ProfileController> {
                     height: 100,
                     margin: EdgeInsets.only(right: 10),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage("https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80"),
-                        fit: BoxFit.cover
-                      )
-                    ),
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: NetworkImage("https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80"),
+                            fit: BoxFit.cover
+                        )
+                    )
                   )
                 ],
               ),
-              Card(
-                elevation: 5,
-                margin: EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
-                shadowColor: inactive,
-                child: ExpansionTile(
-                  title: Text("View Statistics".tr, style: Get.textTheme.bodyText2),
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: Icon(Icons.airplanemode_active),
-                            title: Text('Travels'.tr, style: Get.textTheme.headline5),
-                            trailing: Text("3", style: Get.textTheme.headline6),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.assignment_outlined),
-                            title: Text('Bookings'.tr, style: Get.textTheme.headline5),
-                            trailing: Text("6", style: Get.textTheme.headline6),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                  initiallyExpanded: true,
-                )
-              ),
 
               TextFieldWidget(
-                //onSaved: (input) => controller.user.value.name = input,
-                //initialValue: controller.user.value.name,
+                onChanged: (input) => controller.userName.value = input,
                 validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
                 hintText: "John Doe".tr,
                 labelText: "Full Name".tr,
                 iconData: Icons.person_outline,
               ),
               TextFieldWidget(
-                //onSaved: (input) => controller.user.value.email = input,
-                //initialValue: controller.user.value.email,
                 validator: (input) => !input.contains('@') ? "Should be a valid email" : null,
                 hintText: "johndoe@gmail.com",
+                onChanged: (input) => controller.email.value = input,
                 labelText: "Email".tr,
                 iconData: Icons.alternate_email,
               ),
               PhoneFieldWidget(
                 labelText: "Phone Number".tr,
                 hintText: "223 665 7896".tr,
-                /*initialCountryCode: controller.user.value.getPhoneNumber()?.countryISOCode,
-                initialValue: controller.user.value.getPhoneNumber()?.number,
-                onSaved: (phone) {
-                  return controller.user.value.phoneNumber = phone.completeNumber;
-                },
-                suffix: controller.user.value.verifiedPhone
-                    ? Text(
-                        "Verified".tr,
-                        style: Get.textTheme.caption.merge(TextStyle(color: Colors.green)),
-                      )
-                    : Text(
-                        "Not Verified".tr,
-                        style: Get.textTheme.caption.merge(TextStyle(color: Colors.redAccent)),
-                      ),*/
+                onChanged: (input) => controller.phone.value = input.toString(),
+              ),
+              InkWell(
+                  onTap: ()=>{controller.chooseBirthDate()},
+                  child: Container(
+                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                    margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                    decoration: BoxDecoration(
+                        color: Get.theme.primaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        boxShadow: [
+                          BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                        ],
+                        border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text("Date of birth".tr,
+                          style: Get.textTheme.bodyText1,
+                          textAlign: TextAlign.start,
+                        ),
+                        Obx(() =>
+                            ListTile(
+                                leading: FaIcon(FontAwesomeIcons.birthdayCake, size: 20),
+                                title: Text(DateFormat('dd/MM/yyyy').format(controller.birthDate.value).toString(),
+                                  style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                )
+                            )
+                        )
+                      ],
+                    ),
+                  )
               ),
               TextFieldWidget(
-                //onSaved: (input) => controller.user.value.address = input,
-                //initialValue: controller.user.value.address,
+                onChanged: (input) => controller.birthPlace.value = input,
                 validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
                 hintText: "123 Street, City 136, State, Country".tr,
-                labelText: "Address".tr,
-                iconData: Icons.map_outlined,
+                labelText: "Place of birth".tr,
+                iconData: Icons.location_on_rounded,
               ),
               TextFieldWidget(
-                //onSaved: (input) => controller.user.value.bio = input,
-                //initialValue: controller.user.value.bio,
-                hintText: "Your short biography here".tr,
-                labelText: "Short Biography".tr,
-                iconData: Icons.article_outlined,
+                onChanged: (input) => controller.gender.value = input,
+                hintText: "MALE".tr,
+                labelText: "Gender".tr,
+                iconData: FontAwesomeIcons.male,
               ),
               Text("Change password".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, right: 22, left: 22),
               Text("Fill your old password and type new password and confirm it".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
@@ -238,6 +225,7 @@ class ProfileView extends GetView<ProfileController> {
                 return TextFieldWidget(
                   labelText: "Confirm New Password".tr,
                   hintText: "••••••••••••".tr,
+                  editable: controller.editPassword.value,
                   onSaved: (input) => controller.confirmPassword.value = input,
                   onChanged: (input) => controller.confirmPassword.value = input,
                   validator: (input) {

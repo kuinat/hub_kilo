@@ -55,8 +55,8 @@ class TravelCardWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                  width: 70,
-                  height: 70,
+                  width: 50,
+                  height: 50,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
@@ -119,8 +119,8 @@ class TravelCardWidget extends StatelessWidget {
           ),
           SizedBox(height: 10),
           ListTile(
-              leading: FaIcon(FontAwesomeIcons.calendarDay),
-              title: Text(this.depDate, style: TextStyle(color: appColor))
+              leading: FaIcon(FontAwesomeIcons.calendarDay,size: 20),
+              title: Text(this.depDate, style: TextStyle(color: appColor, fontSize: 15))
           ),
           ListTile(
             title: Text('price /kg:   $price EUR'),

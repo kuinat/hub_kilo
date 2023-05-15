@@ -19,6 +19,7 @@ class AddTravelController extends GetxController{
   var price = 0.obs;
   var travelType = "".obs;
   var buttonPressed = false.obs;
+  var checkBoxValue = false.obs;
   var list = [].obs;
   GlobalKey<FormState> newTravelKey;
   List transportType = [
@@ -36,7 +37,6 @@ class AddTravelController extends GetxController{
 
   @override
   void onInit() async {
-
     scrollController.addListener(() async {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent && !isDone.value) {
         //await listenForMessages();
@@ -65,6 +65,7 @@ class AddTravelController extends GetxController{
       departureDate.value = pickedDate;
     }
   }
+
   chooseArrivalDate() async {
     DateTime pickedDate = await showRoundedDatePicker(
       context: Get.context,

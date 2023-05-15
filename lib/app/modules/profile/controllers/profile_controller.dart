@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/ui.dart';
@@ -11,9 +12,22 @@ class ProfileController extends GetxController {
   final hidePassword = true.obs;
   final oldPassword = "".obs;
   final newPassword = "".obs;
+  final userName = "".obs;
+  final email = "".obs;
+  final gender = "".obs;
   final confirmPassword = "".obs;
   final smsSent = "".obs;
   final buttonPressed = false.obs;
+  final birthDate = DateTime(2000).obs;
+  final birthPlace = "".obs;
+  final phone = "".obs;
+  var selectedGender = "".obs;
+  final editProfile = false.obs;
+  final editPassword = false.obs;
+  var genderList = [
+    "MALE".tr,
+    "FEMALE".tr
+  ].obs;
   GlobalKey<FormState> profileForm;
   UserRepository _userRepository;
 
@@ -23,6 +37,7 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
+    selectedGender.value = genderList.elementAt(0);
     //user.value = Get.find<AuthService>().user.value;
     //avatar.value = new Media(thumb: user.value.avatar.thumb);
     super.onInit();
@@ -60,6 +75,34 @@ class ProfileController extends GetxController {
     } else {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "There are errors in some fields please correct them!".tr));
     }
+  }
+
+  chooseBirthDate() async {
+    DateTime pickedDate = await showRoundedDatePicker(
+        context: Get.context,
+        imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
+        initialDate: DateTime.now().subtract(Duration(days: 365)),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+        styleDatePicker: MaterialRoundedDatePickerStyle(
+            textStyleYearButton: TextStyle(
+              fontSize: 52,
+              color: Colors.white,
+            )
+        ),
+        borderRadius: 16,
+        selectableDayPredicate: disableDate
+    );
+    if (pickedDate != null && pickedDate != birthDate.value) {
+      birthDate.value = pickedDate;
+    }
+  }
+
+  bool disableDate(DateTime day) {
+    if ((day.isAfter(DateTime.now().subtract(Duration(days: 1))))) {
+      return false;
+    }
+    return true;
   }
 
   Future<void> verifyPhone() async {

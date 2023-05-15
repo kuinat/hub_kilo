@@ -6,7 +6,6 @@ import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../routes/app_routes.dart';
 import '../../global_widgets/Travel_card_widget.dart';
-import '../../global_widgets/notifications_button_widget.dart';
 import '../controllers/myTravels_controller.dart';
 
 class MyTravelsView extends GetView<MyTravelsController> {
@@ -23,7 +22,9 @@ class MyTravelsView extends GetView<MyTravelsController> {
         onPressed: ()=>{
         Get.toNamed(Routes.ADD_TRAVEL_FORM)
         },
-        child: Icon(Icons.assignment_outlined),
+        child: Center(
+          child: Icon(FontAwesomeIcons.planeDeparture, size: 18),
+        )
       ),
       appBar: AppBar(
         title: Text(
@@ -34,11 +35,6 @@ class MyTravelsView extends GetView<MyTravelsController> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: new IconButton(
-          icon: new Icon(Icons.sort, color: Palette.background),
-          onPressed: () => {Scaffold.of(context).openDrawer()},
-        ),
-        actions: [NotificationsButtonWidget()],
       ),
       body: RefreshIndicator(
           onRefresh: () async {

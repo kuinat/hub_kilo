@@ -17,12 +17,12 @@ class TravelInspectController extends GetxController {
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
     heroTag.value = arguments['heroTag'] as String;
-    if(travelCard['type'] == "air"){
+    if(travelCard['travel_type'] == "by_air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
-    }else if(travelCard['type'] == "sea"){
-      imageUrl.value = "https://images.unsplash.com/photo-1515678821046-f1ba75cb9f9e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fGNhcmdvJTIwc2hpcCUyMG9uJTIwc2VhfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=900&q=60";
+    }else if(travelCard['travel_type'] == "by_sea"){
+      imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
     }else{
-      imageUrl.value = "https://images.unsplash.com/photo-1628110341049-37a92fcbcb14?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTd8fGxhbmQlMjB0cmFuc3BvcnR8ZW58MHx8MHx8&auto=format&fit=crop&w=900&q=60";
+      imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
     }
     super.onInit();
   }

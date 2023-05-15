@@ -82,71 +82,74 @@ class LoginView extends GetView<AuthController> {
                 if (controller.loading.isTrue)
                   return CircularLoadingWidget(height: 300);
                 else {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFieldWidget(
-                        labelText: "Email Address".tr,
-                        hintText: "johndoe@gmail.com".tr,
-                        //initialValue: controller.currentUser?.value?.email,
-                        onSaved: (input) => controller.currentUser.value.email = input,
-                        validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
-                        iconData: Icons.alternate_email,
-                      ),
-                      Obx(() {
-                        return TextFieldWidget(
-                          labelText: "Password".tr,
-                          hintText: "••••••••••••".tr,
-                          //initialValue: controller.currentUser?.value?.password,
-                          onSaved: (input) => controller.currentUser.value.password = input,
-                          validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                          obscureText: controller.hidePassword.value,
-                          iconData: Icons.lock_outline,
-                          keyboardType: TextInputType.visiblePassword,
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              controller.hidePassword.value = !controller.hidePassword.value;
-                            },
-                            color: Theme.of(context).focusColor,
-                            icon: Icon(controller.hidePassword.value ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                          ),
-                        );
-                      }),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Get.toNamed(Routes.FORGOT_PASSWORD);
-                            },
-                            child: Text("Forgot Password?".tr),
-                          ),
-                        ],
-                      ).paddingSymmetric(horizontal: 20),
-                      BlockButtonWidget(
-                        onPressed: () {
-                          controller.buttonPressed.value = !controller.buttonPressed.value;
-                          //controller.login();
-                        },
-                        color: Get.theme.colorScheme.secondary,
-                        text: !controller.buttonPressed.value ? Text(
-                          "Login".tr,
-                          style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                        ) : SizedBox(height: 20,
+                  return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFieldWidget(
+                          labelText: "Email Address".tr,
+                          hintText: "johndoe@gmail.com".tr,
+                          //initialValue: controller.currentUser?.value?.email,
+                          onSaved: (input) => controller.currentUser.value.email = input,
+                          validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
+                          iconData: Icons.alternate_email,
+                        ),
+                        Obx(() {
+                          return TextFieldWidget(
+                            labelText: "Password".tr,
+                            hintText: "••••••••••••".tr,
+                            //initialValue: controller.currentUser?.value?.password,
+                            onSaved: (input) => controller.currentUser.value.password = input,
+                            validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                            obscureText: controller.hidePassword.value,
+                            iconData: Icons.lock_outline,
+                            keyboardType: TextInputType.visiblePassword,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                controller.hidePassword.value = !controller.hidePassword.value;
+                              },
+                              color: Theme.of(context).focusColor,
+                              icon: Icon(controller.hidePassword.value ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                            ),
+                          );
+                        }),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.FORGOT_PASSWORD);
+                              },
+                              child: Text("Forgot Password?".tr),
+                            ),
+                          ],
+                        ).paddingSymmetric(horizontal: 20),
+                        BlockButtonWidget(
+                          onPressed: () {
+                            controller.buttonPressed.value = !controller.buttonPressed.value;
+                            controller.login();
+                          },
+                          color: Get.theme.colorScheme.secondary,
+                          text: !controller.buttonPressed.value ? Text(
+                            "Login".tr,
+                            style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
+                          ) : SizedBox(height: 20,
                               child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                      ).paddingSymmetric(vertical: 10, horizontal: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Get.toNamed(Routes.REGISTER);
-                            },
-                            child: Text("You don't have an account?".tr),
-                          ),
-                        ],
-                      ).paddingSymmetric(vertical: 20),
-                    ],
+                        ).paddingSymmetric(vertical: 10, horizontal: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.REGISTER);
+                              },
+                              child: Text("You don't have an account?".tr),
+                            ),
+                          ],
+                        ).paddingSymmetric(vertical: 20),
+                      ],
+                    )
                   );
                 }
               }),

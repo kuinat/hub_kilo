@@ -11,7 +11,6 @@ import '../../global_widgets/home_search_bar_widget.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/featured_categories_widget.dart';
-import '../widgets/recommended_carousel_widget.dart';
 import '../widgets/slide_item_widget.dart';
 
 class Home2View extends GetView<HomeController> {
@@ -40,8 +39,8 @@ class Home2View extends GetView<HomeController> {
                 ),
                 centerTitle: true,
                 automaticallyImplyLeading: false,
-                leading: new IconButton(
-                  icon: new Icon(Icons.sort, color: Colors.black87),
+                leading: IconButton(
+                  icon: Icon(Icons.sort, color: Colors.black87),
                   onPressed: () => {Scaffold.of(context).openDrawer()},
                 ),
                 actions: [NotificationsButtonWidget()],
