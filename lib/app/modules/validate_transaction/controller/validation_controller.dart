@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 class ValidationController extends GetxController {
 
   final isDone = false.obs;
+  final currentState = 0.obs;
+  final validationType = 0.obs;
   ScrollController scrollController = ScrollController();
 
   @override

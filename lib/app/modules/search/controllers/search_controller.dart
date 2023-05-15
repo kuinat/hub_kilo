@@ -12,6 +12,21 @@ class SearchController extends GetxController {
   final categories = <Category>[].obs;
   final selectedCategories = <String>[].obs;
   TextEditingController textEditingController;
+  var allTravels = [].obs;
+  Rx<List<Map<String, dynamic>>> items =
+  Rx<List<Map<String, dynamic>>>([]);
+  final allPlayers = [
+    {"name": "Rohit Sharma", "country": "India"},
+    {"name": "Virat Kohli ", "country": "India"},
+    {"name": "Glenn Maxwell", "country": "Australia"},
+    {"name": "Aaron Finch", "country": "Australia"},
+    {"name": "Martin Guptill", "country": "New Zealand"},
+    {"name": "Trent Boult", "country": "New Zealand"},
+    {"name": "David Miller", "country": "South Africa"},
+    {"name": "Kagiso Rabada", "country": "South Africa"},
+    {"name": "Chris Gayle", "country": "West Indies"},
+    {"name": "Jason Holder", "country": "West Indies"},
+  ].obs;
 
   final eServices = <EService>[].obs;
   EServiceRepository _eServiceRepository;
@@ -26,6 +41,7 @@ class SearchController extends GetxController {
   @override
   void onInit() async {
     await refreshSearch();
+    items.value = allPlayers;
     super.onInit();
   }
 
@@ -33,6 +49,20 @@ class SearchController extends GetxController {
   void onReady() {
     heroTag.value = Get.arguments.toString();
     super.onReady();
+  }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = allPlayers;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['name']
+          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      items.value = dummyListData;
+      return;
+    } else {
+      items.value = allPlayers;
+    }
   }
 
   Future refreshSearch({bool showMessage}) async {

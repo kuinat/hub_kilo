@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
-import '../../global_widgets/notifications_button_widget.dart';
+import '../../../routes/app_routes.dart';
+import '../../global_widgets/Travel_card_widget.dart';
 import '../controllers/myTravels_controller.dart';
 
 class MyTravelsView extends GetView<MyTravelsController> {
@@ -14,6 +17,15 @@ class MyTravelsView extends GetView<MyTravelsController> {
     return Scaffold(
       backgroundColor: Get.theme.colorScheme.secondary,
       resizeToAvoidBottomInset: true,
+      floatingActionButton: FloatingActionButton(
+        //backgroundColor: pink,
+        onPressed: ()=>{
+        Get.toNamed(Routes.ADD_TRAVEL_FORM)
+        },
+        child: Center(
+          child: Icon(FontAwesomeIcons.planeDeparture, size: 18),
+        )
+      ),
       appBar: AppBar(
         title: Text(
           "My Travels".tr,
@@ -23,11 +35,6 @@ class MyTravelsView extends GetView<MyTravelsController> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: new IconButton(
-          icon: new Icon(Icons.sort, color: Get.theme.hintColor),
-          onPressed: () => {Scaffold.of(context).openDrawer()},
-        ),
-        actions: [NotificationsButtonWidget()],
       ),
       body: RefreshIndicator(
           onRefresh: () async {
@@ -64,8 +71,8 @@ class MyTravelsView extends GetView<MyTravelsController> {
                           child: TextField(
                             //controller: controller.textEditingController,
                             style: Get.textTheme.bodyText2,
-                            onChanged: (value){
-
+                            onChanged: (value)=>{
+                              controller.filterSearchResults(value)
                             },
                             autofocus: false,
                             cursorColor: Get.theme.focusColor,
@@ -107,29 +114,47 @@ class MyTravelsView extends GetView<MyTravelsController> {
               ),
               Container(
                 height: MediaQuery.of(context).size.height/1.2,
+                padding: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 40),
                 decoration: Ui.getBoxDecoration(color: backgroundColor),
                 child: Column(
                   children: [
                     Expanded(
-                        child: ListView.separated(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            itemCount: 15,
-                            separatorBuilder: (context, index) {
-                              return SizedBox(height: 5);
-                            },
-                            shrinkWrap: true,
-                            primary: false,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                margin: EdgeInsets.only(left: 10, right: 10),
-                                child: Card(
-                                  child: Container(
-                                      padding: EdgeInsets.all(30),
-                                      child: Text('Sample text')
-                                  ),
+                        child: Obx(()=>
+                            GridView.builder(
+                                physics: AlwaysScrollableScrollPhysics(),
+                                itemCount: controller.items.value.length,
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 10.0,
+                                  mainAxisSpacing: 10.0,
+                                  mainAxisExtent: 330.0,
                                 ),
-                              );
-                            })
+                                shrinkWrap: true,
+                                primary: false,
+                                itemBuilder: (context, index) {
+                                  var type = controller.items.value[index]['type'];
+                                  return GestureDetector(
+                                    child: TravelCardWidget(
+                                      depDate: DateFormat("dd, MMM yyyy", "fr_FR").format(DateTime.now()).toString(),
+                                      arrTown: 'Yaounde',
+                                      depTown: 'Paris',
+                                      arrDate: DateFormat("dd, MMM yyyy", "fr_FR").format(DateTime.now().add(Duration(days: 1))).toString(),
+                                      icon: type == "air" ? FaIcon(FontAwesomeIcons.planeDeparture)
+                                          : type == "sea" ? FaIcon(FontAwesomeIcons.ship)
+                                          : FaIcon(FontAwesomeIcons.bus),
+                                      qty: 13,
+                                      price: 150,
+                                      color: background,
+                                      text: Text(""),
+                                      user: Text(controller.items.value[index]['name'], style: TextStyle(fontSize: 17)),
+                                      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+
+                                    ),
+                                    onTap: ()=>
+                                        Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items.value[index], 'heroTag': 'services_carousel'}),
+                                  );
+                                })
+                        )
                     )
                   ],
                 )

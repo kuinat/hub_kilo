@@ -44,7 +44,12 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
               ),
               Obx(() {
                 if (controller.featured.elementAt(index).eServices.isEmpty) {
-                  return Text('loading...');
+                  return Image.asset(
+                    'assets/img/loading.gif',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 100,
+                  );
                 }
                 return ServicesCarouselWidget(services: controller.featured.elementAt(index).eServices);
               }),

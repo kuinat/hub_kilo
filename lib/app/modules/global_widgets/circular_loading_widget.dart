@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+
+import '../../../color_constants.dart';
 
 class CircularLoadingWidget extends StatefulWidget {
   final double height;
@@ -59,8 +62,9 @@ class _CircularLoadingWidgetState extends State<CircularLoadingWidget> with Sing
             opacity: animation.value / 100 > 1.0 ? 1.0 : animation.value / 100,
             child: SizedBox(
               height: animation.value,
-              child: new Center(
-                child: new CircularProgressIndicator(),
+              child: Center(
+                child: SizedBox(height: 10,
+                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
               ),
             ),
           );

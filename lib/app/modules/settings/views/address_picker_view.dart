@@ -41,7 +41,7 @@ class AddressPickerView extends StatelessWidget {
                     TextFieldWidget(
                       labelText: "Description".tr,
                       hintText: "My Home".tr,
-                      initialValue: _address.description,
+                      //initialValue: _address.description,
                       onChanged: (input) => _address.description = input,
                       iconData: Icons.description_outlined,
                       isFirst: true,
@@ -50,7 +50,7 @@ class AddressPickerView extends StatelessWidget {
                     TextFieldWidget(
                       labelText: "Full Address".tr,
                       hintText: "123 Street, City 136, State, Country".tr,
-                      initialValue: _address.address,
+                      //initialValue: _address.address,
                       onChanged: (input) => _address.address = input,
                       iconData: Icons.place_outlined,
                       isFirst: false,

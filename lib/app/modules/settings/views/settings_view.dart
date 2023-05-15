@@ -44,18 +44,18 @@ class SettingsView extends GetView<SettingsController> {
                   controller.changePage(id);
                 },
               ),
-              ChipWidget(
+              /*ChipWidget(
                 tag: 'settings',
                 text: "Addresses".tr,
                 id: 2,
                 onSelected: (id) {
                   controller.changePage(id);
                 },
-              ),
+              ),*/
               ChipWidget(
                 tag: 'settings',
                 text: "Theme Mode".tr,
-                id: 3,
+                id: 2,
                 onSelected: (id) {
                   controller.changePage(id);
                 },

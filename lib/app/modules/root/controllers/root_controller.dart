@@ -11,6 +11,7 @@ import '../../bookings/views/bookings_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/home2_view.dart';
 import '../../messages/controllers/messages_controller.dart';
+import '../../userTravels/controllers/myTravels_controller.dart';
 import '../../userTravels/views/userTravels_view.dart';
 
 class RootController extends GetxController {
@@ -86,7 +87,7 @@ class RootController extends GetxController {
         }
       case 2:
         {
-          await Get.find<MessagesController>().refreshMessages();
+          await Get.find<MyTravelsController>().refreshMyTravels();
           break;
         }
     }

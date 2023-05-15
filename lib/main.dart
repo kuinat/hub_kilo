@@ -27,7 +27,7 @@ void initServices() async {
 }
 
 class Domain{
-  static var serverPort = "http://192.168.16.121:9000";
+  static var serverPort = "http://192.168.16.115:8069";
   static var apiKey = "NMMAG3K4IVS0L6VYEPXLJ1Z0RR77AR67";
   static var AppName = "Hub Kilo";
   static Map<String, String> getTokenHeaders() {
@@ -47,7 +47,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: Get.find<SettingsService>().setting.value.appName,
+      title: Domain.AppName,
       initialRoute: Theme1AppPages.INITIAL,
       onReady: () async {
         await Get.putAsync(() => FireBaseMessagingService().init());
