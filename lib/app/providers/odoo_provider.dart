@@ -170,17 +170,23 @@ class OdooApiClient extends GetxService with ApiClient {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result'];
-      var user = MyUser(
-          email: myUser.email,
-          name: data['name'],
-          id: data['partner_id']
+      if(data != null){
+        var user = MyUser(
+            email: myUser.email,
+            name: data['name'],
+            id: data['partner_id']
 
-      );
+        );
 
-      return (user);
+        return (user);
+
+      }
+      else{
+        throw new Exception(response.reasonPhrase);
+      }
+
     }
-    else {
-      print(response.reasonPhrase);
+    else {throw new Exception(response.reasonPhrase);
     }
 
 
@@ -261,7 +267,7 @@ class OdooApiClient extends GetxService with ApiClient {
       return (user);
     }
     else {
-      print(response.reasonPhrase);
+      throw new Exception(response.reasonPhrase);
     }
 
 

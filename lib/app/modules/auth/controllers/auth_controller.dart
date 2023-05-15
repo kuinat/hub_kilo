@@ -40,10 +40,20 @@ class AuthController extends GetxController {
     Get.focusScope.unfocus();
     if (loginFormKey.currentState.validate()) {
       loginFormKey.currentState.save();
-      loading.value = true;
-      currentUser.value = await _userRepository.login(currentUser.value);
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
-      await Get.toNamed(Routes.ROOT);
+
+      try {
+        loading.value = true;
+        currentUser.value = await _userRepository.login(currentUser.value);
+        loading.value = false;
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
+        await Get.toNamed(Routes.ROOT);
+
+      } catch (e) {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
+      } finally {
+        loading.value = false;
+      }
+
     }
     //await Get.find<RootController>().changePage(0);
   }
@@ -52,14 +62,25 @@ class AuthController extends GetxController {
     Get.focusScope.unfocus();
     if (registerFormKey.currentState.validate()) {
       registerFormKey.currentState.save();
-      loading.value = true;
 
-      currentUser.value = await _userRepository.register(currentUser.value);
+      try {
+        loading.value = true;
 
-      loading.value = false;
+        currentUser.value = await _userRepository.register(currentUser.value);
 
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
-      await Get.toNamed(Routes.ROOT);
+        loading.value = false;
+
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
+        await Get.toNamed(Routes.ROOT);
+
+
+      } catch (e) {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      } finally {
+        loading.value = false;
+      }
+
+
 
     }
   }

@@ -6,8 +6,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../providers/odoo_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
+import '../../services/my_auth_service.dart';
 import '../../services/settings_service.dart';
 import '../custom_pages/views/custom_page_drawer_link_widget.dart';
 import '../root/controllers/root_controller.dart' show RootController;
@@ -16,11 +18,17 @@ import 'drawer_link_widget.dart';
 class MainDrawerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
     return Drawer(
       child: ListView(
         children: [
           Obx(() {
-            if (!Get.find<AuthService>().isAuth) {
+            if (Get.find<MyAuthService>().myUser.value.email == null) {
               return GestureDetector(
                 onTap: () {
                   Get.toNamed(Routes.LOGIN);
@@ -98,11 +106,11 @@ class MainDrawerWidget extends StatelessWidget {
                     color: Theme.of(context).hintColor.withOpacity(0.1),
                   ),
                   accountName: Text(
-                    Get.find<AuthService>().user.value.name,
+                    Get.find<MyAuthService>().myUser.value.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   accountEmail: Text(
-                    Get.find<AuthService>().user.value.email,
+                    Get.find<MyAuthService>().myUser.value.email,
                     style: Theme.of(context).textTheme.caption,
                   ),
                   currentAccountPicture: Stack(
@@ -116,7 +124,8 @@ class MainDrawerWidget extends StatelessWidget {
                             height: 80,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            imageUrl: Get.find<AuthService>().user.value.avatar.thumb,
+                            imageUrl: "https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80",
+                            //Get.find<AuthService>().user.value.avatar.thumb,
                             placeholder: (context, url) => Image.asset(
                               'assets/img/loading.gif',
                               fit: BoxFit.cover,
@@ -154,42 +163,39 @@ class MainDrawerWidget extends StatelessWidget {
               Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
             },
           ),
-          DrawerLinkWidget(
-            icon: Icons.assignment_outlined,
-            text: "Bookings",
-            onTap: (e) async {
-              Get.back();
-              await Get.find<RootController>().changePage(1);
-            },
-          ),
-          DrawerLinkWidget(
-            icon: Icons.notifications_none_outlined,
-            text: "Notifications",
-            onTap: (e) {
-              Get.offAndToNamed(Routes.NOTIFICATIONS);
-            },
-          ),
-          /*DrawerLinkWidget(
-            icon: Icons.favorite_outline,
-            text: "Favorites",
-            onTap: (e) async {
-              await Get.offAndToNamed(Routes.FAVORITES);
-            },
-          ),*/
-          DrawerLinkWidget(
-            icon: Icons.chat_outlined,
-            text: "Messages",
-            onTap: (e) async {
-              //await Get.find<RootController>().changePage(2);
-            },
-          ),
-          DrawerLinkWidget(
-            icon: Icons.qr_code,
-            text: "Validate Transaction",
-            onTap: (e) {
-              Get.toNamed(Routes.VALIDATE_TRANSACTION);
-            },
-          ),
+
+          if(Get.find<MyAuthService>().myUser.value.email != null)...[
+            DrawerLinkWidget(
+              icon: Icons.assignment_outlined,
+              text: "Bookings",
+              onTap: (e) async {
+                Get.back();
+                await Get.find<RootController>().changePage(1);
+              },
+            ),
+            DrawerLinkWidget(
+              icon: Icons.notifications_none_outlined,
+              text: "Notifications",
+              onTap: (e) {
+                Get.offAndToNamed(Routes.NOTIFICATIONS);
+              },
+            ),
+            DrawerLinkWidget(
+              icon: Icons.chat_outlined,
+              text: "Messages",
+              onTap: (e) async {
+                //await Get.find<RootController>().changePage(2);
+              },
+            ),
+            if(Get.find<MyAuthService>().myUser.value.email == null)
+              DrawerLinkWidget(
+                icon: Icons.qr_code,
+                text: "Validate Transaction",
+                onTap: (e) {
+                  Get.toNamed(Routes.VALIDATE_TRANSACTION);
+                },
+              ),
+          ],
           ListTile(
             dense: true,
             title: Text(
@@ -208,6 +214,7 @@ class MainDrawerWidget extends StatelessWidget {
               await Get.offAndToNamed(Routes.WALLETS);
             },
           ),*/
+          if(Get.find<MyAuthService>().myUser.value.email != null)
           DrawerLinkWidget(
             icon: Icons.person_outline,
             text: "Account",
