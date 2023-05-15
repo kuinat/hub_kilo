@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../models/custom_page_model.dart';
+import '../../../providers/odoo_provider.dart';
 import '../../../repositories/custom_page_repository.dart';
 import '../../../repositories/notification_repository.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/my_auth_service.dart';
 import '../../account/views/account_view.dart';
 import '../../bookings/views/bookings_view.dart';
 import '../../home/controllers/home_controller.dart';
@@ -42,13 +44,19 @@ class RootController extends GetxController {
   Widget get currentPage => pages[currentIndex.value];
 
   Future<void> changePageInRoot(int _index) async {
-    /*if (!Get.find<AuthService>().isAuth && _index > 0) {
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
+    print(Get.find<MyAuthService>().myUser.value.name);
+    if (Get.find<MyAuthService>().myUser.value.email == null && _index > 0) {
       await Get.toNamed(Routes.LOGIN);
     } else {
-
-    }*/
-    currentIndex.value = _index;
-    await refreshPage(_index);
+      currentIndex.value = _index;
+      await refreshPage(_index);
+    }
   }
 
   Future<void> changePageOutRoot(int _index) async {
