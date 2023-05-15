@@ -36,7 +36,6 @@ class ExpeditionOrderController extends GetxController {
       loading.value = true;
       try {
 
-        currentUser.value = await _userRepository.register(currentUser.value);
         //await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
         await Get.find<RootController>().changePage(0);
         // if (Get.find<SettingsService>().setting.value.enableOtp) {

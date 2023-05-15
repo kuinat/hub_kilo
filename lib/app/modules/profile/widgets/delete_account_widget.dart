@@ -90,7 +90,7 @@ class DeleteAccountWidget extends GetView<ProfileController> {
               ),
               onPressed: () async {
                 Get.back();
-                //await controller.deleteUser();
+                await controller.deleteUser();
                 await Get.find<RootController>().changePage(0);
               },
             ),

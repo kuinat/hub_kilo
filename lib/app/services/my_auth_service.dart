@@ -29,6 +29,13 @@ class MyAuthService extends GetxService {
   Future getCurrentUser() async {
 
     myUser.value = MyUser.fromJson(await _box.read('current_user'));
+    if (_box.hasData('current_user')) {
+      myUser.value = MyUser.fromJson(await _box.read('current_user'));
+      //myUser.value.auth = true;
+    } else {
+      //myUser.value.auth = false;
+    }
+
     // if (myUser.value.auth == null && _box.hasData('current_user')) {
     //   myUser.value = MyUser.fromJson(await _box.read('current_user'));
     //   myUser.value.auth = true;

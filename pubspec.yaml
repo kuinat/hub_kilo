@@ -21,6 +21,15 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  #Date Picker
+  flutter_rounded_date_picker: ^3.0.2
+  flutter_localization: ^0.1.10
+  intl: ^0.17.0
+  #animations
+  animations: ^2.0.3
+  cupertino_stepper: ^0.2.1
+  #spinKit
+  flutter_spinkit: ^5.1.0
   #qr Code
   qr_flutter: ^4.0.0
   barcode_scan2: ^4.2.1
@@ -30,11 +39,11 @@ dependencies:
   # DIO
   dio: 4.0.6
   dio_http_cache: 0.3.0
-  #HTTP
-  http: ^0.13.4
   # FONT
   google_fonts: 3.0.1
+  font_awesome_flutter: ^10.4.0
   #IMAGES, SLIDERS, LAYOUTS
+  flutter_cache_manager: 3.3.0
   cached_network_image: 3.2.2
   carousel_slider: 4.1.1
   flutter_svg: 1.1.5
@@ -47,6 +56,7 @@ dependencies:
   webview_flutter: 3.0.4
   flutter_html: 3.0.0-alpha.3
   url_launcher: 6.1.6
+  http: ^0.13.4
   # FIREBASE
   firebase_messaging: 13.1.0
   cloud_firestore: 3.5.1
@@ -57,13 +67,13 @@ dependencies:
   google_maps_flutter: 2.2.1
   google_maps_flutter_web: 0.4.0+3
   map_launcher: 2.4.0
+  flutter_google_places: ^0.3.0
+  google_maps_webservice: ^0.0.16
   google_maps_place_picker_mb:
     git:
       url: https://github.com/SmarterVision/google_maps_place_picker_mb.git
       ref: 2.0.0-mb.22
   flutter:
-    sdk: flutter
-  flutter_localizations:
     sdk: flutter
 
 dependency_overrides:

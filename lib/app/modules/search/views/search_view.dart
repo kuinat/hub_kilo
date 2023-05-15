@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../global_widgets/filter_bottom_sheet_widget.dart';
 import '../controllers/search_controller.dart';
-import '../widgets/search_services_list_widget.dart';
 
 class SearchView extends GetView<SearchController> {
   @override
@@ -27,7 +27,40 @@ class SearchView extends GetView<SearchController> {
       body: ListView(
         children: [
           buildSearchBar(),
-          SearchServicesListWidget(services: controller.eServices),
+          Container(
+              height: MediaQuery.of(context).size.height/1.2,
+              decoration: Ui.getBoxDecoration(color: backgroundColor),
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Obx(()=>
+                          ListView.separated(
+                              physics: AlwaysScrollableScrollPhysics(),
+                              itemCount: controller.items.value.length,
+                              separatorBuilder: (context, index) {
+                                return SizedBox(height: 5);
+                              },
+                              shrinkWrap: true,
+                              primary: false,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: Card(
+                                    child: Container(
+                                        padding: EdgeInsets.all(30),
+                                        child: ListTile(
+                                          title: Text(controller.items.value[index]['name']),
+                                          subtitle: Text(controller.items.value[index]['country']),
+                                        )
+                                    ),
+                                  ),
+                                );
+                              })
+                      )
+                  )
+                ],
+              )
+          )
         ],
       ),
     );
@@ -57,8 +90,8 @@ class SearchView extends GetView<SearchController> {
                 child: TextField(
                   controller: controller.textEditingController,
                   style: Get.textTheme.bodyText2,
-                  onSubmitted: (value) {
-                    controller.searchEServices(keywords: value);
+                  onChanged: (value)=>{
+                    controller.filterSearchResults(value)
                   },
                   autofocus: true,
                   cursorColor: Get.theme.focusColor,

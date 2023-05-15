@@ -13,7 +13,7 @@ import '../views/theme_mode_view.dart';
 
 class SettingsController extends GetxController {
   var currentIndex = 0.obs;
-  final pages = <String>[Routes.SETTINGS_LANGUAGE, Routes.PROFILE, Routes.SETTINGS_ADDRESSES, Routes.SETTINGS_THEME_MODE];
+  final pages = <String>[Routes.SETTINGS_LANGUAGE, Routes.PROFILE, Routes.SETTINGS_THEME_MODE];
 
   void changePage(int index) {
     currentIndex.value = index;
@@ -22,18 +22,18 @@ class SettingsController extends GetxController {
 
   Route onGenerateRoute(RouteSettings settings) {
     if (settings.name == Routes.PROFILE) {
-      if (!Get.find<AuthService>().isAuth) {
+      /*if (!Get.find<AuthService>().isAuth) {
         currentIndex.value = 0;
         Get.find<TabBarController>(tag: 'settings').selectedId.value = '0';
-        Get.toNamed(Routes.LOGIN);
-      }
+        //Get.toNamed(Routes.LOGIN);
+      }*/
       return GetPageRoute(
         settings: settings,
         page: () => ProfileView(hideAppBar: true),
         binding: ProfileBinding(),
       );
     }
-    if (settings.name == Routes.SETTINGS_ADDRESSES) {
+    /*if (settings.name == Routes.SETTINGS_ADDRESSES) {
       if (!Get.find<AuthService>().isAuth) {
         currentIndex.value = 0;
         Get.find<TabBarController>(tag: 'settings').selectedId.value = '0';
@@ -44,7 +44,7 @@ class SettingsController extends GetxController {
         page: () => AddressesView(hideAppBar: true),
         binding: SettingsBinding(),
       );
-    }
+    }*/
 
     if (settings.name == Routes.SETTINGS_LANGUAGE)
       return GetPageRoute(
@@ -65,9 +65,9 @@ class SettingsController extends GetxController {
 
   @override
   void onInit() {
-    if (Get.isRegistered<TabBarController>(tag: 'settings')) {
+    /*if (Get.isRegistered<TabBarController>(tag: 'settings')) {
       Get.find<TabBarController>(tag: 'settings').selectedId.value = '0';
-    }
+    }*/
     currentIndex.value = 0;
     super.onInit();
   }

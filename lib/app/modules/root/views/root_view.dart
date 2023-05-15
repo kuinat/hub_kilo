@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../global_widgets/custom_bottom_nav_bar.dart';
@@ -21,19 +22,19 @@ class RootView extends GetView<RootController> {
           },
           children: [
             CustomBottomNavigationItem(
-              icon: Icons.home_outlined,
+              icon: FontAwesomeIcons.home,
               label: "Home".tr,
             ),
             CustomBottomNavigationItem(
-              icon: Icons.assignment_outlined,
+              icon: FontAwesomeIcons.book,
               label: "Bookings".tr,
             ),
             CustomBottomNavigationItem(
-              icon: Icons.airplanemode_active_sharp,
+              icon: FontAwesomeIcons.planeCircleCheck,
               label: "My Travels".tr,
             ),
             CustomBottomNavigationItem(
-              icon: Icons.person_outline,
+              icon: FontAwesomeIcons.userEdit,
               label: "Account".tr,
             ),
           ],

@@ -47,8 +47,8 @@ class PhoneFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20, bottom: 14, left: 20, right: 20),
-      margin: EdgeInsets.only(left: 20, right: 20, top: topMargin, bottom: bottomMargin),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+      margin: EdgeInsets.only(left: 5, right: 5, top: topMargin, bottom: bottomMargin),
       decoration: BoxDecoration(
           color: Get.theme.primaryColor,
           borderRadius: buildBorderRadius,

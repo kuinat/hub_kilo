@@ -1,10 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/my_auth_service.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/account_controller.dart';
@@ -13,7 +16,7 @@ import '../widgets/account_link_widget.dart';
 class AccountView extends GetView<AccountController> {
   @override
   Widget build(BuildContext context) {
-    //var _currentUser = Get.find<AuthService>().user;
+    var _currentUser = Get.find<MyAuthService>().myUser;
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -23,17 +26,7 @@ class AccountView extends GetView<AccountController> {
           centerTitle: true,
           backgroundColor: Get.theme.colorScheme.secondary,
           automaticallyImplyLeading: false,
-          leading: new IconButton(
-            icon: new Icon(Icons.sort, color: Get.theme.primaryColor),
-            onPressed: () => {Scaffold.of(context).openDrawer()},
-          ),
           elevation: 0,
-          actions: [
-            NotificationsButtonWidget(
-              iconColor: Get.theme.primaryColor,
-              labelColor: pink,
-            )
-          ],
         ),
         body: ListView(
           primary: true,
@@ -54,16 +47,17 @@ class AccountView extends GetView<AccountController> {
                       BoxShadow(color: Get.theme.focusColor.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5)),
                     ],
                   ),
-                  margin: EdgeInsets.only(bottom: 50),
+                  margin: EdgeInsets.only(bottom: 80),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Text("Fikish Swagger",
+                        Text( _currentUser.value.name ?? '',
                           style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                         ),
                         SizedBox(height: 10),
-                        Text('elfikish@gmail.com', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+                        Text(_currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+
                       ],
                     ),
                   ),
@@ -75,12 +69,11 @@ class AccountView extends GetView<AccountController> {
                   ),
                   child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: Icon(Icons.person, size: 100)
-                    /*CachedNetworkImage(
-                        height: 100,
-                        width: 100,
+                      child: CachedNetworkImage(
+                        height: 140,
+                        width: 140,
                         fit: BoxFit.cover,
-                        imageUrl: "https://unsplash.com/fr/photos/2LowviVHZ-E",
+                        imageUrl: "https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80",
                         placeholder: (context, url) => Image.asset(
                           'assets/img/loading.gif',
                           fit: BoxFit.cover,
@@ -88,10 +81,59 @@ class AccountView extends GetView<AccountController> {
                           height: 100,
                         ),
                         errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                      ),*/
+                      ),
                   ),
                 ),
               ],
+            ),
+            Card(
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shadowColor: inactive,
+                child: ExpansionTile(
+                  leading: Icon(FontAwesomeIcons.userCheck, size: 20),
+                  title: Text("View Profile".tr, style: Get.textTheme.bodyText2),
+                  children: [
+                    AccountWidget(
+                      icon: FontAwesomeIcons.birthdayCake,
+                      text: Text('Date of date'),
+                      value: '12/12/2000',
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.locationDot,
+                      text: Text('Place of birth'),
+                      value: "Bangangte",
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.male,
+                      text: Text('Sexe'),
+                      value: "MALE",
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.planeDeparture,
+                      text: Text('Number of travels'),
+                      value: "12",
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.book,
+                      text: Text('Number of Bookings'),
+                      value: "3",
+                    ),
+                    Card(
+                      elevation: 10,
+                        margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: AccountLinkWidget(
+                            icon: Icon(FontAwesomeIcons.userEdit, color: Get.theme.colorScheme.secondary),
+                            text: Text("Profile".tr),
+                            onTap: (e) {
+                              Get.toNamed(Routes.PROFILE);
+                            },
+                          ))
+                    ),
+                  ],
+                  initiallyExpanded: false,
+                )
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -99,13 +141,7 @@ class AccountView extends GetView<AccountController> {
               decoration: Ui.getBoxDecoration(),
               child: Column(
                 children: [
-                  AccountLinkWidget(
-                    icon: Icon(Icons.person_outline, color: Get.theme.colorScheme.secondary),
-                    text: Text("Profile".tr),
-                    onTap: (e) {
-                      Get.toNamed(Routes.PROFILE);
-                    },
-                  ),
+                  /*
                   AccountLinkWidget(
                     icon: Icon(Icons.assignment_outlined, color: Get.theme.colorScheme.secondary),
                     text: Text("My Bookings".tr),
@@ -119,7 +155,7 @@ class AccountView extends GetView<AccountController> {
                     onTap: (e) {
                       //Get.toNamed(Routes.NOTIFICATIONS);
                     },
-                  ),
+                  ),*/
                   AccountLinkWidget(
                     icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
                     text: Text("Messages".tr),
@@ -144,13 +180,6 @@ class AccountView extends GetView<AccountController> {
               decoration: Ui.getBoxDecoration(),
               child: Column(
                 children: [
-                  AccountLinkWidget(
-                    icon: Icon(Icons.settings_outlined, color: Get.theme.colorScheme.secondary),
-                    text: Text("Settings".tr),
-                    onTap: (e) {
-                      Get.toNamed(Routes.SETTINGS);
-                    },
-                  ),
                   AccountLinkWidget(
                     icon: Icon(Icons.translate_outlined, color: Get.theme.colorScheme.secondary),
                     text: Text("Languages".tr),
