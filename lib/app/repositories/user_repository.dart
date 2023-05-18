@@ -30,10 +30,11 @@ class UserRepository {
   //   return _laravelApiClient.getUser(user);
   // }
 
-  // Future<MyUser> update(MyUser user) {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   return _laravelApiClient.updateUser(user);
-  // }
+  Future<MyUser> update(MyUser user) {
+    _odooApiClient = Get.find<OdooApiClient>();
+    print("Nathalie");
+    return _odooApiClient.updateUser(user);
+  }
   //
   // Future<bool> sendResetLinkEmail(MyUser user) {
   //   _laravelApiClient = Get.find<LaravelApiClient>();

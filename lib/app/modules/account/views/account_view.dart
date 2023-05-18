@@ -95,18 +95,18 @@ class AccountView extends GetView<AccountController> {
                   children: [
                     AccountWidget(
                       icon: FontAwesomeIcons.birthdayCake,
-                      text: Text('Date of date'),
-                      value: '12/12/2000',
+                      text: Text('Date of Birth'),
+                      value: _currentUser.value.birthday.toString(),
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.locationDot,
                       text: Text('Place of birth'),
-                      value: "Bangangte",
+                      value: _currentUser.value.birthplace,
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.male,
                       text: Text('Sexe'),
-                      value: "MALE",
+                      value: _currentUser.value.sex=='M'?"Male":"Female",
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.planeDeparture,
@@ -125,7 +125,7 @@ class AccountView extends GetView<AccountController> {
                           padding: EdgeInsets.symmetric(horizontal: 20),
                           child: AccountLinkWidget(
                             icon: Icon(FontAwesomeIcons.userEdit, color: Get.theme.colorScheme.secondary),
-                            text: Text("Profile".tr),
+                            text: Text("Edit Profile".tr),
                             onTap: (e) {
                               Get.toNamed(Routes.PROFILE);
                             },

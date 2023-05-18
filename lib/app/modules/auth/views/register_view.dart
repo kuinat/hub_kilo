@@ -196,7 +196,7 @@ class RegisterView extends GetView<AuthController> {
 
                             ),
                             validator:(input) => input == "Select your gender" ? "Select a gender".tr : null,
-                            onSaved: (input) => controller.currentUser?.value?.sex = input,
+                            onSaved: (input) => selectedGender.value == "Male"?controller.currentUser?.value?.sex = "M":controller.currentUser?.value?.sex = "F",
                             isExpanded: true,
                             alignment: Alignment.bottomCenter,
 
@@ -216,7 +216,13 @@ class RegisterView extends GetView<AuthController> {
                             // change button value to selected value
                             onChanged: (String newValue) {
                               selectedGender.value = newValue;
-                              controller.currentUser?.value?.sex = newValue;
+                              if(selectedGender.value == "Male"){
+                                controller.currentUser?.value?.sex = "M";
+                              }
+                              else{
+                                controller.currentUser?.value?.sex = "F";
+                              }
+
 
                             },).marginOnly(left: 20, right: 20, top: 10, bottom: 10).paddingOnly( top: 20, bottom: 14),
                         )

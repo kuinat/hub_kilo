@@ -90,95 +90,97 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<MyUser> getUser(MyUser user) async {
+  // Future<MyUser> getUser(MyUser user) async {
+  //
+  //   if (!authService.isAuth) {
+  //     throw new Exception("You don't have the permission to access to this area!".tr + "[ getUser() ]");
+  //   }
+  //   var _queryParameters = {
+  //     'api_token': authService.apiToken,
+  //   };
+  //   Uri _uri = getApiBaseUri("user").replace(queryParameters: _queryParameters);
+  //   Get.log(_uri.toString());
+  //   var response = await _httpClient.getUri(
+  //     _uri,
+  //     options: _optionsNetwork,
+  //   );
+  //   if (response.data['success'] == true) {
+  //     return MyUser.fromJson(response.data['data']);
+  //   } else {
+  //     throw new Exception(response.data['message']);
+  //   }
+  // }
 
-    if (!authService.isAuth) {
-      throw new Exception("You don't have the permission to access to this area!".tr + "[ getUser() ]");
-    }
-    var _queryParameters = {
-      'api_token': authService.apiToken,
-    };
-    Uri _uri = getApiBaseUri("user").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
-    var response = await _httpClient.getUri(
-      _uri,
-      options: _optionsNetwork,
-    );
-    if (response.data['success'] == true) {
-      return MyUser.fromJson(response.data['data']);
-    } else {
-      throw new Exception(response.data['message']);
-    }
-  }
+  Future<MyUser>getUser(String email) async {
 
-  Future<MyUser>getMyUser(int id) async {
     var headers = {
-      'api-key': Domain.apiKey,
-      'Cookie': 'session_id=ba00c78245106d9c033d3469dcc7408c8ae96285'
+      //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
+       'Cookie': 'session_id=f4306f3775e61e951742869b5a627c49273d069c'
     };
-    var request = http.Request(
-        'GET', Uri.parse(Domain.serverPort + '/res.users/' + id.toString()));
-
+    var request = http.Request('GET', Uri.parse('http://192.168.16.102:8090/api/res_partner'));
+    request.body = '''{\n     "jsonrpc": "2.0"\n}''';
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
-
     if (response.statusCode == 200) {
+      print('Patrick');
+      //print(await response.stream.bytesToString());
       var result = await response.stream.bytesToString();
-      var data = json.decode(result)['data'][0];
-      var user = MyUser(
+      var data = json.decode(result)['partner'];
+      print(data);
+      var myuser = MyUser(
         email: data['email'],
-        birthday: data['birthday'],
+        birthday: data['birthdate'],
         isTraveller: data['is_traveller'],
         phone: data['phone'],
         sex: data['sex'],
         name: data['name'],
         birthplace: data['birthplace'],
-        id: data['partner_id']
-
+        id: data['id']
       );
 
-      return (user);
+      print("get Date:"+myuser.id.toString());
+      return myuser;
+
     } else {
       print(response.reasonPhrase);
     }
   }
 
   Future<MyUser> login(MyUser myUser) async {
-
-    print('email'+myUser.email);
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=9be9286f1720d6390c475a2354396e32bfdaa98d'
+      'Cookie': 'session_id=cb2f15bbd89f512bde7518329c4d0a692c3380c4'
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/web/session/authenticate'));
     request.body = json.encode({
       "jsonrpc": "2.0",
-      "method": "call",
       "params": {
         "db": "odoo15",
         "login": myUser.email,
         "password": myUser.password
       }
     });
-
-
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+      print('Nathalie');
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result'];
       if(data != null){
-        var user = MyUser(
-            email: myUser.email,
-            name: data['name'],
-            id: data['partner_id']
+        var userId = data['partner_id'];
+        var myuser = await getUser(myUser.email);
 
-        );
+        //print("Partner Id is: "+ userId.toString());
 
-        return (user);
+    //  var myuser = MyUser(
+    //   email: myUser.email,
+    //   id: data['partner_id']
+    // );
+
+        return (myuser);
 
       }
       else{
@@ -222,28 +224,23 @@ class OdooApiClient extends GetxService with ApiClient {
   // }
 
   Future<MyUser> register(MyUser myUser) async {
-    //print('birthday : '+myUser.birthday);
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=876df4f26c8f83c635dd22902544d31f0eff091c'
+      'Cookie': 'session_id=718312dd9eb4fac1b6b7d6b1b1e3ed416983f841'
     };
     var request = http.Request('POST', Uri.parse(Domain.serverPort+'/create/new/partner'));
-    request.body = json.encode(
-        {
-          "jsonrpc": "2.0",
-          "params": {
-            "name": myUser.name,
-            "email": myUser.email,
-            "phone": myUser.phone,
-            "birthday": myUser.birthday,
-            "birthplace": myUser.birthplace,
-            "sex": myUser.sex,
-            "is_traveler": false,
-            "password": myUser.password,
-
-          }
-        }
-    );
+    request.body = json.encode({
+      "params": {
+        "name": myUser.name,
+        "email": myUser.email,
+        "phone": myUser.phone,
+        "birthday": myUser.birthday,
+        "birthplace": myUser.birthplace,
+        "sex": myUser.sex,
+        "is_traveler": false,
+        "password": myUser.password,
+      }
+    });
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -252,17 +249,18 @@ class OdooApiClient extends GetxService with ApiClient {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result']['data'];
       print(data);
-      var user = MyUser(
-          email: myUser.email,
-          birthday: data['birthday'],
-          isTraveller: data['is_traveller'],
-          phone: data['phone'],
-          sex: data['sex'],
-          name: data['name'],
-          birthplace: data['birthplace'],
-          id: data['partner_id']
-
-      );
+      //var userId = data['partner_id'];
+      var user = await login(myUser);
+      // var user = MyUser(
+      //     email: myUser.email,
+      //     birthday: data['birthday'],
+      //     isTraveller: data['is_traveller'],
+      //     phone: data['phone'],
+      //     sex: data['sex'],
+      //     name: data['name'],
+      //     birthplace: data['birthplace'],
+      //     id: data['partner_id']
+      // );
 
       return (user);
     }
@@ -306,27 +304,71 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  // Future<MyUser> updateUser(MyUser user) async {
-  //   if (!authService.isAuth) {
-  //     throw new Exception("You don't have the permission to access to this area!".tr + "[ updateUser() ]");
-  //   }
-  //   var _queryParameters = {
-  //     'api_token': authService.apiToken,
-  //   };
-  //   Uri _uri = getApiBaseUri("users/${user.id}").replace(queryParameters: _queryParameters);
-  //   Get.log(_uri.toString());
-  //   var response = await _httpClient.postUri(
-  //     _uri,
-  //     data: json.encode(user.toJson()),
-  //     options: _optionsNetwork,
-  //   );
-  //   if (response.data['success'] == true) {
-  //     response.data['data']['auth'] = true;
-  //     return MyUser.fromJson(response.data['data']);
-  //   } else {
-  //     throw new Exception(response.data['message']);
-  //   }
-  // }
+  Future<MyUser> updateUser(MyUser myUser) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'session_id=eb7ccba7039fa48d61be901fb87e57861ba70307'
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+':8069/partner/update'));
+    request.body = json.encode({
+      "params": {
+        "partner_id": myUser.id,
+        "name": myUser.name,
+        "email": myUser.email,
+        "phone": myUser.phone,
+        "birthday": myUser.birthday,
+        "birthplace": myUser.birthplace,
+        "sex": myUser.sex
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      //print(await response.stream.bytesToString());
+      var user = await login(myUser);
+      // var user = MyUser(
+      //     email: myUser.email,
+      //     birthday: data['birthday'],
+      //     isTraveller: data['is_traveller'],
+      //     phone: data['phone'],
+      //     sex: data['sex'],
+      //     name: data['name'],
+      //     birthplace: data['birthplace'],
+      //     id: data['partner_id']
+      // );
+
+      return (user);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+
+
+
+
+
+
+
+    // var _queryParameters = {
+    //   'api_token': authService.apiToken,
+    // };
+    // Uri _uri = getApiBaseUri("users/${user.id}").replace(queryParameters: _queryParameters);
+    // Get.log(_uri.toString());
+    // var response = await _httpClient.postUri(
+    //   _uri,
+    //   data: json.encode(user.toJson()),
+    //   options: _optionsNetwork,
+    // );
+    // if (response.data['success'] == true) {
+    //   response.data['data']['auth'] = true;
+    //   return MyUser.fromJson(response.data['data']);
+    // } else {
+    //   throw new Exception(response.data['message']);
+    // }
+  }
 
   Future<bool> deleteUser(MyUser user) async {
     if (!authService.isAuth) {
@@ -1491,6 +1533,11 @@ class OdooApiClient extends GetxService with ApiClient {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
     String fileName = file.path.split('/').last;
+
+
+
+
+
     var _queryParameters = {
       'api_token': authService.apiToken,
     };

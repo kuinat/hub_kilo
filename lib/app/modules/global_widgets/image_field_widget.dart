@@ -13,6 +13,7 @@ class ImageFieldController extends GetxController {
   Rx<File> image = Rx<File>(null);
   String uuid;
   final uploading = false.obs;
+  var url = ''.obs;
   UploadRepository _uploadRepository;
 
   ImageFieldController() {
@@ -37,7 +38,7 @@ class ImageFieldController extends GetxController {
     if (imageFile != null) {
       try {
         uploading.value = true;
-        await deleteUploaded();
+        //await deleteUploaded();
         uuid = await _uploadRepository.image(imageFile, field);
         image.value = imageFile;
         uploadCompleted(uuid);
@@ -81,7 +82,7 @@ class ImageFieldWidget extends StatelessWidget {
   final String buttonText;
   final String tag;
   final String field;
-  final Media initialImage;
+  final String initialImage;
   final ValueChanged<String> uploadCompleted;
   final ValueChanged<String> reset;
 
@@ -90,7 +91,7 @@ class ImageFieldWidget extends StatelessWidget {
     final controller = Get.put(ImageFieldController(), tag: tag);
     return Container(
       padding: EdgeInsets.only(top: 8, bottom: 10, left: 20, right: 20),
-      margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+      margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
       decoration: BoxDecoration(
           color: Get.theme.primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -99,13 +100,14 @@ class ImageFieldWidget extends StatelessWidget {
           ],
           border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        //crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Expanded(
                 child: Container(
                   height: 60,
+                  width: 60,
                   alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     label,
@@ -146,13 +148,13 @@ class ImageFieldWidget extends StatelessWidget {
           child: Image.asset(
             'assets/img/loading.gif',
             fit: BoxFit.cover,
-            width: double.infinity,
+            width: 60,
             height: 100,
           ),
         ));
   }
 
-  Widget buildImage(Media initialImage, File image) {
+  Widget buildImage(String initialImage, File image) {
     final controller = Get.put(ImageFieldController(), tag: tag);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10),
@@ -168,11 +170,11 @@ class ImageFieldWidget extends StatelessWidget {
                 height: 100,
                 width: 100,
                 fit: BoxFit.cover,
-                imageUrl: initialImage.thumb ?? '',
+                imageUrl: initialImage,
                 placeholder: (context, url) => Image.asset(
                   'assets/img/loading.gif',
                   fit: BoxFit.cover,
-                  width: double.infinity,
+                  width: 60,
                   height: 100,
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error_outline),

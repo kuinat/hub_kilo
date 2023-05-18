@@ -294,7 +294,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 label: "Image".tr,
                 field: 'avatar',
                 tag: controller.newTravelKey.hashCode.toString(),
-                initialImage: controller.avatar.value,
+                //initialImage: controller.avatar.value,
                 uploadCompleted: (uuid) {
                   controller.avatar.value = Media(id: uuid);
                 },
