@@ -4,8 +4,12 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
 
+import '../../../color_constants.dart';
 import '../../providers/odoo_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
@@ -161,7 +165,7 @@ class MainDrawerWidget extends StatelessWidget {
             text: "Available Travels",
             onTap: (e) {
               Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
-            },
+            }
           ),
 
           if(Get.find<MyAuthService>().myUser.value.email != null)...[
@@ -171,7 +175,7 @@ class MainDrawerWidget extends StatelessWidget {
               onTap: (e) async {
                 Get.back();
                 await Get.find<RootController>().changePage(1);
-              },
+              }
             ),
             DrawerLinkWidget(
               icon: Icons.notifications_none_outlined,
@@ -264,18 +268,29 @@ class MainDrawerWidget extends StatelessWidget {
           ),
           CustomPageDrawerLinkWidget(),
           Obx(() {
-            if (Get.find<AuthService>().isAuth) {
+            if (Get.find<MyAuthService>().myUser.value.email != null) {
               return DrawerLinkWidget(
                 icon: Icons.logout,
                 text: "Logout",
                 onTap: (e) async {
-                  await Get.find<AuthService>().removeCurrentUser();
-                  Get.back();
-                  await Get.find<RootController>().changePage(0);
+                  showDialog(
+                      context: context,
+                      builder: (_)=>  PopUpWidget(
+                        title: "Do you really want to quit?",
+                        cancel: 'Cancel',
+                        confirm: 'Log Out',
+                        onTap: ()async{
+                          final box = GetStorage();
+                          await Get.find<MyAuthService>().removeCurrentUser();
+                          Get.find<RootController>().changePage(0);
+                          box.remove("session_id");
+                          Navigator.pop(context);
+                        }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
+                      ));
                 },
               );
             } else {
-              return SizedBox(height: 0);
+              return SizedBox();
             }
           }),
           if (Get.find<SettingsService>().setting.value.enableVersion)

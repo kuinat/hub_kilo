@@ -1,15 +1,18 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 
 import '../../../../common/ui.dart';
+import '../../../../main.dart';
 import '../../../models/address_model.dart';
 import '../../../models/category_model.dart';
 import '../../../models/e_service_model.dart';
-import '../../../models/slide_model.dart';
 import '../../../repositories/category_repository.dart';
 import '../../../repositories/e_service_repository.dart';
 import '../../../repositories/slider_repository.dart';
 import '../../../services/settings_service.dart';
 import '../../root/controllers/root_controller.dart';
+import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   SliderRepository _sliderRepo;
@@ -17,7 +20,7 @@ class HomeController extends GetxController {
   EServiceRepository _eServiceRepository;
 
   final addresses = <Address>[].obs;
-  final slider = <Slide>[].obs;
+  final slider = [].obs;
   final currentSlide = 0.obs;
   //final buttonPressed = false.obs;
 
@@ -34,6 +37,7 @@ class HomeController extends GetxController {
   @override
   Future<void> onInit() async {
     await refreshHome();
+    slider.value = await getSlider();
     super.onInit();
   }
 
@@ -53,10 +57,20 @@ class HomeController extends GetxController {
   }
 
   Future getSlider() async {
-    try {
-      slider.assignAll(await _sliderRepo.getHomeSlider());
-    } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; session_id=d047bf791be8a6350c110a221bbbd5afcdeff9ec'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      return json.decode(data)['publicity'];
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 

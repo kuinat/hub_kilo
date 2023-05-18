@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
@@ -9,6 +10,7 @@ import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/notifications_button_widget.dart';
+import '../../global_widgets/pop_up_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/account_controller.dart';
 import '../widgets/account_link_widget.dart';
@@ -214,8 +216,19 @@ class AccountView extends GetView<AccountController> {
                     icon: Icon(Icons.logout, color: Get.theme.colorScheme.secondary),
                     text: Text("Logout".tr),
                     onTap: (e) async {
-                      await Get.find<MyAuthService>().removeCurrentUser();
-                      Get.find<RootController>().changePage(0);
+                      showDialog(context: context,
+                          builder: (_)=> PopUpWidget(
+                            title: "Do you really want to quit?",
+                            cancel: 'Cancel',
+                            confirm: 'Log Out',
+                            onTap: ()async{
+                              final box = GetStorage();
+                              await Get.find<MyAuthService>().removeCurrentUser();
+                              Get.find<RootController>().changePage(0);
+                              box.remove("session_id");
+                              Navigator.pop(context);
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
+                          ));
                     },
                   ),
                 ],
@@ -224,4 +237,5 @@ class AccountView extends GetView<AccountController> {
           ],
         ));
   }
+
 }

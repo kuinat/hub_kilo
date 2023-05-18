@@ -135,7 +135,7 @@ class BookingsView extends GetView<BookingsController> {
                     )
                   ],
                 )
-              )
+              ),
             ],
           )
     ));
