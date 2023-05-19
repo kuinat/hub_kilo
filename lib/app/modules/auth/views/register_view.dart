@@ -180,6 +180,17 @@ class RegisterView extends GetView<AuthController> {
                         isLast: false,
                       ),
 
+                      TextFieldWidget(
+                        labelText: "Address".tr,
+                        hintText: "Bamako".tr,
+                        initialValue: controller.currentUser?.value?.street,
+                        onSaved: (input) => controller.currentUser?.value?.street = input,
+                        validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                        iconData: Icons.map,
+                        isFirst: true,
+                        isLast: false,
+                      ),
+
                       Container(
                         decoration: BoxDecoration(
                             color: Get.theme.primaryColor,

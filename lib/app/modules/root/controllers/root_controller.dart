@@ -13,6 +13,7 @@ import '../../bookings/views/bookings_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/home2_view.dart';
 import '../../messages/controllers/messages_controller.dart';
+import '../../profile/controllers/profile_controller.dart';
 import '../../userTravels/controllers/myTravels_controller.dart';
 import '../../userTravels/views/userTravels_view.dart';
 
@@ -50,7 +51,7 @@ class RootController extends GetxController {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
-    print(Get.find<MyAuthService>().myUser.value.name);
+    //print(Get.find<MyAuthService>().myUser.value.name);
     if (Get.find<MyAuthService>().myUser.value.email == null && _index > 0) {
       await Get.toNamed(Routes.LOGIN);
     } else {
@@ -96,6 +97,12 @@ class RootController extends GetxController {
       case 2:
         {
           await Get.find<MyTravelsController>().refreshMyTravels();
+          break;
+        }
+
+      case 3:
+        {
+          await Get.find<ProfileController>().refreshProfile();
           break;
         }
     }

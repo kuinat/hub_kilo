@@ -10,24 +10,28 @@ class MyUser {
   int id;
   String name;
   String email;
+  String street;
   String password;
   String phone;
   String birthday;
   String birthplace;
   String sex;
   bool isTraveller ;
+  var image;
 
 
   MyUser({
     this.id,
     this.name,
      this.email,
+    this.street,
     this.password,
      this.phone,
      this.birthday,
     this.birthplace,
      this.sex,
      this.isTraveller,
+    this.image,
 
   });
 
@@ -35,23 +39,27 @@ class MyUser {
     id: json["partner_id"],
     name: json["name"] ,
     email: json["email"],
+    street: json["street"],
     password: json["password"],
     phone: json["phone"],
     birthday: json["birthday"],
     birthplace: json["birthplace"],
     sex: json["sex"],
     isTraveller: json["is_traveller"],
+    image: json["image_1920"],
   );
 
   Map<String, dynamic> toJson() => {
     "name": name,
     "email": email,
+    "street": street,
     "password": password,
     "phone": phone,
     "birthday": birthday,
     "birthplace": birthplace,
     "sex": sex,
     "is_traveller": isTraveller,
+    "image_1920": isTraveller,
 
   };
 

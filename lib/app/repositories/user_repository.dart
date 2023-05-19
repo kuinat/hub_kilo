@@ -7,6 +7,7 @@ import '../providers/firebase_provider.dart';
 import '../providers/laravel_provider.dart';
 import '../providers/odoo_provider.dart';
 import '../services/auth_service.dart';
+import '../services/my_auth_service.dart';
 
 class UserRepository {
   LaravelApiClient _laravelApiClient;
@@ -25,15 +26,16 @@ class UserRepository {
   //   return _laravelApiClient.login(user);
   // }
   //
-  // Future<MyUser> get(MyUser user) {
-  //   _laravelApiClient = Get.find<LaravelApiClient>();
-  //   return _laravelApiClient.getUser(user);
-  // }
+  Future<MyUser> get(MyUser user) {
+    _odooApiClient = Get.find<OdooApiClient>();
+    return _odooApiClient.getUser();
+  }
 
-  Future<MyUser> update(MyUser user) {
+  Future<MyUser> update(MyUser myUser) {
+    print("Nath");
     _odooApiClient = Get.find<OdooApiClient>();
     print("Nathalie");
-    return _odooApiClient.updateUser(user);
+    return _odooApiClient.updateUser(myUser);
   }
   //
   // Future<bool> sendResetLinkEmail(MyUser user) {
@@ -41,9 +43,9 @@ class UserRepository {
   //   return _laravelApiClient.sendResetLinkEmail(user);
   // }
   //
-  // Future<MyUser> getCurrentUser() {
-  //   return this.get(Get.find<AuthService>().user.value);
-  // }
+  Future<MyUser> getCurrentUser() {
+    return this.get(Get.find<MyAuthService>().myUser.value);
+  }
 
   // Future<void> deleteCurrentUser() async {
   //   _laravelApiClient = Get.find<LaravelApiClient>();
@@ -68,25 +70,25 @@ class UserRepository {
     return _odooApiClient.register(myUser);
   }
 
-  Future<bool> signInWithEmailAndPassword(String email, String password) async {
-    _firebaseProvider = Get.find<FirebaseProvider>();
-    return _firebaseProvider.signInWithEmailAndPassword(email, password);
-  }
-
-  Future<bool> signUpWithEmailAndPassword(String email, String password) async {
-    _firebaseProvider = Get.find<FirebaseProvider>();
-    return _firebaseProvider.signUpWithEmailAndPassword(email, password);
-  }
-
-  Future<void> verifyPhone(String smsCode) async {
-    _firebaseProvider = Get.find<FirebaseProvider>();
-    return _firebaseProvider.verifyPhone(smsCode);
-  }
-
-  Future<void> sendCodeToPhone() async {
-    _firebaseProvider = Get.find<FirebaseProvider>();
-    return _firebaseProvider.sendCodeToPhone();
-  }
+  // Future<bool> signInWithEmailAndPassword(String email, String password) async {
+  //   _firebaseProvider = Get.find<FirebaseProvider>();
+  //   return _firebaseProvider.signInWithEmailAndPassword(email, password);
+  // }
+  //
+  // Future<bool> signUpWithEmailAndPassword(String email, String password) async {
+  //   _firebaseProvider = Get.find<FirebaseProvider>();
+  //   return _firebaseProvider.signUpWithEmailAndPassword(email, password);
+  // }
+  //
+  // Future<void> verifyPhone(String smsCode) async {
+  //   _firebaseProvider = Get.find<FirebaseProvider>();
+  //   return _firebaseProvider.verifyPhone(smsCode);
+  // }
+  //
+  // Future<void> sendCodeToPhone() async {
+  //   _firebaseProvider = Get.find<FirebaseProvider>();
+  //   return _firebaseProvider.sendCodeToPhone();
+  // }
 
   Future signOut() async {
     _firebaseProvider = Get.find<FirebaseProvider>();

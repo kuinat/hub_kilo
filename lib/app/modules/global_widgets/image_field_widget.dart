@@ -39,7 +39,7 @@ class ImageFieldController extends GetxController {
       try {
         uploading.value = true;
         //await deleteUploaded();
-        uuid = await _uploadRepository.image(imageFile, field);
+        uuid = await _uploadRepository.image(imageFile);
         image.value = imageFile;
         uploadCompleted(uuid);
         uploading.value = false;
