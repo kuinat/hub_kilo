@@ -364,23 +364,128 @@ class AddTravelsView extends GetView<AddTravelController> {
               labelText: "Restriction".tr,
               iconData: FontAwesomeIcons.fileLines,
             ),
-            Obx(() {
-              return ImageFieldWidget(
-                label: "Image".tr,
-                field: 'avatar',
-                tag: controller.newTravelKey.hashCode.toString(),
-                initialImage: controller.avatar.value,
-                uploadCompleted: (uuid) {
-                  controller.avatar.value = Media(id: uuid);
-                },
-                reset: (uuid) {
-                  //controller.avatar.value = new Media(thumb: controller.user.value.avatar.thumb);
-                },
-              );
-            }),
+            Container(
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Get.theme.primaryColor,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text("CNI Image".tr,
+                    style: Get.textTheme.bodyText1,
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Obx(() {
+                        if(!controller.loadPassport.value)
+                          return buildLoader();
+                        else return ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          child: Image.file(
+                            controller.passport,
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
+                          ),
+                        );
+                      }
+                      ),
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () async {
+                          await controller.passportPicker();
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                          child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Get.theme.primaryColor,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text("Ticket Image".tr,
+                    style: Get.textTheme.bodyText1,
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Obx(() {
+                        if(!controller.loadTicket.value)
+                          return buildLoader();
+                        else return ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          child: Image.file(
+                            controller.ticket,
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
+                          ),
+                        );
+                      }
+                      ),
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () async {
+                          await controller.ticketPicker();
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                          child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
           ],
         )
     );
+  }
+
+  Widget buildLoader() {
+    return Container(
+        width: 100,
+        height: 100,
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          child: Image.asset(
+            'assets/img/loading.gif',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: 100,
+          ),
+        ));
   }
 
   Widget overView(BuildContext context){

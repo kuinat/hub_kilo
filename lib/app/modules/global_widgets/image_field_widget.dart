@@ -6,8 +6,10 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../common/ui.dart';
+import '../../../main.dart';
 import '../../models/media_model.dart';
 import '../../repositories/upload_repository.dart';
+import 'package:http/http.dart' as http;
 
 class ImageFieldController extends GetxController {
   Rx<File> image = Rx<File>(null);
@@ -38,9 +40,9 @@ class ImageFieldController extends GetxController {
       try {
         uploading.value = true;
         await deleteUploaded();
-        uuid = await _uploadRepository.image(imageFile, field);
+        /*uuid = await _uploadRepository.image(imageFile, field);
         image.value = imageFile;
-        uploadCompleted(uuid);
+        uploadCompleted(uuid);*/
         uploading.value = false;
       } catch (e) {
         uploading.value = false;

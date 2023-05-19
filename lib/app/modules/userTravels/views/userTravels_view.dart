@@ -113,7 +113,7 @@ class MyTravelsView extends GetView<MyTravelsController> {
                 decoration: Ui.getBoxDecoration(color: backgroundColor),
                 child: Column(
                   children: [
-                    Container(
+                    /*Container(
                       height: 43,
                       margin: EdgeInsets.only(bottom: 10),
                       child: ListView.builder(
@@ -132,7 +132,7 @@ class MyTravelsView extends GetView<MyTravelsController> {
                               )
                             ));
                           }),
-                    ),
+                    ),*/
                     Expanded(
                         child: Obx(()=>
                             GridView.builder(

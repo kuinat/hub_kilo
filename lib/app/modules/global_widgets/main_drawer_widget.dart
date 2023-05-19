@@ -35,7 +35,7 @@ class MainDrawerWidget extends StatelessWidget {
             if (Get.find<MyAuthService>().myUser.value.email == null) {
               return GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.LOGIN);
+                  Get.offNamed(Routes.LOGIN);
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 30, horizontal: 15),
@@ -54,7 +54,7 @@ class MainDrawerWidget extends StatelessWidget {
                         children: <Widget>[
                           MaterialButton(
                             onPressed: () {
-                              Get.toNamed(Routes.LOGIN);
+                              Get.offNamed(Routes.LOGIN);
                             },
                             color: Get.theme.colorScheme.secondary,
                             height: 40,
@@ -78,7 +78,7 @@ class MainDrawerWidget extends StatelessWidget {
                             height: 40,
                             elevation: 0,
                             onPressed: () {
-                              Get.toNamed(Routes.REGISTER);
+                              Get.offNamed(Routes.REGISTER);
                             },
                             child: Wrap(
                               runAlignment: WrapAlignment.center,
@@ -156,8 +156,8 @@ class MainDrawerWidget extends StatelessWidget {
             icon: Icons.home_outlined,
             text: "Home",
             onTap: (e) async {
-              Get.back();
-              await Get.find<RootController>().changePage(0);
+              //Get.back();
+              await Get.offNamed(Routes.ROOT);
             },
           ),
           DrawerLinkWidget(
@@ -196,7 +196,7 @@ class MainDrawerWidget extends StatelessWidget {
                 icon: Icons.qr_code,
                 text: "Validate Transaction",
                 onTap: (e) {
-                  Get.toNamed(Routes.VALIDATE_TRANSACTION);
+                  Get.offNamed(Routes.VALIDATE_TRANSACTION);
                 },
               ),
           ],
@@ -234,20 +234,6 @@ class MainDrawerWidget extends StatelessWidget {
               await Get.offAndToNamed(Routes.SETTINGS);
             },
           ),
-          /*DrawerLinkWidget(
-            icon: Icons.translate_outlined,
-            text: "Languages",
-            onTap: (e) async {
-              await Get.offAndToNamed(Routes.SETTINGS_LANGUAGE);
-            },
-          ),
-          DrawerLinkWidget(
-            icon: Icons.brightness_6_outlined,
-            text: Get.isDarkMode ? "Light Theme" : "Dark Theme",
-            onTap: (e) async {
-              await Get.offAndToNamed(Routes.SETTINGS_THEME_MODE);
-            },
-          ),*/
           ListTile(
             dense: true,
             title: Text(
@@ -282,9 +268,8 @@ class MainDrawerWidget extends StatelessWidget {
                         onTap: ()async{
                           final box = GetStorage();
                           await Get.find<MyAuthService>().removeCurrentUser();
-                          Get.find<RootController>().changePage(0);
+                          Get.offNamed(Routes.ROOT);
                           box.remove("session_id");
-                          Navigator.pop(context);
                         }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
                       ));
                 },

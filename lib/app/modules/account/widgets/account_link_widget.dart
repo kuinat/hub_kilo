@@ -84,10 +84,10 @@ class AccountWidget extends StatelessWidget {
             child: text,
           ),
           SizedBox(
-            width: 100,
+            width: 130,
             child: Text(
               value, style: Get.textTheme.headline1.
-            merge(TextStyle(color: Get.theme.focusColor, fontSize: 16)),
+            merge(TextStyle(color: appColor, fontSize: 12)),
             ),
           )
         ],

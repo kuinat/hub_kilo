@@ -14,22 +14,34 @@ class CardWidget extends StatelessWidget {
     @required this.imageUrl,
     @required this.arrDate,
     @required this.depDate,
+    @required this.recName,
+    @required this.recEmail,
+    @required this.recAddress,
+    @required this.recPhone,
     @required this.qty,
+    @required this.edit,
+    @required this.confirm,
     @required this.price,
     @required this.text,
     @required this.onPressed}) : super(key: key);
 
   final Color color;
   final String user;
-  final Widget text;
-  final Widget depTown;
-  final Widget arrTown;
-  final Widget depDate;
-  final Widget arrDate;
+  final String text;
+  final String recName;
+  final String recEmail;
+  final String recAddress;
+  final String recPhone;
+  final String depTown;
+  final String arrTown;
+  final String depDate;
+  final String arrDate;
   final int qty;
   final double price;
   final String imageUrl;
   final VoidCallback onPressed;
+  final Function edit;
+  final Function confirm;
 
   @override
   Widget build(BuildContext context) {
@@ -71,13 +83,13 @@ class CardWidget extends StatelessWidget {
                     Container(
                       alignment: Alignment.topCenter,
                       width: 100,
-                      child: Text("Yaounde", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                      child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                     ),
                     FaIcon(FontAwesomeIcons.arrowRight),
                     Container(
                         alignment: Alignment.topCenter,
                         width: 100,
-                        child: Text("Douala", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                        child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                     ),
                   ],
                 ),
@@ -86,7 +98,6 @@ class CardWidget extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-            height: 150,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -100,7 +111,16 @@ class CardWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Icon(FontAwesomeIcons.ship),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
+                    SizedBox(width: 20),
+                    Text("From: $text", style: Get.textTheme.headline1.
+                    merge(TextStyle(color: appColor, fontSize: 17)))
+                  ],
+                ),
+                SizedBox(height: 10),
                 Row(
                   children: [
                     SizedBox(
@@ -116,15 +136,30 @@ class CardWidget extends StatelessWidget {
                     Expanded(
                       child: Text('Date de Départ'),
                     ),
-                    Text(
-                      '12/06/2020', style: Get.textTheme.headline1.
-                    merge(TextStyle(color: Get.theme.focusColor, fontSize: 16)),
+                    Text(depDate, style: Get.textTheme.headline1.
+                    merge(TextStyle(color: appColor, fontSize: 16)),
                     ),
                   ],
                 ),
+                SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    SizedBox(
+                      child: Row(
+                        children: [
+                          Text('Quantity /Kg'),
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 12),
+                            width: 1,
+                            height: 24,
+                            color: Get.theme.focusColor.withOpacity(0.3),
+                          ),
+                          Text(qty.toString(), style: Get.textTheme.headline1.
+                          merge(TextStyle(color: appColor, fontSize: 16)))
+                        ],
+                      ),
+                    ),
                     SizedBox(
                       child: Row(
                         children: [
@@ -138,26 +173,69 @@ class CardWidget extends StatelessWidget {
                             height: 24,
                             color: Get.theme.focusColor.withOpacity(0.3),
                           ),
-                          Text('250 EUR')
+                          Text(price.toString(), style: Get.textTheme.headline6.
+                          merge(TextStyle(color: specialColor, fontSize: 16)))
                         ],
                       ),
                     ),
-                    SizedBox(
-                      child: Row(
-                        children: [
-                          Text('Quantity /Kg'),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 12),
-                            width: 1,
-                            height: 24,
-                            color: Get.theme.focusColor.withOpacity(0.3),
-                          ),
-                          Text('18')
-                        ],
-                      ),
-                    )
                   ],
                 ),
+                ExpansionTile(
+                  leading: Icon(FontAwesomeIcons.userCheck, size: 20),
+                  title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
+                  merge(TextStyle(color: appColor, fontSize: 17))),
+                  children: [
+                    AccountWidget(
+                      icon: FontAwesomeIcons.person,
+                      text: Text('Full Name'),
+                      value: recName,
+                    ),
+                    AccountWidget(
+                      icon: Icons.alternate_email,
+                      text: Text('Email'),
+                      value: recEmail,
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.addressCard,
+                      text: Text('Address'),
+                      value: recAddress,
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.phone,
+                      text: Text('Phone'),
+                      value: recPhone,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: edit,
+                          child: Card(
+                              elevation: 10,
+                              color: inactive,
+                              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
+                          )
+                        ),
+                        SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: confirm,
+                          child: Card(
+                              elevation: 10,
+                              color: specialColor,
+                              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  child: Text("Delete".tr, style: TextStyle(color: Colors.white)))
+                          )
+                        ),
+                      ],
+                    )
+                  ],
+                  initiallyExpanded: false,
+                )
               ],
             ),
           ),
