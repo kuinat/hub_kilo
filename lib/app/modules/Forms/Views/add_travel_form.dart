@@ -1,14 +1,14 @@
 
+import 'package:csc_picker/csc_picker.dart';
 import 'package:cupertino_stepper/cupertino_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import '../../../../color_constants.dart';
 import '../../../models/media_model.dart';
-import '../../../routes/app_routes.dart';
 import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/image_field_widget.dart';
@@ -151,7 +151,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                       Obx(() =>
                           ListTile(
                               leading: Icon(Icons.calendar_today),
-                              title: Text(DateFormat('dd/MM/yyyy').format(controller.departureDate.value).toString(),
+                              title: Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.departureDate.value)).toString(),
                                 style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
                               )
                           )
@@ -182,7 +182,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                       Obx(() =>
                           ListTile(
                               leading: Icon(Icons.calendar_today),
-                              title: Text(DateFormat('dd/MM/yyyy').format(controller.arrivalDate.value).toString(),
+                              title: Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.arrivalDate.value)).toString(),
                                 style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
                               )
                           ))
@@ -190,24 +190,100 @@ class AddTravelsView extends GetView<AddTravelController> {
                   ),
                 )
             ),
-            TextFieldWidget(
-              //initialValue: controller.user.value.name,
-              onChanged: (input) => controller.departureTown.value = input,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              labelText: "Departure Town".tr,
-              onTap: ()=>{
-                controller.searchPlace
-              },
-              iconData: Icons.location_pin,
-            ),
-            TextFieldWidget(
-              //onSaved: (input) => controller.user.value.name = input,
-              //initialValue: controller.user.value.name,`
-              onChanged: (input) => controller.arrivalTown.value = input,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              labelText: "Arrival Town".tr,
-              iconData: Icons.location_pin,
-            ),
+            Obx(() => Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Get.theme.primaryColor,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+              child: ExpansionTile(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text("Departure Town",
+                        style: Get.textTheme.bodyText1,
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.location_pin),
+                          SizedBox(width: 15),
+                          Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value
+                              : controller.travelCard['departure_town'].toString()),
+                        ]
+                      )
+                    ]
+                  ),
+              initiallyExpanded: false,
+              children: [
+
+                CSCPicker(
+                  onCountryChanged: (value) {
+                    controller.country1.value = value;
+                  },
+                  onStateChanged:(value) {
+
+                  },
+                  onCityChanged:(value) {
+                    controller.townEdit.value = !controller.townEdit.value;
+                    controller.departureTown.value = "$value, ${controller.country1.value}";
+
+                  },
+                ),
+              ],),
+            )),
+            Obx(() => Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Get.theme.primaryColor,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+              child: ExpansionTile(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text("Arrival Town",
+                      style: Get.textTheme.bodyText1,
+                      textAlign: TextAlign.start,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.location_pin),
+                        SizedBox(width: 15),
+                        Text(controller.travelCard.isEmpty || controller.town2Edit.value ? controller.arrivalTown.value
+                            : controller.travelCard['arrival_town'].toString()),
+                      ],
+                    )
+                  ],
+                ),
+                initiallyExpanded: false,
+                children: [
+
+                  CSCPicker(
+                    onCountryChanged: (value) {
+                      controller.country2.value = value;
+                    },
+                    onStateChanged:(value) {
+
+                    },
+                    onCityChanged:(value) {
+                      controller.town2Edit.value = !controller.town2Edit.value;
+                      controller.arrivalTown.value = "$value, ${controller.country2.value}";
+
+                    },
+                  ),
+                ],),
+            )),
           ]
         )
     );
@@ -220,10 +296,34 @@ class AddTravelsView extends GetView<AddTravelController> {
           primary: true,
           //padding: EdgeInsets.all(10),
           children: [
+            Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                decoration: BoxDecoration(
+                    color: Get.theme.primaryColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    boxShadow: [
+                      BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                    ],
+                    border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                child: ExpansionTile(
+                  title: Text("Travel Type".tr, style: Get.textTheme.bodyText2),
+                  children: List.generate(controller.transportType.length, (index) {
+                    var type = controller.transportType.elementAt(index);
+                    return SwitchListTile( //switch at right side of label
+                        value: controller.selectedTravel.contains(type),
+                        onChanged: (bool value){
+                          controller.toggleTravels(value, type);
+                          controller.travelType.value = type;
+                        },
+                        title: Text(controller.transportType[index])
+                    );
+                  }),
+                  initiallyExpanded: false,
+                )
+            ),
             TextFieldWidget(
-              //initialValue: controller.user.value.name,
-              isFirst: false,
-              isLast: false,
+              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
               keyboardType: TextInputType.number,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               onChanged: (input) => controller.quantity.value = int.parse(input),
@@ -232,53 +332,13 @@ class AddTravelsView extends GetView<AddTravelController> {
             ),
             TextFieldWidget(
               //onSaved: (input) => controller.user.value.name = input,
-              //initialValue: controller.user.value.name,
+              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['price_per_kilo'].toString() : "",
               keyboardType: TextInputType.number,
-              onChanged: (input) => controller.price.value = int.parse(input),
+              onChanged: (input) => controller.price.value = double.parse(input),
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               labelText: "Price /kg".tr,
               iconData: Icons.attach_money,
             ),
-            Container(
-              padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-              decoration: BoxDecoration(
-                  color: Get.theme.primaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  boxShadow: [
-                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                  ],
-                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-              child: ExpansionTile(
-                title: Text("Travel Type".tr, style: Get.textTheme.bodyText2),
-                children: List.generate(controller.transportType.length, (index) {
-                  var type = controller.transportType.elementAt(index);
-                  return CheckboxListTile(
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    value: controller.list.contains(type),
-                    onChanged: (value) {
-                      if(controller.list.isEmpty){
-                        controller.list.add(type);
-                      }else{
-                        controller.list.clear();
-                        controller.list.add(type);
-                      }
-                      controller.travelType.value = type;
-                      print(controller.travelType.value);
-                      //controller.toggleCategory(value, _category);
-                    },
-                    title: Text(
-                      type,
-                      style: Get.textTheme.bodyText1,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      maxLines: 1,
-                    ),
-                  );
-                }),
-                initiallyExpanded: false,
-              )
-            )
           ],
         )
     );
@@ -289,6 +349,21 @@ class AddTravelsView extends GetView<AddTravelController> {
         key: controller.newTravelKey,
         child: ListView(
           children: [
+            SwitchListTile( //switch at right side of label
+                value: controller.canBargain.value,
+                onChanged: (bool value){
+                  controller.canBargain.value = value;
+                },
+                title: Text("Bargain?")
+            ),
+            TextFieldWidget(
+              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['type_of_luggage_accepted'].toString() : controller.restriction.value,
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              onChanged: (input) => controller.restriction.value = input,
+              labelText: "Restriction".tr,
+              iconData: FontAwesomeIcons.fileLines,
+            ),
             Obx(() {
               return ImageFieldWidget(
                 label: "Image".tr,
@@ -325,12 +400,12 @@ class AddTravelsView extends GetView<AddTravelController> {
           AccountWidget(
             icon: FontAwesomeIcons.calendarDay,
             text: Text('Departure \nDate'),
-            value: DateFormat('dd/MM/yyyy').format(controller.departureDate.value).toString(),
+            value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.departureDate.value)).toString(),
           ),
           AccountWidget(
             icon: FontAwesomeIcons.calendarDay,
             text: Text('Arrival \nDate'),
-            value: DateFormat('dd/MM/yyyy').format(controller.arrivalDate.value).toString(),
+            value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.arrivalDate.value)).toString(),
           ),
           AccountWidget(
             icon: FontAwesomeIcons.locationDot,
@@ -378,13 +453,28 @@ class AddTravelsView extends GetView<AddTravelController> {
           Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                controller.travelCard.isEmpty ?
                 BlockButtonWidget(
                   onPressed: () =>{
-                    controller.buttonPressed.value = !controller.buttonPressed.value
+                    controller.buttonPressed.value = !controller.buttonPressed.value,
+                    controller.postTravel()
                   },
                   color: Get.theme.colorScheme.secondary,
                   text: !controller.buttonPressed.value ? Text(
                     "Submit Form".tr,
+                    style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
+                  ) : SizedBox(height: 20,
+                      child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                ).paddingSymmetric(vertical: 10, horizontal: 20)
+                    :
+                BlockButtonWidget(
+                  onPressed: () =>{
+                    controller.buttonPressed.value = !controller.buttonPressed.value,
+                    controller.updateTravel(controller.travelCard['id'])
+                  },
+                  color: Get.theme.colorScheme.secondary,
+                  text: !controller.buttonPressed.value ? Text(
+                    "Update Travel".tr,
                     style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
                   ) : SizedBox(height: 20,
                       child: SpinKitThreeBounce(color: Colors.white, size: 20)),
@@ -418,7 +508,7 @@ class AddTravelsView extends GetView<AddTravelController> {
           title: Icon(FontAwesomeIcons.thumbsUp),
           state: StepState.editing,
         )
-      ],
+      ]
     );
   }
 

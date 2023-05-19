@@ -13,8 +13,11 @@ class TravelCardWidget extends StatelessWidget {
     @required this.imageUrl,
     @required this.arrDate,
     @required this.depDate,
+    this.isUser,
+    this.travelState,
     @required this.qty,
     @required this.icon,
+    this.disable,
     @required this.price,
     @required this.text}) : super(key: key);
 
@@ -26,7 +29,10 @@ class TravelCardWidget extends StatelessWidget {
   final String arrTown;
   final String depDate;
   final String arrDate;
+  final bool disable;
+  final String travelState;
   final int qty;
+  final bool isUser;
   final double price;
   final String imageUrl;
 
@@ -40,17 +46,15 @@ class TravelCardWidget extends StatelessWidget {
         gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Colors.white, interfaceColor.withOpacity(0.3)]
+            colors: [Colors.white, Colors.white, !disable ? interfaceColor.withOpacity(0.3) : inactive]
         ),
         borderRadius: BorderRadius.only(topLeft: Radius.circular(30),bottomRight: Radius.circular(30)),
-        boxShadow: [
-          BoxShadow(color: this.color.withOpacity(0.3), blurRadius: 40, offset: Offset(0, 15)),
-          BoxShadow(color: this.color.withOpacity(0.2), blurRadius: 13, offset: Offset(0, 3))
-        ],
+        border: Border.all(color: !disable ? interfaceColor.withOpacity(0.4) : inactive)
         // borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       child: Column(
         children: [
+          !isUser ?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -71,7 +75,49 @@ class TravelCardWidget extends StatelessWidget {
                 child: this.user,
               )
             ],
+          ) : !disable ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: icon
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                alignment: Alignment.center,
+                child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                decoration: BoxDecoration(
+                    color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                    border: Border.all(
+                      color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+              )
+            ],
+          ) :
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: icon
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                width: 80,
+                alignment: Alignment.center,
+                child: Text("Due", style: Get.textTheme.headline1.merge(TextStyle(color: specialColor, fontSize: 12))),
+                decoration: BoxDecoration(
+                    color: specialColor.withOpacity(0.3),
+                    border: Border.all(
+                      color: specialColor.withOpacity(0.2),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+              ),
+            ],
           ),
+          SizedBox(height: 10),
+          if(!isUser)
           CircleAvatar(
               backgroundColor: Colors.white,
               child: icon
@@ -104,13 +150,13 @@ class TravelCardWidget extends StatelessWidget {
                     Container(
                       alignment: Alignment.topCenter,
                       width: width,
-                      height: 40,
+                      height: 50,
                       child: Text(this.depTown, style: TextStyle(color: appColor)),
                     ),
                     Container(
                         alignment: Alignment.topCenter,
                         width: width,
-                        height: 40,
+                        height: 50,
                         child: Text(this.arrTown, style: TextStyle(color: appColor))
                     )
                   ]
@@ -118,9 +164,15 @@ class TravelCardWidget extends StatelessWidget {
               ]
           ),
           SizedBox(height: 10),
-          ListTile(
-              leading: FaIcon(FontAwesomeIcons.calendarDay,size: 20),
-              title: Text(this.depDate, style: TextStyle(color: appColor, fontSize: 15))
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
+              children: [
+                FaIcon(FontAwesomeIcons.calendarDay,size: 20),
+                SizedBox(width: 10),
+                Text(this.depDate, style: TextStyle(color: appColor, fontSize: 15))
+              ],
+            ),
           ),
           ListTile(
             title: Text('price /kg:   $price EUR'),

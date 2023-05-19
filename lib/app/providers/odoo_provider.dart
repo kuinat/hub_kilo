@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -14,7 +15,6 @@ import '../../main.dart';
 import '../models/address_model.dart';
 import '../models/award_model.dart';
 import '../models/booking_model.dart';
-import '../models/booking_status_model.dart';
 import '../models/category_model.dart';
 import '../models/coupon_model.dart';
 import '../models/custom_page_model.dart';
@@ -79,14 +79,21 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<List<Slide>> getHomeSlider() async {
-    Uri _uri = getApiBaseUri("slides");
-    Get.log(_uri.toString());
-    var response = await _httpClient.getUri(_uri, options: _optionsCache);
-    if (response.data['success'] == true) {
-      return response.data['data'].map<Slide>((obj) => Slide.fromJson(obj)).toList();
-    } else {
-      throw new Exception(response.data['message']);
+  Future getHomeSlider()async{
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; session_id=d047bf791be8a6350c110a221bbbd5afcdeff9ec'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      return json.decode(data)['publicity'];
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 
@@ -111,13 +118,15 @@ class OdooApiClient extends GetxService with ApiClient {
   //   }
   // }
 
-  Future<MyUser>getUser(String email) async {
+  Future<MyUser>getUser() async {
 
+    final box = GetStorage();
+    var sessionId = box.read('session_id');
     var headers = {
       //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
-       'Cookie': 'session_id=f4306f3775e61e951742869b5a627c49273d069c'
+       'Cookie': sessionId
     };
-    var request = http.Request('GET', Uri.parse('http://192.168.16.102:8090/api/res_partner'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
     request.body = '''{\n     "jsonrpc": "2.0"\n}''';
     request.headers.addAll(headers);
 
@@ -148,6 +157,9 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   Future<MyUser> login(MyUser myUser) async {
+
+
+    final box = GetStorage();
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=cb2f15bbd89f512bde7518329c4d0a692c3380c4'
@@ -171,15 +183,11 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       if(data != null){
         var userId = data['partner_id'];
-        var myuser = await getUser(myUser.email);
+        var myuser = await getUser();
 
-        //print("Partner Id is: "+ userId.toString());
-
-    //  var myuser = MyUser(
-    //   email: myUser.email,
-    //   id: data['partner_id']
-    // );
-
+        final session_id = response.headers['set-cookie'];
+        box.write('session_id', session_id.split(";").first);
+        //print("session id: ${session_id.split(";").first}");
         return (myuser);
 
       }
