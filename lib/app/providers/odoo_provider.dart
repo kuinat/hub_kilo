@@ -125,7 +125,7 @@ class OdooApiClient extends GetxService with ApiClient {
     var sessionId = box.read('session_id');
     var headers = {
       //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
-       'Cookie': sessionId.toString()
+      'Cookie': sessionId.toString()
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
     request.body = '''{\n     "jsonrpc": "2.0"\n}''';
@@ -139,16 +139,16 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['partner'];
       print(data);
       var myuser = MyUser(
-        email: data['email'],
-        birthday: data['birthdate'],
-        isTraveller: data['is_traveler'],
-        phone: data['phone'],
-        street: data['street'],
-        sex: data['sex'],
-        name: data['name'],
-        birthplace: data['birthplace'],
-        id: data['id'],
-        image: data['image_1920']
+          email: data['email'],
+          birthday: data['birthdate'],
+          isTraveller: data['is_traveler'],
+          phone: data['phone'],
+          street: data['street'],
+          sex: data['sex'],
+          name: data['name'],
+          birthplace: data['birthplace'],
+          id: data['id'],
+          image: data['image_1920']
       );
       // print(myuser.image);
       final session_id = response.headers['set-cookie'];
