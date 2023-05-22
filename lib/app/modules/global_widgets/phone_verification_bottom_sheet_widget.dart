@@ -56,7 +56,7 @@ class PhoneVerificationBottomSheetWidget extends GetView<ProfileController> {
           ),
           BlockButtonWidget(
             onPressed: () async {
-              await controller.verifyPhone();
+              //await controller.verifyPhone();
             },
             color: Get.theme.colorScheme.secondary,
             text: Text(

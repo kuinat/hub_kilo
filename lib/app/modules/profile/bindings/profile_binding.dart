@@ -10,11 +10,12 @@ class ProfileBinding extends Bindings {
     Get.lazyPut<ProfileController>(
       () => ProfileController(),
     );
-    Get.lazyPut<MyAuthService>(
-          () => MyAuthService(),
-    );
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+
   }
 }

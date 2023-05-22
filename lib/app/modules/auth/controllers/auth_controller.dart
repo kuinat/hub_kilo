@@ -59,11 +59,11 @@ class AuthController extends GetxController {
       registerFormKey.currentState.save();
 
       try {
-        loading.value = true;
+        loading.value = !loading.value;
 
         currentUser.value = await _userRepository.register(currentUser.value);
 
-        loading.value = false;
+        loading.value = !loading.value;
 
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
         await Get.toNamed(Routes.ROOT);

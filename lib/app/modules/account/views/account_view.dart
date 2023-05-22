@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
+import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/my_auth_service.dart';
@@ -75,7 +76,8 @@ class AccountView extends GetView<AccountController> {
                         height: 140,
                         width: 140,
                         fit: BoxFit.cover,
-                        imageUrl: "https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80",
+                        imageUrl: _currentUser.value.image.toString() != "null" ? Domain.serverPort+"/web/image/res.partner/"+_currentUser.value.id.toString()+"/image_1920"
+                            : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                         placeholder: (context, url) => Image.asset(
                           'assets/img/loading.gif',
                           fit: BoxFit.cover,
@@ -104,6 +106,11 @@ class AccountView extends GetView<AccountController> {
                       icon: FontAwesomeIcons.locationDot,
                       text: Text('Place of birth'),
                       value: _currentUser.value.birthplace,
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.locationDot,
+                      text: Text('Address'),
+                      value: _currentUser.value.street,
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.male,

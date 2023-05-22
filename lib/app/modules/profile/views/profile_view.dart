@@ -54,6 +54,9 @@ class ProfileView extends GetView<ProfileController> {
               Obx(() => Expanded(
                 child: MaterialButton(
                   onPressed: () {
+                    if(!controller.birthDateSet.value){
+                      controller.user.value?.birthday = DateFormat('yy/MM/dd').format(DateTime.parse(controller.user.value.birthday)).toString();
+                    }
                     controller.saveProfileForm();
                     controller.buttonPressed.value = !controller.buttonPressed.value;
                   },
@@ -179,12 +182,13 @@ class ProfileView extends GetView<ProfileController> {
                   label: "Image".tr,
                   field: 'avatar',
                   tag: controller.profileForm.hashCode.toString(),
-                  initialImage: "http:127.0.0.1//web/image/res.partner/"+controller.currentUser.value.id.toString()+"/image_1920"
-                  // uploadCompleted: (uuid) {
-                  //   controller.avatar.value = new Media(id: uuid);
-                  // },
+                  initialImage: controller.url.value,
+                  uploadCompleted: (uuid) {
+                    controller.url.value =  uuid;
+                    controller.user.value.image= uuid;
+                  },
                   // reset: (uuid) {
-                  //   controller.avatar.value = new Media(thumb: controller.user.value.avatar.thumb);
+                  //   controller.url.value = new Media(thumb: controller.user.value.avatar.thumb);
                   // },
                 ),
               //}),
@@ -192,22 +196,22 @@ class ProfileView extends GetView<ProfileController> {
                 return Column(
                   children: [
                     TextFieldWidget(
-                      onChanged: (input) => controller.userName.value = input,
+                      onChanged: (input) => controller.user.value.name = input,
                       onSaved: (input) => controller.user.value.name = input,
                       validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
                       hintText: "John Doe".tr,
                       labelText: "Full Name".tr,
                       iconData: Icons.person_outline,
-                      initialValue: controller.currentUser.value.name,
+                      initialValue: controller.user.value.name,
                     ),
                     TextFieldWidget(
                         validator: (input) => !input.contains('@') ? "Should be a valid email" : null,
                         hintText: "johndoe@gmail.com",
-                        onChanged: (input) => controller.email.value = input,
+                        onChanged: (input) => controller.user.value.email = input,
                         onSaved: (input) => controller.user.value.email = input,
                         labelText: "Email".tr,
                         iconData: Icons.alternate_email,
-                        initialValue: controller.currentUser.value.email
+                        initialValue: controller.user.value.email
                     ),
 
                     //Obx(() {
@@ -260,7 +264,7 @@ class ProfileView extends GetView<ProfileController> {
                           onSaved: (phone) {
                             return controller.user.value?.phone = phone.completeNumber;
                           },
-                          onChanged: (input) => controller.phone.value = input.toString(),
+                          onChanged: (input) => controller.user.value?.phone = input.toString(),
                         ),
                         TextButton(
                           onPressed: ((){
@@ -286,6 +290,7 @@ class ProfileView extends GetView<ProfileController> {
                         onTap: (){
                           controller.chooseBirthDate();
                           //controller.user.value.birthday = DateFormat('yy/MM/dd').format(controller.birthDate.value);
+                          controller.birthDateSet.value = true;
                         },
                         child: Container(
                           padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
@@ -320,13 +325,23 @@ class ProfileView extends GetView<ProfileController> {
                     //
                     // ),
                     TextFieldWidget(
-                      onChanged: (input) => controller.birthPlace.value = input,
-                      onSaved: (input) => controller.birthPlace.value = input,
+                      onChanged: (input) => controller.user.value.birthplace = input,
+                      onSaved: (input) => controller.user.value.birthplace = input,
                       validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
                       hintText: "123 Street, City 136, State, Country".tr,
                       labelText: "Place of birth".tr,
                       iconData: Icons.location_on_rounded,
-                      initialValue: controller.currentUser.value.birthplace,
+                      initialValue: controller.user.value.birthplace,
+                    ),
+
+                    TextFieldWidget(
+                      onChanged: (input) => controller.user.value.street = input,
+                      onSaved: (input) => controller.user.value.street = input,
+                      validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
+                      hintText: "123 Street, City 136, State, Country".tr,
+                      labelText: "Address".tr,
+                      iconData: Icons.location_on_rounded,
+                      initialValue: controller.user.value.street,
                     ),
 
                     Container(
@@ -349,7 +364,7 @@ class ProfileView extends GetView<ProfileController> {
                             alignment: Alignment.bottomCenter,
 
                             style: Get.textTheme.bodyText1,
-                            value: controller.currentUser.value.sex=="M"?controller.selectedGender.value=controller.genderList[1]:controller.selectedGender.value=controller.genderList[0],
+                            value: controller.user.value.sex=="M"?controller.selectedGender.value=controller.genderList[0]:controller.selectedGender.value=controller.genderList[1],
                             // Down Arrow Icon
                             icon: const Icon(Icons.keyboard_arrow_down),
 
@@ -365,10 +380,10 @@ class ProfileView extends GetView<ProfileController> {
                             onChanged: (String newValue) {
                               controller.selectedGender.value = newValue;
                               if(controller.selectedGender.value == "Male"){
-                                controller.currentUser?.value?.sex = "M";
+                                controller.user?.value?.sex = "M";
                               }
                               else{
-                                controller.currentUser?.value?.sex = "F";
+                                controller.user?.value?.sex = "F";
                               }
 
 
@@ -411,7 +426,7 @@ class ProfileView extends GetView<ProfileController> {
                 return TextFieldWidget(
                   labelText: "New Password".tr,
                   hintText: "••••••••••••".tr,
-                  onSaved: (input) => controller.newPassword.value = input,
+                  onSaved: (input) => controller.user.value.password = input,
                   onChanged: (input) => controller.newPassword.value = input,
                   // validator: (input) {
                   //   if (input.length > 0 && input.length < 3) {

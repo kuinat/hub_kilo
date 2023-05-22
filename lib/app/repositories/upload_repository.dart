@@ -12,8 +12,10 @@ class UploadRepository {
     this._odooApiClient = Get.find<OdooApiClient>();
   }
 
-  Future<String> image(File image, String field) {
-    return _odooApiClient.uploadImage(image, field);
+  Future<String> image(File image) {
+    print('Nathalie');
+    return _odooApiClient.uploadImage(image);
+
   }
 
   Future<bool> delete(String uuid) {

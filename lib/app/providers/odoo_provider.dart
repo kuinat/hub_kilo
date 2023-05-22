@@ -36,6 +36,7 @@ import '../models/slide_model.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../models/wallet_transaction_model.dart';
+import '../services/my_auth_service.dart';
 import '../services/settings_service.dart';
 import 'api_provider.dart';
 import 'dio_client.dart';
@@ -124,7 +125,7 @@ class OdooApiClient extends GetxService with ApiClient {
     var sessionId = box.read('session_id');
     var headers = {
       //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
-       'Cookie': sessionId
+       'Cookie': sessionId.toString()
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
     request.body = '''{\n     "jsonrpc": "2.0"\n}''';
@@ -140,13 +141,19 @@ class OdooApiClient extends GetxService with ApiClient {
       var myuser = MyUser(
         email: data['email'],
         birthday: data['birthdate'],
-        isTraveller: data['is_traveller'],
+        isTraveller: data['is_traveler'],
         phone: data['phone'],
+        street: data['street'],
         sex: data['sex'],
         name: data['name'],
         birthplace: data['birthplace'],
-        id: data['id']
+        id: data['id'],
+        image: data['image_1920']
       );
+      // print(myuser.image);
+      final session_id = response.headers['set-cookie'];
+      print(session_id.split(";").first);
+      box.write('session_id', session_id.split(";").first);
 
       print("get Date:"+myuser.id.toString());
       return myuser;
@@ -181,12 +188,17 @@ class OdooApiClient extends GetxService with ApiClient {
       print('Nathalie');
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result'];
+      print(data);
       if(data != null){
         var userId = data['partner_id'];
+        print(userId);
+        print(response.headers['set-cookie']);
+        final session_id = response.headers['set-cookie'];
+        print(session_id.split(";").first);
+        box.write('session_id', session_id.split(";").first);
         var myuser = await getUser();
 
-        final session_id = response.headers['set-cookie'];
-        box.write('session_id', session_id.split(";").first);
+
         //print("session id: ${session_id.split(";").first}");
         return (myuser);
 
@@ -244,6 +256,7 @@ class OdooApiClient extends GetxService with ApiClient {
         "phone": myUser.phone,
         "birthday": myUser.birthday,
         "birthplace": myUser.birthplace,
+        "street": myUser.street,
         "sex": myUser.sex,
         "is_traveler": false,
         "password": myUser.password,
@@ -255,7 +268,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
-      var data = json.decode(result)['result']['data'];
+      var data = json.decode(result)['result'];
       print(data);
       //var userId = data['partner_id'];
       var user = await login(myUser);
@@ -313,20 +326,22 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   Future<MyUser> updateUser(MyUser myUser) async {
+    final box = GetStorage();
+    var sessionId = box.read('session_id');
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=eb7ccba7039fa48d61be901fb87e57861ba70307'
+      'Cookie': sessionId.toString()
     };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+':8069/partner/update'));
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
     request.body = json.encode({
       "params": {
-        "partner_id": myUser.id,
+        "street": myUser.street,
         "name": myUser.name,
         "email": myUser.email,
         "phone": myUser.phone,
         "birthday": myUser.birthday,
         "birthplace": myUser.birthplace,
-        "sex": myUser.sex
+        "sex": myUser.sex,
       }
     });
     request.headers.addAll(headers);
@@ -334,7 +349,9 @@ class OdooApiClient extends GetxService with ApiClient {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      //print(await response.stream.bytesToString());
+      print(await response.stream.bytesToString());
+      print(myUser.email);
+      print(myUser.password);
       var user = await login(myUser);
       // var user = MyUser(
       //     email: myUser.email,
@@ -1536,33 +1553,55 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<String> uploadImage(File file, String field) async {
-    if (!authService.isAuth) {
+  Future<String> uploadImage(File file) async {
+    if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
-    String fileName = file.path.split('/').last;
 
-
-
-
-
-    var _queryParameters = {
-      'api_token': authService.apiToken,
+    final box = GetStorage();
+    var sessionId = box.read('session_id');
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
     };
-    Uri _uri = getApiBaseUri("uploads/store").replace(queryParameters: _queryParameters);
-    printUri(StackTrace.current, _uri);
-    dio.FormData formData = dio.FormData.fromMap({
-      "file": await dio.MultipartFile.fromFile(file.path, filename: fileName),
-      "uuid": Uuid().generateV4(),
-      "field": field,
-    });
-    var response = await _httpClient.postUri(_uri, data: formData);
-    print(response.data);
-    if (response.data['data'] != false) {
-      return response.data['data'];
-    } else {
-      throw new Exception(response.data['message']);
+    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
+    request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      var user = await getUser();
+      var uuid =user.image ;
+      return uuid;
     }
+    else {
+      print(response.reasonPhrase);
+    }
+
+
+
+
+
+
+
+
+    // var _queryParameters = {
+    //   'api_token': authService.apiToken,
+    // };
+    // Uri _uri = getApiBaseUri("uploads/store").replace(queryParameters: _queryParameters);
+    // printUri(StackTrace.current, _uri);
+    // dio.FormData formData = dio.FormData.fromMap({
+    //   "file": await dio.MultipartFile.fromFile(file.path, filename: fileName),
+    //   "uuid": Uuid().generateV4(),
+    //   "field": field,
+    // });
+    // var response = await _httpClient.postUri(_uri, data: formData);
+    // print(response.data);
+    // if (response.data['data'] != false) {
+    //   return response.data['data'];
+    // } else {
+    //   throw new Exception(response.data['message']);
+    // }
   }
 
   Future<bool> deleteUploaded(String uuid) async {
