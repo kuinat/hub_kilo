@@ -9,10 +9,8 @@ import '../../../models/setting_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
-import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterView extends GetView<AuthController> {
@@ -180,6 +178,17 @@ class RegisterView extends GetView<AuthController> {
                         isLast: false,
                       ),
 
+                      TextFieldWidget(
+                        labelText: "Address".tr,
+                        hintText: "Bamako".tr,
+                        initialValue: controller.currentUser?.value?.street,
+                        onSaved: (input) => controller.currentUser?.value?.street = input,
+                        validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                        iconData: Icons.map,
+                        isFirst: true,
+                        isLast: false,
+                      ),
+
                       Container(
                         decoration: BoxDecoration(
                             color: Get.theme.primaryColor,
@@ -196,7 +205,7 @@ class RegisterView extends GetView<AuthController> {
 
                             ),
                             validator:(input) => input == "Select your gender" ? "Select a gender".tr : null,
-                            onSaved: (input) => controller.currentUser?.value?.sex = input,
+                            onSaved: (input) => selectedGender.value == "Male"?controller.currentUser?.value?.sex = "M":controller.currentUser?.value?.sex = "F",
                             isExpanded: true,
                             alignment: Alignment.bottomCenter,
 
@@ -216,7 +225,13 @@ class RegisterView extends GetView<AuthController> {
                             // change button value to selected value
                             onChanged: (String newValue) {
                               selectedGender.value = newValue;
-                              controller.currentUser?.value?.sex = newValue;
+                              if(selectedGender.value == "Male"){
+                                controller.currentUser?.value?.sex = "M";
+                              }
+                              else{
+                                controller.currentUser?.value?.sex = "F";
+                              }
+
 
                             },).marginOnly(left: 20, right: 20, top: 10, bottom: 10).paddingOnly( top: 20, bottom: 14),
                         )

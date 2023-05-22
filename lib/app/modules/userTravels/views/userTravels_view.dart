@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../routes/app_routes.dart';
@@ -38,11 +37,7 @@ class MyTravelsView extends GetView<MyTravelsController> {
       ),
       body: RefreshIndicator(
           onRefresh: () async {
-            /*if (!Get.find<LaravelApiClient>().isLoading(task: 'getBookings')) {
-              Get.find<LaravelApiClient>().forceRefresh();
-              controller.refreshBookings(showMessage: true, statusId: controller.currentStatus.value);
-              Get.find<LaravelApiClient>().unForceRefresh();
-            }*/
+            controller.initValues();
           },
           child: ListView(
             children: [
@@ -118,57 +113,75 @@ class MyTravelsView extends GetView<MyTravelsController> {
                 decoration: Ui.getBoxDecoration(color: backgroundColor),
                 child: Column(
                   children: [
+                    /*Container(
+                      height: 43,
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.transportState.length,
+                          itemBuilder: (context, index){
+                            return Obx(() => InkWell(
+                              onTap: ()=> controller.currentIndex.value == index,
+                              child: Card(
+                                color: controller.currentIndex.value == index ? interfaceColor : inactive,
+                                elevation: controller.currentIndex.value == index ? 10 : null,
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text(controller.transportState[index], style: TextStyle(color: Colors.white)),
+                                ),
+                              )
+                            ));
+                          }),
+                    ),*/
                     Expanded(
                         child: Obx(()=>
                             GridView.builder(
                                 physics: AlwaysScrollableScrollPhysics(),
-                                itemCount: controller.items.value.length,
+                                itemCount: controller.items.length,
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 10.0,
                                   mainAxisSpacing: 10.0,
-                                  mainAxisExtent: 330.0,
+                                  mainAxisExtent: 300.0,
                                 ),
                                 shrinkWrap: true,
                                 primary: false,
                                 itemBuilder: (context, index) {
-                                  var type = controller.items.value[index]['type'];
+                                  var type = controller.items[index]['travel_type'];
                                   return GestureDetector(
                                     child: TravelCardWidget(
-                                      depDate: DateFormat("dd, MMM yyyy", "fr_FR").format(DateTime.now()).toString(),
-                                      arrTown: 'Yaounde',
-                                      depTown: 'Paris',
-                                      arrDate: DateFormat("dd, MMM yyyy", "fr_FR").format(DateTime.now().add(Duration(days: 1))).toString(),
-                                      icon: type == "air" ? FaIcon(FontAwesomeIcons.planeDeparture)
-                                          : type == "sea" ? FaIcon(FontAwesomeIcons.ship)
+                                      isUser: true,
+                                      disable: controller.items[index]['disable'],
+                                      travelState: controller.items[index]['status'],
+                                      depDate: controller.items[index]['departure_date'],
+                                      arrTown: controller.items[index]['arrival_town'],
+                                      depTown: controller.items[index]['departure_town'],
+                                      arrDate: controller.items[index]['arrival_date'],
+                                      icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
+                                          : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
                                           : FaIcon(FontAwesomeIcons.bus),
-                                      qty: 13,
-                                      price: 150,
+                                      qty: controller.items[index]['kilo_qty'],
+                                      price: controller.items[index]['price_per_kilo'],
                                       color: background,
                                       text: Text(""),
-                                      user: Text(controller.items.value[index]['name'], style: TextStyle(fontSize: 17)),
+                                      user: Text('Me', style: TextStyle(fontSize: 17)),
                                       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
 
                                     ),
                                     onTap: ()=>
-                                        Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items.value[index], 'heroTag': 'services_carousel'}),
+                                        Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
                                   );
                                 })
                         )
-                    )
-                  ],
+                    ),
+                    SizedBox(height: 50)
+                  ]
                 )
               )
             ],
           )
     ));
   }
-
-  List transportMeans = [
-    "Water",
-    "Land",
-    "Air"
-  ];
 
   Widget BottomFilterSheetWidget(BuildContext context){
     return Container(
@@ -188,22 +201,16 @@ class MyTravelsView extends GetView<MyTravelsController> {
               padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
               children: [
                 ExpansionTile(
-                  title: Text("Travels".tr, style: Get.textTheme.bodyText2),
-                  children: List.generate(transportMeans.length, (index) {
-                    var _category = transportMeans.elementAt(index);
-                    return CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.trailing,
-                      value: false,
-                      onChanged: (value) {
-                        //controller.toggleCategory(value, _category);
-                      },
-                      title: Text(
-                        _category,
-                        style: Get.textTheme.bodyText1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        maxLines: 1,
-                      ),
+                  title: Text("Status".tr, style: Get.textTheme.bodyText2),
+                  children: List.generate(controller.transportState.length, (index) {
+                    var state = controller.transportState.elementAt(index);
+                    return SwitchListTile( //switch at right side of label
+                        value: controller.selectedState.contains(state),
+                        onChanged: (bool value){
+                          controller.toggleTravels(value, state);
+                          controller.state.value = state;
+                        },
+                        title: Text(controller.transportState[index])
                     );
                   }),
                   initiallyExpanded: true,

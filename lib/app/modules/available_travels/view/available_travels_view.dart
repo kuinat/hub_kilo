@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
+import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
 import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
@@ -31,7 +30,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
           automaticallyImplyLeading: false,
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back_ios, color: Palette.background),
-            onPressed: () => {Get.back()},
+            onPressed: () => {Get.offNamed(Routes.ROOT)},
           ),
           actions: [NotificationsButtonWidget()],
         ),
@@ -136,27 +135,31 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                       var type = controller.items[index]['travel_type'];
                                       return GestureDetector(
                                         onTap: ()=>
-                                            Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items.value[index], 'heroTag': 'services_carousel'}),
+                                            Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
                                         child: TravelCardWidget(
+                                          disable: false,
+                                          isUser: false,
                                           depDate: controller.items[index]['departure_date'],
                                           arrTown: controller.items[index]['arrival_town'],
                                           depTown: controller.items[index]['departure_town'],
                                           arrDate: controller.items[index]['arrival_date'],
-                                          icon: type == "by_air" ? FaIcon(FontAwesomeIcons.planeDeparture)
-                                              : type == "by_sea" ? FaIcon(FontAwesomeIcons.ship)
+                                          icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
+                                              : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
                                               : FaIcon(FontAwesomeIcons.bus),
-                                          qty: 13,
-                                          price: 150,
+                                          qty: controller.items[index]['kilo_qty'],
+                                          price: controller.items[index]['price_per_kilo'],
                                           color: background,
                                           text: Text(""),
                                           user: Text(controller.items[index]['user']['user_name'], style: TextStyle(fontSize: 17)),
-                                          imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                                          imageUrl: controller.items[index]['user']['user_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['user']['user_id']}/image_1920'
+                                          : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
 
                                         ),
                                       );
                                     })
                             )
-                        )
+                        ),
+                        SizedBox(height: 50)
                       ],
                     )
                 )

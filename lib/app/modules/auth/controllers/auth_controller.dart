@@ -6,14 +6,9 @@ import 'package:get/get.dart';
 
 import '../../../../common/ui.dart';
 import '../../../models/my_user_model.dart';
-import '../../../models/user_model.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/auth_service.dart';
-import '../../../services/firebase_messaging_service.dart';
 import '../../../services/my_auth_service.dart';
-import '../../../services/settings_service.dart';
-import '../../root/controllers/root_controller.dart';
 
 class AuthController extends GetxController {
   final Rx<MyUser> currentUser = Get.find<MyAuthService>().myUser;
@@ -42,9 +37,9 @@ class AuthController extends GetxController {
       loginFormKey.currentState.save();
 
       try {
-        loading.value = true;
+        loading.value = !loading.value;
         currentUser.value = await _userRepository.login(currentUser.value);
-        loading.value = false;
+        loading.value = !loading.value;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
         await Get.toNamed(Routes.ROOT);
 
@@ -64,11 +59,11 @@ class AuthController extends GetxController {
       registerFormKey.currentState.save();
 
       try {
-        loading.value = true;
+        loading.value = !loading.value;
 
         currentUser.value = await _userRepository.register(currentUser.value);
 
-        loading.value = false;
+        loading.value = !loading.value;
 
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
         await Get.toNamed(Routes.ROOT);
@@ -79,9 +74,6 @@ class AuthController extends GetxController {
       } finally {
         loading.value = false;
       }
-
-
-
     }
   }
 

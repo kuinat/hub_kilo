@@ -4,8 +4,12 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
 
+import '../../../color_constants.dart';
 import '../../providers/odoo_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
@@ -31,7 +35,7 @@ class MainDrawerWidget extends StatelessWidget {
             if (Get.find<MyAuthService>().myUser.value.email == null) {
               return GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.LOGIN);
+                  Get.offNamed(Routes.LOGIN);
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 30, horizontal: 15),
@@ -50,7 +54,7 @@ class MainDrawerWidget extends StatelessWidget {
                         children: <Widget>[
                           MaterialButton(
                             onPressed: () {
-                              Get.toNamed(Routes.LOGIN);
+                              Get.offNamed(Routes.LOGIN);
                             },
                             color: Get.theme.colorScheme.secondary,
                             height: 40,
@@ -74,7 +78,7 @@ class MainDrawerWidget extends StatelessWidget {
                             height: 40,
                             elevation: 0,
                             onPressed: () {
-                              Get.toNamed(Routes.REGISTER);
+                              Get.offNamed(Routes.REGISTER);
                             },
                             child: Wrap(
                               runAlignment: WrapAlignment.center,
@@ -152,8 +156,8 @@ class MainDrawerWidget extends StatelessWidget {
             icon: Icons.home_outlined,
             text: "Home",
             onTap: (e) async {
-              Get.back();
-              await Get.find<RootController>().changePage(0);
+              //Get.back();
+              await Get.offNamed(Routes.ROOT);
             },
           ),
           DrawerLinkWidget(
@@ -161,7 +165,7 @@ class MainDrawerWidget extends StatelessWidget {
             text: "Available Travels",
             onTap: (e) {
               Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
-            },
+            }
           ),
 
           if(Get.find<MyAuthService>().myUser.value.email != null)...[
@@ -171,7 +175,7 @@ class MainDrawerWidget extends StatelessWidget {
               onTap: (e) async {
                 Get.back();
                 await Get.find<RootController>().changePage(1);
-              },
+              }
             ),
             DrawerLinkWidget(
               icon: Icons.notifications_none_outlined,
@@ -192,7 +196,7 @@ class MainDrawerWidget extends StatelessWidget {
                 icon: Icons.qr_code,
                 text: "Validate Transaction",
                 onTap: (e) {
-                  Get.toNamed(Routes.VALIDATE_TRANSACTION);
+                  Get.offNamed(Routes.VALIDATE_TRANSACTION);
                 },
               ),
           ],
@@ -230,20 +234,6 @@ class MainDrawerWidget extends StatelessWidget {
               await Get.offAndToNamed(Routes.SETTINGS);
             },
           ),
-          /*DrawerLinkWidget(
-            icon: Icons.translate_outlined,
-            text: "Languages",
-            onTap: (e) async {
-              await Get.offAndToNamed(Routes.SETTINGS_LANGUAGE);
-            },
-          ),
-          DrawerLinkWidget(
-            icon: Icons.brightness_6_outlined,
-            text: Get.isDarkMode ? "Light Theme" : "Dark Theme",
-            onTap: (e) async {
-              await Get.offAndToNamed(Routes.SETTINGS_THEME_MODE);
-            },
-          ),*/
           ListTile(
             dense: true,
             title: Text(
@@ -264,18 +254,28 @@ class MainDrawerWidget extends StatelessWidget {
           ),
           CustomPageDrawerLinkWidget(),
           Obx(() {
-            if (Get.find<AuthService>().isAuth) {
+            if (Get.find<MyAuthService>().myUser.value.email != null) {
               return DrawerLinkWidget(
                 icon: Icons.logout,
                 text: "Logout",
                 onTap: (e) async {
-                  await Get.find<AuthService>().removeCurrentUser();
-                  Get.back();
-                  await Get.find<RootController>().changePage(0);
+                  showDialog(
+                      context: context,
+                      builder: (_)=>  PopUpWidget(
+                        title: "Do you really want to quit?",
+                        cancel: 'Cancel',
+                        confirm: 'Log Out',
+                        onTap: ()async{
+                          final box = GetStorage();
+                          await Get.find<MyAuthService>().removeCurrentUser();
+                          Get.offNamed(Routes.ROOT);
+                          box.remove("session_id");
+                        }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
+                      ));
                 },
               );
             } else {
-              return SizedBox(height: 0);
+              return SizedBox();
             }
           }),
           if (Get.find<SettingsService>().setting.value.enableVersion)

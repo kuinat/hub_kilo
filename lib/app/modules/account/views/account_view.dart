@@ -2,13 +2,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
+import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/notifications_button_widget.dart';
+import '../../global_widgets/pop_up_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/account_controller.dart';
 import '../widgets/account_link_widget.dart';
@@ -73,7 +76,8 @@ class AccountView extends GetView<AccountController> {
                         height: 140,
                         width: 140,
                         fit: BoxFit.cover,
-                        imageUrl: "https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80",
+                        imageUrl: _currentUser.value.image.toString() != "null" ? Domain.serverPort+"/web/image/res.partner/"+_currentUser.value.id.toString()+"/image_1920"
+                            : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                         placeholder: (context, url) => Image.asset(
                           'assets/img/loading.gif',
                           fit: BoxFit.cover,
@@ -95,18 +99,23 @@ class AccountView extends GetView<AccountController> {
                   children: [
                     AccountWidget(
                       icon: FontAwesomeIcons.birthdayCake,
-                      text: Text('Date of date'),
-                      value: '12/12/2000',
+                      text: Text('Date of Birth'),
+                      value: _currentUser.value.birthday.toString(),
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.locationDot,
                       text: Text('Place of birth'),
-                      value: "Bangangte",
+                      value: _currentUser.value.birthplace,
+                    ),
+                    AccountWidget(
+                      icon: FontAwesomeIcons.locationDot,
+                      text: Text('Address'),
+                      value: _currentUser.value.street,
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.male,
                       text: Text('Sexe'),
-                      value: "MALE",
+                      value: _currentUser.value.sex=='M'?"Male":"Female",
                     ),
                     AccountWidget(
                       icon: FontAwesomeIcons.planeDeparture,
@@ -125,7 +134,7 @@ class AccountView extends GetView<AccountController> {
                           padding: EdgeInsets.symmetric(horizontal: 20),
                           child: AccountLinkWidget(
                             icon: Icon(FontAwesomeIcons.userEdit, color: Get.theme.colorScheme.secondary),
-                            text: Text("Profile".tr),
+                            text: Text("Edit Profile".tr),
                             onTap: (e) {
                               Get.toNamed(Routes.PROFILE);
                             },
@@ -214,8 +223,19 @@ class AccountView extends GetView<AccountController> {
                     icon: Icon(Icons.logout, color: Get.theme.colorScheme.secondary),
                     text: Text("Logout".tr),
                     onTap: (e) async {
-                      await Get.find<MyAuthService>().removeCurrentUser();
-                      Get.find<RootController>().changePage(0);
+                      showDialog(context: context,
+                          builder: (_)=> PopUpWidget(
+                            title: "Do you really want to quit?",
+                            cancel: 'Cancel',
+                            confirm: 'Log Out',
+                            onTap: ()async{
+                              final box = GetStorage();
+                              await Get.find<MyAuthService>().removeCurrentUser();
+                              Get.find<RootController>().changePage(0);
+                              box.remove("session_id");
+                              Navigator.pop(context);
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
+                          ));
                     },
                   ),
                 ],

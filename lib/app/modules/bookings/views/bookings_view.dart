@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../global_widgets/card_widget.dart';
-import '../../global_widgets/notifications_button_widget.dart';
+import '../../global_widgets/pop_up_widget.dart';
 import '../controllers/bookings_controller.dart';
 
 class BookingsView extends GetView<BookingsController> {
@@ -28,11 +29,7 @@ class BookingsView extends GetView<BookingsController> {
       ),
       body: RefreshIndicator(
           onRefresh: () async {
-            /*if (!Get.find<LaravelApiClient>().isLoading(task: 'getBookings')) {
-              Get.find<LaravelApiClient>().forceRefresh();
-              controller.refreshBookings(showMessage: true, statusId: controller.currentStatus.value);
-              Get.find<LaravelApiClient>().unForceRefresh();
-            }*/
+            controller.initValues();
           },
           child: ListView(
             children: [
@@ -105,37 +102,58 @@ class BookingsView extends GetView<BookingsController> {
               Container(
                 height: MediaQuery.of(context).size.height/1.2,
                 decoration: Ui.getBoxDecoration(color: backgroundColor),
-                child: Column(
+                child: Obx(() => Column(
                   children: [
+                    controller.items.isNotEmpty ?
                     Expanded(
                         child: ListView.separated(
                             physics: AlwaysScrollableScrollPhysics(),
-                            itemCount: 5,
+                            itemCount: controller.items.length,
                             separatorBuilder: (context, index) {
                               return SizedBox(height: 5);
                             },
                             shrinkWrap: true,
                             primary: false,
                             itemBuilder: (context, index) {
+                              var travel = controller.items[index]['travel'];
                               return CardWidget(
-                                depDate: Text(DateFormat("dd, MMM\nyyyy", "fr_FR").format(DateTime.now()).toString()),
-                                arrTown: Text('Yaounde'),
-                                depTown: Text('Paris'),
-                                arrDate: Text(DateFormat("dd, MMM\nyyyy", "fr_FR").format(DateTime.now().add(Duration(days: 1))).toString()),
-                                qty: 13,
-                                price: 150,
+                                depDate: travel['departure_date'],
+                                arrTown: travel['arrival_town'],
+                                depTown: travel['departure_town'],
+                                arrDate: travel['arrival_date'],
+                                qty: controller.items[index]['kilo_booked'],
+                                price: controller.items[index]['kilo_booked_price'],
                                 color: background,
-                                text: Text(""),
+                                text: controller.items[index]['travel']['traveler']['user_name'],
                                 onPressed: () =>{  },
                                 user: "Test User",
                                 imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-
+                                recName: controller.items[index]['receiver']['receiver_name'],
+                                recAddress: controller.items[index]['receiver']['receiver_address'],
+                                recEmail: controller.items[index]['receiver']['receiver_email'],
+                                recPhone: controller.items[index]['receiver']['receiver_phone'],
+                                edit: null,
+                                confirm: ()=> showDialog(
+                                    context: context,
+                                    builder: (_)=>
+                                        PopUpWidget(
+                                          title: "Do you really want to delete this post?",
+                                          cancel: 'Cancel',
+                                          confirm: 'Delete',
+                                          onTap: ()=>{
+                                            controller.deleteMyBooking(controller.items[index]['id']),
+                                            print(controller.items[index]['id'])
+                                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                        )
+                                )
                               );
                             })
-                    )
+                    ) : Expanded(
+                        child: Text('No bookings found', style: TextStyle(color: inactive, fontSize: 18))),
+                    SizedBox(height: 80)
                   ],
-                )
-              )
+                ))
+              ),
             ],
           )
     ));
