@@ -30,7 +30,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
           automaticallyImplyLeading: false,
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back_ios, color: Palette.background),
-            onPressed: () => {Get.back()},
+            onPressed: () => {Get.offNamed(Routes.ROOT)},
           ),
           actions: [NotificationsButtonWidget()],
         ),
@@ -146,8 +146,8 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                           icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
                                               : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
                                               : FaIcon(FontAwesomeIcons.bus),
-                                          qty: 13,
-                                          price: 150,
+                                          qty: controller.items[index]['kilo_qty'],
+                                          price: controller.items[index]['price_per_kilo'],
                                           color: background,
                                           text: Text(""),
                                           user: Text(controller.items[index]['user']['user_name'], style: TextStyle(fontSize: 17)),

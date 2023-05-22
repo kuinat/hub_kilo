@@ -1335,6 +1335,7 @@ class LaravelApiClient extends GetxService with ApiClient {
   }
 
   Future<String> uploadImage(File file, String field) async {
+
     if (!authService.isAuth) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }

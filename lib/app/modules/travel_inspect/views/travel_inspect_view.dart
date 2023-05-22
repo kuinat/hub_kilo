@@ -13,7 +13,9 @@ import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
+import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
+import '../../global_widgets/text_field_widget.dart';
 import '../controllers/travel_inspect_controller.dart';
 import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
@@ -392,7 +394,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
     return Container(
       height: Get.height/1.8,
       decoration: BoxDecoration(
-        color: Get.theme.primaryColor,
+        color: background,
+        //Get.theme.primaryColor,
         borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
         boxShadow: [
           BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
@@ -443,9 +446,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: (){
                         controller.buttonPressed.value = !controller.buttonPressed.value;
-                        Timer(Duration(seconds: 3), () {
-                          Navigator.pop(context);
-                        });
+                        controller.bookNow(controller.travelCard['id']);
                       })
                 ),
               ],
@@ -457,19 +458,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
               padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
               children: [
                 controller.bookingStep.value == 0 ?
-                 Column(
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: [
-                     Text('Booking Details here')
-
-                   ]
-                 ) : Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Receiver Details here')
-
-                    ]
-                )
+                build_Book_travel(context)
+                    : build_Receiver_details(context)
               ],
             ),
           ),
@@ -492,6 +482,98 @@ class TravelInspectView extends GetView<TravelInspectController> {
         ],
       )
       ),
+    );
+  }
+
+  Widget build_Book_travel(BuildContext context) {
+    return Wrap(
+      direction: Axis.horizontal,
+      runSpacing: 20,
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              onChanged: (input) => controller.description.value = input,
+              labelText: "Description".tr,
+              iconData: FontAwesomeIcons.fileLines,
+            ),
+            TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              onChanged: (input) => controller.quantity.value = int.parse(input),
+              labelText: "Quantity".tr,
+              iconData: FontAwesomeIcons.shoppingBag,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+  Widget build_Receiver_details(BuildContext context) {
+    return Wrap(
+      direction: Axis.horizontal,
+      runSpacing: 20,
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SwitchListTile( //switch at right side of label
+                value: controller.selectUser.value,
+                onChanged: (bool value){
+                  controller.selectUser.value = value;
+                },
+                title: Text("Select a user ?", style: Get.textTheme.headline1.merge(TextStyle(color: appColor)))
+            ),
+            !controller.selectUser.value ?
+            Column(
+              children: [
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.name.value = input,
+                  labelText: "Full Name".tr,
+                  iconData: FontAwesomeIcons.person,
+                ),
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.email.value = input,
+                  labelText: "Email".tr,
+                  iconData: Icons.alternate_email,
+                ),
+                PhoneFieldWidget(
+                  labelText: "Phone Number".tr,
+                  hintText: "223 665 7896".tr,
+                  initialCountryCode: "CM",
+                  //initialValue: controller.currentUser?.value?.getPhoneNumber()?.number,
+                  onChanged: (phone){
+                    controller.phone.value = "${phone.countryCode}${phone.number}";
+                  },
+                ),
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.address.value = input,
+                  labelText: "Address".tr,
+                  iconData: FontAwesomeIcons.addressCard,
+                ),
+              ],
+            ) :
+            TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              //onChanged: (input) => controller.selectUser.value = input,
+              labelText: "Select User".tr,
+              iconData: FontAwesomeIcons.userGroup,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -32,20 +32,23 @@ class AvailableTravelsController extends GetxController {
 
   @override
   void onInit() {
-    initValues();
     super.onInit();
+    initValues();
   }
 
   @override
   void onReady() {
     heroTag.value = Get.arguments.toString();
+    initValues();
     super.onReady();
   }
 
   initValues()async{
     allTravels = await getAllTravels();
     items.value = allTravels;
-    print(items);
+    for(var i in allTravels){
+      print(i['id']);
+    }
   }
 
   void filterSearchResults(String query) {
@@ -66,7 +69,7 @@ class AvailableTravelsController extends GetxController {
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
-      'Cookie': 'frontend_lang=en_US; session_id=8731877be51f7b3bdf564f2ebb623764d2f9fbcd'
+      'Cookie': 'frontend_lang=en_US; $id'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/air/all/travels'));
     request.headers.addAll(headers);

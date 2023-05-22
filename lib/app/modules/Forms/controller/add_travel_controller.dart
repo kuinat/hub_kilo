@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
@@ -30,6 +32,10 @@ class AddTravelController extends GetxController{
   var townEdit = false.obs;
   var town2Edit = false.obs;
   var travelType = "".obs;
+  File passport;
+  var loadPassport = false.obs;
+  var loadTicket = false.obs;
+  File ticket;
   final travelCard = {}.obs;
   final selectedTravel = <String>[].obs;
   var buttonPressed = false.obs;
@@ -61,6 +67,26 @@ class AddTravelController extends GetxController{
       }
     }
     super.onInit();
+  }
+
+  final _picker = ImagePicker();
+
+  passportPicker() async {
+    final XFile pickedImage =
+    await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      passport = File(pickedImage.path);
+      loadPassport.value = !loadPassport.value;
+    }
+  }
+
+  ticketPicker() async {
+    final XFile pickedImage =
+    await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      ticket = File(pickedImage.path);
+      loadTicket.value = !loadTicket.value;
+    }
   }
 
   void toggleTravels(bool value, String type) {
@@ -189,8 +215,9 @@ class AddTravelController extends GetxController{
       var data = await response.stream.bytesToString();
       print("travel response: $data");
       if(json.decode(data)['result']['status'] == 'success'){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your account has been created successfully ".tr));
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
         buttonPressed.value = !buttonPressed.value;
+        //uploadImages(id);
         Navigator.pop(Get.context);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
@@ -243,6 +270,24 @@ class AddTravelController extends GetxController{
     }
     else {
       throw new Exception(response.reasonPhrase);
+    }
+  }
+
+  uploadImages(int travelId)async{
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/air/travel/document/upload'));
+    request.fields.addAll({
+      'travel_id': '$travelId'
+    });
+    request.files.add(await http.MultipartFile.fromPath('cni_doc', passport.path));
+    request.files.add(await http.MultipartFile.fromPath('ticket_doc', ticket.path));
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 

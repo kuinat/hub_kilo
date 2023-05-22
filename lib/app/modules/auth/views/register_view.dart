@@ -9,10 +9,8 @@ import '../../../models/setting_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
-import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterView extends GetView<AuthController> {

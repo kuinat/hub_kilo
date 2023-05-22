@@ -38,6 +38,7 @@ class HomeController extends GetxController {
   Future<void> onInit() async {
     await refreshHome();
     slider.value = await getSlider();
+    //print(slider);
     super.onInit();
   }
 
@@ -57,11 +58,7 @@ class HomeController extends GetxController {
   }
 
   Future getSlider() async {
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; session_id=d047bf791be8a6350c110a221bbbd5afcdeff9ec'
-    };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
-    request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 

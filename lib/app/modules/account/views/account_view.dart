@@ -244,5 +244,4 @@ class AccountView extends GetView<AccountController> {
           ],
         ));
   }
-
 }

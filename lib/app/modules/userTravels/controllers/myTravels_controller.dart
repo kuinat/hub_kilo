@@ -24,9 +24,16 @@ class MyTravelsController extends GetxController {
   ScrollController scrollController = ScrollController();
 
   @override
-  void onInit() async {
-    initValues();
+  void onInit() {
     super.onInit();
+    initValues();
+  }
+
+  @override
+  void onReady(){
+
+    initValues();
+    super.onReady();
   }
 
   initValues()async{

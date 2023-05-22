@@ -9,6 +9,7 @@ import '../../../repositories/notification_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../account/views/account_view.dart';
+import '../../bookings/controllers/bookings_controller.dart';
 import '../../bookings/views/bookings_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/home2_view.dart';
@@ -53,7 +54,7 @@ class RootController extends GetxController {
     );
     //print(Get.find<MyAuthService>().myUser.value.name);
     if (Get.find<MyAuthService>().myUser.value.email == null && _index > 0) {
-      await Get.toNamed(Routes.LOGIN);
+      await Get.offNamed(Routes.LOGIN);
     } else {
       currentIndex.value = _index;
       await refreshPage(_index);
@@ -91,7 +92,7 @@ class RootController extends GetxController {
         }
       case 1:
         {
-          //await Get.find<BookingsController>().refreshBookings();
+          await Get.find<BookingsController>().refreshBookings();
           break;
         }
       case 2:

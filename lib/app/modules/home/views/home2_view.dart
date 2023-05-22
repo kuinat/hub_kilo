@@ -22,6 +22,7 @@ class Home2View extends GetView<HomeController> {
           onRefresh: () async {
             Get.find<LaravelApiClient>().forceRefresh();
             await controller.refreshHome(showMessage: true);
+            controller.onInit();
             Get.find<LaravelApiClient>().unForceRefresh();
           },
           child: CustomScrollView(
@@ -72,9 +73,9 @@ class Home2View extends GetView<HomeController> {
                                   transform: Matrix4.rotationY(Directionality.of(context) == TextDirection.rtl ? math.pi : 0),
                                   child: CachedNetworkImage(
                                     width: double.infinity,
-                                    height: 310,
-                                    fit: BoxFit.contain,
-                                    imageUrl: "${Domain.serverPort}/web/image/m2st_hk_airshipping.publicity/5/image",
+                                    height: 350,
+                                    fit: BoxFit.fill,
+                                    imageUrl: "${Domain.serverPort}/web/image/m2st_hk_airshipping.publicity/${element['id']}/image",
                                     placeholder: (context, url) => Image.asset(
                                       'assets/img/loading.gif',
                                       fit: BoxFit.cover,
@@ -84,22 +85,23 @@ class Home2View extends GetView<HomeController> {
                                   ),
                                 ),
                                 Container(
-                                    alignment: Alignment.bottomLeft,
+                                    alignment: Alignment.bottomRight,
                                     width: double.infinity,
                                     padding: EdgeInsets.symmetric(vertical: 85, horizontal: 20),
                                     child: SizedBox(
                                       width: Get.width / 2.5,
-                                      child: Column(
-                                        children: [
-                                            Text(element['text'],
-                                              style: Get.textTheme.bodyText2.merge(TextStyle(color: interfaceColor)),
-                                              overflow: TextOverflow.fade,
-                                              maxLines: 3,
-                                            ),
-                                        ],
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                                          color: Palette.background.withOpacity(0.7),
+                                        ),
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(element['text'],
+                                          style: Get.textTheme.bodyText2.merge(TextStyle(color: pink)),
+                                          overflow: TextOverflow.fade,
+                                          maxLines: 3,
+                                        ),
+                                      )
                                     )),
                               ],
                             );
