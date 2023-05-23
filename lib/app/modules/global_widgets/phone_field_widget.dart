@@ -8,6 +8,8 @@ import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
+import '../../../color_constants.dart';
+
 class PhoneFieldWidget extends StatelessWidget {
   const PhoneFieldWidget(
       {Key key,
@@ -61,7 +63,7 @@ class PhoneFieldWidget extends StatelessWidget {
         children: [
           Text(
             labelText ?? "",
-            style: Get.textTheme.bodyText1,
+            style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
             textAlign: textAlign ?? TextAlign.start,
           ),
           IntlPhoneField(
@@ -72,7 +74,7 @@ class PhoneFieldWidget extends StatelessWidget {
               initialCountryCode: initialCountryCode ?? 'DE',
               showDropdownIcon: false,
               pickerDialogStyle: PickerDialogStyle(countryNameStyle: Get.textTheme.bodyText2),
-              style: style ?? Get.textTheme.bodyText2,
+              style: style ?? Get.textTheme.bodyText2.merge(TextStyle(color: labelColor)),
               textAlign: textAlign ?? TextAlign.start,
               disableLengthCheck: true,
               autovalidateMode: AutovalidateMode.disabled,

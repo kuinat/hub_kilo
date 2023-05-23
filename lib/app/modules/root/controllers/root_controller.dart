@@ -62,17 +62,24 @@ class RootController extends GetxController {
   }
 
   Future<void> changePageOutRoot(int _index) async {
-    /*if (!Get.find<AuthService>().isAuth && _index > 0) {
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
+    if (Get.find<MyAuthService>().myUser.value.email == null && _index > 0) {
       await Get.toNamed(Routes.LOGIN);
-    }*/
-    currentIndex.value = _index;
-    await refreshPage(_index);
-    await Get.offNamedUntil(Routes.ROOT, (Route route) {
-      if (route.settings.name == Routes.ROOT) {
-        return true;
-      }
-      return false;
-    }, arguments: _index);
+    }else{
+      currentIndex.value = _index;
+      await refreshPage(_index);
+      await Get.offNamedUntil(Routes.ROOT, (Route route) {
+        if (route.settings.name == Routes.ROOT) {
+          return true;
+        }
+        return false;
+      }, arguments: _index);
+    }
   }
 
   Future<void> changePage(int _index) async {

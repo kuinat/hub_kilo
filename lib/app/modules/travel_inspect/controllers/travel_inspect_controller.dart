@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -8,7 +8,9 @@ import '../../../../main.dart';
 import '../../../models/option_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
+import '../../global_widgets/packet_image_field_widget.dart';
 
 class TravelInspectController extends GetxController {
   final currentSlide = 0.obs;
@@ -24,6 +26,16 @@ class TravelInspectController extends GetxController {
   final address = "".obs;
   final selectUser = false.obs;
   final buttonPressed = false.obs;
+  var url = ''.obs;
+  var users =[].obs;
+  var resetusers =[].obs;
+
+  var visible = true.obs;
+
+  UploadRepository _uploadRepository;
+  TravelInspectController() {
+    _uploadRepository = new UploadRepository();
+  }
 
   @override
   void onInit() async {
@@ -36,6 +48,7 @@ class TravelInspectController extends GetxController {
     }else{
       imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
     }
+    await getAllUsers();
     super.onInit();
   }
 
@@ -128,6 +141,7 @@ class TravelInspectController extends GetxController {
       var data = await response.stream.bytesToString();
       print(data);
       if(json.decode(data)['result'] != null){
+        await setPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Book success ".tr));
         Navigator.pop(Get.context);
       }else{
@@ -139,6 +153,30 @@ class TravelInspectController extends GetxController {
       print(data);
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
+  }
+
+  getAllUsers()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'text/plain',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/hubkilo/all/partners'));
+    request.body = '''{\r\n     "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      users.value= json.decode(data);
+      resetusers.value= json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 
   TextStyle getTitleTheme(Option option) {
@@ -168,5 +206,23 @@ class TravelInspectController extends GetxController {
 
   void decrementQuantity() {
     quantity.value > 1 ? quantity.value-- : null;
+  }
+
+
+  Future setPacketImage (bookingId)async{
+    Get.lazyPut<PacketImageFieldController>(
+          () => PacketImageFieldController(),
+    );
+    File imageFile = Get.find<PacketImageFieldController>().image.value;
+    if (imageFile != null) {
+      try {
+        //await deleteUploaded();
+        await _uploadRepository.imagePacket(imageFile, bookingId);
+      } catch (e) {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      }
+    } else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+    }
   }
 }

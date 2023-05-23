@@ -8,6 +8,7 @@ const primaryColor = Color(0xFF6EB5FC);
 const secondaryColor = Color(0xFF292929);
 const bgColor = Color(0xFF212121);
 const darkgreenColor = Color(0xFF2c614f);
+const labelColor = Color.fromRGBO(33, 47, 61, 1);
 const greenColor = Color(0xFF6bab58);
 const validateColor = Color.fromRGBO(0,151,136,1);
 const appColor = Color(0xFF032252);

@@ -15,19 +15,19 @@ class BookingsView extends GetView<BookingsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Get.theme.colorScheme.secondary,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(
-          "Bookings".tr,
-          style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
+        backgroundColor: Get.theme.colorScheme.secondary,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: Text(
+            "Bookings".tr,
+            style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
         ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: RefreshIndicator(
+        body: RefreshIndicator(
           onRefresh: () async {
             controller.initValues();
           },
@@ -99,64 +99,66 @@ class BookingsView extends GetView<BookingsController> {
                   ),
                 ),
               ),
+
+
               Container(
-                height: MediaQuery.of(context).size.height/1.2,
-                decoration: Ui.getBoxDecoration(color: backgroundColor),
-                child: Obx(() => Column(
-                  children: [
-                    controller.items.isNotEmpty ?
-                    Expanded(
-                        child: ListView.separated(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            itemCount: controller.items.length,
-                            separatorBuilder: (context, index) {
-                              return SizedBox(height: 5);
-                            },
-                            shrinkWrap: true,
-                            primary: false,
-                            itemBuilder: (context, index) {
-                              var travel = controller.items[index]['travel'];
-                              return CardWidget(
-                                depDate: travel['departure_date'],
-                                arrTown: travel['arrival_town'],
-                                depTown: travel['departure_town'],
-                                arrDate: travel['arrival_date'],
-                                qty: controller.items[index]['kilo_booked'],
-                                price: controller.items[index]['kilo_booked_price'],
-                                color: background,
-                                text: controller.items[index]['travel']['traveler']['user_name'],
-                                onPressed: () =>{  },
-                                user: "Test User",
-                                imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-                                recName: controller.items[index]['receiver']['receiver_name'],
-                                recAddress: controller.items[index]['receiver']['receiver_address'],
-                                recEmail: controller.items[index]['receiver']['receiver_email'],
-                                recPhone: controller.items[index]['receiver']['receiver_phone'],
-                                edit: null,
-                                confirm: ()=> showDialog(
-                                    context: context,
-                                    builder: (_)=>
-                                        PopUpWidget(
-                                          title: "Do you really want to delete this post?",
-                                          cancel: 'Cancel',
-                                          confirm: 'Delete',
-                                          onTap: ()=>{
-                                            controller.deleteMyBooking(controller.items[index]['id']),
-                                            print(controller.items[index]['id'])
-                                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                        )
-                                )
-                              );
-                            })
-                    ) : Expanded(
-                        child: Text('No bookings found', style: TextStyle(color: inactive, fontSize: 18))),
-                    SizedBox(height: 80)
-                  ],
-                ))
+                  height: MediaQuery.of(context).size.height/1.45,
+                  decoration: Ui.getBoxDecoration(color: backgroundColor),
+                  child:  Column(
+                    children: [
+
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                              onTap: ()=>{
+                                controller.currentState.value = 0
+                              },
+                              child: Obx(()=> Card(
+                                  color: controller.currentState.value == 0 ? interfaceColor : inactive,
+                                  elevation: controller.currentState.value == 0 ? 10 : null,
+                                  shadowColor:  inactive,
+                                  child: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Text('My Bookings'.tr, style: TextStyle(color: Get.theme.primaryColor))
+                                  )
+                              ))
+                          ),
+                          SizedBox(width: 10),
+                          GestureDetector(
+                              onTap: ()=>{
+                                controller.currentState.value = 1
+                              },
+                              child: Obx(() => Card(
+                                  color: controller.currentState.value == 1 ? interfaceColor : inactive,
+                                  elevation: controller.currentState.value == 1 ? 10 : null,
+                                  shadowColor: inactive,
+                                  child: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Text('Bookings on my travels'.tr, style: TextStyle(color: Get.theme.primaryColor))
+                                  )
+                              )
+                              )
+                          )
+                        ],
+                      ).marginOnly(top:20, left: 10),
+
+                      Obx(() => controller.currentState.value == 0 ? Mybookings(context) :
+                      BookingsOnMyTravels(context)
+                      ),
+
+                      //SizedBox(height: 50)
+                    ],
+                  )
               ),
             ],
-          )
-    ));
+          ),
+
+
+
+
+        ));
   }
 
   List transportMeans = [
@@ -243,5 +245,111 @@ class BookingsView extends GetView<BookingsController> {
       ),
     );
   }
+
+
+  Widget Mybookings(BuildContext context){
+    return controller.items.isNotEmpty ?
+    Expanded(
+        child: ListView.separated(
+            physics: AlwaysScrollableScrollPhysics(),
+            itemCount: controller.items.length,
+            separatorBuilder: (context, index) {
+              return SizedBox(height: 5);
+            },
+            shrinkWrap: true,
+            primary: false,
+            itemBuilder: (context, index) {
+              var travel = controller.items[index]['travel'];
+              return CardWidget(
+                  depDate: travel['departure_date'],
+                  arrTown: travel['arrival_town'],
+                  depTown: travel['departure_town'],
+                  arrDate: travel['arrival_date'],
+                  qty: controller.items[index]['kilo_booked'],
+                  price: controller.items[index]['kilo_booked_price'],
+                  color: background,
+                  text: controller.items[index]['travel']['traveler']['user_name'],
+                  onPressed: () =>{  },
+                  user: "Test User",
+                  imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                  recName: controller.items[index]['receiver']['receiver_name'],
+                  recAddress: controller.items[index]['receiver']['receiver_address'],
+                  recEmail: controller.items[index]['receiver']['receiver_email'],
+                  recPhone: controller.items[index]['receiver']['receiver_phone'],
+                  edit: null,
+                  confirm: ()=> showDialog(
+                      context: context,
+                      builder: (_)=>
+                          PopUpWidget(
+                            title: "Do you really want to delete this post?",
+                            cancel: 'Cancel',
+                            confirm: 'Delete',
+                            onTap: ()=>{
+                              controller.deleteMyBooking(controller.items[index]['id']),
+                              print(controller.items[index]['id'])
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                          )
+                  )
+              );
+            })
+    ) : Expanded(
+        child: Text('No bookings found', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2));
+  }
+
+
+  Widget BookingsOnMyTravels(BuildContext context){
+    return controller.itemsBookingsOnMyTravel.isNotEmpty ?
+    Expanded(
+        child: ListView.separated(
+            physics: AlwaysScrollableScrollPhysics(),
+            itemCount: controller.itemsBookingsOnMyTravel.length,
+            separatorBuilder: (context, index) {
+              return SizedBox(height: 5);
+            },
+            shrinkWrap: true,
+            primary: false,
+            itemBuilder: (context, index) {
+              var travel = controller.itemsBookingsOnMyTravel[index]['travel'];
+              return CardWidget(
+                  depDate: travel['departure_date'],
+                  arrTown: travel['arrival_town'],
+                  depTown: travel['departure_town'],
+                  arrDate: travel['arrival_date'],
+                  qty: controller.itemsBookingsOnMyTravel[index]['kilo_booked'],
+                  price: controller.itemsBookingsOnMyTravel[index]['kilo_booked_price'],
+                  color: background,
+                  text: controller.itemsBookingsOnMyTravel[index]['travel']['traveler']['user_name'],
+                  onPressed: () =>{  },
+                  user: "Test User",
+                  imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                  recName: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_name'],
+                  recAddress: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_address'],
+                  recEmail: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_email'],
+                  recPhone: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_phone'],
+                  edit: null,
+                  confirm: ()=> showDialog(
+                      context: context,
+                      builder: (_)=>
+                          PopUpWidget(
+                            title: "Do you really want to delete this post?",
+                            cancel: 'Cancel',
+                            confirm: 'Delete',
+                            onTap: ()=>{
+                              controller.deleteMyBooking(controller.itemsBookingsOnMyTravel[index]['id']),
+                              print(controller.itemsBookingsOnMyTravel[index]['id'])
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                          )
+                  )
+              );
+            })
+    ) : Expanded(
+        child: Text('No bookings made on your travel', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2));
+  }
+
+
+
+
+
+
 
 }
