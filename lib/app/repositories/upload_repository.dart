@@ -18,6 +18,12 @@ class UploadRepository {
 
   }
 
+  Future<String> imagePacket(File image, bookingId) {
+    print('Nathalie');
+    return _odooApiClient.uploadPacketImage(image, bookingId);
+
+  }
+
   Future<bool> delete(String uuid) {
     return _odooApiClient.deleteUploaded(uuid);
   }

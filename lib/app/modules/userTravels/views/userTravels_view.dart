@@ -135,15 +135,9 @@ class MyTravelsView extends GetView<MyTravelsController> {
                     ),*/
                     Expanded(
                         child: Obx(()=>
-                            GridView.builder(
+                            ListView.builder(
                                 physics: AlwaysScrollableScrollPhysics(),
                                 itemCount: controller.items.length,
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 10.0,
-                                  mainAxisSpacing: 10.0,
-                                  mainAxisExtent: 300.0,
-                                ),
                                 shrinkWrap: true,
                                 primary: false,
                                 itemBuilder: (context, index) {

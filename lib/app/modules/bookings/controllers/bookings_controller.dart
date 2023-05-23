@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 class BookingsController extends GetxController {
 
   final uploading = false.obs;
+  final currentState = 0.obs;
   var messages = <Message>[].obs;
   var chats = <Chat>[].obs;
   File imageFile;
@@ -20,7 +21,9 @@ class BookingsController extends GetxController {
   final isLoading = true.obs;
   final isDone = false.obs;
   var myBookings = [];
+  var bookingsOnMyTravel = [];
   var items = [].obs;
+  var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
 
   @override
@@ -40,6 +43,9 @@ class BookingsController extends GetxController {
     myBookings = await getMyBookings();
     items.value = myBookings;
     print(items);
+    bookingsOnMyTravel = await getBookingsOnMyTravel();
+    itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
+    print(itemsBookingsOnMyTravel);
   }
 
   refreshBookings()async{
@@ -64,6 +70,29 @@ class BookingsController extends GetxController {
     else {
       print(response.reasonPhrase);
     }
+  }
+
+  getBookingsOnMyTravel()async{
+    final box = GetStorage();
+    var id = box.read('session_id');
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; $id'
+    };
+
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/air/current/user/travel/booked'));
+    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final data = await response.stream.bytesToString();
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 
   deleteMyBooking(int book_id)async{

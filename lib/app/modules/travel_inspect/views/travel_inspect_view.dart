@@ -13,9 +13,12 @@ import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
+import '../../global_widgets/image_field_widget.dart';
+import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
+import '../../global_widgets/user_widget.dart';
 import '../controllers/travel_inspect_controller.dart';
 import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
@@ -444,9 +447,10 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                       ),
                       color: Get.theme.colorScheme.secondary,
-                      onPressed: (){
+                      onPressed: ()async{
                         controller.buttonPressed.value = !controller.buttonPressed.value;
-                        controller.bookNow(controller.travelCard['id']);
+                        await controller.bookNow(controller.travelCard['id']);
+
                       })
                 ),
               ],
@@ -508,6 +512,16 @@ class TravelInspectView extends GetView<TravelInspectController> {
               labelText: "Quantity".tr,
               iconData: FontAwesomeIcons.shoppingBag,
             ),
+
+            PacketImageFieldWidget(
+              label: "Packet Image".tr,
+              initialImage: null,
+              uploadCompleted: (uuid) {
+                // controller.url.value =  uuid;
+                // controller.user.value.image= uuid;
+              },),
+
+
           ],
         ),
       ],
@@ -564,13 +578,87 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 ),
               ],
             ) :
-            TextFieldWidget(
+            controller.visible.value?TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
               iconData: FontAwesomeIcons.userGroup,
-            ),
+              onChanged: (value){
+                var userFilter = [];
+                if(value==''){
+                  controller.users.value=controller.resetusers.value;
+                }
+                else{
+                  for(var item in controller.users){
+                    print(item['name'].toString());
+                    if(item['name'].toLowerCase().contains(value)){
+                      userFilter.add(item);
+                      controller.users.value = userFilter;
+                    }else{
+                      controller.users.value = userFilter;
+                    }
+                    //controller.users.value = userFilter;
+                  }
+                }
+
+
+
+
+              },
+            ):TextButton(
+                onPressed: (){
+                  controller.visible.value = true;
+                  controller.users.value = controller.resetusers.value;
+
+            }, child: Text('Select another user')),
+
+            if(controller.selectUser.value)
+            controller.users.isNotEmpty ?
+            Container(
+                margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
+                // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                ),
+
+
+                child: ListView.separated(
+                    //physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: controller.users.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    shrinkWrap: true,
+                    primary: false,
+                    itemBuilder: (context, index) {
+                      var travel = controller.users[index];
+                      return GestureDetector(
+                        onTap: (){
+                          controller.visible.value = false;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                            color: Get.theme.primaryColor,
+
+                          ),
+                          child: UserWidget(
+
+                            user: controller.users[index]['name'],
+                          ),
+                        ),
+                      );
+                    })
+            ) : Container(
+                child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
+
+
           ],
         ),
       ],

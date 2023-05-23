@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../color_constants.dart';
 import '../../../common/ui.dart';
 
 class TextFieldWidget extends StatelessWidget {
@@ -66,7 +67,7 @@ class TextFieldWidget extends StatelessWidget {
         children: [
           Text(
             labelText ?? "",
-            style: Get.textTheme.bodyText1,
+            style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
             textAlign: textAlign ?? TextAlign.start,
           ),
           TextFormField(
@@ -79,7 +80,7 @@ class TextFieldWidget extends StatelessWidget {
             onChanged: onChanged,
             validator: validator,
             enabled: editable,
-            style: style ?? Get.textTheme.bodyText2,
+            style: style ?? Get.textTheme.bodyText2.merge(TextStyle(color: labelColor)),
             obscureText: obscureText ?? false,
             textAlign: textAlign ?? TextAlign.start,
             decoration: Ui.getInputDecoration(

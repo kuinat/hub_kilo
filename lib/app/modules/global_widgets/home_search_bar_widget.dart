@@ -6,6 +6,7 @@ import '../search/controllers/search_controller.dart';
 import 'filter_bottom_sheet_widget.dart';
 
 class HomeSearchBarWidget extends StatelessWidget implements PreferredSize {
+
   final controller = Get.find<SearchController>();
 
   Widget buildSearchBar() {

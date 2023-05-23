@@ -1579,29 +1579,38 @@ class OdooApiClient extends GetxService with ApiClient {
     }
 
 
+  }
 
 
 
+  Future<String> uploadPacketImage( file, bookingId) async {
+    if (Get.find<MyAuthService>().myUser.value.email==null) {
+      throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
+    }
+    final box = GetStorage();
+    var sessionId = box.read('session_id');
+
+    var headers = {
+      'Cookie': sessionId.toString()
+    };
+    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/air/booking/luggage_image/'+bookingId.toString()));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image', file.path));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
 
 
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      var user = await getUser();
+      var uuid =user.image ;
+      return uuid;
+    }
+    else {
+      print(response.reasonPhrase);
+    }
 
-    // var _queryParameters = {
-    //   'api_token': authService.apiToken,
-    // };
-    // Uri _uri = getApiBaseUri("uploads/store").replace(queryParameters: _queryParameters);
-    // printUri(StackTrace.current, _uri);
-    // dio.FormData formData = dio.FormData.fromMap({
-    //   "file": await dio.MultipartFile.fromFile(file.path, filename: fileName),
-    //   "uuid": Uuid().generateV4(),
-    //   "field": field,
-    // });
-    // var response = await _httpClient.postUri(_uri, data: formData);
-    // print(response.data);
-    // if (response.data['data'] != false) {
-    //   return response.data['data'];
-    // } else {
-    //   throw new Exception(response.data['message']);
-    // }
+
   }
 
   Future<bool> deleteUploaded(String uuid) async {
