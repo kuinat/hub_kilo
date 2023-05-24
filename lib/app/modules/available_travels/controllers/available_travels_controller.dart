@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../../../../main.dart';
-import '../../../models/media_model.dart';
 import '../../../repositories/user_repository.dart';
 import 'package:http/http.dart' as http;
 
 class AvailableTravelsController extends GetxController {
   //var user = new User().obs;
   final heroTag = "".obs;
-  var avatar = new Media().obs;
   final hidePassword = true.obs;
   final oldPassword = "".obs;
   final newPassword = "".obs;
@@ -20,11 +18,17 @@ class AvailableTravelsController extends GetxController {
   final buttonPressed = false.obs;
   var allTravels = [];
   var items = [].obs;
-  final isServer = false.obs;
+  var isLoading = true.obs;
+  var currentIndex = 0.obs;
+  List transportState = [
+    "All",
+    "Due",
+    "Pending",
+    "Accepted"
+  ].obs;
   /*Rx<List<Map<String, dynamic>>> items =
   Rx<List<Map<String, dynamic>>>([]);*/
   GlobalKey<FormState> profileForm;
-  UserRepository _userRepository;
 
   /*ProfileController() {
     _userRepository = new UserRepository();
@@ -56,8 +60,9 @@ class AvailableTravelsController extends GetxController {
     dummySearchList = allTravels;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['name']
-          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      dummyListData = dummySearchList.where((element) => element['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       items.value = dummyListData;
       return;
     } else {
@@ -77,8 +82,8 @@ class AvailableTravelsController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      isServer.value = !isServer.value;
       final data = await response.stream.bytesToString();
+      isLoading.value = false;
       return json.decode(data)['response'];
     }
     else {

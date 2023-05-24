@@ -38,145 +38,115 @@ class TravelCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width/5.2;
+    double width = MediaQuery.of(context).size.width/3;
     return Container(
-      height: 420,
+      height: 300,
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Colors.white, !disable ? interfaceColor.withOpacity(0.3) : inactive]
-        ),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30),bottomRight: Radius.circular(30)),
-        border: Border.all(color: !disable ? interfaceColor.withOpacity(0.4) : inactive)
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        border: Border.all(color: travelState != 'accepted' && isUser ? inactive : interfaceColor.withOpacity(0.4), width: 2)
         // borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       child: Column(
         children: [
-          !isUser ?
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      image: DecorationImage(
-                          image: NetworkImage(this.imageUrl),
-                          fit: BoxFit.cover
-                      )
-                  )
-              ),
-              Container(
-                width: 100,
-                child: this.user,
-              )
-            ],
-          ) : !disable ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: icon
-              ),
-              Container(
-                padding: EdgeInsets.all(10),
-                alignment: Alignment.center,
-                child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
-                decoration: BoxDecoration(
-                    color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
-                    border: Border.all(
-                      color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-              )
-            ],
-          ) :
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: icon
-              ),
-              Container(
-                padding: EdgeInsets.all(10),
-                width: 80,
-                alignment: Alignment.center,
-                child: Text("Due", style: Get.textTheme.headline1.merge(TextStyle(color: specialColor, fontSize: 12))),
-                decoration: BoxDecoration(
-                    color: specialColor.withOpacity(0.3),
-                    border: Border.all(
-                      color: specialColor.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          if(!isUser)
-          CircleAvatar(
-              backgroundColor: Colors.white,
-              child: icon
-          ),
-          Divider(thickness: 1, color: interfaceColor.withOpacity(0.4)),
-          Spacer(),
-          Column(
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+              color: Get.theme.primaryColor,
+            ),
+            child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      alignment: Alignment.center,
-                      width: width,
-                      height: 20,
-                      child: Text('From', style: TextStyle(color: specialColor, fontWeight: FontWeight.bold)),
+                    Container(width: width,
+                      child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
                     ),
-                    Spacer(),
-                    Container(
-                      alignment: Alignment.center,
-                      width: width,
-                      height: 20,
-                      child: Text('To', style: TextStyle(color: specialColor, fontWeight: FontWeight.bold)),
-                    ),
-                  ]
+                    Container(width: width,
+                      child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                    )
+                  ],
                 ),
+                SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
                       alignment: Alignment.topCenter,
                       width: width,
-                      height: 50,
-                      child: Text(this.depTown, style: TextStyle(color: appColor)),
+                      child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                     ),
+                    FaIcon(FontAwesomeIcons.arrowRight),
                     Container(
                         alignment: Alignment.topCenter,
                         width: width,
-                        height: 50,
-                        child: Text(this.arrTown, style: TextStyle(color: appColor))
-                    )
-                  ]
-                )
-              ]
-          ),
-          SizedBox(height: 10),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Row(
-              children: [
-                FaIcon(FontAwesomeIcons.calendarDay,size: 20),
-                SizedBox(width: 10),
-                Text(this.depDate, style: TextStyle(color: appColor, fontSize: 15))
+                        child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          ListTile(
-            title: Text('price /kg:   $price EUR'),
-            subtitle: Text('\nQuantity /kg:   $qty', style: TextStyle(color: appColor)),
+          SizedBox(height: 10),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                  children: [
+                    Icon(FontAwesomeIcons.planeCircleCheck, size: 40, color: background),
+                    SizedBox(width: 20),
+                    Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+                  ]
+              ),
+              Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Quantity /kg:   $qty', style: Get.textTheme.headline5.merge(TextStyle(color: appColor))),
+                  Text('$price EUR', style: Get.textTheme.headline3.merge(TextStyle(color: specialColor))),
+                ]
+              )
+            ]
+          ),
+          Spacer(),
+          Row(
+              children: [
+                if(!isUser)
+                Row(
+                  children: [
+                    Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            image: DecorationImage(
+                                image: NetworkImage(this.imageUrl),
+                                fit: BoxFit.cover
+                            )
+                        )
+                    ),
+                    SizedBox(width: 10),
+                    this.user
+                  ]
+                ),
+                Spacer(),
+                if(isUser)
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                    decoration: BoxDecoration(
+                        color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                        border: Border.all(
+                          color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                  )
+              ]
           ),
         ],
       )

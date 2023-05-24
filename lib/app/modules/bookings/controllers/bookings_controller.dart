@@ -87,10 +87,26 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
+      isLoading.value = false;
       return json.decode(data);
     }
     else {
       print(response.reasonPhrase);
+    }
+  }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = bookingsOnMyTravel;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
+      items.value = dummyListData;
+      return;
+    } else {
+      items.value = bookingsOnMyTravel;
     }
   }
 
@@ -109,6 +125,7 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
+      isLoading.value = false;
       return json.decode(data);
     }
     else {

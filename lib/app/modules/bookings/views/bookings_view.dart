@@ -10,6 +10,7 @@ import '../../../routes/app_routes.dart';
 import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
+import '../../global_widgets/loading_cards.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
@@ -67,40 +68,10 @@ class BookingsView extends GetView<BookingsController> {
                           child: TextField(
                             //controller: controller.textEditingController,
                             style: Get.textTheme.bodyText2,
-                            onChanged: (value){
-
-                            },
+                            onChanged: (value)=> controller.filterSearchResults(value),
                             autofocus: false,
                             cursorColor: Get.theme.focusColor,
                             decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Get.bottomSheet(
-                            BottomFilterSheetWidget(context),
-                            isScrollControlled: true,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 10, left: 10, top: 10, bottom: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                            color: Get.theme.focusColor.withOpacity(0.1),
-                          ),
-                          child: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 4,
-                            children: [
-                              Text("Filter".tr, style: Get.textTheme.bodyText2),
-                              Icon(
-                                Icons.filter_list,
-                                color: Get.theme.hintColor,
-                                size: 21,
-                              ),
-                            ],
                           ),
                         ),
                       ),
@@ -111,13 +82,11 @@ class BookingsView extends GetView<BookingsController> {
 
 
               Container(
-                  height: MediaQuery.of(context).size.height/1.45,
-                  decoration: Ui.getBoxDecoration(color: Colors.white),
-                  //Ui.getBoxDecoration(color: backgroundColor),
+
+                  height: MediaQuery.of(context).size.height,
+                  decoration: Ui.getBoxDecoration(color: backgroundColor),
                   child:  Column(
                     children: [
-
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -154,8 +123,11 @@ class BookingsView extends GetView<BookingsController> {
                         ],
                       ).marginOnly(top:20, left: 10),
 
-                      Obx(() => controller.currentState.value == 0 ? Mybookings(context) :
-                      BookingsOnMyTravels(context)
+                      Obx(() => controller.currentState.value == 0 ?
+                          !controller.isLoading.value ?
+                      Mybookings(context) : LoadingCardWidget() :
+                      !controller.isLoading.value ?
+                      BookingsOnMyTravels(context) : LoadingCardWidget()
                       ),
 
                       //SizedBox(height: 50)
@@ -258,9 +230,9 @@ class BookingsView extends GetView<BookingsController> {
 
 
   Widget Mybookings(BuildContext context){
-    return controller.items.isNotEmpty ?
-    Expanded(
-        child: ListView.separated(
+    return controller.items.isNotEmpty ? Expanded(
+        child:
+        ListView.separated(
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: controller.items.length,
             separatorBuilder: (context, index) {
@@ -330,8 +302,13 @@ class BookingsView extends GetView<BookingsController> {
                 ),
               );
             })
-    ) : Expanded(
-        child: Text('No bookings found', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2));
+    ) : Column(
+      children: [
+        SizedBox(height: MediaQuery.of(context).size.height /4),
+        FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+        Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+      ],
+    );
   }
 
 
@@ -396,10 +373,14 @@ class BookingsView extends GetView<BookingsController> {
                   )
               );
             })
-    ) : Expanded(
-        child: Text('No bookings made on your travel', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2));
+    ) : Column(
+      children: [
+        SizedBox(height: MediaQuery.of(context).size.height /4),
+        FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+        Text('No Bookings on my travels found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+      ],
+    );
   }
-
 
   Widget buildEditingSheet(BuildContext context, var sampleBooking){
     return Container(
@@ -774,11 +755,6 @@ class BookingsView extends GetView<BookingsController> {
     );
 
   }
-
-
-
-
-
 
 
 }
