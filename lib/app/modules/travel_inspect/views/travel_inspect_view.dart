@@ -134,10 +134,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 subtitle: Text(!controller.travelCard['negotiation'] ? "Not Negotiable" : "Negotiable"),
                                 trailing: Text(controller.travelCard['price_per_kilo'].toString() + " "+"EUR", style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18))),
                               ),
-                              if(controller.travelCard['user'] != null && Get.find<MyAuthService>().myUser.value.email  != controller.travelCard['user']['user_email'])
-                              if(!controller.travelCard['negotiation'])
+                              if(controller.travelCard['user'] != null && controller.travelCard['negotiation'] &&
+                                Get.find<MyAuthService>().myUser.value.email != controller.travelCard['user']['user_email'] )
                               InkWell(
-                                onTap: (){},
+                                onTap: (){
+
+                                },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -347,11 +349,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 ),
               ),
               color: Get.theme.colorScheme.secondary,
-              onPressed: () {
-                Get.bottomSheet(
-                  buildBookingSheet(context),
-                  isScrollControlled: true,
-                );
+              onPressed: () async{
+                if(Get.find<MyAuthService>().myUser.value.email != null){
+                  Get.bottomSheet(
+                    buildBookingSheet(context),
+                    isScrollControlled: true,
+                  );
+                }else{
+                  await Get.offNamed(Routes.LOGIN);
+                }
               }) : Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

@@ -19,8 +19,8 @@ class AddTravelController extends GetxController{
 
   var avatar = new Media().obs;
   final isDone = false.obs;
-  var departureDate = DateTime.now().add(Duration(days: 1)).toString().obs;
-  var arrivalDate = DateTime.now().add(Duration(days: 2)).toString().obs;
+  var departureDate = DateTime.now().add(Duration(days: 2)).toString().obs;
+  var arrivalDate = DateTime.now().add(Duration(days: 3)).toString().obs;
   var departureTown = ''.obs;
   var arrivalTown = ''.obs;
   var country1 = ''.obs;
@@ -106,7 +106,7 @@ class AddTravelController extends GetxController{
     DateTime pickedDate = await showRoundedDatePicker(
       context: Get.context,
       imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
-      initialDate: DateTime.now(),
+      initialDate: DateTime.now().add(Duration(days: 2)),
       firstDate: DateTime(DateTime.now().year - 1),
       lastDate: DateTime(DateTime.now().year + 10),
       styleDatePicker: MaterialRoundedDatePickerStyle(
@@ -127,7 +127,7 @@ class AddTravelController extends GetxController{
     DateTime pickedDate = await showRoundedDatePicker(
       context: Get.context,
       imageHeader: AssetImage("assets/img/pexels-julius-silver-753331.jpg"),
-      initialDate: DateTime.now(),
+      initialDate: DateTime.now().add(Duration(days: 2)),
       firstDate: DateTime(DateTime.now().year - 1),
       lastDate: DateTime(DateTime.now().year + 10),
         styleDatePicker: MaterialRoundedDatePickerStyle(
@@ -177,7 +177,7 @@ class AddTravelController extends GetxController{
   }*/
 
   bool disableDate(DateTime day) {
-    if ((day.isAfter(DateTime.now().subtract(Duration(days: 1))))) {
+    if ((day.isAfter(DateTime.now().add(Duration(days: 1))))) {
       return true;
     }
     return false;

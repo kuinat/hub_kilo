@@ -268,7 +268,8 @@ class MainDrawerWidget extends StatelessWidget {
                         onTap: ()async{
                           final box = GetStorage();
                           await Get.find<MyAuthService>().removeCurrentUser();
-                          Get.offNamed(Routes.ROOT);
+                          Scaffold.of(context).closeDrawer();
+                          Navigator.pop(context);
                           box.remove("session_id");
                         }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
                       ));

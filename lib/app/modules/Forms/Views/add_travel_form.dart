@@ -528,6 +528,11 @@ class AddTravelsView extends GetView<AddTravelController> {
             value: controller.quantity.value.toString(),
           ),
           AccountWidget(
+            icon: FontAwesomeIcons.moneyBill,
+            text: Text('Accept bargain?'),
+            value: controller.canBargain.value ? 'YES' : 'NO'
+          ),
+          AccountWidget(
             icon: FontAwesomeIcons.moneyCheck,
             text: Text('Price /kg'),
             value: '${controller.price.value} EUR'
