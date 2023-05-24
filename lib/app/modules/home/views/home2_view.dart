@@ -1,17 +1,13 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../color_constants.dart';
-import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import 'dart:math' as math;
 import '../../../providers/laravel_provider.dart';
 import '../../global_widgets/address_widget.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../controllers/home_controller.dart';
-import '../widgets/Button_All_Travels_widget.dart';
 import '../widgets/featured_categories_widget.dart';
 
 class Home2View extends GetView<HomeController> {

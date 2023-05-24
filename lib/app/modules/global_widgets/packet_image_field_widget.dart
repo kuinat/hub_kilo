@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -14,6 +15,7 @@ class PacketImageFieldController extends GetxController {
   String uuid;
   final uploading = false.obs;
   var url = ''.obs;
+  final selectedMediumForImage = false.obs;
   UploadRepository _uploadRepository;
 
   PacketImageFieldController() {
@@ -174,14 +176,37 @@ class PacketImageFieldWidget extends StatelessWidget {
             else
               return GestureDetector(
                 onTap: () async {
-                  await controller.pickImage(ImageSource.gallery, field, uploadCompleted);
+                  controller.selectedMediumForImage.value=true;
                 },
-                child: Container(
+                child: !controller.selectedMediumForImage.value?Container(
                   width: 100,
                   height: 100,
+                  padding: EdgeInsets.all(20),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
                   child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                ):Container(
+                  padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                        color: Get.theme.focusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10)),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                          onTap: ()async{
+                            await controller.pickImage(ImageSource.camera, field, uploadCompleted);
+                            controller.selectedMediumForImage.value=true;
+                          },
+                          child: Icon(FontAwesomeIcons.camera)),
+                      SizedBox(width: 50,),
+                      GestureDetector(
+                        onTap: ()async{
+                          await controller.pickImage(ImageSource.gallery, field, uploadCompleted);
+                          controller.selectedMediumForImage.value=true;
+                        },
+                          child: Icon(FontAwesomeIcons.image)),
+                    ],
+                  )
                 ),
               );
           }),

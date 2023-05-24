@@ -10,17 +10,12 @@ import '../../../../main.dart';
 class MyTravelsController extends GetxController {
 
   final isDone = false.obs;
+  var isLoading = false.obs;
   var items = [].obs;
   var state = "".obs;
   var myTravelsList = [];
-  var currentIndex = 0.obs;
   final selectedState = <String>[].obs;
-  List transportState = [
-    "Disabled",
-    "Due",
-    "Pending",
-    "Accepted"
-  ].obs;
+
   ScrollController scrollController = ScrollController();
 
   @override
@@ -43,10 +38,9 @@ class MyTravelsController extends GetxController {
   }
 
   Future refreshMyTravels() async {
-    //items.value = allPlayers;
-    /*messages.clear();
-    lastDocument = new Rx<DocumentSnapshot>(null);
-    await listenForMessages();*/
+    myTravelsList = await myTravels();
+    items.value = myTravelsList;
+    print(items);
   }
 
   void toggleTravels(bool value, String type) {
@@ -74,10 +68,17 @@ class MyTravelsController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       print("my travels: $data");
-      return json.decode(data)['response'];
+      if(data != 'Empty'){
+        isLoading.value = false;
+        return json.decode(data)['response'];
+      }else{
+        isLoading.value = false;
+        return [];
+      }
     }
     else {
       var data = await response.stream.bytesToString();
+      isLoading.value = false;
       print(data);
     }
   }
@@ -87,8 +88,9 @@ class MyTravelsController extends GetxController {
     dummySearchList = myTravelsList;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['name']
-          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      dummyListData = dummySearchList.where((element) => element['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       items.value = dummyListData;
       return;
     } else {
