@@ -3,10 +3,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../color_constants.dart';
+import '../../models/booking_model.dart';
 import '../account/widgets/account_link_widget.dart';
+import '../bookings/controllers/bookings_controller.dart';
 
 class CardWidget extends StatelessWidget {
   const CardWidget({Key key,
+    @required this.transferrable,
+    @required this.accept,
+    @required this.transfer,
+    @required this.reject,
     @required this.user,
     @required this.depTown,
     @required this.color,
@@ -23,12 +29,14 @@ class CardWidget extends StatelessWidget {
     @required this.confirm,
     @required this.price,
     @required this.text,
+    @required this.bookingState,
     @required this.onPressed}) : super(key: key);
 
   final Color color;
   final String user;
   final String text;
   final String recName;
+  final bool transferrable;
   final String recEmail;
   final String recAddress;
   final String recPhone;
@@ -36,20 +44,29 @@ class CardWidget extends StatelessWidget {
   final String arrTown;
   final String depDate;
   final String arrDate;
+  final String bookingState;
   final int qty;
   final double price;
   final String imageUrl;
   final VoidCallback onPressed;
   final Function edit;
   final Function confirm;
+  final Function accept;
+  final Function reject;
+  final Function transfer;
 
   @override
   Widget build(BuildContext context) {
+    Get.lazyPut<BookingsController>(
+          () => BookingsController(),
+    );
+    var selected = Get.find<BookingsController>().currentState.value ;
     return Container(
       margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
       // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
+        border: Border.all(color: interfaceColor),
         boxShadow: [
           BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
         ],
@@ -100,11 +117,7 @@ class CardWidget extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.white, interfaceColor.withOpacity(0.2)]
-              ),
+              color: Colors.white,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
             ),
             child: Column(
@@ -117,7 +130,20 @@ class CardWidget extends StatelessWidget {
                     Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
                     SizedBox(width: 20),
                     Text("From: $text", style: Get.textTheme.headline1.
-                    merge(TextStyle(color: appColor, fontSize: 17)))
+                    merge(TextStyle(color: appColor, fontSize: 17))),
+                    SizedBox(width: 40),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      child: Text(bookingState, style: Get.textTheme.headline1.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                      decoration: BoxDecoration(
+                          color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                          border: Border.all(
+                            color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                    )
+
                   ],
                 ),
                 SizedBox(height: 10),
@@ -205,31 +231,72 @@ class CardWidget extends StatelessWidget {
                       text: Text('Phone'),
                       value: recPhone,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    selected == 0?Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
                           onTap: edit,
                           child: Card(
                               elevation: 10,
                               color: inactive,
-                              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              margin: EdgeInsets.symmetric( vertical: 15),
                               child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
                                   child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
                           )
                         ),
-                        SizedBox(width: 10),
+                        GestureDetector(
+                            onTap: transferrable?transfer:
+                                (){
+                              return AlertDialog(content: Text('This booking is either pending or accepted already, you cannot transfer it'),);
+                                },
+                            child: Card(
+                                elevation: 10,
+                                color: transferrable? specialColor:inactive,
+                                margin: EdgeInsets.symmetric( vertical: 15),
+                                child: Padding(
+                                    padding: EdgeInsets.symmetric( horizontal:10, vertical: 10),
+                                    child: Text("Transfer".tr, style: TextStyle(color: Colors.white)))
+                            )
+                        ),
                         GestureDetector(
                           onTap: confirm,
                           child: Card(
                               elevation: 10,
                               color: specialColor,
-                              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                               child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                                   child: Text("Delete".tr, style: TextStyle(color: Colors.white)))
                           )
+                        ),
+
+                      ],
+                    ):Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                            onTap: accept,
+                            child: Card(
+                                elevation: 10,
+                                color: inactive,
+                                margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+                            )
+                        ),
+                        SizedBox(width: 8),
+                        GestureDetector(
+                            onTap: reject,
+                            child: Card(
+                                elevation: 10,
+                                color: specialColor,
+                                margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                                child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                    child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+                            )
                         ),
                       ],
                     )

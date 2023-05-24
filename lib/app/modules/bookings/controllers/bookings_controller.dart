@@ -12,6 +12,28 @@ import 'package:http/http.dart' as http;
 
 class BookingsController extends GetxController {
 
+  final currentSlide = 0.obs;
+  final quantity = 1.obs;
+  final description = ''.obs;
+  final travelCard = {}.obs;
+  final imageUrl = "".obs;
+  final bookingStep = 0.obs;
+  final elevation = 0.obs;
+  final name = "".obs;
+  final email = "".obs;
+  final phone = "".obs;
+  final address = "".obs;
+  final selectUser = false.obs;
+  final buttonPressed = false.obs;
+  var url = ''.obs;
+  var users =[].obs;
+  var resetusers =[].obs;
+
+  var visible = true.obs;
+  var editNumber = false.obs;
+
+
+
   final uploading = false.obs;
   final currentState = 0.obs;
   var messages = <Message>[].obs;
@@ -94,6 +116,107 @@ class BookingsController extends GetxController {
     }
 
   }
+
+  editBooking(int book_id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/update/'+book_id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "receiver_name": name.value,
+        "receiver_email": email.value,
+        "receiver_phone": phone.value,
+        "receiver_address": address.value,
+        "type_of_luggage": description.value,
+        "kilo_booked": quantity.value
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+
+  }
+
+
+  acceptBookingOnMyTravel(int booking_id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/accept/booking/'+booking_id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking accepted ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
+    }
+
+  }
+
+
+  rejectBookingOnMyTravel(int booking_id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/reject/booking/'+booking_id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking rejected ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
+    }
+
+
+  }
+
 
   deleteMyBooking(int book_id)async{
     final box = GetStorage();

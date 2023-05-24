@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
+import '../../../../main.dart';
+import '../../../routes/app_routes.dart';
+import '../../global_widgets/Travel_card_widget.dart';
+import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
+import '../../global_widgets/packet_image_field_widget.dart';
+import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
+import '../../global_widgets/text_field_widget.dart';
+import '../../global_widgets/user_widget.dart';
 import '../controllers/bookings_controller.dart';
 
 class BookingsView extends GetView<BookingsController> {
@@ -103,7 +112,8 @@ class BookingsView extends GetView<BookingsController> {
 
               Container(
                   height: MediaQuery.of(context).size.height/1.45,
-                  decoration: Ui.getBoxDecoration(color: backgroundColor),
+                  decoration: Ui.getBoxDecoration(color: Colors.white),
+                  //Ui.getBoxDecoration(color: backgroundColor),
                   child:  Column(
                     children: [
 
@@ -254,13 +264,20 @@ class BookingsView extends GetView<BookingsController> {
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: controller.items.length,
             separatorBuilder: (context, index) {
-              return SizedBox(height: 5);
+              return SizedBox(
+                  height: 5,
+                  child: Divider(
+                      color: Colors.grey
+                  )
+              );
             },
             shrinkWrap: true,
             primary: false,
             itemBuilder: (context, index) {
               var travel = controller.items[index]['travel'];
               return CardWidget(
+                  transferrable: controller.items[index]['status'].toLowerCase()=='rejected'?true:false,
+                  bookingState: controller.items[index]['status'],
                   depDate: travel['departure_date'],
                   arrTown: travel['arrival_town'],
                   depTown: travel['departure_town'],
@@ -276,7 +293,13 @@ class BookingsView extends GetView<BookingsController> {
                   recAddress: controller.items[index]['receiver']['receiver_address'],
                   recEmail: controller.items[index]['receiver']['receiver_email'],
                   recPhone: controller.items[index]['receiver']['receiver_phone'],
-                  edit: null,
+                  edit: () {
+                    controller.phone.value= controller.items[index]['receiver']['receiver_phone'];
+                    return Get.bottomSheet(
+                      buildEditingSheet(context,controller.items[index] ),
+                      isScrollControlled: true,);
+
+                  },
                   confirm: ()=> showDialog(
                       context: context,
                       builder: (_)=>
@@ -286,10 +309,25 @@ class BookingsView extends GetView<BookingsController> {
                             confirm: 'Delete',
                             onTap: ()=>{
                               controller.deleteMyBooking(controller.items[index]['id']),
+                              Navigator.of(Get.context).pop(),
                               print(controller.items[index]['id'])
                             }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                           )
-                  )
+                  ),
+                transfer: ()=> showDialog(
+                    context: context,
+                    builder: (_)=>
+                        PopUpWidget(
+                          title: "Do you really want to tranfer your booking?",
+                          cancel: 'Cancel',
+                          confirm: 'Transfer',
+                          onTap: ()=>{
+                            //controller.deleteMyBooking(controller.items[index]['id']),
+                            Navigator.of(Get.context).pop(),
+                            print(controller.items[index]['id'])
+                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                        )
+                ),
               );
             })
     ) : Expanded(
@@ -304,13 +342,17 @@ class BookingsView extends GetView<BookingsController> {
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: controller.itemsBookingsOnMyTravel.length,
             separatorBuilder: (context, index) {
-              return SizedBox(height: 5);
+              return SizedBox(
+                  height: 5,
+                child: Divider(color: Colors.grey),
+              );
             },
             shrinkWrap: true,
             primary: false,
             itemBuilder: (context, index) {
               var travel = controller.itemsBookingsOnMyTravel[index]['travel'];
               return CardWidget(
+                  bookingState: controller.itemsBookingsOnMyTravel[index]['status'],
                   depDate: travel['departure_date'],
                   arrTown: travel['arrival_town'],
                   depTown: travel['departure_town'],
@@ -326,16 +368,28 @@ class BookingsView extends GetView<BookingsController> {
                   recAddress: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_address'],
                   recEmail: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_email'],
                   recPhone: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_phone'],
-                  edit: null,
-                  confirm: ()=> showDialog(
+                  accept:()=> showDialog(
                       context: context,
                       builder: (_)=>
                           PopUpWidget(
-                            title: "Do you really want to delete this post?",
+                            title: "Do you really want to accept this booking?",
                             cancel: 'Cancel',
-                            confirm: 'Delete',
+                            confirm: 'Accept',
                             onTap: ()=>{
-                              controller.deleteMyBooking(controller.itemsBookingsOnMyTravel[index]['id']),
+                              controller.acceptBookingOnMyTravel(controller.itemsBookingsOnMyTravel[index]['id']),
+                              print(controller.itemsBookingsOnMyTravel[index]['id'])
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                          )
+                  ),
+                  reject: ()=> showDialog(
+                      context: context,
+                      builder: (_)=>
+                          PopUpWidget(
+                            title: "Do you really want to reject this booking?",
+                            cancel: 'Cancel',
+                            confirm: 'Reject',
+                            onTap: ()=>{
+                              controller.rejectBookingOnMyTravel(controller.itemsBookingsOnMyTravel[index]['id']),
                               print(controller.itemsBookingsOnMyTravel[index]['id'])
                             }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                           )
@@ -344,6 +398,381 @@ class BookingsView extends GetView<BookingsController> {
             })
     ) : Expanded(
         child: Text('No bookings made on your travel', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2));
+  }
+
+
+  Widget buildEditingSheet(BuildContext context, var sampleBooking){
+    return Container(
+      height: Get.height/1.8,
+      decoration: BoxDecoration(
+        color: background,
+        //Get.theme.primaryColor,
+        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
+        ],
+      ),
+      child: Obx(() => Stack(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 45),
+            child: Row(
+              children: [
+                controller.bookingStep.value != 0 ?
+                MaterialButton(
+                  onPressed: () =>{
+                    controller.bookingStep.value = 0
+                  },
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  color: Get.theme.colorScheme.secondary.withOpacity(0.15),
+                  child: Text("Back".tr, style: Get.textTheme.subtitle1),
+                  elevation: controller.elevation.toDouble(),
+                ) : SizedBox(width: 60),
+                Spacer(),
+                controller.bookingStep.value == 0 ?
+                Text('Booking Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
+                Text('Receiver Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
+                Spacer(),
+                controller.bookingStep.value == 0 ?
+                MaterialButton(
+                  onPressed: () =>{
+                    controller.bookingStep.value++
+                  },
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  color: Get.theme.colorScheme.secondary.withOpacity(0.15),
+                  child: Text("Next".tr, style: Get.textTheme.subtitle1),
+                  elevation: 0,
+                ) : Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: BlockButtonWidget(
+                        text: Container(
+                          height: 24,
+                          alignment: Alignment.center,
+                          child: !controller.buttonPressed.value ? Text(
+                            "Edit".tr,
+                            style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
+                          ) : SizedBox(height: 20,
+                              child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                        ),
+                        color: Get.theme.colorScheme.secondary,
+                        onPressed: ()async{
+                          controller.buttonPressed.value = !controller.buttonPressed.value;
+                          await controller.editBooking(sampleBooking['id']);
+
+                        })
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 100, left: 20, right: 20),
+            child: ListView(
+              padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
+              children: [
+                controller.bookingStep.value == 0 ?
+                build_Book_travel(context, sampleBooking)
+                    : build_Receiver_details(context, sampleBooking)
+              ],
+            ),
+          ),
+          Container(
+            height: 30,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 13, horizontal: (Get.width / 2) - 30),
+            decoration: BoxDecoration(
+              color: Get.theme.focusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Get.theme.focusColor.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              //child: SizedBox(height: 1,),
+            ),
+          ),
+        ],
+      )
+      ),
+    );
+  }
+
+  Widget build_Book_travel(BuildContext context, var sampleBooking) {
+    return Wrap(
+      direction: Axis.horizontal,
+      runSpacing: 20,
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              onChanged: (input) => controller.description.value = input,
+              labelText: "Description".tr,
+               initialValue: sampleBooking['type_of_luggage'],
+              iconData: FontAwesomeIcons.fileLines,
+            ),
+            TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              onChanged: (input) => controller.quantity.value = int.parse(input),
+              labelText: "Quantity".tr,
+              initialValue: sampleBooking['kilo_booked'].toString(),
+              iconData: FontAwesomeIcons.shoppingBag,
+            ),
+
+            PacketImageFieldWidget(
+              label: "Packet Image".tr,
+              initialImage: null,
+              uploadCompleted: (uuid) {
+                // controller.url.value =  uuid;
+                // controller.user.value.image= uuid;
+              },),
+
+
+          ],
+        ),
+      ],
+    );
+  }
+  Widget build_Receiver_details(BuildContext context, var sampleBooking) {
+    return Wrap(
+      direction: Axis.horizontal,
+      runSpacing: 20,
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SwitchListTile( //switch at right side of label
+                value: controller.selectUser.value,
+                onChanged: (bool value){
+                  controller.selectUser.value = value;
+                },
+                title: Text("Select a user ?", style: Get.textTheme.headline1.merge(TextStyle(color: appColor)))
+            ),
+            !controller.selectUser.value ?
+            Column(
+              children: [
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.name.value = input,
+                  labelText: "Full Name".tr,
+                  initialValue: sampleBooking['receiver']['receiver_name'],
+                  iconData: FontAwesomeIcons.person,
+                ),
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.email.value = input,
+                  labelText: "Email".tr,
+                  initialValue: sampleBooking['receiver']['receiver_email'],
+                  iconData: Icons.alternate_email,
+                ),
+                Obx(() =>
+                controller.editNumber.value==false?
+                InkWell(
+                    onTap: ()=>{controller.editNumber.value == true},
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                      margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                      decoration: BoxDecoration(
+                          color: Get.theme.primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          //Text(controller.currentUser.value.phone,style: Get.textTheme.bodyText1,),
+                              ListTile(
+                                  leading: FaIcon(FontAwesomeIcons.phone, size: 20),
+                                  title: Text(sampleBooking['receiver']['receiver_phone'],style: Get.textTheme.bodyText1,
+
+                                  )
+                              ),
+
+
+                          // Text('Edit...',style: Get.textTheme.bodyText1,),
+                          TextButton(
+                            onPressed: ((){
+                              controller.editNumber.value = true;
+                            }),
+                            child: Text('Edit...',style: Get.textTheme.bodyText1,),)
+                        ],
+                      ),
+                    )
+                ):
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PhoneFieldWidget(
+                        labelText: "Phone Number".tr,
+                        hintText: "223 665 7896".tr,
+                        //initialValue: controller.currentUser.value.phone,
+                        onSaved: (phone) {
+                          controller.phone.value = "${phone.countryCode}${phone.number}";
+                        },
+                        onChanged: (phone) => controller.phone.value = "${phone.countryCode}${phone.number}"
+                    ),
+                    TextButton(
+                      onPressed: ((){
+                        controller.editNumber.value = false;
+
+                      }),
+                      child: Text('Cancel...',style: Get.textTheme.bodyText1,),)
+
+                  ],),
+                ),
+
+
+
+                TextFieldWidget(
+                  keyboardType: TextInputType.text,
+                  validator: (input) => input.isEmpty ? "field required!".tr : null,
+                  onChanged: (input) => controller.address.value = input,
+                  labelText: "Address".tr,
+                  iconData: FontAwesomeIcons.addressCard,
+                  initialValue: sampleBooking['receiver']['receiver_address'],
+                ),
+              ],
+            ) :
+            controller.visible.value?TextFieldWidget(
+              keyboardType: TextInputType.text,
+              validator: (input) => input.isEmpty ? "field required!".tr : null,
+              //onChanged: (input) => controller.selectUser.value = input,
+              labelText: "Select User".tr,
+              iconData: FontAwesomeIcons.userGroup,
+              onChanged: (value){
+                var userFilter = [];
+                if(value==''){
+                  controller.users.value=controller.resetusers.value;
+                }
+                else{
+                  for(var item in controller.users){
+                    print(item['name'].toString());
+                    if(item['name'].toLowerCase().contains(value)){
+                      userFilter.add(item);
+                      controller.users.value = userFilter;
+                    }else{
+                      controller.users.value = userFilter;
+                    }
+                    //controller.users.value = userFilter;
+                  }
+                }
+
+
+
+
+              },
+            ):TextButton(
+                onPressed: (){
+                  controller.visible.value = true;
+                  controller.users.value = controller.resetusers.value;
+
+                }, child: Text('Select another user')),
+
+            if(controller.selectUser.value)
+              controller.users.isNotEmpty ?
+              Container(
+                  margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
+                  // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                    ],
+                  ),
+
+
+                  child: ListView.separated(
+                    //physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: controller.users.length,
+                      separatorBuilder: (context, index) {
+                        return SizedBox(height: 5);
+                      },
+                      shrinkWrap: true,
+                      primary: false,
+                      itemBuilder: (context, index) {
+                        var travel = controller.users[index];
+                        return GestureDetector(
+                          onTap: (){
+                            controller.visible.value = false;
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                              color: Get.theme.primaryColor,
+
+                            ),
+                            child: UserWidget(
+
+                              user: controller.users[index]['name'],
+                            ),
+                          ),
+                        );
+                      })
+              ) : Container(
+                  child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
+
+
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget build_my_Travels(BuildContext context){
+    return Expanded(
+      child: Obx(()=>
+          GridView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: controller.items.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10.0,
+                mainAxisSpacing: 10.0,
+                mainAxisExtent: 330.0,
+              ),
+              shrinkWrap: true,
+              primary: false,
+              itemBuilder: (context, index) {
+                var type = controller.items[index]['travel_type'];
+                return GestureDetector(
+                  onTap: ()=>
+                      Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
+                  child: TravelCardWidget(
+                    disable: false,
+                    isUser: false,
+                    depDate: controller.items[index]['departure_date'],
+                    arrTown: controller.items[index]['arrival_town'],
+                    depTown: controller.items[index]['departure_town'],
+                    arrDate: controller.items[index]['arrival_date'],
+                    icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
+                        : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
+                        : FaIcon(FontAwesomeIcons.bus),
+                    qty: controller.items[index]['kilo_qty'],
+                    price: controller.items[index]['price_per_kilo'],
+                    color: background,
+                    text: Text(""),
+                    user: Text(controller.items[index]['user']['user_name'], style: TextStyle(fontSize: 17)),
+                    imageUrl: controller.items[index]['user']['user_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['user']['user_id']}/image_1920'
+                        : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
+
+                  ),
+                );
+              })
+      ),
+    );
+
   }
 
 
