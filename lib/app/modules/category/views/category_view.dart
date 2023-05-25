@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../color_constants.dart';
-import '../../../providers/laravel_provider.dart';
-import '../../global_widgets/home_search_bar_widget.dart';
+import '../../../../common/ui.dart';
+import '../../../../main.dart';
+import '../../../routes/app_routes.dart';
+import '../../global_widgets/Travel_card_widget.dart';
 import '../controllers/category_controller.dart';
-import '../widgets/services_list_widget.dart';
 
 class CategoryView extends GetView<CategoryController> {
   @override
@@ -15,12 +15,7 @@ class CategoryView extends GetView<CategoryController> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          if (!Get.find<LaravelApiClient>()
-              .isLoading(tasks: ['getAllEServicesWithPagination', 'getFeaturedEServices', 'getPopularEServices', 'getMostRatedEServices', 'getAvailableEServices'])) {
-            Get.find<LaravelApiClient>().forceRefresh();
-            controller.refreshEServices(showMessage: true);
-            Get.find<LaravelApiClient>().unForceRefresh();
-          }
+
         },
         child: CustomScrollView(
           controller: controller.scrollController,
@@ -35,53 +30,47 @@ class CategoryView extends GetView<CategoryController> {
               // pinned: true,
               floating: true,
               iconTheme: IconThemeData(color: Get.theme.primaryColor),
-              title: Text(
-                controller.category.value.name,
-                style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
+              title: Container(
+                padding: EdgeInsets.all(5),
+                alignment: Alignment.center,
+                width: 120,
+                child: Text(controller.travelType.value, style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
+                decoration: BoxDecoration(
+                    color: controller.travelType.value != "Air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
+                    border: Border.all(
+                      color: controller.travelType.value != "Air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
               ),
               centerTitle: true,
               automaticallyImplyLeading: false,
               leading: new IconButton(
-                icon: new Icon(Icons.arrow_back_ios, color: Get.theme.primaryColor),
+                icon: new Icon(Icons.arrow_back_ios, color: Colors.white),
                 onPressed: () => {Get.back()},
               ),
-              bottom: HomeSearchBarWidget(),
               flexibleSpace: FlexibleSpaceBar(
                   collapseMode: CollapseMode.parallax,
-                  background: Stack(
-                    alignment: AlignmentDirectional.bottomCenter,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.only(top: 75, bottom: 115),
-                        decoration: new BoxDecoration(
-                          gradient: new LinearGradient(
-                              colors: [validateColor.withOpacity(0.5), validateColor.withOpacity(0.2)],
-                              begin: AlignmentDirectional.topStart,
-                              //const FractionalOffset(1, 0),
-                              end: AlignmentDirectional.bottomEnd,
-                              stops: [0.1, 0.9],
-                              tileMode: TileMode.clamp),
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+                  background: Obx(() {
+                    return Stack(
+                      alignment: AlignmentDirectional.bottomCenter,
+                      children: <Widget>[
+                        CachedNetworkImage(
+                          height: 370,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          imageUrl: controller.imageUrl.value,
+                          placeholder: (context, url) => Image.asset(
+                            'assets/img/loading.gif',
+                            fit: BoxFit.cover,
+                            height: 65,
+                            width: 65,
+                          ),
+                          errorWidget: (context, url, error) => Icon(Icons.error_outline),
                         ),
-                        child: (controller.category.value.image.url.toLowerCase().endsWith('.svg')
-                            ? SvgPicture.network(
-                                controller.category.value.image.url,
-                                color: controller.category.value.color,
-                              )
-                            : CachedNetworkImage(
-                                fit: BoxFit.fitHeight,
-                                imageUrl: controller.category.value.image.url,
-                                placeholder: (context, url) => Image.asset(
-                                  'assets/img/loading.gif',
-                                  fit: BoxFit.fitHeight,
-                                ),
-                                errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                              )),
-                      ),
-                      //AddressWidget().paddingOnly(bottom: 75),
-                    ],
-                  )).marginOnly(bottom: 42),
+                        buildSearchBar(context)
+                      ],
+                    );
+                  }),).marginOnly(bottom: 10),
             ),
             SliverToBoxAdapter(
               child: Wrap(
@@ -117,7 +106,46 @@ class CategoryView extends GetView<CategoryController> {
                           });
                         })),
                   ),*/
-                  ServicesListWidget(),
+                  Obx(() => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(bottom: 10, top: 10),
+                        primary: false,
+                        shrinkWrap: true,
+                        itemCount: controller.travelList.length,
+                        itemBuilder: ((_, index) {
+                          var _service = controller.travelList.elementAt(index);
+                          return GestureDetector(
+                              child: SizedBox(
+                                  width: MediaQuery.of(context).size.width/1.2,
+                                  child: TravelCardWidget(
+                                    isUser: false,
+                                    homePage: false,
+                                    travelBy: controller.travelList[index]['travel_type'],
+                                    travelType: controller.travelList[index]['travel_type'] != "road" ? true : false,
+                                    depDate: controller.travelList[index]['departure_date'],
+                                    arrTown: controller.travelList[index]['arrival_town'],
+                                    depTown: controller.travelList[index]['departure_town'],
+                                    arrDate: controller.travelList[index]['arrival_date'],
+                                    qty: controller.travelList[index]['kilo_qty'],
+                                    price: controller.travelList[index]['price_per_kilo'],
+                                    color: Colors.white,
+                                    text: Text(""),
+                                    user: Text(controller.travelList[index]['sender']['sender_name'], style: TextStyle(fontSize: 17)),
+                                    imageUrl: controller.travelList[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.travelList[index]['sender']['sender_id']}/image_1920'
+                                        : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
+
+                                  )
+                              ),
+                              onTap: ()=>{
+                                Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),
+                              }
+                            //Get.toNamed(Routes.E_SERVICE, arguments: {'eService': travel, 'heroTag': 'services_carousel'})
+                          );
+                        }),
+                      ))
+                  )
+
                 ],
               ),
             ),
@@ -126,4 +154,40 @@ class CategoryView extends GetView<CategoryController> {
       ),
     );
   }
+
+  Container buildSearchBar(BuildContext context) {
+    double width = MediaQuery.of(context).size.width/1.2;
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+          color: Get.theme.primaryColor,
+          border: Border.all(
+            color: Get.theme.focusColor.withOpacity(0.2),
+          ),
+          borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 12, left: 0),
+            child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+          ),
+          Expanded(
+            child: Material(
+              color: Get.theme.primaryColor,
+              child: TextField(
+                //controller: controller.textEditingController,
+                style: Get.textTheme.bodyText2,
+                onChanged: (value)=> controller.filterSearchResults(value),
+                autofocus: false,
+                cursorColor: Get.theme.focusColor,
+                decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 }

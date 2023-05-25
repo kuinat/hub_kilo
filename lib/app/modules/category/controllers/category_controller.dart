@@ -1,37 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../common/ui.dart';
-import '../../../models/category_model.dart';
-import '../../../models/e_service_model.dart';
 import '../../../repositories/e_service_repository.dart';
 
-enum CategoryFilter { ALL, AVAILABILITY, RATING, FEATURED, POPULAR }
-
 class CategoryController extends GetxController {
-  final category = new Category().obs;
-  final selected = Rx<CategoryFilter>(CategoryFilter.ALL);
-  final eServices = <EService>[].obs;
   final page = 0.obs;
   final isLoading = true.obs;
   final isDone = false.obs;
-  EServiceRepository _eServiceRepository;
+  var travelList = [].obs;
+  var items = [].obs;
+  final imageUrl = "".obs;
+  var travelType = "".obs;
   ScrollController scrollController = ScrollController();
-
-  CategoryController() {
-    _eServiceRepository = new EServiceRepository();
-  }
 
   @override
   Future<void> onInit() async {
-    category.value = Get.arguments as Category;
-    scrollController.addListener(() {
-      if (scrollController.position.pixels == scrollController.position.maxScrollExtent && !isDone.value) {
-        loadEServicesOfCategory(category.value.id, filter: selected.value);
-      }
-    });
+    var arguments = Get.arguments as Map<String, dynamic>;
+    travelList.value = arguments['travels'];
+    travelType.value = arguments['travelType'];
+    print(travelList);
+    if(travelList[0]['travel_type'] == "Air"){
+      imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
+    }else if(travelList[0]['travel_type'] == "Sea"){
+      travelList[0].value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
+    }else{
+      imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
+    }
     await refreshEServices();
     super.onInit();
+  }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = travelList;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
+      items.value = dummyListData;
+      return;
+    } else {
+      items.value = travelList;
+    }
   }
 
   @override
@@ -40,26 +51,10 @@ class CategoryController extends GetxController {
   }
 
   Future refreshEServices({bool showMessage}) async {
-    toggleSelected(selected.value);
-    await loadEServicesOfCategory(category.value.id, filter: selected.value);
-    if (showMessage == true) {
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "List of services refreshed successfully".tr));
-    }
+
   }
 
-  bool isSelected(CategoryFilter filter) => selected == filter;
-
-  void toggleSelected(CategoryFilter filter) {
-    this.eServices.clear();
-    this.page.value = 0;
-    if (isSelected(filter)) {
-      selected.value = CategoryFilter.ALL;
-    } else {
-      selected.value = filter;
-    }
-  }
-
-  Future loadEServicesOfCategory(String categoryId, {CategoryFilter filter}) async {
+  /*Future loadEServicesOfCategory(String categoryId, {CategoryFilter filter}) async {
     try {
       isLoading.value = true;
       isDone.value = false;
@@ -85,7 +80,7 @@ class CategoryController extends GetxController {
           _eServices = await _eServiceRepository.getAllWithPagination(categoryId, page: this.page.value);
       }
       if (_eServices.isNotEmpty) {
-        this.eServices.addAll(_eServices);
+        //this.eServices.addAll(_eServices);
       } else {
         isDone.value = true;
       }
@@ -95,5 +90,5 @@ class CategoryController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
+  }*/
 }

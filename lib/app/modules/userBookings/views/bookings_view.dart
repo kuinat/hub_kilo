@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
@@ -10,7 +9,6 @@ import '../../../routes/app_routes.dart';
 import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
-import '../../global_widgets/loading_cards.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
@@ -41,105 +39,65 @@ class BookingsView extends GetView<BookingsController> {
           onRefresh: () async {
             controller.initValues();
           },
-          child: ListView(
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                    color: Get.theme.primaryColor,
-                    border: Border.all(
-                      color: Get.theme.focusColor.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: GestureDetector(
-                  onTap: () {
-                    //Get.toNamed(Routes.SEARCH, arguments: controller.heroTag.value);
-                  },
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12, left: 0),
-                        child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                      color: Get.theme.primaryColor,
+                      border: Border.all(
+                        color: Get.theme.focusColor.withOpacity(0.2),
                       ),
-                      Expanded(
-                        child: Material(
-                          color: Get.theme.primaryColor,
-                          child: TextField(
-                            //controller: controller.textEditingController,
-                            style: Get.textTheme.bodyText2,
-                            onChanged: (value)=> controller.filterSearchResults(value),
-                            autofocus: false,
-                            cursorColor: Get.theme.focusColor,
-                            decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: GestureDetector(
+                    onTap: () {
+                      //Get.toNamed(Routes.SEARCH, arguments: controller.heroTag.value);
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12, left: 0),
+                          child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+                        ),
+                        Expanded(
+                          child: Material(
+                            color: Get.theme.primaryColor,
+                            child: TextField(
+                              //controller: controller.textEditingController,
+                              style: Get.textTheme.bodyText2,
+                              onChanged: (value)=> controller.filterSearchResults(value),
+                              autofocus: false,
+                              cursorColor: Get.theme.focusColor,
+                              decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-
-              Container(
-                margin: EdgeInsets.only(bottom: 20),
-
-                  height: MediaQuery.of(context).size.height*0.676,
-                  decoration: Ui.getBoxDecoration(color: backgroundColor),
-                  child:  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                Container(
+                    height: MediaQuery.of(context).size.height/1.2,
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                    decoration: Ui.getBoxDecoration(color: backgroundColor),
+                    child:  controller.items.isNotEmpty ? MyBookings(context)
+                  : SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          GestureDetector(
-                              onTap: ()=>{
-                                controller.currentState.value = 0
-                              },
-                              child: Obx(()=> Card(
-                                  color: controller.currentState.value == 0 ? interfaceColor : inactive,
-                                  elevation: controller.currentState.value == 0 ? 10 : null,
-                                  shadowColor:  inactive,
-                                  child: Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Text('My Bookings'.tr, style: TextStyle(color: Get.theme.primaryColor))
-                                  )
-                              ))
-                          ),
-                          SizedBox(width: 10),
-                          GestureDetector(
-                              onTap: ()=>{
-                                controller.currentState.value = 1
-                              },
-                              child: Obx(() => Card(
-                                  color: controller.currentState.value == 1 ? interfaceColor : inactive,
-                                  elevation: controller.currentState.value == 1 ? 10 : null,
-                                  shadowColor: inactive,
-                                  child: Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Text('Bookings on my travels'.tr, style: TextStyle(color: Get.theme.primaryColor))
-                                  )
-                              )
-                              )
-                          )
+                          FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
                         ],
-                      ).marginOnly(top:20, left: 10),
-
-                      Obx(() => controller.currentState.value == 0 ?
-                          !controller.isLoading.value ?
-                      Mybookings(context) : LoadingCardWidget() :
-                      !controller.isLoading.value ?
-                      BookingsOnMyTravels(context) : LoadingCardWidget()
                       ),
-
-                      //SizedBox(height: 50)
-                    ],
-                  )
-              ),
-            ],
-          ),
-
-
-
+                    )
+                ),
+              ],
+            ),
+          )
 
         ));
   }
@@ -230,24 +188,18 @@ class BookingsView extends GetView<BookingsController> {
   }
 
 
-  Widget Mybookings(BuildContext context){
-    return controller.items.isNotEmpty ? Expanded(
-        child:
-        ListView.separated(
+  Widget MyBookings(BuildContext context){
+    return Expanded(
+        child: ListView.builder(
             physics: AlwaysScrollableScrollPhysics(),
-            itemCount: controller.items.length,
-            separatorBuilder: (context, index) {
-              return SizedBox(
-                  height: 5,
-                  child: Divider(
-                      color: Colors.grey
-                  )
-              );
-            },
+            itemCount: controller.items.length + 1,
             shrinkWrap: true,
             primary: false,
             itemBuilder: (context, index) {
-              var travel = controller.items[index]['travel'];
+              if (index == controller.items.length) {
+                return SizedBox(height: 80);
+              } else {
+                var travel = controller.items[index]['travel'];
               return CardWidget(
                 editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
@@ -258,9 +210,7 @@ class BookingsView extends GetView<BookingsController> {
                   arrDate: travel['arrival_date'],
                   qty: controller.items[index]['kilo_booked'],
                   price: controller.items[index]['kilo_booked_price'],
-                  color: background,
                   text: controller.items[index]['travel']['traveler']['user_name'],
-                  onPressed: () =>{  },
                   user: "Test User",
                   imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                   recName: controller.items[index]['receiver']['receiver_name'],
@@ -307,85 +257,8 @@ class BookingsView extends GetView<BookingsController> {
                           }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                         )
                 ),
-              );
+              );}
             })
-    ) : Column(
-      children: [
-        SizedBox(height: MediaQuery.of(context).size.height /4),
-        FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-        Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
-      ],
-    );
-  }
-
-
-  Widget BookingsOnMyTravels(BuildContext context){
-    return controller.itemsBookingsOnMyTravel.isNotEmpty ?
-    Expanded(
-        child: ListView.separated(
-            physics: AlwaysScrollableScrollPhysics(),
-            itemCount: controller.itemsBookingsOnMyTravel.length,
-            separatorBuilder: (context, index) {
-              return SizedBox(
-                  height: 5,
-                child: Divider(color: Colors.grey),
-              );
-            },
-            shrinkWrap: true,
-            primary: false,
-            itemBuilder: (context, index) {
-              var travel = controller.itemsBookingsOnMyTravel[index]['travel'];
-              return CardWidget(
-                  bookingState: controller.itemsBookingsOnMyTravel[index]['status'],
-                  depDate: travel['departure_date'],
-                  arrTown: travel['arrival_town'],
-                  depTown: travel['departure_town'],
-                  arrDate: travel['arrival_date'],
-                  qty: controller.itemsBookingsOnMyTravel[index]['kilo_booked'],
-                  price: controller.itemsBookingsOnMyTravel[index]['kilo_booked_price'],
-                  color: background,
-                  text: controller.itemsBookingsOnMyTravel[index]['travel']['traveler']['user_name'],
-                  onPressed: () =>{  },
-                  user: "Test User",
-                  imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-                  recName: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_name'],
-                  recAddress: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_address'],
-                  recEmail: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_email'],
-                  recPhone: controller.itemsBookingsOnMyTravel[index]['receiver']['receiver_phone'],
-                  accept:()=> showDialog(
-                      context: context,
-                      builder: (_)=>
-                          PopUpWidget(
-                            title: "Do you really want to accept this booking?",
-                            cancel: 'Cancel',
-                            confirm: 'Accept',
-                            onTap: ()=>{
-                              controller.acceptBookingOnMyTravel(controller.itemsBookingsOnMyTravel[index]['id']),
-                              print(controller.itemsBookingsOnMyTravel[index]['id'])
-                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                          )
-                  ),
-                  reject: ()=> showDialog(
-                      context: context,
-                      builder: (_)=>
-                          PopUpWidget(
-                            title: "Do you really want to reject this booking?",
-                            cancel: 'Cancel',
-                            confirm: 'Reject',
-                            onTap: ()=>{
-                              controller.rejectBookingOnMyTravel(controller.itemsBookingsOnMyTravel[index]['id']),
-                              print(controller.itemsBookingsOnMyTravel[index]['id'])
-                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                          )
-                  )
-              );
-            })
-    ) : Column(
-      children: [
-        SizedBox(height: MediaQuery.of(context).size.height /4),
-        FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-        Text('No Bookings on my travels found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
-      ],
     );
   }
 
@@ -716,51 +589,6 @@ class BookingsView extends GetView<BookingsController> {
         ),
       ],
     );
-  }
-
-  Widget build_my_Travels(BuildContext context){
-    return Expanded(
-      child: Obx(()=>
-          GridView.builder(
-              physics: AlwaysScrollableScrollPhysics(),
-              itemCount: controller.items.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10.0,
-                mainAxisSpacing: 10.0,
-                mainAxisExtent: 330.0,
-              ),
-              shrinkWrap: true,
-              primary: false,
-              itemBuilder: (context, index) {
-                var type = controller.items[index]['travel_type'];
-                return GestureDetector(
-                  onTap: ()=>
-                      Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
-                  child: TravelCardWidget(
-                    disable: false,
-                    isUser: false,
-                    depDate: controller.items[index]['departure_date'],
-                    arrTown: controller.items[index]['arrival_town'],
-                    depTown: controller.items[index]['departure_town'],
-                    arrDate: controller.items[index]['arrival_date'],
-                    icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
-                        : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
-                        : FaIcon(FontAwesomeIcons.bus),
-                    qty: controller.items[index]['kilo_qty'],
-                    price: controller.items[index]['price_per_kilo'],
-                    color: background,
-                    text: Text(""),
-                    user: Text(controller.items[index]['user']['user_name'], style: TextStyle(fontSize: 17)),
-                    imageUrl: controller.items[index]['user']['user_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['user']['user_id']}/image_1920'
-                        : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
-
-                  ),
-                );
-              })
-      ),
-    );
-
   }
 
 

@@ -83,9 +83,9 @@ class BookingsController extends GetxController {
     myBookings = await getMyBookings();
     items.value = myBookings;
     print(items);
-    bookingsOnMyTravel = await getBookingsOnMyTravel();
+    /*bookingsOnMyTravel = await getBookingsOnMyTravel();
     itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
-    print(itemsBookingsOnMyTravel);
+    print(itemsBookingsOnMyTravel);*/
   }
 
   refreshBookings()async{
@@ -128,7 +128,7 @@ class BookingsController extends GetxController {
     }
   }
 
-  getBookingsOnMyTravel()async{
+  /*getBookingsOnMyTravel()async{
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
@@ -150,7 +150,7 @@ class BookingsController extends GetxController {
       print(response.reasonPhrase);
     }
 
-  }
+  }*/
 
   editBooking(int book_id)async{
     final box = GetStorage();
@@ -299,7 +299,7 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       if(json.decode(data)['success']) {
-        Get.showSnackbar(Ui.SuccessSnackBar(message: json.decode(data)['message'].tr));
+        Get.showSnackbar(Ui.SuccessSnackBar(message: json.decode(data)['message']));
         Navigator.pop(Get.context);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));

@@ -5,11 +5,10 @@ import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
-import '../../bookings/controllers/bookings_controller.dart';
 import '../../global_widgets/Travel_card_widget.dart';
-import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/loading_cards.dart';
 import '../../global_widgets/notifications_button_widget.dart';
+import '../../userBookings/controllers/bookings_controller.dart';
 import '../controllers/available_travels_controller.dart';
 
 class AvailableTravelsView extends GetView<AvailableTravelsController> {
@@ -87,26 +86,6 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                     decoration: Ui.getBoxDecoration(color: backgroundColor),
                     child: Obx(() => Column(
                       children: [
-                        /*Container(
-                          height: 43,
-                          margin: EdgeInsets.only(bottom: 10),
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: controller.transportState.length,
-                              itemBuilder: (context, index){
-                                return Obx(() => InkWell(
-                                    onTap: ()=> controller.currentIndex.value == index,
-                                    child: Card(
-                                      color: controller.currentIndex.value == index ? interfaceColor : inactive,
-                                      elevation: controller.currentIndex.value == index ? 10 : null,
-                                      child: Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: Text(controller.transportState[index], style: TextStyle(color: Colors.white)),
-                                      ),
-                                    )
-                                ));
-                              }),
-                        ),*/
                         Expanded(
                             child: controller.isLoading.value ?
                             LoadingCardWidget()
@@ -119,32 +98,31 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                   crossAxisCount: 1,
                                   crossAxisSpacing: 10.0,
                                   mainAxisSpacing: 10.0,
-                                  mainAxisExtent: 250.0,
+                                  mainAxisExtent: 260.0,
                                 ),
                                 shrinkWrap: true,
                                 primary: false,
                                 itemBuilder: (context, index) {
-                                  var type = controller.items[index]['travel_type'];
+
                                   return GestureDetector(
                                     onTap: ()=>
                                         Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
                                     child: TravelCardWidget(
-                                      disable: false,
                                       isUser: false,
+                                      homePage: false,
+                                      travelBy: controller.items[index]['travel_type'],
+                                      travelType: controller.items[index]['travel_type'] != "road" ? true : false,
                                       depDate: controller.items[index]['departure_date'],
                                       arrTown: controller.items[index]['arrival_town'],
                                       depTown: controller.items[index]['departure_town'],
                                       arrDate: controller.items[index]['arrival_date'],
-                                      icon: type == "Air" ? FaIcon(FontAwesomeIcons.planeDeparture)
-                                          : type == "Sea" ? FaIcon(FontAwesomeIcons.ship)
-                                          : FaIcon(FontAwesomeIcons.bus),
                                       qty: controller.items[index]['kilo_qty'],
                                       price: controller.items[index]['price_per_kilo'],
                                       color: background,
                                       text: Text(""),
-                                      user: Text(controller.items[index]['user']['user_name'].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
-                                      imageUrl: controller.items[index]['user']['user_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['user']['user_id']}/image_1920'
-                                          : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
+                                      user: Text(controller.items[index]['sender']['sender_name'].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
+                                      imageUrl: controller.items[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['sender']['sender_id']}/image_1920'
+                                          : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                                     ),
                                   );

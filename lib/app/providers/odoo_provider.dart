@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:get/get.dart';
 
-import '../../common/uuid.dart';
+import '../../common/ui.dart';
 import '../../main.dart';
 import '../models/address_model.dart';
 import '../models/award_model.dart';
@@ -32,8 +32,6 @@ import '../models/payment_method_model.dart';
 import '../models/payment_model.dart';
 import '../models/review_model.dart';
 import '../models/setting_model.dart';
-import '../models/slide_model.dart';
-import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../models/wallet_transaction_model.dart';
 import '../services/my_auth_service.dart';
@@ -133,7 +131,6 @@ class OdooApiClient extends GetxService with ApiClient {
 
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
-      print('Patrick');
       //print(await response.stream.bytesToString());
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['partner'];
@@ -154,8 +151,6 @@ class OdooApiClient extends GetxService with ApiClient {
       final session_id = response.headers['set-cookie'];
       print(session_id.split(";").first);
       box.write('session_id', session_id.split(";").first);
-
-      print("get Date:"+myuser.id.toString());
       return myuser;
 
     } else {
@@ -185,7 +180,6 @@ class OdooApiClient extends GetxService with ApiClient {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print('Nathalie');
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result'];
       print(data);
@@ -194,16 +188,14 @@ class OdooApiClient extends GetxService with ApiClient {
         print(userId);
         print(response.headers['set-cookie']);
         final session_id = response.headers['set-cookie'];
-        print(session_id.split(";").first);
         box.write('session_id', session_id.split(";").first);
         var myuser = await getUser();
-
-
         //print("session id: ${session_id.split(";").first}");
         return (myuser);
 
       }
       else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
         throw new Exception(response.reasonPhrase);
       }
 
@@ -1002,7 +994,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'limit': '4',
       'offset': ((page - 1) * 4).toString()
     };
-    Uri _uri = getApiBaseUri("bookings").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -1034,7 +1026,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'with': 'bookingStatus;user;payment;payment.paymentMethod;payment.paymentStatus',
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings/${bookingId}").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings/${bookingId}").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -1069,7 +1061,7 @@ class OdooApiClient extends GetxService with ApiClient {
     var _queryParameters = {
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings/${booking.id}").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings/${booking.id}").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.putUri(_uri, data: booking.toJson(), options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -1086,7 +1078,7 @@ class OdooApiClient extends GetxService with ApiClient {
     var _queryParameters = {
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.postUri(_uri, data: booking.toJson(), options: _optionsNetwork);
     if (response.data['success'] == true) {
