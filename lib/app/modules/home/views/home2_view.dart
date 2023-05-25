@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
-import 'dart:math' as math;
+//import 'dart:math' as math;
 import '../../../providers/laravel_provider.dart';
 import '../../global_widgets/address_widget.dart';
 import '../../global_widgets/notifications_button_widget.dart';
@@ -30,10 +30,8 @@ class Home2View extends GetView<HomeController> {
       ),
       body: RefreshIndicator(
           onRefresh: () async {
-            Get.find<LaravelApiClient>().forceRefresh();
             await controller.refreshHome(showMessage: true);
             controller.onInit();
-            Get.find<LaravelApiClient>().unForceRefresh();
           },
           child: CustomScrollView(
             primary: true,
@@ -43,43 +41,6 @@ class Home2View extends GetView<HomeController> {
                 child: Wrap(
                   children: [
                     AddressWidget(),
-                    /*Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                      child: Row(
-                        children: [
-                          Expanded(child: Text("Categories".tr, style: Get.textTheme.headline5)),
-                          MaterialButton(
-                            onPressed: () {
-                              Get.toNamed(Routes.CATEGORIES);
-                            },
-                            shape: StadiumBorder(),
-                            color: Get.theme.colorScheme.secondary.withOpacity(0.1),
-                            child: Text("View All".tr, style: Get.textTheme.subtitle1),
-                            elevation: 0,
-                          ),
-                        ],
-                      ),
-                    ),
-                    CategoriesCarouselWidget(),
-                    Container(
-                      color: Get.theme.primaryColor,
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                      child: Row(
-                        children: [
-                          Expanded(child: Text("Recommended for you".tr, style: Get.textTheme.headline5)),
-                          MaterialButton(
-                            onPressed: () {
-                              Get.toNamed(Routes.CATEGORIES);
-                            },
-                            shape: StadiumBorder(),
-                            color: Get.theme.colorScheme.secondary.withOpacity(0.1),
-                            child: Text("View All".tr, style: Get.textTheme.subtitle1),
-                            elevation: 0,
-                          ),
-                        ],
-                      ),
-                    ),
-                    RecommendedCarouselWidget(),*/
                     FeaturedCategoriesWidget(),
                   ],
                 ),

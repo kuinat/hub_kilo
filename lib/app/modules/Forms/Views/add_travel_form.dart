@@ -322,23 +322,35 @@ class AddTravelsView extends GetView<AddTravelController> {
                   initiallyExpanded: false,
                 )
             ),
-            TextFieldWidget(
-              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
-              keyboardType: TextInputType.number,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.quantity.value = int.parse(input),
-              labelText: "Quantity".tr,
-              iconData: Icons.shopping_cart_rounded,
-            ),
-            TextFieldWidget(
-              //onSaved: (input) => controller.user.value.name = input,
-              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['price_per_kilo'].toString() : "",
-              keyboardType: TextInputType.number,
-              onChanged: (input) => controller.price.value = double.parse(input),
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              labelText: "Price /kg".tr,
-              iconData: Icons.attach_money,
-            ),
+            if(controller.travelType.value != "Land")...[
+              TextFieldWidget(
+                initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
+                keyboardType: TextInputType.number,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.quantity.value = int.parse(input),
+                labelText: "Quantity".tr,
+                iconData: Icons.shopping_cart_rounded,
+              ),
+              TextFieldWidget(
+                //onSaved: (input) => controller.user.value.name = input,
+                initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['price_per_kilo'].toString() : "",
+                keyboardType: TextInputType.number,
+                onChanged: (input) => controller.price.value = double.parse(input),
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                labelText: "Price /kg".tr,
+                iconData: Icons.attach_money,
+              )
+            ]else...[
+              TextFieldWidget(
+                initialValue: "The price will depend on the luggage",
+                maxLines: 3,
+                keyboardType: TextInputType.number,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.quantity.value = int.parse(input),
+                labelText: "Quantity".tr,
+                iconData: Icons.shopping_cart_rounded,
+              )
+            ]
           ],
         )
     );
@@ -359,6 +371,7 @@ class AddTravelsView extends GetView<AddTravelController> {
             TextFieldWidget(
               initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['type_of_luggage_accepted'].toString() : controller.restriction.value,
               keyboardType: TextInputType.text,
+              maxLines: 3,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               onChanged: (input) => controller.restriction.value = input,
               labelText: "Restriction".tr,
@@ -499,99 +512,103 @@ class AddTravelsView extends GetView<AddTravelController> {
             BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
           ],
           border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-      child: Column(
-        children: [
-          Text("Verify your informations".tr, style: Get.textTheme.headline6),
-          AccountWidget(
-            icon: FontAwesomeIcons.calendarDay,
-            text: Text('Departure \nDate'),
-            value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.departureDate.value)).toString(),
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.calendarDay,
-            text: Text('Arrival \nDate'),
-            value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.arrivalDate.value)).toString(),
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.locationDot,
-            text: Text('Departure \nTown'),
-            value: controller.departureTown.value,
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.locationDot,
-            text: Text('Arrival \nTown'),
-            value: controller.arrivalTown.value,
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.shoppingBasket,
-            text: Text('Quantity'),
-            value: controller.quantity.value.toString(),
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.moneyBill,
-            text: Text('Accept bargain?'),
-            value: controller.canBargain.value ? 'YES' : 'NO'
-          ),
-          AccountWidget(
-            icon: FontAwesomeIcons.moneyCheck,
-            text: Text('Price /kg'),
-            value: '${controller.price.value} EUR'
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 30,
-                  child: Icon( FontAwesomeIcons.plane, color: interfaceColor, size: 18),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 12),
-                  width: 1,
-                  height: 24,
-                  color: Get.theme.focusColor.withOpacity(0.3),
-                ),
-                Expanded(
-                  child: Text("Travel type"),
-                ),
-                controller.travelType.value == 'Air' ? FaIcon(FontAwesomeIcons.planeDeparture) :
-                controller.travelType.value == 'Sea' ? FaIcon(FontAwesomeIcons.ship) : FaIcon(FontAwesomeIcons.bus),
-              ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text("Verify your informations".tr, style: Get.textTheme.headline6),
+            AccountWidget(
+              icon: FontAwesomeIcons.calendarDay,
+              text: Text('Departure \nDate'),
+              value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.departureDate.value)).toString(),
             ),
-          ),
-          Spacer(),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                controller.travelCard.isEmpty ?
-                BlockButtonWidget(
-                  onPressed: () =>{
-                    controller.buttonPressed.value = !controller.buttonPressed.value,
-                    controller.postTravel()
-                  },
-                  color: Get.theme.colorScheme.secondary,
-                  text: !controller.buttonPressed.value ? Text(
-                    "Submit Form".tr,
-                    style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
-                  ) : SizedBox(height: 20,
-                      child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                ).paddingSymmetric(vertical: 10, horizontal: 20)
-                    :
-                BlockButtonWidget(
-                  onPressed: () =>{
-                    controller.buttonPressed.value = !controller.buttonPressed.value,
-                    controller.updateTravel(controller.travelCard['id'])
-                  },
-                  color: Get.theme.colorScheme.secondary,
-                  text: !controller.buttonPressed.value ? Text(
-                    "Update Travel".tr,
-                    style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
-                  ) : SizedBox(height: 20,
-                      child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                ).paddingSymmetric(vertical: 10, horizontal: 20)
-              ]
-          )
-        ],
+            AccountWidget(
+              icon: FontAwesomeIcons.calendarDay,
+              text: Text('Arrival \nDate'),
+              value: DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.arrivalDate.value)).toString(),
+            ),
+            AccountWidget(
+              icon: FontAwesomeIcons.locationDot,
+              text: Text('Departure \nTown'),
+              value: controller.departureTown.value,
+            ),
+            AccountWidget(
+              icon: FontAwesomeIcons.locationDot,
+              text: Text('Arrival \nTown'),
+              value: controller.arrivalTown.value,
+            ),
+            if(controller.travelType.value != 'Road')
+            AccountWidget(
+              icon: FontAwesomeIcons.shoppingBasket,
+              text: Text('Quantity'),
+              value: controller.quantity.value.toString(),
+            ),
+            AccountWidget(
+                icon: FontAwesomeIcons.moneyBill,
+                text: Text('Accept bargain?'),
+                value: controller.canBargain.value ? 'YES' : 'NO'
+            ),
+            if(controller.travelType.value != 'Road')
+            AccountWidget(
+                icon: FontAwesomeIcons.moneyCheck,
+                text: Text('Price /kg'),
+                value: '${controller.price.value} EUR'
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 30,
+                    child: Icon( FontAwesomeIcons.plane, color: interfaceColor, size: 18),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 12),
+                    width: 1,
+                    height: 24,
+                    color: Get.theme.focusColor.withOpacity(0.3),
+                  ),
+                  Expanded(
+                    child: Text("Travel type"),
+                  ),
+                  controller.travelType.value == 'Air' ? FaIcon(FontAwesomeIcons.planeDeparture) :
+                  controller.travelType.value == 'Sea' ? FaIcon(FontAwesomeIcons.ship) : FaIcon(FontAwesomeIcons.bus),
+                ],
+              ),
+            ),
+            Spacer(),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  controller.travelCard.isEmpty ?
+                  BlockButtonWidget(
+                    onPressed: () =>{
+                      controller.buttonPressed.value = !controller.buttonPressed.value,
+                      controller.postTravel()
+                    },
+                    color: Get.theme.colorScheme.secondary,
+                    text: !controller.buttonPressed.value ? Text(
+                      "Submit Form".tr,
+                      style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
+                    ) : SizedBox(height: 20,
+                        child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                  ).paddingSymmetric(vertical: 10, horizontal: 20)
+                      :
+                  BlockButtonWidget(
+                    onPressed: () =>{
+                      controller.buttonPressed.value = !controller.buttonPressed.value,
+                      controller.updateTravel(controller.travelCard['id'])
+                    },
+                    color: Get.theme.colorScheme.secondary,
+                    text: !controller.buttonPressed.value ? Text(
+                      "Update Travel".tr,
+                      style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
+                    ) : SizedBox(height: 20,
+                        child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                  ).paddingSymmetric(vertical: 10, horizontal: 20)
+                ]
+            )
+          ],
+        )
       ),
     );
   }

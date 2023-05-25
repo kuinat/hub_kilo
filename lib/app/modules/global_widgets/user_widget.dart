@@ -8,18 +8,12 @@ import '../account/widgets/account_link_widget.dart';
 class UserWidget extends StatelessWidget {
   const UserWidget({Key key,
     @required this.user,
-    @required this.color,
-    @required this.imageUrl,
+    this.selected,
+    @required this.imageUrl}) : super(key: key);
 
-    @required this.text,
-    @required this.onPressed}) : super(key: key);
-
-  final Color color;
   final String user;
-  final String text;
-
+  final bool selected;
   final String imageUrl;
-  final VoidCallback onPressed;
 
 
   @override
@@ -28,17 +22,15 @@ class UserWidget extends StatelessWidget {
       //mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          height: 20,
-          width: 20,
+          height: 30,
+          width: 30,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: NetworkImage(
-                ''
-              ), fit: BoxFit.cover
-            )),
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                  image: NetworkImage(imageUrl), fit: BoxFit.cover
+              )),
         ),
-        SizedBox(width: 20,),
+        SizedBox(width: 20),
         Text(user)
       ],
     );

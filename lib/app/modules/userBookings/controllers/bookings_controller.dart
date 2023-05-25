@@ -65,9 +65,9 @@ class BookingsController extends GetxController {
     myBookings = await getMyBookings();
     items.value = myBookings;
     print(items);
-    bookingsOnMyTravel = await getBookingsOnMyTravel();
+    /*bookingsOnMyTravel = await getBookingsOnMyTravel();
     itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
-    print(itemsBookingsOnMyTravel);
+    print(itemsBookingsOnMyTravel);*/
   }
 
   refreshBookings()async{
@@ -110,7 +110,7 @@ class BookingsController extends GetxController {
     }
   }
 
-  getBookingsOnMyTravel()async{
+  /*getBookingsOnMyTravel()async{
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
@@ -132,7 +132,7 @@ class BookingsController extends GetxController {
       print(response.reasonPhrase);
     }
 
-  }
+  }*/
 
   editBooking(int book_id)async{
     final box = GetStorage();

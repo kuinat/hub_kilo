@@ -783,7 +783,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'limit': '4',
       'offset': ((page - 1) * 4).toString()
     };
-    Uri _uri = getApiBaseUri("bookings").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -815,7 +815,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'with': 'bookingStatus;user;payment;payment.paymentMethod;payment.paymentStatus',
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings/${bookingId}").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings/${bookingId}").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -850,7 +850,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     var _queryParameters = {
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings/${booking.id}").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings/${booking.id}").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.putUri(_uri, data: booking.toJson(), options: _optionsNetwork);
     if (response.data['success'] == true) {
@@ -867,7 +867,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     var _queryParameters = {
       'api_token': authService.apiToken,
     };
-    Uri _uri = getApiBaseUri("bookings").replace(queryParameters: _queryParameters);
+    Uri _uri = getApiBaseUri("userBookings").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
     var response = await _httpClient.postUri(_uri, data: booking.toJson(), options: _optionsNetwork);
     if (response.data['success'] == true) {

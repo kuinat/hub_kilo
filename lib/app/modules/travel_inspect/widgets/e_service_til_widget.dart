@@ -8,11 +8,12 @@ import '../../../../common/ui.dart';
 
 class EServiceTilWidget extends StatelessWidget {
   final Widget title;
+  final Widget title2;
   final Widget content;
   final List<Widget> actions;
   final double horizontalPadding;
 
-  const EServiceTilWidget({Key key, this.title, this.content, this.actions, this.horizontalPadding}) : super(key: key);
+  const EServiceTilWidget({Key key, this.title2, this.title, this.content, this.actions, this.horizontalPadding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +27,7 @@ class EServiceTilWidget extends StatelessWidget {
           Row(
             children: [
               Expanded(child: title),
-              if (actions != null)
-                Wrap(
-                  children: actions,
-                )
+              title2
             ],
           ),
           Divider(

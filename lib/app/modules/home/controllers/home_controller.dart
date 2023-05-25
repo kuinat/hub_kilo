@@ -11,19 +11,23 @@ import '../../../repositories/category_repository.dart';
 import '../../../repositories/e_service_repository.dart';
 import '../../../repositories/slider_repository.dart';
 import '../../../services/settings_service.dart';
-import '../../root/controllers/root_controller.dart';
 import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   SliderRepository _sliderRepo;
   CategoryRepository _categoryRepository;
   EServiceRepository _eServiceRepository;
+  var landTravelList = [].obs;
+  var airTravelList = [].obs;
+  var travelItem = {};
+  var isLoading = true.obs;
 
   final addresses = <Address>[].obs;
-  final slider = [].obs;
+  var airTravels = [];
+  var landTravels = [];
+  var seaTravels = [];
   final currentSlide = 0.obs;
   //final buttonPressed = false.obs;
-
   final eServices = <EService>[].obs;
   final categories = <Category>[].obs;
   final featured = <Category>[].obs;
@@ -37,38 +41,46 @@ class HomeController extends GetxController {
   @override
   Future<void> onInit() async {
     await refreshHome();
-    slider.value = await getSlider();
-    //print(slider);
+    travelItem = await getAllTravels();
+    landTravels = travelItem['road_shippings'];
+    airTravels = travelItem['air_shippings'];
+    landTravelList.value = landTravels;
+    airTravelList.value = airTravels;
+    //print(listItems);
     super.onInit();
   }
 
   Future refreshHome({bool showMessage = false}) async {
-    await getSlider();
-    await getCategories();
-    await getFeatured();
-    await getRecommendedEServices();
-    Get.find<RootController>().getNotificationsCount();
-    if (showMessage) {
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Home page refreshed successfully".tr));
-    }
+    isLoading.value = true;
+    travelItem = await getAllTravels();
+    landTravels = travelItem['road_shippings'];
+    airTravels = travelItem['air_shippings'];
+    landTravelList.value = landTravels;
+    airTravelList.value = airTravels;
+    //print(listItems);
+    /*print("land travel: $airTravelList");
+    print("air travel: $airTravelList");*/
   }
 
-  Address get currentAddress {
-    return Get.find<SettingsService>().address.value;
-  }
+  Future getAllTravels()async{
 
-  Future getSlider() async {
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/api/all/travels'));
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      return json.decode(data)['publicity'];
+      print(data);
+      isLoading.value = false;
+      return json.decode(data);
     }
     else {
       print(response.reasonPhrase);
     }
+  }
+
+  Address get currentAddress {
+    return Get.find<SettingsService>().address.value;
   }
 
   Future getCategories() async {

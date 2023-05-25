@@ -9,12 +9,11 @@ import '../../../repositories/notification_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../account/views/account_view.dart';
-import '../../bookings/controllers/bookings_controller.dart';
-import '../../bookings/views/bookings_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/home2_view.dart';
-import '../../messages/controllers/messages_controller.dart';
 import '../../profile/controllers/profile_controller.dart';
+import '../../userBookings/controllers/bookings_controller.dart';
+import '../../userBookings/views/bookings_view.dart';
 import '../../userTravels/controllers/myTravels_controller.dart';
 import '../../userTravels/views/userTravels_view.dart';
 
