@@ -5,6 +5,7 @@ import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
+import '../../bookings/controllers/bookings_controller.dart';
 import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/loading_cards.dart';
@@ -31,7 +32,10 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
           automaticallyImplyLeading: false,
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back_ios, color: Palette.background),
-            onPressed: () => {Get.offNamed(Routes.ROOT)},
+            onPressed: () => {
+            Get.find<BookingsController>().transferBooking.value = false,
+              Get.offNamed(Routes.ROOT)
+            },
           ),
           actions: [NotificationsButtonWidget()],
         ),

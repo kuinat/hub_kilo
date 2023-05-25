@@ -11,6 +11,7 @@ import '../../../providers/laravel_provider.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../../bookings/controllers/bookings_controller.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/image_field_widget.dart';
@@ -32,6 +33,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
+
     return Obx(() {
       var travel = controller.travelCard;
       if (!travel.isNotEmpty) {
@@ -335,7 +337,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
         ),
         child: Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
-          child: controller.travelCard['user'] != null && Get.find<MyAuthService>().myUser.value.email != controller.travelCard['user']['user_email'] ?
+          child: controller.travelCard['user'] != null && Get.find<MyAuthService>().myUser.value.email != controller.travelCard['user']['user_email']&& !controller.transferBooking.value?
           BlockButtonWidget(
               text: Container(
                 height: 24,
@@ -358,7 +360,27 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 }else{
                   await Get.offNamed(Routes.LOGIN);
                 }
-              }) : Row(
+              }) : controller.transferBooking.value&&Get.find<MyAuthService>().myUser.value.email != controller.travelCard['user']['user_email']? BlockButtonWidget(
+              text: Container(
+                height: 24,
+                alignment: Alignment.center,
+                child: Text(
+                  "Transfer Now".tr,
+                  textAlign: TextAlign.center,
+                  style: Get.textTheme.headline6.merge(
+                    TextStyle(color: Get.theme.primaryColor),
+                  ),
+                ),
+              ),
+              color: Get.theme.colorScheme.secondary,
+              onPressed: () async{
+                if(Get.find<MyAuthService>().myUser.value.email != null){
+                  await controller.transferNow(controller.travelCard['id']);
+                }else{
+                  await Get.offNamed(Routes.LOGIN);
+                }
+              }):
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(

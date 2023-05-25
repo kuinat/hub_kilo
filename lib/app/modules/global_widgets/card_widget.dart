@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
 import '../../models/booking_model.dart';
@@ -9,7 +10,8 @@ import '../bookings/controllers/bookings_controller.dart';
 
 class CardWidget extends StatelessWidget {
   const CardWidget({Key key,
-    @required this.transferrable,
+    @required this.editable,
+    @required this.transferable,
     @required this.accept,
     @required this.transfer,
     @required this.reject,
@@ -36,7 +38,8 @@ class CardWidget extends StatelessWidget {
   final String user;
   final String text;
   final String recName;
-  final bool transferrable;
+  final bool transferable;
+  final bool editable;
   final String recEmail;
   final String recAddress;
   final String recPhone;
@@ -131,7 +134,7 @@ class CardWidget extends StatelessWidget {
                     SizedBox(width: 20),
                     Text("From: $text", style: Get.textTheme.headline1.
                     merge(TextStyle(color: appColor, fontSize: 17))),
-                    SizedBox(width: 40),
+                    Spacer(),
                     Container(
                       padding: EdgeInsets.all(10),
                       alignment: Alignment.center,
@@ -235,27 +238,52 @@ class CardWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
-                          onTap: edit,
+                          onTap: editable?edit:
+                              (){
+                            showDialog(
+                                context: context,
+                                builder: (_)=>
+                                    PopUpWidget(
+                                      title: "You cannot edit a booking accepted or confirmed",
+                                      cancel: 'Cancel',
+                                      confirm: 'Ok',
+                                      onTap: ()=>{
+                                        Navigator.of(Get.context).pop(),
+                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                    )
+                            );
+                          },
                           child: Card(
                               elevation: 10,
                               color: inactive,
                               margin: EdgeInsets.symmetric( vertical: 15),
                               child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal:10, vertical: 10),
+                                  padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),
                                   child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
                           )
                         ),
                         GestureDetector(
-                            onTap: transferrable?transfer:
+                            onTap: transferable?transfer:
                                 (){
-                              return AlertDialog(content: Text('This booking is either pending or accepted already, you cannot transfer it'),);
+                                  showDialog(
+                                      context: context,
+                                      builder: (_)=>
+                                          PopUpWidget(
+                                            title: "You can transfer your booking only if it was rejected or is pending validation",
+                                            cancel: 'Cancel',
+                                            confirm: 'Ok',
+                                            onTap: ()=>{
+                                              Navigator.of(Get.context).pop(),
+                                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                          )
+                                  );
                                 },
                             child: Card(
                                 elevation: 10,
-                                color: transferrable? specialColor:inactive,
+                                color: transferable? validateColor:inactive,
                                 margin: EdgeInsets.symmetric( vertical: 15),
                                 child: Padding(
-                                    padding: EdgeInsets.symmetric( horizontal:10, vertical: 10),
+                                    padding: EdgeInsets.symmetric( horizontal:20, vertical: 10),
                                     child: Text("Transfer".tr, style: TextStyle(color: Colors.white)))
                             )
                         ),
@@ -266,7 +294,7 @@ class CardWidget extends StatelessWidget {
                               color: specialColor,
                               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                               child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                   child: Text("Delete".tr, style: TextStyle(color: Colors.white)))
                           )
                         ),

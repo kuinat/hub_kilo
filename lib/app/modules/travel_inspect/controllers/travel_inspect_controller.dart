@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
+import '../../bookings/controllers/bookings_controller.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
 
 class TravelInspectController extends GetxController {
@@ -29,16 +30,24 @@ class TravelInspectController extends GetxController {
   var url = ''.obs;
   var users =[].obs;
   var resetusers =[].obs;
+  var transferBooking = false.obs;
+  var transferBookingId = ''.obs;
 
   var visible = true.obs;
 
   UploadRepository _uploadRepository;
   TravelInspectController() {
     _uploadRepository = new UploadRepository();
+    Get.lazyPut<BookingsController>(
+          () => BookingsController(),
+    );
+
   }
 
   @override
   void onInit() async {
+    transferBooking = Get.find<BookingsController>().transferBooking;
+    transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
     if(travelCard['travel_type'] == "Air"){
@@ -153,6 +162,50 @@ class TravelInspectController extends GetxController {
       print(data);
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
+  }
+
+
+  transferNow(int travelId)async{
+    print("Transfer booking Id: "+transferBookingId.value);
+    print("Travel Id: "+travelId.toString());
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/current/user/transfer/booking/'+transferBookingId.value));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "new_travel_id": travelId
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      if(json.decode(data)['result'] != null){
+
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Transfer success ".tr));
+        Get.find<BookingsController>().transferBooking.value = false;
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      Get.find<BookingsController>().transferBooking.value = false;
+    }
+
+
+
   }
 
   getAllUsers()async{

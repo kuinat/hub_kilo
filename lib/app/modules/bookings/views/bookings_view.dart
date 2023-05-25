@@ -82,8 +82,9 @@ class BookingsView extends GetView<BookingsController> {
 
 
               Container(
+                margin: EdgeInsets.only(bottom: 20),
 
-                  height: MediaQuery.of(context).size.height,
+                  height: MediaQuery.of(context).size.height*0.676,
                   decoration: Ui.getBoxDecoration(color: backgroundColor),
                   child:  Column(
                     children: [
@@ -248,7 +249,8 @@ class BookingsView extends GetView<BookingsController> {
             itemBuilder: (context, index) {
               var travel = controller.items[index]['travel'];
               return CardWidget(
-                  transferrable: controller.items[index]['status'].toLowerCase()=='rejected'?true:false,
+                editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
+                  transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   bookingState: controller.items[index]['status'],
                   depDate: travel['departure_date'],
                   arrTown: travel['arrival_town'],
@@ -267,6 +269,12 @@ class BookingsView extends GetView<BookingsController> {
                   recPhone: controller.items[index]['receiver']['receiver_phone'],
                   edit: () {
                     controller.phone.value= controller.items[index]['receiver']['receiver_phone'];
+                    controller.name.value = controller.items[index]['receiver']['receiver_name'];
+                    controller.email.value = controller.items[index]['receiver']['receiver_email'];
+                    controller.address.value= controller.items[index]['receiver']['receiver_address'];
+                    controller.description.value = controller.items[index]['type_of_luggage'];
+                    controller.quantity.value = controller.items[index]['kilo_booked'];
+
                     return Get.bottomSheet(
                       buildEditingSheet(context,controller.items[index] ),
                       isScrollControlled: true,);
@@ -276,7 +284,7 @@ class BookingsView extends GetView<BookingsController> {
                       context: context,
                       builder: (_)=>
                           PopUpWidget(
-                            title: "Do you really want to delete this post?",
+                            title: "Do you really want to delete this booking?",
                             cancel: 'Cancel',
                             confirm: 'Delete',
                             onTap: ()=>{
@@ -293,10 +301,9 @@ class BookingsView extends GetView<BookingsController> {
                           title: "Do you really want to tranfer your booking?",
                           cancel: 'Cancel',
                           confirm: 'Transfer',
-                          onTap: ()=>{
-                            //controller.deleteMyBooking(controller.items[index]['id']),
+                          onTap: ()async=>{
+                            await controller.transferMyBookingNow(controller.items[index]['id']),
                             Navigator.of(Get.context).pop(),
-                            print(controller.items[index]['id'])
                           }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                         )
                 ),
@@ -506,7 +513,7 @@ class BookingsView extends GetView<BookingsController> {
 
             PacketImageFieldWidget(
               label: "Packet Image".tr,
-              initialImage: null,
+              initialImage: Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+sampleBooking['id'].toString()+'/luggage_image',
               uploadCompleted: (uuid) {
                 // controller.url.value =  uuid;
                 // controller.user.value.image= uuid;

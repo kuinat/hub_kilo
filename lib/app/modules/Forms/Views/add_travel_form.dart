@@ -401,7 +401,9 @@ class AddTravelsView extends GetView<AddTravelController> {
                       SizedBox(width: 10),
                       GestureDetector(
                         onTap: () async {
-                          await controller.passportPicker();
+                          controller.ticketUpload.value = false;
+                          await controller.selectCameraOrGallery();
+
                         },
                         child: Container(
                           width: 100,
@@ -453,7 +455,9 @@ class AddTravelsView extends GetView<AddTravelController> {
                       SizedBox(width: 10),
                       GestureDetector(
                         onTap: () async {
-                          await controller.ticketPicker();
+                          controller.ticketUpload.value = true;
+                          await controller.selectCameraOrGallery();
+
                         },
                         child: Container(
                           width: 100,

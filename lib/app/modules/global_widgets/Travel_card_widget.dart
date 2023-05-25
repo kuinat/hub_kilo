@@ -75,12 +75,14 @@ class TravelCardWidget extends StatelessWidget {
                   children: [
                     Container(
                       alignment: Alignment.topCenter,
+                      height: 40,
                       width: width,
                       child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                     ),
                     FaIcon(FontAwesomeIcons.arrowRight),
                     Container(
                         alignment: Alignment.topCenter,
+                        height: 40,
                         width: width,
                         child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                     ),

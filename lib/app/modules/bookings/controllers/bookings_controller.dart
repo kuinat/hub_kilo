@@ -10,6 +10,11 @@ import '../../../models/chat_model.dart';
 import '../../../models/message_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../providers/odoo_provider.dart';
+import '../../../repositories/upload_repository.dart';
+import '../../../routes/app_routes.dart';
+import '../../global_widgets/packet_image_field_widget.dart';
+
 class BookingsController extends GetxController {
 
   final currentSlide = 0.obs;
@@ -28,6 +33,8 @@ class BookingsController extends GetxController {
   var url = ''.obs;
   var users =[].obs;
   var resetusers =[].obs;
+  var transferBooking = false.obs;
+  var bookingIdForTransfer =''.obs;
 
   var visible = true.obs;
   var editNumber = false.obs;
@@ -47,6 +54,17 @@ class BookingsController extends GetxController {
   var items = [].obs;
   var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
+
+  UploadRepository _uploadRepository;
+
+  BookingsController() {
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
+    _uploadRepository = new UploadRepository();
+
+
+  }
 
   @override
   void onInit() {
@@ -158,13 +176,38 @@ class BookingsController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        await setPacketImage(book_id);
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
     }
     else {
       print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
 
 
+  }
+
+  Future setPacketImage (bookingId)async{
+    Get.lazyPut<PacketImageFieldController>(
+          () => PacketImageFieldController(),
+    );
+    File imageFile = Get.find<PacketImageFieldController>().image.value;
+    if (imageFile != null) {
+      try {
+        //await deleteUploaded();
+        await _uploadRepository.imagePacket(imageFile, bookingId);
+      } catch (e) {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      }
+    } else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+    }
   }
 
 
@@ -231,6 +274,13 @@ class BookingsController extends GetxController {
 
     }
 
+
+  }
+
+  transferMyBookingNow(int booking_id)async{
+    transferBooking.value = true;
+    bookingIdForTransfer.value = booking_id.toString();
+    await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
 
   }
 

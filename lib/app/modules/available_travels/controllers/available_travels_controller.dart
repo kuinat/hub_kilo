@@ -7,6 +7,8 @@ import '../../../../main.dart';
 import '../../../repositories/user_repository.dart';
 import 'package:http/http.dart' as http;
 
+import '../../bookings/controllers/bookings_controller.dart';
+
 class AvailableTravelsController extends GetxController {
   //var user = new User().obs;
   final heroTag = "".obs;
@@ -33,6 +35,12 @@ class AvailableTravelsController extends GetxController {
   /*ProfileController() {
     _userRepository = new UserRepository();
   }*/
+  AvailableTravelsController() {
+    Get.lazyPut<BookingsController>(
+          () => BookingsController(),
+    );
+
+  }
 
   @override
   void onInit() {

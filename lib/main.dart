@@ -29,7 +29,7 @@ void initServices() async {
 class Domain{
 
 
-  static var serverPort = "http://192.168.16.116:8069";
+  static var serverPort = "http://192.168.16.115:8069";
 
 
 
