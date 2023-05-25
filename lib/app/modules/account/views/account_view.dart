@@ -8,9 +8,7 @@ import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/auth_service.dart';
 import '../../../services/my_auth_service.dart';
-import '../../global_widgets/notifications_button_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/account_controller.dart';
@@ -22,6 +20,7 @@ class AccountView extends GetView<AccountController> {
     var _currentUser = Get.find<MyAuthService>().myUser;
     return Scaffold(
         appBar: AppBar(
+          leading: null,
           title: Text(
             "Account".tr,
             style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
@@ -176,7 +175,7 @@ class AccountView extends GetView<AccountController> {
                     icon: Icon(Icons.qr_code, color: Get.theme.colorScheme.secondary),
                     text: Text("Validate Transaction".tr),
                     onTap: (e) {
-                      Get.toNamed(Routes.VALIDATE_TRANSACTION);
+                      Get.offNamed(Routes.VALIDATE_TRANSACTION);
                       //Get.find<RootController>().changePage(2);
                     },
                   ),

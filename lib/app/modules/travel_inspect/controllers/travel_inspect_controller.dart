@@ -9,8 +9,8 @@ import '../../../models/option_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
-import '../../../routes/app_routes.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
+import '../../userBookings/controllers/bookings_controller.dart';
 
 class TravelInspectController extends GetxController {
   final currentSlide = 0.obs;
@@ -25,22 +25,41 @@ class TravelInspectController extends GetxController {
   final phone = "".obs;
   final address = "".obs;
   final selectUser = false.obs;
+  var receiverId = 0.obs;
   final buttonPressed = false.obs;
   var url = ''.obs;
+  var selectedIndex = 0.obs;
+  var currentIndex = 0.obs;
+  var accept = false.obs;
+  var selected = false.obs;
   var users =[].obs;
+  var travelBookings = [].obs;
+  var list = [];
   var resetusers =[].obs;
+  var transferBooking = false.obs;
+  var transferBookingId = ''.obs;
 
   var visible = true.obs;
 
   UploadRepository _uploadRepository;
   TravelInspectController() {
     _uploadRepository = new UploadRepository();
+    Get.lazyPut<BookingsController>(
+          () => BookingsController(),
+    );
+
   }
 
   @override
   void onInit() async {
+    transferBooking = Get.find<BookingsController>().transferBooking;
+    print("transfer"+transferBooking.toString());
+    transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
+
+    list = await getBookingsOnTravel(travelCard['id']);
+    travelBookings.value = list;
     if(travelCard['travel_type'] == "Air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
     }else if(travelCard['travel_type'] == "Sea"){
@@ -58,9 +77,92 @@ class TravelInspectController extends GetxController {
     super.onReady();
   }
 
-  Future refreshEService({bool showMessage = false}) async {
-    if (showMessage) {
-      //Get.showSnackbar(Ui.SuccessSnackBar(message: eService.value.name + " " + "page refreshed successfully".tr));
+  Future refreshEService() async {
+    onInit();
+  }
+
+  Future getBookingsOnTravel(int id)async{
+
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; $session_id'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/air/current/user/travel/books/$id'));
+    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  acceptBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/accept/booking/$id'));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking accepted ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+  }
+
+  RejectBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/reject/booking/$id'));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking rejected ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
     }
   }
 
@@ -155,6 +257,50 @@ class TravelInspectController extends GetxController {
     }
   }
 
+
+  transferNow(int travelId)async{
+    print("Transfer booking Id: "+transferBookingId.value);
+    print("Travel Id: "+travelId.toString());
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/current/user/transfer/booking/'+transferBookingId.value));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "new_travel_id": travelId
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      if(json.decode(data)['result'] != null){
+
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Transfer success ".tr));
+        Get.find<BookingsController>().transferBooking.value = false;
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      Get.find<BookingsController>().transferBooking.value = false;
+    }
+
+
+
+  }
+
   getAllUsers()async{
     final box = GetStorage();
     var session_id = box.read('session_id');
@@ -172,6 +318,7 @@ class TravelInspectController extends GetxController {
       var data = await response.stream.bytesToString();
       users.value= json.decode(data);
       resetusers.value= json.decode(data);
+      print(users);
     }
     else {
       print(response.reasonPhrase);

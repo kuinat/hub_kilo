@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -39,6 +40,7 @@ class AddTravelController extends GetxController{
   final travelCard = {}.obs;
   final selectedTravel = <String>[].obs;
   var buttonPressed = false.obs;
+  var ticketUpload = false.obs;
   GlobalKey<FormState> newTravelKey;
   List transportType = [
     "Land",
@@ -71,22 +73,46 @@ class AddTravelController extends GetxController{
 
   final _picker = ImagePicker();
 
-  passportPicker() async {
-    final XFile pickedImage =
-    await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      passport = File(pickedImage.path);
-      loadPassport.value = !loadPassport.value;
+  passportPicker(String source) async {
+    if(source=='camera'){
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.camera);
+      if (pickedImage != null) {
+        passport = File(pickedImage.path);
+        loadPassport.value = !loadPassport.value;
+      }
     }
+    else{
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        passport = File(pickedImage.path);
+        loadPassport.value = !loadPassport.value;
+      }
+
+    }
+
   }
 
-  ticketPicker() async {
-    final XFile pickedImage =
-    await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      ticket = File(pickedImage.path);
-      loadTicket.value = !loadTicket.value;
+  ticketPicker(String source) async {
+    if(source=='camera'){
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.camera);
+      if (pickedImage != null) {
+        ticket = File(pickedImage.path);
+        loadTicket.value = !loadTicket.value;
+      }
     }
+    else{
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        ticket = File(pickedImage.path);
+        loadTicket.value = !loadTicket.value;
+      }
+
+    }
+
   }
 
   void toggleTravels(bool value, String type) {
@@ -215,6 +241,8 @@ class AddTravelController extends GetxController{
       var data = await response.stream.bytesToString();
       print("travel response: $data");
       if(json.decode(data)['result']['status'] == 'success'){
+        print('travel id: '+json.decode(data)['result']['travel']['id'].toString());
+        await uploadImages(json.decode(data)['result']['travel']['id']);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
         buttonPressed.value = !buttonPressed.value;
         //uploadImages(id);
@@ -274,12 +302,18 @@ class AddTravelController extends GetxController{
   }
 
   uploadImages(int travelId)async{
-    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/air/travel/document/upload'));
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/air/travel/document/upload'));
     request.fields.addAll({
-      'travel_id': '$travelId'
+      'travel_id': travelId.toString()
     });
     request.files.add(await http.MultipartFile.fromPath('cni_doc', passport.path));
     request.files.add(await http.MultipartFile.fromPath('ticket_doc', ticket.path));
+    request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
@@ -289,6 +323,44 @@ class AddTravelController extends GetxController{
     else {
       print(response.reasonPhrase);
     }
+
+  }
+
+
+  selectCameraOrGallery()async{
+    showDialog(
+        context: Get.context,
+        builder: (_){
+          return AlertDialog(
+            content: Container(
+                height: 170,
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    ListTile(
+                      onTap: ()async{
+                        ticketUpload.value? await ticketPicker('camera'):await passportPicker('camera');
+                        // pickImage(ImageSource.camera, field, uploadCompleted);
+                        // Navigator.pop(Get.context);
+                        Navigator.pop(Get.context);
+
+                      },
+                      leading: Icon(FontAwesomeIcons.camera),
+                      title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    ),
+                    ListTile(
+                      onTap: ()async{
+                        ticketUpload.value? await ticketPicker('gallery'): await passportPicker('gallery');
+                        Navigator.pop(Get.context);
+                      },
+                      leading: Icon(FontAwesomeIcons.image),
+                      title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    )
+                  ],
+                )
+            ),
+          );
+        });
   }
 
   @override

@@ -322,23 +322,33 @@ class AddTravelsView extends GetView<AddTravelController> {
                   initiallyExpanded: false,
                 )
             ),
-            TextFieldWidget(
-              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
-              keyboardType: TextInputType.number,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.quantity.value = int.parse(input),
-              labelText: "Quantity".tr,
-              iconData: Icons.shopping_cart_rounded,
-            ),
-            TextFieldWidget(
-              //onSaved: (input) => controller.user.value.name = input,
-              initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['price_per_kilo'].toString() : "",
-              keyboardType: TextInputType.number,
-              onChanged: (input) => controller.price.value = double.parse(input),
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              labelText: "Price /kg".tr,
-              iconData: Icons.attach_money,
-            ),
+            if(controller.travelType.value != "Land")...[
+              TextFieldWidget(
+                initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
+                keyboardType: TextInputType.number,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.quantity.value = int.parse(input),
+                labelText: "Quantity".tr,
+                iconData: Icons.shopping_cart_rounded,
+              ),
+              TextFieldWidget(
+                //onSaved: (input) => controller.user.value.name = input,
+                initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['price_per_kilo'].toString() : "",
+                keyboardType: TextInputType.number,
+                onChanged: (input) => controller.price.value = double.parse(input),
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                labelText: "Price /kg".tr,
+                iconData: Icons.attach_money,
+              )
+            ]else...[
+              TextFieldWidget(
+                initialValue: "The price will depend on the luggage",
+                keyboardType: TextInputType.number,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                labelText: "Price".tr,
+                iconData: Icons.attach_money,
+              )
+            ]
           ],
         )
     );
@@ -401,7 +411,9 @@ class AddTravelsView extends GetView<AddTravelController> {
                       SizedBox(width: 10),
                       GestureDetector(
                         onTap: () async {
-                          await controller.passportPicker();
+                          controller.ticketUpload.value = false;
+                          await controller.selectCameraOrGallery();
+
                         },
                         child: Container(
                           width: 100,
@@ -453,7 +465,9 @@ class AddTravelsView extends GetView<AddTravelController> {
                       SizedBox(width: 10),
                       GestureDetector(
                         onTap: () async {
-                          await controller.ticketPicker();
+                          controller.ticketUpload.value = true;
+                          await controller.selectCameraOrGallery();
+
                         },
                         child: Container(
                           width: 100,
@@ -522,20 +536,22 @@ class AddTravelsView extends GetView<AddTravelController> {
             text: Text('Arrival \nTown'),
             value: controller.arrivalTown.value,
           ),
+          if(controller.travelType.value != 'Road')
           AccountWidget(
             icon: FontAwesomeIcons.shoppingBasket,
             text: Text('Quantity'),
             value: controller.quantity.value.toString(),
           ),
           AccountWidget(
-            icon: FontAwesomeIcons.moneyBill,
-            text: Text('Accept bargain?'),
-            value: controller.canBargain.value ? 'YES' : 'NO'
+              icon: FontAwesomeIcons.moneyBill,
+              text: Text('Accept bargain?'),
+              value: controller.canBargain.value ? 'YES' : 'NO'
           ),
+          if(controller.travelType.value != 'Road')
           AccountWidget(
-            icon: FontAwesomeIcons.moneyCheck,
-            text: Text('Price /kg'),
-            value: '${controller.price.value} EUR'
+              icon: FontAwesomeIcons.moneyCheck,
+              text: Text('Price /kg'),
+              value: '${controller.price.value} EUR'
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),

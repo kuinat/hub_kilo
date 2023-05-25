@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../../common/ui.dart';
-import '../../models/media_model.dart';
 import '../../repositories/upload_repository.dart';
 
 class PacketImageFieldController extends GetxController {
@@ -15,7 +12,6 @@ class PacketImageFieldController extends GetxController {
   String uuid;
   final uploading = false.obs;
   var url = ''.obs;
-  final selectedMediumForImage = false.obs;
   UploadRepository _uploadRepository;
 
   PacketImageFieldController() {
@@ -33,9 +29,10 @@ class PacketImageFieldController extends GetxController {
   }
 
   Future <File> pickImage(ImageSource source, String field, ValueChanged<String> uploadCompleted) async {
+    //image.value = null;
     ImagePicker imagePicker = ImagePicker();
     uploading.value = true;
-    //await deleteUploaded();
+    await deleteUploaded();
     XFile pickedFile = await imagePicker.pickImage(source: source, imageQuality: 80);
     File imageFile = File(pickedFile.path);
     image.value = imageFile;
@@ -133,7 +130,6 @@ class PacketImageFieldWidget extends StatelessWidget {
           ),
         ));
   }
-
   Widget buildImage(String initialImage, File image) {
     final controller = Get.put(PacketImageFieldController(), tag: tag);
     return Padding(
@@ -175,39 +171,46 @@ class PacketImageFieldWidget extends StatelessWidget {
               return buildLoader();
             else
               return GestureDetector(
-                onTap: () async {
-                  controller.selectedMediumForImage.value=true;
-                },
-                child: !controller.selectedMediumForImage.value?Container(
-                  width: 100,
-                  height: 100,
-                  padding: EdgeInsets.all(20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                  child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                ):Container(
-                  padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        color: Get.theme.focusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10)),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                          onTap: ()async{
-                            await controller.pickImage(ImageSource.camera, field, uploadCompleted);
-                            controller.selectedMediumForImage.value=true;
-                          },
-                          child: Icon(FontAwesomeIcons.camera)),
-                      SizedBox(width: 50,),
-                      GestureDetector(
-                        onTap: ()async{
-                          await controller.pickImage(ImageSource.gallery, field, uploadCompleted);
-                          controller.selectedMediumForImage.value=true;
-                        },
-                          child: Icon(FontAwesomeIcons.image)),
-                    ],
+                  onTap: () {
+                    showDialog(
+                        context: Get.context,
+                        builder: (_){
+                          return AlertDialog(
+                            content: Container(
+                                height: 170,
+                                padding: EdgeInsets.all(10),
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      onTap: ()async{
+                                        await controller.pickImage(ImageSource.camera, field, uploadCompleted);
+                                        Navigator.pop(Get.context);
+                                      },
+                                      leading: Icon(FontAwesomeIcons.camera),
+                                      title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                    ),
+                                    ListTile(
+                                      onTap: ()async{
+                                        await controller.pickImage(ImageSource.gallery, field, uploadCompleted);
+                                        Navigator.pop(Get.context);
+                                      },
+                                      leading: Icon(FontAwesomeIcons.image),
+                                      title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                    )
+                                  ],
+                                )
+                            ),
+                          );
+                        });
+                  },
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    padding: EdgeInsets.all(20),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
                   )
-                ),
               );
           }),
         ],

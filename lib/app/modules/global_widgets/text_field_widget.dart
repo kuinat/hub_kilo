@@ -29,6 +29,7 @@ class TextFieldWidget extends StatelessWidget {
     this.textAlign,
     this.suffix,
     this.onTap,
+    this.maxLines
   }) : super(key: key);
 
   final FormFieldSetter<String> onSaved;
@@ -49,6 +50,7 @@ class TextFieldWidget extends StatelessWidget {
   final bool isLast;
   final Widget suffixIcon;
   final Widget suffix;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +80,7 @@ class TextFieldWidget extends StatelessWidget {
             onSaved: onSaved,
             onTap: onTap,
             onChanged: onChanged,
+            minLines: maxLines,
             validator: validator,
             enabled: editable,
             style: style ?? Get.textTheme.bodyText2.merge(TextStyle(color: labelColor)),
