@@ -6,9 +6,9 @@ import '../../../../color_constants.dart';
 import '../../../routes/app_routes.dart';
 import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/loading_cards.dart';
-import '../controllers/myTravels_controller.dart';
+import '../controllers/user_travels_controller.dart';
 
-class MyTravelsView extends GetView<MyTravelsController> {
+class MyTravelsView extends GetView<UserTravelsController> {
 
   List bookings = [];
 
@@ -100,7 +100,9 @@ class MyTravelsView extends GetView<MyTravelsController> {
                                       if (index == controller.items.length) {
                                       return SizedBox(height: 80);
                                       } else {
-
+                                        Future.delayed(Duration.zero, (){
+                                          controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                                        });
                                       return GestureDetector(
                                         child: TravelCardWidget(
                                           isUser: true,

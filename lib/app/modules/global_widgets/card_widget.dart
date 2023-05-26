@@ -16,7 +16,7 @@ class CardWidget extends StatelessWidget {
     this.transfer,
     this.reject,
 
-    @required this.user,
+    @required this.negotiation,
     @required this.depTown,
     @required this.arrTown,
     @required this.imageUrl,
@@ -34,7 +34,7 @@ class CardWidget extends StatelessWidget {
     @required this.text,
     @required this.bookingState}) : super(key: key);
 
-  final String user;
+  final Widget negotiation;
   final String text;
   final String recName;
   final bool transferable;
@@ -266,6 +266,7 @@ class CardWidget extends StatelessWidget {
                 ],
                   initiallyExpanded: false,
               ),
+                  negotiation,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

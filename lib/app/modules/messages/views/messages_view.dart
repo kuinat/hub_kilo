@@ -56,6 +56,7 @@ class MessagesView extends GetView<MessagesController> {
 
   @override
   Widget build(BuildContext context) {
+    Get.lazyPut(()=>MessagesController());
     return Scaffold(
       appBar: AppBar(
         title: Text(

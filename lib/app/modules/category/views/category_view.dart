@@ -36,9 +36,9 @@ class CategoryView extends GetView<CategoryController> {
                 width: 120,
                 child: Text(controller.travelType.value, style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
                 decoration: BoxDecoration(
-                    color: controller.travelType.value != "Air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
+                    color: controller.travelType.value != "air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
                     border: Border.all(
-                      color: controller.travelType.value != "Air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
+                      color: controller.travelType.value != "air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(20))),
               ),
@@ -75,37 +75,6 @@ class CategoryView extends GetView<CategoryController> {
             SliverToBoxAdapter(
               child: Wrap(
                 children: [
-                  /*Container(
-                    height: 60,
-                    child: ListView(
-                        primary: false,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        children: List.generate(CategoryFilter.values.length, (index) {
-                          var _filter = CategoryFilter.values.elementAt(index);
-                          return Obx(() {
-                            return Padding(
-                              padding: const EdgeInsetsDirectional.only(start: 20),
-                              child: RawChip(
-                                elevation: 0,
-                                label: Text(_filter.toString().tr),
-                                labelStyle: controller.isSelected(_filter) ? Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)) : Get.textTheme.bodyText2,
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                                backgroundColor: Theme.of(context).focusColor.withOpacity(0.1),
-                                selectedColor: controller.category.value.color,
-                                selected: controller.isSelected(_filter),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                showCheckmark: true,
-                                checkmarkColor: Get.theme.primaryColor,
-                                onSelected: (bool value) {
-                                  controller.toggleSelected(_filter);
-                                  controller.loadEServicesOfCategory(controller.category.value.id, filter: controller.selected.value);
-                                },
-                              ),
-                            );
-                          });
-                        })),
-                  ),*/
                   Obx(() => Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       child: ListView.builder(
@@ -114,7 +83,9 @@ class CategoryView extends GetView<CategoryController> {
                         shrinkWrap: true,
                         itemCount: controller.travelList.length,
                         itemBuilder: ((_, index) {
-                          var _service = controller.travelList.elementAt(index);
+                          Future.delayed(Duration.zero, (){
+                            controller.travelList.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                          });
                           return GestureDetector(
                               child: SizedBox(
                                   width: MediaQuery.of(context).size.width/1.2,

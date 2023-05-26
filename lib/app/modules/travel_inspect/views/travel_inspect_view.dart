@@ -78,11 +78,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         padding: EdgeInsets.all(5),
                         alignment: Alignment.center,
                         width: 120,
-                        child: Text(controller.travelCard['travel_type'].toString(), style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
+                        child: Text(controller.travelCard['travel_type'], style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
                         decoration: BoxDecoration(
-                            color: controller.travelCard['travel_type'] != "Air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
+                            color: controller.travelCard['travel_type'] != "air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
                             border: Border.all(
-                              color: controller.travelCard['travel_type'] != "Air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
+                              color: controller.travelCard['travel_type'] != "air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                       )
@@ -120,7 +120,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       children: [
                         Obx(() => EServiceTilWidget(
                             title: Text("Description".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: interfaceColor))),
-                            title2: ElevatedButton(
+                            title2: controller.travelCard['sender'] != null ?
+                            Get.find<MyAuthService>().myUser.value.id  == controller.travelCard['sender']['sender_id'] ?
+                            ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black,
                               ),
@@ -132,13 +134,27 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 print(controller.currentIndex);
                               }),
                               child: Text("View Bookings".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
-                            ),
+                            ) : SizedBox() : controller.travelCard['sender'] == null ?
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                              ),
+                              onPressed: ((){
+                                Get.bottomSheet(
+                                  buildBookingByTravel(context),
+                                  isScrollControlled: true,
+                                );
+                                print(controller.currentIndex);
+                              }),
+                              child: Text("View Bookings".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
+                            ) : SizedBox(),
                             content: Column(
                               children: [
                                 ListTile(
                                   title: Text('Available Quantity (kg):', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                   trailing: Text(controller.travelCard['kilo_qty'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                 ),
+                                if(controller.travelCard['travel_type'] != 'road')
                                 ListTile(
                                   title: Text('Price /kg', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                   subtitle: controller.travelCard['negotiation'] != null ? Text(!controller.travelCard['negotiation'] ? "Not Negotiable" : "Negotiable") : Text(''),
@@ -170,13 +186,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               ],
                             )
                         )),
-                        if(controller.travelCard['user'] != null && Get.find<MyAuthService>().myUser.value.email  != controller.travelCard['user']['user_email'])
-                        EServiceTilWidget(
-                          title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
-                          title2: SizedBox(),
-                          content: buildUserDetailsCard(context),
-                          actions: [],
-                        ),
+                        if(controller.travelCard['sender'] != null)...[
+                          if(Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['sender']['sender_id'])
+                            EServiceTilWidget(
+                              title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
+                              title2: SizedBox(),
+                              content: buildUserDetailsCard(context),
+                              actions: [],
+                            ),
+                        ]
                       ],
                     ),
                   ),
@@ -531,7 +549,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(controller.travelCard['user']['user_name'].toString(),
+                    Text(controller.travelCard['sender']['sender_name'].toString(),
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       maxLines: 2,
@@ -663,9 +681,19 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               title: "Do you really want to delete this post?",
                               cancel: 'Cancel',
                               confirm: 'Delete',
-                              onTap: ()=>{
-                                controller.deleteMyTravel(controller.travelCard['id']),
-                                print(controller.travelCard['id'])
+                              onTap: (){
+                                if(controller.travelCard['travel_type'] == "air"){
+                                  controller.deleteAirTravel(controller.travelCard['id']);
+                                  print("air delete");
+                                }
+                                if(controller.travelCard['travel_type'] == "road"){
+                                  controller.deleteRoadTravel(controller.travelCard['id']);
+                                  print("road delete");
+                                }
+                                if(controller.travelCard['travel_type'] == "sea"){
+                                  //controller.deleteRoadTravel(controller.travelCard['id']);
+                                }
+                                print(controller.travelCard['id']);
                               }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                             )
                     )
