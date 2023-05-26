@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
-import '../../../routes/app_routes.dart';
-import '../../global_widgets/Travel_card_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
@@ -200,6 +198,9 @@ class BookingsView extends GetView<BookingsController> {
                 return SizedBox(height: 80);
               } else {
                 var travel = controller.items[index]['travel'];
+                Future.delayed(Duration.zero, (){
+                  controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                });
               return CardWidget(
                 editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,

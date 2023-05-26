@@ -7,13 +7,15 @@ import 'package:http/http.dart' as http;
 
 import '../../../../main.dart';
 
-class MyTravelsController extends GetxController {
+class UserTravelsController extends GetxController {
 
   final isDone = false.obs;
   var isLoading = false.obs;
   var items = [].obs;
   var state = "".obs;
   var myTravelsList = [];
+  var roadTravels = [];
+  var list = [];
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();
@@ -33,13 +35,21 @@ class MyTravelsController extends GetxController {
 
   initValues()async{
     myTravelsList = await myTravels();
-    items.value = myTravelsList;
+    roadTravels = await getMyRoadTravels();
+    items.clear();
+    items.addAll(myTravelsList);
+    items.addAll(roadTravels);
+    list = items;
     print(items);
   }
 
   Future refreshMyTravels() async {
+    items.clear();
     myTravelsList = await myTravels();
-    items.value = myTravelsList;
+    roadTravels = await getMyRoadTravels();
+    items.addAll(myTravelsList);
+    items.addAll(roadTravels);
+    list = items;
     print(items);
   }
 
@@ -83,9 +93,37 @@ class MyTravelsController extends GetxController {
     }
   }
 
+  Future getMyRoadTravels()async{
+    final box = GetStorage();
+    var id = box.read("session_id");
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; $id'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/road/api/current/user/travels'));
+    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("my road travels: $data");
+      if(data != 'Empty'){
+        isLoading.value = false;
+        return json.decode(data)['response'];
+      }else{
+        isLoading.value = false;
+        return [];
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
   void filterSearchResults(String query) {
     List dummySearchList = [];
-    dummySearchList = myTravelsList;
+    dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
       dummyListData = dummySearchList.where((element) => element['departure_town']
@@ -94,7 +132,7 @@ class MyTravelsController extends GetxController {
       items.value = dummyListData;
       return;
     } else {
-      items.value = myTravelsList;
+      items.value = list;
     }
   }
 

@@ -43,9 +43,9 @@ class AddTravelController extends GetxController{
   var ticketUpload = false.obs;
   GlobalKey<FormState> newTravelKey;
   List transportType = [
-    "Land",
-    "Air",
-    "Sea"
+    "road",
+    "air",
+    "sea"
   ].obs;
   ScrollController scrollController = ScrollController();
   final formStep = 0.obs;
@@ -209,7 +209,47 @@ class AddTravelController extends GetxController{
     return false;
   }
 
-  postTravel()async{
+  createRoadTravel()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; $session_id'
+    };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/road/api/travel/create'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "departure_town": departureTown.value,
+        "arrival_town": arrivalTown.value,
+        "departure_date": departureDate.value.toString(),
+        "arrival_date": arrivalDate.value.toString(),
+        "type_of_luggage_accepted": restriction.value
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("travel response: $data");
+      if(json.decode(data)['result']['status'] == 'success'){
+        print('travel id: '+json.decode(data)['result']['travel']['id'].toString());
+        await uploadCNI(json.decode(data)['result']['travel']['id']);
+
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+        buttonPressed.value = !buttonPressed.value;
+        throw new Exception(response.reasonPhrase);
+      }
+    }
+    else {
+      throw new Exception(response.reasonPhrase);
+    }
+  }
+
+  createAirTravel()async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var id = box.read('session_id').split("=").last;
@@ -243,10 +283,7 @@ class AddTravelController extends GetxController{
       if(json.decode(data)['result']['status'] == 'success'){
         print('travel id: '+json.decode(data)['result']['travel']['id'].toString());
         await uploadImages(json.decode(data)['result']['travel']['id']);
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-        buttonPressed.value = !buttonPressed.value;
-        //uploadImages(id);
-        Navigator.pop(Get.context);
+
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
         buttonPressed.value = !buttonPressed.value;
@@ -258,7 +295,7 @@ class AddTravelController extends GetxController{
     }
   }
 
-  updateTravel(int id)async{
+  updateAirTravel(int id)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
@@ -301,6 +338,73 @@ class AddTravelController extends GetxController{
     }
   }
 
+  updateRoadTravel(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; $session_id'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/road/travel/update/$id'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "departure_town": departureTown.value,
+        "arrival_town": arrivalTown.value,
+        "departure_date": departureDate.value.toString(),
+        "arrival_date": arrivalDate.value.toString(),
+        "type_of_luggage_accepted": restriction.value
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("travel response: $data");
+      if(json.decode(data)['result'] != null && json.decode(data)['result']['status'] == 200){
+        buttonPressed.value = !buttonPressed.value;
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been updated successfully ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+        buttonPressed.value = !buttonPressed.value;
+        throw new Exception(response.reasonPhrase);
+      }
+    }
+    else {
+      throw new Exception(response.reasonPhrase);
+    }
+  }
+
+  uploadCNI(int travelId)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/air/travel/document/upload'));
+    request.fields.addAll({
+      'travel_id': travelId.toString()
+    });
+    request.files.add(await http.MultipartFile.fromPath('cni_doc', passport.path));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
+      buttonPressed.value = !buttonPressed.value;
+      //uploadImages(id);
+      Navigator.pop(Get.context);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
   uploadImages(int travelId)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
@@ -319,6 +423,10 @@ class AddTravelController extends GetxController{
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
+      buttonPressed.value = !buttonPressed.value;
+      //uploadImages(id);
+      Navigator.pop(Get.context);
     }
     else {
       print(response.reasonPhrase);

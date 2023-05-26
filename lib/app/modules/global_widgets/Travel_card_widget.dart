@@ -96,23 +96,23 @@ class TravelCardWidget extends StatelessWidget {
           ),
         ),
         SizedBox(height: 10),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-        Row(
-        children: [
-        if(travelBy == "Air")
-        Icon(FontAwesomeIcons.planeCircleCheck, size: 40, color: background),
-    if(travelBy == "road")
-    Icon(FontAwesomeIcons.bus, size: 40, color: background),
-    if(travelBy == "sea")
-    Icon(FontAwesomeIcons.ship, size: 40, color: background) ,
-          SizedBox(width: 20),
-          Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
-        ]
-        ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                          children: [
+                            if(travelBy == "air")
+                              Icon(FontAwesomeIcons.planeCircleCheck, size: 40, color: background),
+                            if(travelBy == "road")
+                              Icon(FontAwesomeIcons.bus, size: 40, color: background),
+                            if(travelBy == "sea")
+                              Icon(FontAwesomeIcons.ship, size: 40, color: background) ,
+                            SizedBox(width: 20),
+                            Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+                          ]
+                      ),
               Spacer(),
-              if(travelType)
+              travelType ?
                 Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -125,7 +125,18 @@ class TravelCardWidget extends StatelessWidget {
                       SizedBox(height: 5),
                       Text('$price EUR', style: Get.textTheme.headline3.merge(TextStyle(color: specialColor))),
                     ]
-                )
+                ) : isUser ?
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.center,
+                          child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                          decoration: BoxDecoration(
+                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                              border: Border.all(
+                                color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                              ),
+                              borderRadius: BorderRadius.all(Radius.circular(20))),
+                        ) : SizedBox()
             ]
         ),
                 Spacer(),
@@ -151,18 +162,6 @@ class TravelCardWidget extends StatelessWidget {
                             ]
                         ),
                       Spacer(),
-                      if(isUser)
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
-                          decoration: BoxDecoration(
-                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
-                              border: Border.all(
-                                color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(20))),
-                        )
                     ]
                 ),
               ],

@@ -53,16 +53,16 @@ class TravelInspectController extends GetxController {
   @override
   void onInit() async {
     transferBooking = Get.find<BookingsController>().transferBooking;
-    print("transfer"+transferBooking.toString());
+    print("transfer "+transferBooking.toString());
     transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
-
+    print(travelCard);
     list = await getBookingsOnTravel(travelCard['id']);
     travelBookings.value = list;
-    if(travelCard['travel_type'] == "Air"){
+    if(travelCard['travel_type'].toLowerCase() == "air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
-    }else if(travelCard['travel_type'] == "Sea"){
+    }else if(travelCard['travel_type'].toLowerCase() == "sea"){
       imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
     }else{
       imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
@@ -166,13 +166,39 @@ class TravelInspectController extends GetxController {
     }
   }
 
-  deleteMyTravel(int id)async{
+  deleteAirTravel(int id)async{
     final box = GetStorage();
     var session_id = box.read("session_id");
     var headers = {
       'Cookie': 'frontend_lang=en_US; $session_id'
     };
     var request = http.Request('DELETE', Uri.parse('${Domain.serverPort}/air/api/travel/delete/$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['status'] == 200){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "${json.decode(data)['message']}".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  deleteRoadTravel(int id)async{
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; $session_id'
+    };
+    var request = http.Request('DELETE', Uri.parse('${Domain.serverPort}/road/api/travel/delete/$id'));
 
     request.headers.addAll(headers);
 

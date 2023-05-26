@@ -103,6 +103,9 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                 shrinkWrap: true,
                                 primary: false,
                                 itemBuilder: (context, index) {
+                                  Future.delayed(Duration.zero, (){
+                                    controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                                  });
 
                                   return GestureDetector(
                                     onTap: ()=>
