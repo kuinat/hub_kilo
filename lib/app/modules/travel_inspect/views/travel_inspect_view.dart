@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../../color_constants.dart';
+import '../../../../main.dart';
 import '../../../providers/laravel_provider.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../routes/app_routes.dart';
@@ -14,6 +15,7 @@ import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
+import '../../global_widgets/pop_up_photo_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../global_widgets/user_widget.dart';
@@ -186,11 +188,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
   Widget buildBookingByTravel(BuildContext context){
     return Container(
+      padding: EdgeInsets.all(20),
       height: Get.height/1.2,
       decoration: BoxDecoration(
         color: background,
         //Get.theme.primaryColor,
-        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
         boxShadow: [
           BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
         ],
@@ -201,51 +204,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
               child: ListView.builder(
                 itemCount: controller.travelBookings.length,
                 itemBuilder: (context, index){
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(width: 20),
-                            SizedBox(
-                              width: 50,
-                              child: Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
-                            ),
-                            Spacer(),
-                            Obx(() => InkWell(
-                              onTap: (){
-                                controller.accept.value = !controller.accept.value;
-                              },
-                              child: Card(
-                                  elevation: 5,
-                                  child: Container(
-                                      width: MediaQuery.of(context).size.width/2.5,
-                                      height: 40,
-                                      padding: EdgeInsets.all(10),
-                                      child: Row(
-                                          children: [
-                                            Expanded(
-                                                child: !controller.accept.value ? Text("Pending".tr, style: TextStyle(color: inactive))
-                                                    : Text("Accepted".tr, style: TextStyle(color: interfaceColor))),
-                                            Switch(
-                                                value: controller.accept.value,
-                                                onChanged: (value){
-                                                  controller.accept.value = !controller.accept.value;
-                                                  controller.acceptBooking(controller.travelBookings[index]['id']);
-                                                }
-                                            )
-                                          ]
-                                      )
-                                  )
-                              ),
-                            )),
-                          ],
-                        ),
-                        buildBookingsView(context, controller.travelBookings[index])
-                      ],
-                    ),
+                  return buildBookingsView(context, controller.travelBookings[index]
                   );
                 },
               )
@@ -257,92 +216,247 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
   Widget buildBookingsView(BuildContext context, var booking){
     return Card(
-      child: Padding(
-          padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 12),
-                  width: 1,
-                  height: 24,
-                  color: Get.theme.focusColor.withOpacity(0.3),
+        elevation: 10,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Container(
+          child: Column(
+            //alignment: AlignmentDirectional.topStart,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                  color: Colors.white,
                 ),
-                Expanded(child: Text("From: Traveller ${booking['sender']['sender_name']} \n${booking['sender']['sender_phone']}", style: Get.textTheme.headline1.
-                merge(TextStyle(color: appColor, fontSize: 17)))),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        child: Icon( Icons.attach_money_outlined, size: 18),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        width: 1,
-                        height: 24,
-                        color: Get.theme.focusColor.withOpacity(0.3),
-                      ),
-                      Text(booking['kilo_booked_price'], style: Get.textTheme.headline6.
-                      merge(TextStyle(color: specialColor, fontSize: 16)))
-                    ],
+                child:
+              Container(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
                   ),
-                ),
-                SizedBox(
-                  child: Row(
-                    children: [
-                      Icon(FontAwesomeIcons.shoppingBag, size: 18),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        width: 1,
-                        height: 24,
-                        color: Get.theme.focusColor.withOpacity(0.3),
-                      ),
-                      Text("${booking['kilo_booked']} Kg", style: Get.textTheme.headline1.
-                      merge(TextStyle(color: appColor, fontSize: 16)))
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            ExpansionTile(
-              leading: Icon(FontAwesomeIcons.userCheck, size: 20),
-              title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
-              merge(TextStyle(color: appColor, fontSize: 17))),
-              children: [
-                AccountWidget(
-                  icon: FontAwesomeIcons.person,
-                  text: Text('Full Name'),
-                  value: booking['receiver']['receiver_name'],
-                ),
-                AccountWidget(
-                  icon: Icons.alternate_email,
-                  text: Text('Email'),
-                  value: booking['receiver']['receiver_email'],
-                ),
-                AccountWidget(
-                  icon: FontAwesomeIcons.addressCard,
-                  text: Text('Address'),
-                  value: booking['receiver']['receiver_address'],
-                ),
-                AccountWidget(
-                  icon: FontAwesomeIcons.phone,
-                  text: Text('Phone'),
-                  value: booking['receiver']['receiver_phone'],
-                ),
-              ],
-              initiallyExpanded: false,
-            )
-          ],
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 30,
+                                child: Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 12),
+                                width: 1,
+                                height: 24,
+                                color: Get.theme.focusColor.withOpacity(0.3),
+                              ),
+                              Expanded(child: Text("Booked By: " +booking["sender"]["sender_name"], style: Get.textTheme.headline1.
+                              merge(TextStyle(color: appColor, fontSize: 17)))),
+                              SizedBox(width: 40),
+                              Container(
+                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                alignment: Alignment.center,
+                                child: Text(booking["status"], style: Get.textTheme.headline2.merge(TextStyle(color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                                decoration: BoxDecoration(
+                                    color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                                    border: Border.all(
+                                      color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                              )
+                            ]
+                        ),
+                        SizedBox(height: 10),
+                        Column(
+                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 30,
+                                    child: Icon( Icons.attach_money_outlined, size: 25),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 12),
+                                    width: 1,
+                                    height: 24,
+                                    color: Get.theme.focusColor.withOpacity(0.3),
+                                  ),
+                                  Text("kilo_booked_price: "+booking["kilo_booked_price"].toString(), style: Get.textTheme.headline6.
+                                  merge(TextStyle(color: specialColor, fontSize: 16)))
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width:30,
+                                      child: Icon(FontAwesomeIcons.shoppingBag, size: 18)),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 12),
+                                    width: 1,
+                                    height: 24,
+                                    color: Get.theme.focusColor.withOpacity(0.3),
+                                  ),
+                                  Text("Kilo Booked: "+ booking["kilo_booked"].toString() + " Kg", style: Get.textTheme.headline1.
+                                  merge(TextStyle(color: appColor, fontSize: 16)))
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                      width:30,
+                                      child: Icon(FontAwesomeIcons.image, size: 18)),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 12),
+                                    width: 1,
+                                    height: 24,
+                                    color: Get.theme.focusColor.withOpacity(0.3),
+                                  ),
+                                  TextButton(
+                                      onPressed: (){
+                                        showDialog(
+                                            context: context,
+                                            builder: (_)=>
+                                                PopUpPhotoWidget(
+                                                  title: "Packet image",
+                                                  cancel: 'Cancel',
+                                                  confirm: 'Ok',
+                                                  url: Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+booking['id'].toString()+'/luggage_image',
+                                                  onTap: () async =>{
+                                                    Navigator.of(Get.context).pop(),
+                                                  }, icon: Icon(FontAwesomeIcons.image, size: 40,color: Colors.grey),
+                                                )
+                                        );
+
+                                  },
+                                      child: Text('Tap to view packet image'))
+
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        ExpansionTile(
+                          leading: Icon(FontAwesomeIcons.userCheck, size: 20),
+                          title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
+                          merge(TextStyle(color: appColor, fontSize: 17))),
+                          children: [
+                            AccountWidget(
+                              icon: FontAwesomeIcons.person,
+                              text: Text('Full Name'),
+                              value: booking['receiver']['receiver_name'],
+                            ),
+                            AccountWidget(
+                              icon: Icons.alternate_email,
+                              text: Text('Email'),
+                              value: booking['receiver']['receiver_email'],
+                            ),
+                            AccountWidget(
+                              icon: FontAwesomeIcons.addressCard,
+                              text: Text('Address'),
+                              value: booking['receiver']['receiver_address'],
+                            ),
+                            AccountWidget(
+                              icon: FontAwesomeIcons.phone,
+                              text: Text('Phone'),
+                              value: booking['receiver']['receiver_phone'],
+                            ),
+                          ],
+                          initiallyExpanded: false,
+                        ),
+                        booking["status"].toLowerCase() == 'pending'?
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                                onTap: (){
+                                  showDialog(
+                                      context: context,
+                                      builder: (_)=>
+                                          PopUpWidget(
+                                            title: "Are you sure to accept this booking? your choice can't be changed later",
+                                            cancel: 'Cancel',
+                                            confirm: 'Ok',
+                                            onTap: () async =>{
+                                              booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.acceptAirBooking(booking['id'])
+                                                  :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?controller.acceptRoadBooking(booking['id'])
+                                              :(){},
+                                              Navigator.of(Get.context).pop(),
+                                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                          )
+                                  );
+
+                                },
+                                child: Card(
+                                    elevation: 10,
+                                    color: inactive,
+                                    margin: EdgeInsets.symmetric( vertical: 15),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                      child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+                                )
+                            ),
+
+                            GestureDetector(
+                                onTap: (){
+
+                                },
+                                child: Card(
+                                    elevation: 10,
+                                    color: inactive,
+                                    margin: EdgeInsets.symmetric( vertical: 15),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                      child: Text(" Negotiate ".tr, style: TextStyle(color: Colors.white),),)
+                                )
+                            ),
+
+                            GestureDetector(
+                                onTap: (){
+                                  showDialog(
+                                      context: context,
+                                      builder: (_)=>
+                                          PopUpWidget(
+                                              title: "Are you sure to reject this booking? your choice can't be changed later",
+                                              cancel: 'Cancel',
+                                              confirm: 'Ok',
+                                              onTap: () async =>{
+                                                booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.rejectAirBooking(booking['id'])
+                                                :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?await controller.rejectRoadBooking(booking['id'])
+                                                :(){},
+                                              Navigator.of(Get.context).pop(),
+                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                  )
+                                  );
+                                },
+                                child: Card(
+                                    elevation: 10,
+                                    color: specialColor,
+                                    margin: EdgeInsets.symmetric( vertical: 15),
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+                                )
+                            ),
+                          ],
+                        ):SizedBox()
+                      ])),
+            )],
+          ),
         )
-      ),
     );
   }
 
@@ -576,6 +690,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
   }
 
   Widget buildBookingSheet(BuildContext context){
+
     return Container(
       height: Get.height/1.8,
       decoration: BoxDecoration(
@@ -631,7 +746,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
                         controller.buttonPressed.value = !controller.buttonPressed.value;
-                        await controller.bookNow(controller.travelCard['id']);
+                        controller.travelCard['travel_type'].toString().toLowerCase()== 'air'?await controller.bookAirNow(controller.travelCard['id'])
+                        :controller.travelCard['travel_type'].toString().toLowerCase()== 'road'?await controller.bookRoadNow(controller.travelCard['id'])
+                        :(){};
 
                       })
                 ),
@@ -644,7 +761,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
               padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
               children: [
                 controller.bookingStep.value == 0 ?
-                build_Book_travel(context)
+                build_Book_travel(context, controller.travelCard['travel_type'])
                     : build_Receiver_details(context)
               ],
             ),
@@ -671,7 +788,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
     );
   }
 
-  Widget build_Book_travel(BuildContext context) {
+  Widget build_Book_travel(BuildContext context, String travelType) {
+    var visible =  travelType.toString().toLowerCase()=='road';
     return Wrap(
       direction: Axis.horizontal,
       runSpacing: 20,
@@ -694,6 +812,17 @@ class TravelInspectView extends GetView<TravelInspectController> {
               labelText: "Quantity".tr,
               iconData: FontAwesomeIcons.shoppingBag,
             ),
+
+                Visibility(
+                  visible: visible,
+                    child: TextFieldWidget(
+                      keyboardType: TextInputType.text,
+                      validator: (input) => input.isEmpty ? "field required!".tr : null,
+                      onChanged: (input) => controller.dimension.value = int.parse(input),
+                      labelText: "Dimension".tr,
+                      iconData: FontAwesomeIcons.shoppingBag,
+                    ),
+                ),
 
             PacketImageFieldWidget(
               label: "Packet Image".tr,
@@ -817,9 +946,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: (){
-                          controller.receiverId == controller.users[index]['id'];
+                          controller.receiverId.value = controller.users[index]['id'];
+                          print(controller.receiverId.value.toString());
                           controller.selectedIndex.value = index;
                           controller.selected.value = true;
+                          controller.visible.value = false;
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),

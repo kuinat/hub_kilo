@@ -19,6 +19,7 @@ class BookingsController extends GetxController {
 
   final currentSlide = 0.obs;
   final quantity = 1.obs;
+  final dimension = 1.obs;
   final description = ''.obs;
   final travelCard = {}.obs;
   final imageUrl = "".obs;
@@ -36,6 +37,10 @@ class BookingsController extends GetxController {
   var transferBooking = false.obs;
   var bookingIdForTransfer =''.obs;
 
+  var selectedIndex = 0.obs;
+  var receiverId = 0.obs;
+  var selected = false.obs;
+
   var visible = true.obs;
   var editNumber = false.obs;
 
@@ -49,11 +54,13 @@ class BookingsController extends GetxController {
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
   final isDone = false.obs;
-  var myBookings = [];
+  var myAirBookings = [];
+  var myRoadBookings = [];
   var bookingsOnMyTravel = [];
   var items = [].obs;
   var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
+  var list = [];
 
   UploadRepository _uploadRepository;
 
@@ -80,9 +87,12 @@ class BookingsController extends GetxController {
   }
 
   initValues()async{
-    myBookings = await getMyBookings();
-    items.value = myBookings;
+    myAirBookings = await getMyAirBookings();
+    myRoadBookings = await getMyRoadBookings();
+    items.value = await mixBookingCategories(myAirBookings, myRoadBookings);
+    list = await mixBookingCategories(myAirBookings, myRoadBookings);
     print(items);
+    await getAllUsers();
     /*bookingsOnMyTravel = await getBookingsOnMyTravel();
     itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
     print(itemsBookingsOnMyTravel);*/
@@ -92,7 +102,22 @@ class BookingsController extends GetxController {
     initValues();
   }
 
-  Future getMyBookings() async {
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = list;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['travel']['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['travel']['arrival_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
+      items.value = dummyListData;
+      return;
+    } else {
+      items.value = list;
+    }
+  }
+
+  Future getMyAirBookings() async {
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
@@ -105,7 +130,7 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
-      isLoading.value = false;
+      //isLoading.value = false;
       return json.decode(data);
     }
     else {
@@ -113,46 +138,48 @@ class BookingsController extends GetxController {
     }
   }
 
-  void filterSearchResults(String query) {
-    List dummySearchList = [];
-    dummySearchList = bookingsOnMyTravel;
-    if(query.isNotEmpty) {
-      List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
-      items.value = dummyListData;
-      return;
-    } else {
-      items.value = bookingsOnMyTravel;
-    }
-  }
-
-  /*getBookingsOnMyTravel()async{
+  getMyRoadBookings()async{
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
+      'Cookie': 'frontend_lang=en_US; '+id.toString()
     };
-
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/air/current/user/travel/booked'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/road/current/user/my_booking/made'));
     request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      final data = await response.stream.bytesToString();
+      var data = await response.stream.bytesToString();
+      print(data);
       isLoading.value = false;
       return json.decode(data);
+
     }
     else {
       print(response.reasonPhrase);
     }
 
-  }*/
+  }
 
-  editBooking(int book_id)async{
+  mixBookingCategories(var myAirBookings, var myRoadBookings)async{
+    var bookings = [];
+    for(var airBooking in myAirBookings){
+      bookings.add(airBooking);
+    }
+    for(var roadBooking in myRoadBookings )
+      {
+        bookings.add(roadBooking);
+      }
+
+    bookings.sort((a, b) => a['travel']['departure_date'].compareTo(b['travel']['departure_date']));
+
+
+    return bookings;
+  }
+
+  editAirBooking(int book_id)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
@@ -178,7 +205,7 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       if(json.decode(data)['result'] != null){
-        await setPacketImage(book_id);
+        await setAirPacketImage(book_id);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
         Navigator.pop(Get.context);
       }else{
@@ -193,7 +220,7 @@ class BookingsController extends GetxController {
 
   }
 
-  Future setPacketImage (bookingId)async{
+  Future setAirPacketImage (bookingId)async{
     Get.lazyPut<PacketImageFieldController>(
           () => PacketImageFieldController(),
     );
@@ -201,7 +228,7 @@ class BookingsController extends GetxController {
     if (imageFile != null) {
       try {
         //await deleteUploaded();
-        await _uploadRepository.imagePacket(imageFile, bookingId);
+        await _uploadRepository.airImagePacket(imageFile, bookingId);
       } catch (e) {
         Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       }
@@ -210,82 +237,14 @@ class BookingsController extends GetxController {
     }
   }
 
-
-  acceptBookingOnMyTravel(int booking_id)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/accept/booking/'+booking_id.toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      if(json.decode(data)['result'] != null){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking accepted ".tr));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-
-    }
-
-  }
-
-
-  rejectBookingOnMyTravel(int booking_id)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/reject/booking/'+booking_id.toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      if(json.decode(data)['result'] != null){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking rejected ".tr));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-
-    }
-
-
-  }
-
-  transferMyBookingNow(int booking_id)async{
+  transferMyAirBookingNow(int booking_id)async{
     transferBooking.value = true;
     bookingIdForTransfer.value = booking_id.toString();
     await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
 
   }
 
-
-  deleteMyBooking(int book_id)async{
+  deleteMyAirBooking(int book_id)async{
     final box = GetStorage();
     var id = box.read('session_id');
     var headers = {
@@ -310,6 +269,68 @@ class BookingsController extends GetxController {
     else {
       throw new Exception(response.reasonPhrase);
     }
+  }
+
+  deleteMyRoadBooking(int id)async{
+    print('delete Road Booking');
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('DELETE', Uri.parse(Domain.serverPort
+        +'/road/booking/'+id.toString()+'/delete'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['status'] == 200){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "${json.decode(data)['message']}".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
+  getAllUsers()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'text/plain',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/hubkilo/all/partners'));
+    request.body = '''{\r\n     "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      users.value= json.decode(data);
+      resetusers.value= json.decode(data);
+      print(users);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 
   @override

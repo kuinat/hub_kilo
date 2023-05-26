@@ -67,7 +67,7 @@ class BookingsView extends GetView<BookingsController> {
                             child: TextField(
                               //controller: controller.textEditingController,
                               style: Get.textTheme.bodyText2,
-                              onChanged: (value)=> controller.filterSearchResults(value),
+                              onChanged: (value)=>{ controller.filterSearchResults(value) },
                               autofocus: false,
                               cursorColor: Get.theme.focusColor,
                               decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
@@ -192,7 +192,7 @@ class BookingsView extends GetView<BookingsController> {
     return Expanded(
         child: ListView.builder(
             physics: AlwaysScrollableScrollPhysics(),
-            itemCount: controller.items.length + 1,
+            itemCount: controller.items.length+1 ,
             shrinkWrap: true,
             primary: false,
             itemBuilder: (context, index) {
@@ -201,6 +201,7 @@ class BookingsView extends GetView<BookingsController> {
               } else {
                 var travel = controller.items[index]['travel'];
               return CardWidget(
+                travelType: travel['travel_type'] ,
                 editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   bookingState: controller.items[index]['status'],
@@ -223,7 +224,8 @@ class BookingsView extends GetView<BookingsController> {
                     controller.email.value = controller.items[index]['receiver']['receiver_email'];
                     controller.address.value= controller.items[index]['receiver']['receiver_address'];
                     controller.description.value = controller.items[index]['type_of_luggage'];
-                    controller.quantity.value = controller.items[index]['kilo_booked'];
+                    controller.quantity.value = controller.items[index]['luggage_weight'];
+                    controller.dimension.value = controller.items[index]['luggage_dimension'];
 
                     return Get.bottomSheet(
                       buildEditingSheet(context,controller.items[index] ),
@@ -237,9 +239,13 @@ class BookingsView extends GetView<BookingsController> {
                             title: "Do you really want to delete this booking?",
                             cancel: 'Cancel',
                             confirm: 'Delete',
-                            onTap: ()=>{
-                              controller.deleteMyBooking(controller.items[index]['id']),
-                              Navigator.of(Get.context).pop(),
+                            onTap: () async =>{
+                              travel['travel_type'].toString().toLowerCase()=='air'?
+                              await controller.deleteMyAirBooking(controller.items[index]['id']):
+                              travel['travel_type'].toString().toLowerCase()=='road'?
+                              await controller.deleteMyRoadBooking(controller.items[index]['id']):
+                              (){},
+
                               print(controller.items[index]['id'])
                             }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                           )
@@ -252,7 +258,7 @@ class BookingsView extends GetView<BookingsController> {
                           cancel: 'Cancel',
                           confirm: 'Transfer',
                           onTap: ()async=>{
-                            await controller.transferMyBookingNow(controller.items[index]['id']),
+                            await controller.transferMyAirBookingNow(controller.items[index]['id']),
                             Navigator.of(Get.context).pop(),
                           }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                         )
@@ -318,7 +324,7 @@ class BookingsView extends GetView<BookingsController> {
                         color: Get.theme.colorScheme.secondary,
                         onPressed: ()async{
                           controller.buttonPressed.value = !controller.buttonPressed.value;
-                          await controller.editBooking(sampleBooking['id']);
+                          await controller.editAirBooking(sampleBooking['id']);
 
                         })
                 ),
@@ -391,6 +397,16 @@ class BookingsView extends GetView<BookingsController> {
                 // controller.url.value =  uuid;
                 // controller.user.value.image= uuid;
               },),
+            Visibility(
+              visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
+              child: TextFieldWidget(
+                keyboardType: TextInputType.text,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.dimension.value = int.parse(input),
+                labelText: "Dimension".tr,
+                iconData: FontAwesomeIcons.shoppingBag,
+              ),
+            ),
 
 
           ],
@@ -565,18 +581,24 @@ class BookingsView extends GetView<BookingsController> {
                         var travel = controller.users[index];
                         return GestureDetector(
                           onTap: (){
+                            controller.receiverId.value = controller.users[index]['id'];
+                            print(controller.receiverId.value.toString());
+                            controller.selectedIndex.value = index;
+                            controller.selected.value = true;
                             controller.visible.value = false;
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
                               color: Get.theme.primaryColor,
 
                             ),
                             child: UserWidget(
-
                               user: controller.users[index]['name'],
+                              selected: false,
+                              imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                             ),
                           ),
                         );

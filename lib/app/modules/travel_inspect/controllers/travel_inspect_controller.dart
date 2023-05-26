@@ -15,6 +15,7 @@ import '../../userBookings/controllers/bookings_controller.dart';
 class TravelInspectController extends GetxController {
   final currentSlide = 0.obs;
   final quantity = 1.obs;
+  final dimension = 1.obs;
   final description = ''.obs;
   final travelCard = {}.obs;
   final imageUrl = "".obs;
@@ -30,11 +31,15 @@ class TravelInspectController extends GetxController {
   var url = ''.obs;
   var selectedIndex = 0.obs;
   var currentIndex = 0.obs;
+  var status = ''.obs;
   var accept = false.obs;
+  var reject = false.obs;
   var selected = false.obs;
   var users =[].obs;
   var travelBookings = [].obs;
   var list = [];
+  var listAir =[];
+  var listRoad =[];
   var resetusers =[].obs;
   var transferBooking = false.obs;
   var transferBookingId = ''.obs;
@@ -58,7 +63,13 @@ class TravelInspectController extends GetxController {
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
 
-    list = await getBookingsOnTravel(travelCard['id']);
+    listAir = await getAirBookingsOnTravel(travelCard['id']);
+    listRoad = await getRoadBookingsOnTravel(travelCard['id']);
+
+    travelCard['travel_type'] == "Air"?
+    list = listAir
+        :travelCard['travel_type'] == "Sea"?list =[]
+    : list = listRoad;
     travelBookings.value = list;
     if(travelCard['travel_type'] == "Air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
@@ -81,7 +92,7 @@ class TravelInspectController extends GetxController {
     onInit();
   }
 
-  Future getBookingsOnTravel(int id)async{
+  Future getAirBookingsOnTravel(int id)async{
 
     final box = GetStorage();
     var session_id = box.read("session_id");
@@ -105,7 +116,30 @@ class TravelInspectController extends GetxController {
     }
   }
 
-  acceptBooking(int id)async{
+  getRoadBookingsOnTravel(int id)async{
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/road/current/user/travel/books/2'));
+    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
+  acceptAirBooking(int id)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
@@ -135,7 +169,7 @@ class TravelInspectController extends GetxController {
     }
   }
 
-  RejectBooking(int id)async{
+  rejectAirBooking(int id)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
@@ -166,6 +200,66 @@ class TravelInspectController extends GetxController {
     }
   }
 
+  acceptRoadBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/accept/booking/'+id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking accepted ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+
+  }
+
+  rejectRoadBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/reject/booking/'+id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking rejected ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+
+  }
+
   deleteMyTravel(int id)async{
     final box = GetStorage();
     var session_id = box.read("session_id");
@@ -192,6 +286,7 @@ class TravelInspectController extends GetxController {
     }
   }
 
+
   Future getEService() async {
 
   }
@@ -200,7 +295,7 @@ class TravelInspectController extends GetxController {
 
   }
 
-  bookNow(int travelId)async{
+  bookAirNow(int travelId)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
@@ -209,11 +304,13 @@ class TravelInspectController extends GetxController {
     };
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/air/travel/booking/create'));
     if(selectUser.value) {
+      print(true);
+      print(receiverId.value.toString());
       request.body = json.encode({
         "jsonrpc": "2.0",
         "params": {
           "travel_id": travelId,
-          "receiver_partner_id": 3,
+          "receiver_partner_id": receiverId.value,
           "type_of_luggage": description.value,
           "kilo_booked": quantity.value
         }
@@ -242,8 +339,8 @@ class TravelInspectController extends GetxController {
       );
       var data = await response.stream.bytesToString();
       print(data);
-      if(json.decode(data)['result'] != null){
-        await setPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
+      if(json.decode(data)['result']['success'] != false){
+        await setAirPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Book success ".tr));
         Navigator.pop(Get.context);
       }else{
@@ -255,6 +352,63 @@ class TravelInspectController extends GetxController {
       print(data);
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
+  }
+
+
+  bookRoadNow(int travelId)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('POST', Uri.parse(Domain.serverPort+'/road/travel/booking/create'));
+    if(selectUser.value) {
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "travel_id": travelId,
+          "receiver_partner_id": receiverId.value,
+          "luggage_dimension": dimension.value,
+          "luggage_weight": quantity.value,
+          "type_of_luggage": description.value
+        }
+      });
+    }
+    else{
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "travel_id": travelId,
+          "receiver_name": name.value,
+          "receiver_email": email.value,
+          "receiver_phone": phone.value,
+          "receiver_address": address.value,
+          "luggage_dimension": dimension.value,
+          "luggage_weight": quantity.value,
+          "type_of_luggage": description.value
+        }
+      });
+    }
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      if(json.decode(data)['result']['success'] != false){
+        await setRoadPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Book success ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+
   }
 
 
@@ -356,7 +510,7 @@ class TravelInspectController extends GetxController {
   }
 
 
-  Future setPacketImage (bookingId)async{
+  Future setAirPacketImage (bookingId)async{
     Get.lazyPut<PacketImageFieldController>(
           () => PacketImageFieldController(),
     );
@@ -364,7 +518,7 @@ class TravelInspectController extends GetxController {
     if (imageFile != null) {
       try {
         //await deleteUploaded();
-        await _uploadRepository.imagePacket(imageFile, bookingId);
+        await _uploadRepository.airImagePacket(imageFile, bookingId);
       } catch (e) {
         Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       }
@@ -372,4 +526,23 @@ class TravelInspectController extends GetxController {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
     }
   }
+
+  Future setRoadPacketImage (bookingId)async{
+    Get.lazyPut<PacketImageFieldController>(
+          () => PacketImageFieldController(),
+    );
+    File imageFile = Get.find<PacketImageFieldController>().image.value;
+    if (imageFile != null) {
+      try {
+        //await deleteUploaded();
+        await _uploadRepository.roadImagePacket(imageFile, bookingId);
+      } catch (e) {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      }
+    } else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+    }
+  }
+
+
 }

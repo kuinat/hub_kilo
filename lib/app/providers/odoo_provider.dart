@@ -1575,7 +1575,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
 
 
-  Future<String> uploadPacketImage( file, bookingId) async {
+  Future<String> uploadAirPacketImage( file, bookingId) async {
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
@@ -1604,6 +1604,48 @@ class OdooApiClient extends GetxService with ApiClient {
 
 
   }
+
+
+
+  Future<String> uploadRoadPacketImage( file, bookingId) async {
+
+    if (Get.find<MyAuthService>().myUser.value.email==null) {
+      throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
+    }
+    final box = GetStorage();
+    var sessionId = box.read('session_id');
+
+
+
+    var headers = {
+      'Cookie': sessionId.toString()
+    };
+    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/road/booking/luggage_image/'+bookingId.toString()));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image', file.path));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      var user = await getUser();
+      var uuid =user.image ;
+      return uuid;
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+
+  }
+
 
   Future<bool> deleteUploaded(String uuid) async {
     if (!authService.isAuth) {
