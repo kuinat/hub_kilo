@@ -102,7 +102,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                     MaterialButton(
                       onPressed: () {
                         if(controller.airTravelList.isNotEmpty){
-                          Get.toNamed(Routes.CATEGORY, arguments: {'travels': controller.landTravelList, "travelType": "Air"});
+                          Get.toNamed(Routes.CATEGORY, arguments: {'travels': controller.airTravelList, "travelType": "air"});
                         }
                       },
                       shape: StadiumBorder(),

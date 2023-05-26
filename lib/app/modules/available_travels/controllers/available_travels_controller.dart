@@ -59,25 +59,10 @@ class AvailableTravelsController extends GetxController {
     airTravels = travelItem['air_shippings'];
     list.addAll(landTravels);
     list.addAll(airTravels);
-    items.value = shuffle(list);
+    items.value = list;
     for(var i in items){
       print(i['id']);
     }
-  }
-
-  List shuffle(List array) {
-    var random = Random(); //import 'dart:math';
-
-    // Go through all elementsof list
-    for (var i = array.length - 1; i > 0; i--) {
-
-      // Pick a random number according to the lenght of list
-      var n = random.nextInt(i + 1);
-      var temp = array[i];
-      array[i] = array[n];
-      array[n] = temp;
-    }
-    return array;
   }
 
   void filterSearchResults(String query) {

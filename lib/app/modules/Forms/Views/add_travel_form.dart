@@ -322,7 +322,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                   initiallyExpanded: false,
                 )
             ),
-            if(controller.travelType.value != "Land")...[
+            if(controller.travelType.value != "road")...[
               TextFieldWidget(
                 initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
                 keyboardType: TextInputType.number,
@@ -359,6 +359,7 @@ class AddTravelsView extends GetView<AddTravelController> {
         key: controller.newTravelKey,
         child: ListView(
           children: [
+            if(controller.travelType.value != 'road')
             SwitchListTile( //switch at right side of label
                 value: controller.canBargain.value,
                 onChanged: (bool value){
@@ -428,6 +429,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 ],
               ),
             ),
+            if(controller.travelType.value != "land")
             Container(
               padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
               margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
@@ -536,18 +538,19 @@ class AddTravelsView extends GetView<AddTravelController> {
             text: Text('Arrival \nTown'),
             value: controller.arrivalTown.value,
           ),
-          if(controller.travelType.value != 'Road')
+          if(controller.travelType.value == "land")
           AccountWidget(
             icon: FontAwesomeIcons.shoppingBasket,
             text: Text('Quantity'),
             value: controller.quantity.value.toString(),
           ),
+          if(controller.travelType.value == "land")
           AccountWidget(
               icon: FontAwesomeIcons.moneyBill,
               text: Text('Accept bargain?'),
               value: controller.canBargain.value ? 'YES' : 'NO'
           ),
-          if(controller.travelType.value != 'Road')
+          if(controller.travelType.value == "land")
           AccountWidget(
               icon: FontAwesomeIcons.moneyCheck,
               text: Text('Price /kg'),
@@ -570,8 +573,8 @@ class AddTravelsView extends GetView<AddTravelController> {
                 Expanded(
                   child: Text("Travel type"),
                 ),
-                controller.travelType.value == 'Air' ? FaIcon(FontAwesomeIcons.planeDeparture) :
-                controller.travelType.value == 'Sea' ? FaIcon(FontAwesomeIcons.ship) : FaIcon(FontAwesomeIcons.bus),
+                controller.travelType.value == 'air' ? FaIcon(FontAwesomeIcons.planeDeparture) :
+                controller.travelType.value == 'sea' ? FaIcon(FontAwesomeIcons.ship) : FaIcon(FontAwesomeIcons.bus),
               ],
             ),
           ),
@@ -581,9 +584,20 @@ class AddTravelsView extends GetView<AddTravelController> {
               children: [
                 controller.travelCard.isEmpty ?
                 BlockButtonWidget(
-                  onPressed: () =>{
-                    controller.buttonPressed.value = !controller.buttonPressed.value,
-                    controller.postTravel()
+                  onPressed: () {
+                    controller.buttonPressed.value = !controller.buttonPressed.value;
+                    if(controller.travelType.value == "air"){
+                      print("Air");
+                      controller.createAirTravel();
+                    }
+                    if(controller.travelType.value == "land"){
+                      print("Land");
+                      controller.createRoadTravel();
+                    }
+                    if(controller.travelType.value == "sea"){
+                      print("Sea");
+                      //controller.createSeaTravel()
+                    }
                   },
                   color: Get.theme.colorScheme.secondary,
                   text: !controller.buttonPressed.value ? Text(
@@ -594,9 +608,21 @@ class AddTravelsView extends GetView<AddTravelController> {
                 ).paddingSymmetric(vertical: 10, horizontal: 20)
                     :
                 BlockButtonWidget(
-                  onPressed: () =>{
-                    controller.buttonPressed.value = !controller.buttonPressed.value,
-                    controller.updateTravel(controller.travelCard['id'])
+                  onPressed: () {
+                    controller.buttonPressed.value = !controller.buttonPressed.value;
+
+                    if(controller.travelType.value == "air"){
+                      print("Air");
+                      controller.updateAirTravel(controller.travelCard['id']);
+                    }
+                    if(controller.travelType.value == "road"){
+                      print("Land");
+                      controller.updateRoadTravel(controller.travelCard['id']);
+                    }
+                    if(controller.travelType.value == "sea"){
+                      print("Sea");
+                      //controller.createSeaTravel()
+                    }
                   },
                   color: Get.theme.colorScheme.secondary,
                   text: !controller.buttonPressed.value ? Text(

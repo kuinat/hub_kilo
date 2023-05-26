@@ -9,13 +9,14 @@ import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 
 class ChatMessageItem extends StatelessWidget {
-  final Chat chat;
+  //final Chat chat;
 
-  ChatMessageItem({this.chat});
+  //ChatMessageItem({this.chat});
 
   @override
   Widget build(BuildContext context) {
-    if (Get.find<AuthService>().user.value.id == this.chat.userId) {
+    return getSentMessageTextLayout(context);
+    /*if (Get.find<AuthService>().user.value.id == this.chat.userId) {
       if (chat.text.isURL) {
         return getSentMessageImageLayout(context);
       } else {
@@ -27,7 +28,7 @@ class ChatMessageItem extends StatelessWidget {
       } else {
         return getReceivedMessageTextLayout(context);
       }
-    }
+    }*/
   }
 
   Widget getSentMessageTextLayout(context) {
@@ -51,10 +52,10 @@ class ChatMessageItem extends StatelessWidget {
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      new Text(this.chat.user.name, style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600))),
+                      new Text("this.chat.user.name", style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600))),
                       new Container(
                         margin: const EdgeInsets.only(top: 5.0),
-                        child: new Text(chat.text, style: Get.textTheme.bodyText1),
+                        child: new Text("chat.text", style: Get.textTheme.bodyText1),
                       ),
                     ],
                   ),
@@ -68,7 +69,7 @@ class ChatMessageItem extends StatelessWidget {
                     child: CachedNetworkImage(
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      imageUrl: this.chat.user.avatar.thumb,
+                      imageUrl: "this.chat.user.avatar.thumb",
                       placeholder: (context, url) => Image.asset(
                         'assets/img/loading.gif',
                         fit: BoxFit.cover,
@@ -84,7 +85,7 @@ class ChatMessageItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(this.chat.time)),
+              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(20)),
               overflow: TextOverflow.fade,
               softWrap: false,
               style: Get.textTheme.caption,
@@ -95,7 +96,7 @@ class ChatMessageItem extends StatelessWidget {
     );
   }
 
-  Widget getSentMessageImageLayout(context) {
+  /*Widget getSentMessageImageLayout(context) {
     return Align(
       alignment: Alignment.centerRight,
       child: Column(
@@ -116,16 +117,16 @@ class ChatMessageItem extends StatelessWidget {
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      new Text(this.chat.user.name, style: Get.textTheme.bodyText1.merge(TextStyle(fontWeight: FontWeight.w600))),
+                      new Text("this.chat.user.name", style: Get.textTheme.bodyText1.merge(TextStyle(fontWeight: FontWeight.w600))),
                       new Container(
                         margin: const EdgeInsets.only(top: 5.0),
                         child: InkWell(
                           onTap: () {
-                            Get.toNamed(Routes.GALLERY, arguments: {
+                            /*Get.toNamed(Routes.GALLERY, arguments: {
                               'media': [new Media(id: this.chat.text, url: this.chat.text)],
                               'current': new Media(id: this.chat.text, url: this.chat.text),
                               'heroTag': 'chat_image'
-                            });
+                            });*/
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -133,7 +134,7 @@ class ChatMessageItem extends StatelessWidget {
                               width: double.infinity,
                               fit: BoxFit.cover,
                               height: 200,
-                              imageUrl: this.chat.text,
+                              imageUrl: "this.chat.text",
                               placeholder: (context, url) => Image.asset(
                                 'assets/img/loading.gif',
                                 fit: BoxFit.cover,
@@ -156,7 +157,7 @@ class ChatMessageItem extends StatelessWidget {
                     child: CachedNetworkImage(
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      imageUrl: this.chat.user.avatar.thumb,
+                      imageUrl: "this.chat.user.avatar.thumb",
                       placeholder: (context, url) => Image.asset(
                         'assets/img/loading.gif',
                         fit: BoxFit.cover,
@@ -172,7 +173,7 @@ class ChatMessageItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(this.chat.time)),
+              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(17)),
               overflow: TextOverflow.fade,
               softWrap: false,
               style: Get.textTheme.caption,
@@ -181,7 +182,7 @@ class ChatMessageItem extends StatelessWidget {
         ],
       ),
     );
-  }
+  }*/
 
   Widget getReceivedMessageTextLayout(context) {
     return Align(
@@ -209,7 +210,7 @@ class ChatMessageItem extends StatelessWidget {
                     child: CachedNetworkImage(
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      imageUrl: this.chat.user.avatar.thumb,
+                      imageUrl: "this.chat.user.avatar.thumb",
                       placeholder: (context, url) => Image.asset(
                         'assets/img/loading.gif',
                         fit: BoxFit.cover,
@@ -223,11 +224,11 @@ class ChatMessageItem extends StatelessWidget {
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      new Text(this.chat.user.name, style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor))),
+                      new Text("this.chat.user.name", style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor))),
                       new Container(
                         margin: const EdgeInsets.only(top: 5.0),
                         child: new Text(
-                          chat.text,
+                          "chat.text",
                           style: Get.textTheme.bodyText1.merge(TextStyle(color: Get.theme.primaryColor)),
                         ),
                       ),
@@ -240,7 +241,7 @@ class ChatMessageItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(this.chat.time)),
+              DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(23)),
               overflow: TextOverflow.fade,
               softWrap: false,
               style: Get.textTheme.caption,
@@ -251,7 +252,7 @@ class ChatMessageItem extends StatelessWidget {
     );
   }
 
-  Widget getReceivedMessageImageLayout(context) {
+  /*Widget getReceivedMessageImageLayout(context) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Column(
@@ -277,7 +278,7 @@ class ChatMessageItem extends StatelessWidget {
                     child: CachedNetworkImage(
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      imageUrl: this.chat.user.avatar.thumb,
+                      imageUrl: "this.chat.user.avatar.thumb",
                       placeholder: (context, url) => Image.asset(
                         'assets/img/loading.gif',
                         fit: BoxFit.cover,
@@ -291,16 +292,16 @@ class ChatMessageItem extends StatelessWidget {
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      new Text(this.chat.user.name, style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor))),
+                      new Text("this.chat.user.name", style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor))),
                       new Container(
                         margin: const EdgeInsets.only(top: 5.0),
                         child: InkWell(
                           onTap: () {
-                            Get.toNamed(Routes.GALLERY, arguments: {
+                            /*Get.toNamed(Routes.GALLERY, arguments: {
                               'media': [new Media(id: this.chat.text, url: this.chat.text)],
                               'current': new Media(id: this.chat.text, url: this.chat.text),
                               'heroTag': 'chat_image'
-                            });
+                            });*/
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -308,7 +309,7 @@ class ChatMessageItem extends StatelessWidget {
                               width: double.infinity,
                               fit: BoxFit.cover,
                               height: 200,
-                              imageUrl: this.chat.text,
+                              imageUrl: "this.chat.text",
                               placeholder: (context, url) => Image.asset(
                                 'assets/img/loading.gif',
                                 fit: BoxFit.cover,
@@ -328,7 +329,7 @@ class ChatMessageItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(this.chat.time)),
+              DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.fromMillisecondsSinceEpoch(33)),
               overflow: TextOverflow.fade,
               softWrap: false,
               style: Get.textTheme.caption,
@@ -337,5 +338,5 @@ class ChatMessageItem extends StatelessWidget {
         ],
       ),
     );
-  }
+  }*/
 }

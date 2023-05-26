@@ -16,7 +16,7 @@ class CardWidget extends StatelessWidget {
     this.transfer,
     this.reject,
 
-    @required this.user,
+    @required this.negotiation,
     @required this.depTown,
     @required this.arrTown,
     @required this.imageUrl,
@@ -30,10 +30,11 @@ class CardWidget extends StatelessWidget {
     this.edit,
     this.confirm,
     @required this.price,
+    @required this.travelType,
     @required this.text,
     @required this.bookingState}) : super(key: key);
 
-  final String user;
+  final Widget negotiation;
   final String text;
   final String recName;
   final bool transferable;
@@ -46,6 +47,7 @@ class CardWidget extends StatelessWidget {
   final String depDate;
   final String arrDate;
   final String bookingState;
+  final String travelType;
   final int qty;
   final double price;
   final String imageUrl;
@@ -54,6 +56,7 @@ class CardWidget extends StatelessWidget {
   final Function accept;
   final Function reject;
   final Function transfer;
+
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +83,28 @@ class CardWidget extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  travelType.toLowerCase()=='air'?
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 100,
+                        child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                      ),
+                      Container(width: 100,
+                        child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                      )
+                    ],
+                  ):travelType.toLowerCase()=='road'?Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 100,
+                        child: Center(child: FaIcon(FontAwesomeIcons.car)),
+                      ),
+                      Container(width: 100,
+                        child: Center(child: FaIcon(FontAwesomeIcons.car)),
+                      )
+                    ],
+                  ):
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -241,6 +266,7 @@ class CardWidget extends StatelessWidget {
                 ],
                   initiallyExpanded: false,
               ),
+                  negotiation,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

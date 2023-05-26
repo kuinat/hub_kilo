@@ -4,7 +4,7 @@ import '../../account/controllers/account_controller.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../search/controllers/search_controller.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
-import '../../userTravels/controllers/myTravels_controller.dart';
+import '../../userTravels/controllers/user_travels_controller.dart';
 import '../controllers/root_controller.dart';
 
 class RootBinding extends Bindings {
@@ -19,8 +19,8 @@ class RootBinding extends Bindings {
     Get.lazyPut<BookingsController>(
       () => BookingsController(),
     );
-    Get.lazyPut<MyTravelsController>(
-      () => MyTravelsController(),
+    Get.lazyPut<UserTravelsController>(
+      () => UserTravelsController(),
     );
     Get.lazyPut<AccountController>(
       () => AccountController(),
