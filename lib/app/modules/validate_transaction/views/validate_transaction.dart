@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -6,7 +8,7 @@ import '../../../../../color_constants.dart';
 import '../../../../common/animation_controllers/animation.dart';
 import '../../../routes/app_routes.dart';
 import '../../global_widgets/block_button_widget.dart';
-import '../../global_widgets/notifications_button_widget.dart';
+import '../../global_widgets/loading_cards.dart';
 import '../controller/validation_controller.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -14,7 +16,6 @@ class ValidationView extends GetView<ValidationController> {
 
   List bookings = [];
   String barcode = "";
-  TextEditingController codeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,8 @@ class ValidationView extends GetView<ValidationController> {
               delay: 100,
               child: GestureDetector(
                   onTap: ()=>{
-                    controller.validationType.value = 1
+                    controller.validationType.value = 1,
+                    controller.scan()
                   },
                   child: Card(
                     color: interfaceColor,
@@ -150,7 +152,7 @@ class ValidationView extends GetView<ValidationController> {
                 ),
                 TextFormField(
                   maxLines: 1,
-                  controller: codeController,
+                  controller: controller.codeController,
                   onTap: ()=>{
                     controller.validationType.value = 2
                   },
@@ -189,7 +191,12 @@ class ValidationView extends GetView<ValidationController> {
             ),
             DelayedAnimation(delay: 250,
                 child: BlockButtonWidget(
-                  onPressed: () {},
+                  onPressed: () {
+                    controller.completeTransaction(controller.codeController);
+                    Timer(Duration(milliseconds: 100), () {
+                      controller.codeController.clear();
+                    });
+                  },
                   color: Get.theme.colorScheme.secondary,
                   text: Text(
                     "Validate Transaction".tr,
@@ -244,153 +251,164 @@ class ValidationView extends GetView<ValidationController> {
               ),
             ),
           ),
-          Expanded(
-              child: ListView.builder(
-                  itemCount: 8,
+          Obx(() => Expanded(
+              child: controller.isLoading.value ?
+              LoadingCardWidget() :
+              controller.bookings.value.isNotEmpty ?
+              ListView.builder(
+                  itemCount: controller.bookings.length,
                   itemBuilder: (context, index){
+                    Future.delayed(Duration.zero, (){
+                      controller.bookings.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
+                    });
                     return InkWell(
-                      onTap: ()=>{
-                        Get.bottomSheet(
-                          buildBookingSheet(context),
-                          isScrollControlled: true,
-                        )
-                      },
-                      child: Card(
-                          elevation: 10,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          margin: index == 8 - 1 ? EdgeInsets.only(bottom: 200) : null,
-                          child: Column(
-                            //alignment: AlignmentDirectional.topStart,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(width: 100,
-                                          child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                                        ),
-                                        Container(width: 100,
-                                          child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.topCenter,
-                                          width: 100,
-                                          child: Text("depTown", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                        ),
-                                        FaIcon(FontAwesomeIcons.arrowRight),
-                                        Container(
+                        onTap: ()=>{
+                          Get.bottomSheet(
+                            buildBookingSheet(context, controller.bookings[index]['code']),
+                            isScrollControlled: true,
+                          )
+                        },
+                        child: Card(
+                            elevation: 10,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                            ),
+                            child: Column(
+                              //alignment: AlignmentDirectional.topStart,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                                    color: Colors.white,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(width: 100,
+                                            child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                                          ),
+                                          Container(width: 100,
+                                            child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
                                             alignment: Alignment.topCenter,
                                             width: 100,
-                                            child: Text("arrTown", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 30,
-                                          child: Icon( FontAwesomeIcons.calendarDay, size: 18),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.symmetric(horizontal: 12),
-                                          width: 1,
-                                          height: 24,
-                                          color: Get.theme.focusColor.withOpacity(0.3),
-                                        ),
-                                        Expanded(
-                                          child: Text('Date de Départ', style: Get.textTheme.headline1.
-                                          merge(TextStyle(color: appColor, fontSize: 16))),
-                                        ),
-                                        Text("depDate", style: Get.textTheme.headline1.
-                                        merge(TextStyle(color: interfaceColor, fontSize: 16)),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        SizedBox(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 30,
-                                                child: Icon( Icons.attach_money_outlined, size: 18),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(horizontal: 12),
-                                                width: 1,
-                                                height: 24,
-                                                color: Get.theme.focusColor.withOpacity(0.3),
-                                              ),
-                                              Text(28.toString(), style: Get.textTheme.headline6.
-                                              merge(TextStyle(color: specialColor, fontSize: 16)))
-                                            ],
+                                            child: Text(controller.bookings[index]['travel']['departure_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          child: Row(
-                                            children: [
-                                              Icon(FontAwesomeIcons.shoppingBag, size: 18),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(horizontal: 12),
-                                                width: 1,
-                                                height: 24,
-                                                color: Get.theme.focusColor.withOpacity(0.3),
-                                              ),
-                                              Text(5.toString() + " Kg", style: Get.textTheme.headline1.
-                                              merge(TextStyle(color: appColor, fontSize: 16)))
-                                            ],
+                                          FaIcon(FontAwesomeIcons.arrowRight),
+                                          Container(
+                                              alignment: Alignment.topCenter,
+                                              width: 100,
+                                              child: Text(controller.bookings[index]['travel']['arrival_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                      )
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 30,
+                                            child: Icon( FontAwesomeIcons.calendarDay, size: 18),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 12),
+                                            width: 1,
+                                            height: 24,
+                                            color: Get.theme.focusColor.withOpacity(0.3),
+                                          ),
+                                          Expanded(
+                                            child: Text('Date de Départ', style: Get.textTheme.headline1.
+                                            merge(TextStyle(color: appColor, fontSize: 16))),
+                                          ),
+                                          Text(controller.bookings[index]['travel']['departure_date'].toString(), style: Get.textTheme.headline1.
+                                          merge(TextStyle(color: interfaceColor, fontSize: 16)),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SizedBox(
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: 30,
+                                                  child: Icon( Icons.attach_money_outlined, size: 18),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 12),
+                                                  width: 1,
+                                                  height: 24,
+                                                  color: Get.theme.focusColor.withOpacity(0.3),
+                                                ),
+                                                Text(controller.bookings[index]['kilo_booked'].toString(), style: Get.textTheme.headline6.
+                                                merge(TextStyle(color: specialColor, fontSize: 16)))
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            child: Row(
+                                              children: [
+                                                Icon(FontAwesomeIcons.shoppingBag, size: 18),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 12),
+                                                  width: 1,
+                                                  height: 24,
+                                                  color: Get.theme.focusColor.withOpacity(0.3),
+                                                ),
+                                                Text(controller.bookings[index]['kilo_booked_price'].toString() + " Kg", style: Get.textTheme.headline1.
+                                                merge(TextStyle(color: appColor, fontSize: 16)))
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                        )
                     );
-                  })
-          )
-        ],
+                  }) : Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height /4),
+                    FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                    Text('No bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                  ]
+              )
+          ))
+        ]
       )
     );
   }
 
-  Widget buildBookingSheet(BuildContext context){
+  Widget buildBookingSheet(BuildContext context, var bookingCode){
     return Container(
       height: Get.height/1.2,
       decoration: BoxDecoration(
@@ -428,7 +446,7 @@ class ValidationView extends GetView<ValidationController> {
                 child: Container(
                   padding: EdgeInsets.only(top: 00,bottom: 20, left: 60, right: 60),
                   child: QrImage(
-                    data: "Hub kilo",
+                    data: "$bookingCode",
                     version: QrVersions.auto,
                     size: 200,
                     gapless: false,
@@ -459,13 +477,13 @@ class ValidationView extends GetView<ValidationController> {
                         ),
                         TextFormField(
                           maxLines: 1,
-                          initialValue: "Code here",
+                          initialValue: bookingCode.toString(),
                           //controller: codeController,
                           onTap: ()=>{
                             //controller.validationType.value = 2
                           },
-                          //validator: validator,
                           style: Get.textTheme.bodyText2,
+                          readOnly: true,
                           obscureText: false,
                           textAlign: TextAlign.start,
                         ),

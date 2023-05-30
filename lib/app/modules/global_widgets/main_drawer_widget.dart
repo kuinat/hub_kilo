@@ -178,6 +178,13 @@ class MainDrawerWidget extends StatelessWidget {
               }
             ),
             DrawerLinkWidget(
+              icon: Icons.qr_code,
+              text: "Validate Transaction",
+              onTap: (e) {
+                Get.offNamed(Routes.VALIDATE_TRANSACTION);
+              },
+            ),
+            DrawerLinkWidget(
               icon: Icons.notifications_none_outlined,
               text: "Notifications",
               onTap: (e) {
@@ -190,15 +197,7 @@ class MainDrawerWidget extends StatelessWidget {
               onTap: (e) async {
                 //await Get.find<RootController>().changePage(2);
               },
-            ),
-            if(Get.find<MyAuthService>().myUser.value.email == null)
-              DrawerLinkWidget(
-                icon: Icons.qr_code,
-                text: "Validate Transaction",
-                onTap: (e) {
-                  Get.offNamed(Routes.VALIDATE_TRANSACTION);
-                },
-              ),
+            )
           ],
           ListTile(
             dense: true,

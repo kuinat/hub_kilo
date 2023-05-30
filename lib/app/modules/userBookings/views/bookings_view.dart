@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
@@ -67,7 +68,7 @@ class BookingsView extends GetView<BookingsController> {
                               //controller: controller.textEditingController,
                               style: Get.textTheme.bodyText2,
                               onChanged: (value)=>{ controller.filterSearchResults(value) },
-                              autofocus: false,
+                              autofocus: controller.heroTag.value == "search" ? true : false,
                               cursorColor: Get.theme.focusColor,
                               decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
                             ),
@@ -188,7 +189,7 @@ class BookingsView extends GetView<BookingsController> {
 
 
   Widget MyBookings(BuildContext context){
-    return Expanded(
+    return Obx(() => Expanded(
         child: ListView.builder(
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: controller.items.length+1 ,
@@ -200,32 +201,44 @@ class BookingsView extends GetView<BookingsController> {
               } else {
                 var travel = controller.items[index]['travel'];
                 Future.delayed(Duration.zero, (){
-                  controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                  controller.items.value.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
                 });
-              return CardWidget(
-                travelType: travel['travel_type'] ,
-                editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
+                return CardWidget(
+                  travelType: travel['travel_type'] ,
+                  editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
                   bookingState: controller.items[index]['status'],
                   depDate: travel['departure_date'],
                   arrTown: travel['arrival_town'],
                   depTown: travel['departure_town'],
                   arrDate: travel['arrival_date'],
-                  qty: controller.items[index]['kilo_booked'],
-                  price: controller.items[index]['kilo_booked_price'],
+                  qty: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['luggage_weight'].toInt():'null',
+                  price: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked_price']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['booking_price']:'null',
                   text: controller.items[index]['travel']['traveler']['user_name'],
-                  negotiation: InkWell(
-                    onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': controller.items[index]}) },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                        SizedBox(width: 10),
-                        FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                      ],
+                  negotiation:  Visibility(
+                    visible:travel['travel_type'].toString().toLowerCase()=='air'&&controller.items[index]['status']=='pending'?travel['negotiation']:
+                    travel['travel_type'].toString().toLowerCase()=='road'&&controller.items[index]['status']=='pending'?true:false,
+                    child: InkWell(
+                      onTap: ()=>{
+                        //print(controller.items[index]),
+                        Get.toNamed(Routes.CHAT, arguments: {'bookingCard': controller.items[index]})
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
+                          SizedBox(width: 10),
+                          FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
+                        ],
+                      ),
                     ),
                   ),
                   imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                  packetImageUrl: travel['travel_type'].toString().toLowerCase()=='road'?
+                  Domain.serverPort+'/web/image/m2st_hk_roadshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
+                  travel['travel_type'].toString().toLowerCase()=='air'?
+                  Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
+                  '',
                   recName: controller.items[index]['receiver']['receiver_name'],
                   recAddress: controller.items[index]['receiver']['receiver_address'],
                   recEmail: controller.items[index]['receiver']['receiver_email'],
@@ -237,7 +250,9 @@ class BookingsView extends GetView<BookingsController> {
                     controller.address.value= controller.items[index]['receiver']['receiver_address'];
                     controller.description.value = controller.items[index]['type_of_luggage'];
                     controller.quantity.value = controller.items[index]['luggage_weight'];
-                    controller.dimension.value = controller.items[index]['luggage_dimension'];
+                    //controller.dimension.value = controller.items[index]['luggage_dimension'];
+                    controller.luggageWidth.value = controller.items[index]['luggage_width'];
+                    controller.luggageHeight.value = controller.items[index]['luggage_height'];
 
                     return Get.bottomSheet(
                       buildEditingSheet(context,controller.items[index] ),
@@ -256,28 +271,32 @@ class BookingsView extends GetView<BookingsController> {
                               await controller.deleteMyAirBooking(controller.items[index]['id']):
                               travel['travel_type'].toString().toLowerCase()=='road'?
                               await controller.deleteMyRoadBooking(controller.items[index]['id']):
-                              (){},
+                                  (){},
 
                               print(controller.items[index]['id'])
                             }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                           )
                   ),
-                transfer: ()=> showDialog(
-                    context: context,
-                    builder: (_)=>
-                        PopUpWidget(
-                          title: "Do you really want to tranfer your booking?",
-                          cancel: 'Cancel',
-                          confirm: 'Transfer',
-                          onTap: ()async=>{
-                            await controller.transferMyAirBookingNow(controller.items[index]['id']),
-                            Navigator.of(Get.context).pop(),
-                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                        )
-                ),
-              );}
+                  transfer: ()=> showDialog(
+                      context: context,
+                      builder: (_)=>
+                          PopUpWidget(
+                            title: "Do you really want to tranfer your booking?",
+                            cancel: 'Cancel',
+                            confirm: 'Transfer',
+                            onTap: ()async=>{
+                              travel['travel_type'].toString().toLowerCase()=='air'?
+                              await controller.transferMyAirBookingNow(controller.items[index]['id']):
+                              travel['travel_type'].toString().toLowerCase()=='road'?
+                              await controller.transferMyRoadBookingNow(controller.items[index]['id']):
+                                  (){},
+                              Navigator.of(Get.context).pop(),
+                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                          )
+                  ),
+                );}
             })
-    );
+    ));
   }
 
   Widget buildEditingSheet(BuildContext context, var sampleBooking){
@@ -336,7 +355,12 @@ class BookingsView extends GetView<BookingsController> {
                         color: Get.theme.colorScheme.secondary,
                         onPressed: ()async{
                           controller.buttonPressed.value = !controller.buttonPressed.value;
-                          await controller.editAirBooking(sampleBooking['id']);
+                          sampleBooking['travel']['travel_type'].toLowerCase() =='air'?
+                          await controller.editAirBooking(sampleBooking['id']):
+                          sampleBooking['travel']['travel_type'].toLowerCase() =='road'?
+                          await controller.editRoadBooking(sampleBooking['id']):
+                          (){};
+                          controller.buttonPressed.value = !controller.buttonPressed.value;
 
                         })
                 ),
@@ -402,23 +426,162 @@ class BookingsView extends GetView<BookingsController> {
               iconData: FontAwesomeIcons.shoppingBag,
             ),
 
-            PacketImageFieldWidget(
-              label: "Packet Image".tr,
-              initialImage: Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+sampleBooking['id'].toString()+'/luggage_image',
-              uploadCompleted: (uuid) {
-                // controller.url.value =  uuid;
-                // controller.user.value.image= uuid;
-              },),
+            Obx(() => Container(
+              color: Colors.white,
+              padding: EdgeInsets.all(30),
+              margin: EdgeInsets.only(top: 20, bottom: 20),
+              child: Column(
+                children: [
+                  Align(
+                    child: Text('Input 3 Packet Files'.tr),
+                    alignment: Alignment.topLeft,
+                  ),
+                  SizedBox(height: 20,),
+                  controller.imageFiles.length<=0?GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: Get.context,
+                            builder: (_){
+                              return AlertDialog(
+                                content: Container(
+                                    height: 170,
+                                    padding: EdgeInsets.all(10),
+                                    child: Column(
+                                      children: [
+                                        ListTile(
+                                          onTap: ()async{
+                                            await controller.pickImage(ImageSource.camera);
+                                            Navigator.pop(Get.context);
+                                          },
+                                          leading: Icon(FontAwesomeIcons.camera),
+                                          title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                        ),
+                                        ListTile(
+                                          onTap: ()async{
+                                            await controller.pickImage(ImageSource.gallery);
+                                            Navigator.pop(Get.context);
+                                          },
+                                          leading: Icon(FontAwesomeIcons.image),
+                                          title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                        )
+                                      ],
+                                    )
+                                ),
+                              );
+                            });
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        padding: EdgeInsets.all(20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                      )
+                  )
+                      :Column(
+                    children: [
+                      SizedBox(
+                        height:100,
+                        child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.all(12),
+                            itemBuilder: (context, index){
+                              return ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                child: Image.file(
+                                  controller.imageFiles[index],
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  height: 100,
+                                ),
+                              );;
+                            },
+                            separatorBuilder: (context, index){
+                              return SizedBox(width: 8);
+                            },
+                            itemCount: controller.imageFiles.length),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Visibility(
+                            child: InkWell(
+                              onTap: (){
+                                showDialog(
+                                    context: Get.context,
+                                    builder: (_){
+                                      return AlertDialog(
+                                        content: Container(
+                                            height: 170,
+                                            padding: EdgeInsets.all(10),
+                                            child: Column(
+                                              children: [
+                                                ListTile(
+                                                  onTap: ()async{
+                                                    await controller.pickImage(ImageSource.camera);
+                                                    Navigator.pop(Get.context);
+                                                  },
+                                                  leading: Icon(FontAwesomeIcons.camera),
+                                                  title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                ),
+                                                ListTile(
+                                                  onTap: ()async{
+                                                    await controller.pickImage(ImageSource.gallery);
+                                                    Navigator.pop(Get.context);
+                                                  },
+                                                  leading: Icon(FontAwesomeIcons.image),
+                                                  title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                )
+                                              ],
+                                            )
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Icon(FontAwesomeIcons.circlePlus),
+                            )
+                        ),
+                      )
+                    ],
+
+                  ),
+
+                ],
+              ),
+            ),),
+
+
             Visibility(
               visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
               child: TextFieldWidget(
                 keyboardType: TextInputType.text,
                 validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.dimension.value = int.parse(input),
-                labelText: "Dimension".tr,
+                onChanged: (input) => controller.luggageWidth.value = int.parse(input),
+                labelText: "Luggage Width".tr,
                 iconData: FontAwesomeIcons.shoppingBag,
               ),
             ),
+            Visibility(
+              visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
+              child: TextFieldWidget(
+                keyboardType: TextInputType.text,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
+                labelText: "Luggage Height".tr,
+                iconData: FontAwesomeIcons.shoppingBag,
+              ),
+            ),
+
+            // Visibility(
+            //   visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
+            //   child: TextFieldWidget(
+            //     keyboardType: TextInputType.text,
+            //     validator: (input) => input.isEmpty ? "field required!".tr : null,
+            //     onChanged: (input) => controller.dimension.value = int.parse(input),
+            //     labelText: "Dimension".tr,
+            //     iconData: FontAwesomeIcons.shoppingBag,
+            //   ),
+            // ),
 
 
           ],
@@ -594,7 +757,7 @@ class BookingsView extends GetView<BookingsController> {
                         return GestureDetector(
                           onTap: (){
                             controller.receiverId.value = controller.users[index]['id'];
-                            print(controller.receiverId.value.toString());
+                            //print(controller.receiverId.value.toString());
                             controller.selectedIndex.value = index;
                             controller.selected.value = true;
                             controller.visible.value = false;

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../models/option_model.dart';
@@ -15,7 +16,8 @@ import '../../userBookings/controllers/bookings_controller.dart';
 class TravelInspectController extends GetxController {
   final currentSlide = 0.obs;
   final quantity = 1.obs;
-  final dimension = 1.obs;
+  final luggageWidth = 1.obs;
+  final luggageHeight = 1.obs;
   final description = ''.obs;
   final travelCard = {}.obs;
   final imageUrl = "".obs;
@@ -42,7 +44,9 @@ class TravelInspectController extends GetxController {
   var listRoad =[];
   var resetusers =[].obs;
   var transferBooking = false.obs;
-  var transferBookingId = ''.obs;
+  var transferAirBookingId = ''.obs;
+  var transferRoadBookingId = ''.obs;
+  var imageFiles = [].obs;
 
   var visible = true.obs;
 
@@ -59,7 +63,8 @@ class TravelInspectController extends GetxController {
   void onInit() async {
     transferBooking = Get.find<BookingsController>().transferBooking;
     print("transfer "+transferBooking.toString());
-    transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
+    transferAirBookingId =Get.find<BookingsController>().bookingIdForTransfer;
+    transferRoadBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
 
@@ -67,9 +72,9 @@ class TravelInspectController extends GetxController {
     listAir = await getAirBookingsOnTravel(travelCard['id']);
     listRoad = await getRoadBookingsOnTravel(travelCard['id']);
 
-    travelCard['travel_type'] == "Air"?
+    travelCard['travel_type'] == "air"?
     list = listAir
-        :travelCard['travel_type'] == "Sea"?list =[]
+        :travelCard['travel_type'] == "sea"?list =[]
     : list = listRoad;
 
     travelBookings.value = list;
@@ -110,7 +115,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print(data);
+
       return json.decode(data);
     }
     else {
@@ -132,7 +137,6 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print(data);
       return json.decode(data);
     }
     else {
@@ -399,7 +403,8 @@ class TravelInspectController extends GetxController {
         "params": {
           "travel_id": travelId,
           "receiver_partner_id": receiverId.value,
-          "luggage_dimension": dimension.value,
+          "luggage_width": luggageWidth.value,
+          "luggage_height": luggageHeight.value,
           "luggage_weight": quantity.value,
           "type_of_luggage": description.value
         }
@@ -414,7 +419,8 @@ class TravelInspectController extends GetxController {
           "receiver_email": email.value,
           "receiver_phone": phone.value,
           "receiver_address": address.value,
-          "luggage_dimension": dimension.value,
+          "luggage_width": luggageWidth.value,
+          "luggage_height": luggageHeight.value,
           "luggage_weight": quantity.value,
           "type_of_luggage": description.value
         }
@@ -442,8 +448,8 @@ class TravelInspectController extends GetxController {
   }
 
 
-  transferNow(int travelId)async{
-    print("Transfer booking Id: "+transferBookingId.value);
+  transferAirNow(int travelId)async{
+    print("Transfer booking Id: "+transferAirBookingId.value);
     print("Travel Id: "+travelId.toString());
     final box = GetStorage();
     var session_id = box.read('session_id');
@@ -451,7 +457,7 @@ class TravelInspectController extends GetxController {
       'Content-Type': 'application/json',
       'Cookie': 'frontend_lang=en_US; '+session_id.toString()
     };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/current/user/transfer/booking/'+transferBookingId.value));
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/current/user/transfer/booking/'+transferAirBookingId.value));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
@@ -464,7 +470,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print(data);
+      //print(data);
       if(json.decode(data)['result'] != null){
 
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Transfer success ".tr));
@@ -485,28 +491,42 @@ class TravelInspectController extends GetxController {
 
   }
 
-  getAllUsers()async{
+  transferRoadNow(int travelId)async{
+    print ('travel Id: '+travelId.toString());
+    print ('Booking Id: '+transferRoadBookingId.value.toString());
     final box = GetStorage();
     var session_id = box.read('session_id');
     var headers = {
-      'Content-Type': 'text/plain',
+      'Content-Type': 'application/json',
       'Cookie': 'frontend_lang=en_US; '+session_id.toString()
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/hubkilo/all/partners'));
-    request.body = '''{\r\n     "jsonrpc": "2.0"\r\n}''';
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/current/user/transfer/booking/'+transferRoadBookingId.value));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "new_travel_id": travelId
+      }
+    });
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      users.value= json.decode(data);
-      resetusers.value= json.decode(data);
-      print(users);
+      //print(data);
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Transfer success ".tr));
+        Get.find<BookingsController>().transferBooking.value = false;
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+
+      }
     }
     else {
-      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
+
 
   }
 
@@ -539,21 +559,61 @@ class TravelInspectController extends GetxController {
     quantity.value > 1 ? quantity.value-- : null;
   }
 
+  Future <File> pickImage(ImageSource source) async {
+    //image.value = null;
+    ImagePicker imagePicker = ImagePicker();
+    //uploading.value = true;
+    //await deleteUploaded();
+    if(source.toString() == ImageSource.camera.toString())
+      {
+        XFile pickedFile = await imagePicker.pickImage(source: source, imageQuality: 80);
+        File imageFile = File(pickedFile.path);
+        if(imageFiles.length<3)
+          {
+            imageFiles.add(imageFile) ;
+          }
+        else
+          {
+            Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+            throw new Exception('You can only upload 3 photos');
+          }
+
+      }
+    else{
+      var i =0;
+      var galleryFiles = await imagePicker.pickMultiImage();
+      while(i<galleryFiles.length){
+        File imageFile = File(galleryFiles[i].path);
+        if(imageFiles.length<3)
+        {
+          imageFiles.add(imageFile) ;
+        }
+        else
+        {
+          Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+          throw new Exception('You can only upload 3 photos');
+        }
+      }
+
+    }
+
+
+
+  }
+
 
   Future setAirPacketImage (bookingId)async{
     Get.lazyPut<PacketImageFieldController>(
           () => PacketImageFieldController(),
     );
-    File imageFile = Get.find<PacketImageFieldController>().image.value;
-    if (imageFile != null) {
-      try {
+    //File imageFile = Get.find<PacketImageFieldController>().image.value;
+    if (imageFiles.length==3) {
+
         //await deleteUploaded();
-        await _uploadRepository.airImagePacket(imageFile, bookingId);
-      } catch (e) {
-        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      }
+        await _uploadRepository.airImagePacket(imageFiles.value, bookingId);
+
     } else {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image files".tr));
     }
   }
 
@@ -562,16 +622,38 @@ class TravelInspectController extends GetxController {
           () => PacketImageFieldController(),
     );
     File imageFile = Get.find<PacketImageFieldController>().image.value;
-    if (imageFile != null) {
-      try {
+    if (imageFiles.length==3) {
+
         //await deleteUploaded();
-        await _uploadRepository.roadImagePacket(imageFile, bookingId);
-      } catch (e) {
-        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      }
+        await _uploadRepository.roadImagePacket(imageFiles.value, bookingId);
+
     } else {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image files".tr));
     }
+  }
+
+  getAllUsers()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'text/plain',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/hubkilo/all/partners'));
+    request.body = '''{\r\n     "jsonrpc": "2.0"\r\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      users.value= json.decode(data);
+      resetusers.value= json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 
 

@@ -34,7 +34,7 @@ class MessagesController extends GetxController {
   var messages = [].obs;
   final bookingCard = {}.obs;
   ScrollController scrollController = ScrollController();
-  final chatTextController = TextEditingController();
+  TextEditingController chatTextController = TextEditingController();
   var chatText = 0.0.obs;
   Timer timer;
   /*MessagesController() {
@@ -62,7 +62,7 @@ class MessagesController extends GetxController {
 
   @override
   void onClose() {
-    chatTextController.dispose();
+    //chatTextController.dispose();
     timer.cancel();
   }
 
@@ -102,7 +102,14 @@ class MessagesController extends GetxController {
       'Content-Type': 'application/json',
       'Cookie': 'frontend_lang=en_US; $session_id'
     };
-    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/air/send_message'));
+
+      var request = http.Request('POST', Uri.parse(
+          bookingCard['travel']['travel_type'] == 'air'
+          ? '${Domain.serverPort}/air/send_message' :
+      bookingCard['travel']['travel_type'] == 'road' ?
+      '${Domain.serverPort}/road/send_message' : ''
+      ));
+
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
@@ -135,7 +142,12 @@ class MessagesController extends GetxController {
     var headers = {
       'Cookie': 'frontend_lang=en_US; $session_id'
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/air/message_history/$id'));
+    var request = http.Request('GET', Uri.parse(
+        bookingCard['travel']['travel_type'] == 'air'
+            ? '${Domain.serverPort}/air/message_history/$id' :
+        bookingCard['travel']['travel_type'] == 'road' ?
+        '${Domain.serverPort}/road/message_history/$id' : ''
+    ));
 
     request.headers.addAll(headers);
 
@@ -151,6 +163,138 @@ class MessagesController extends GetxController {
     }
   }
 
+  acceptAndPriceRoadBooking(var message)async{
+    print(bookingCard['id']);
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; $session_id'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/road/travel/booking_price/${bookingCard['id']}'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "booking_price": message
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+
+      if(json.decode(data)['result'] != null){
+        print(data);
+        acceptRoadBooking(bookingCard['id']);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  acceptRoadBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/accept/booking/'+id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking confirmed ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+
+  }
+
+  acceptAndPriceAirBooking(var message)async{
+    print(bookingCard['id']);
+    final box = GetStorage();
+    var session_id = box.read("session_id");
+
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/new_price/'+bookingCard['id'].toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "new_price": message
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+
+      if(json.decode(data)['result'] != null){
+        print(data);
+        acceptAirBooking(bookingCard['id']);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+
+  }
+
+  acceptAirBooking(int id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/accept/booking/$id'));
+    request.body = json.encode({
+      "jsonrpc": "2.0"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking comfirmed ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+  }
   Future listenForMessages() async {
     isLoading.value = true;
     isDone.value = false;

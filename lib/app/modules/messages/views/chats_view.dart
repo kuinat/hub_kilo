@@ -99,8 +99,8 @@ class ChatsView extends GetView<MessagesController> {
                     color: Colors.white,
                     image: DecorationImage(
                         image: NetworkImage(
-                            controller.bookingCard['travel']['traveler']['user_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920'
-                            : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"),
+                            Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ? '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920'
+                            : '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920'),
                         fit: BoxFit.cover
                     )
                 )
@@ -110,7 +110,8 @@ class ChatsView extends GetView<MessagesController> {
         automaticallyImplyLeading: false,
         leadingWidth: 90,
         title: Obx(() {
-          return Text(controller.bookingCard['travel']['traveler']['user_name'],
+          return Text( Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
+          controller.bookingCard['travel']['traveler']['user_name'] : controller.bookingCard['sender']['sender_name'],
             //controller.message.value.name,
             overflow: TextOverflow.fade,
             maxLines: 1,
@@ -135,26 +136,35 @@ class ChatsView extends GetView<MessagesController> {
                 ),
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        children: [
-                          FaIcon(FontAwesomeIcons.planeDeparture),
-                          SizedBox(height: 10),
-                          Text(controller.bookingCard['travel']['departure_town'],
-                              //controller.travelCard['departure_date'].toString(),
-                              style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-                        ],
+                      SizedBox(
+                          width: MediaQuery.of(Get.context).size.width/2.8,
+                          child: Column(
+                            //crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FaIcon(FontAwesomeIcons.planeDeparture),
+                              SizedBox(height: 10),
+                              Text(controller.bookingCard['travel']['departure_town'],
+                                  //controller.travelCard['departure_date'].toString(),
+                                  style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                            ],
+                          )
                       ),
                       FaIcon(FontAwesomeIcons.arrowRight),
-                      Column(
-                          children: [
-                            FaIcon(FontAwesomeIcons.planeArrival),
-                            SizedBox(height: 10),
-                            Text(controller.bookingCard['travel']['arrival_town'],
-                                //controller.travelCard['arrival_date'].toString(),
-                                style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-                          ]
+                      Container(
+                          width: MediaQuery.of(Get.context).size.width/2.8,
+                          padding: EdgeInsets.only(left: 20),
+                          child: Column(
+                            //crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                FaIcon(FontAwesomeIcons.planeArrival),
+                                SizedBox(height: 10),
+                                Text(controller.bookingCard['travel']['arrival_town'],
+                                    //controller.travelCard['arrival_date'].toString(),
+                                    style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                              ]
+                          )
                       )
                     ]
                 )
@@ -182,9 +192,13 @@ class ChatsView extends GetView<MessagesController> {
                           padding: EdgeInsetsDirectional.only(end: 20, start: 10),
                           onPressed: () {
                             //controller.messages.add(controller.chatTextController.text);
-                            controller.sendMessage(
-                                controller.bookingCard['travel']['traveler']['user_id']
-                            );
+                            if(Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id']){
+                              controller.sendMessage( controller.bookingCard['travel']['traveler']['user_id'] );
+                            }
+                            if(Get.find<MyAuthService>().myUser.value.id == controller.bookingCard['travel']['traveler']['user_id']){
+                              controller.sendMessage( controller.bookingCard['sender']['sender_id'] );
+                            }
+
                             //controller.addMessage(controller.message.value, controller.chatTextController.text);
                             Timer(Duration(milliseconds: 100), () {
                               controller.chatTextController.clear();
@@ -349,7 +363,7 @@ class ChatsView extends GetView<MessagesController> {
               backgroundColor: validateColor,
             ),
             onPressed: (){
-              Get.showSnackbar(Ui.SuccessSnackBar(message: "I accept ${message['message']} ".tr));
+              controller.acceptAndPriceRoadBooking(message['message']);
             },
             child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
         )

@@ -31,6 +31,7 @@ import '../models/slide_model.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../models/wallet_transaction_model.dart';
+import '../services/my_auth_service.dart';
 import '../services/settings_service.dart';
 import 'api_provider.dart';
 import 'dio_client.dart';
@@ -196,7 +197,7 @@ class LaravelApiClient extends GetxService with ApiClient {
   }
 
   Future<List<Address>> getAddresses() async {
-    if (!authService.isAuth) {
+    if (Get.find<MyAuthService>().myUser.value.email == null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ getAddresses() ]");
     }
     var _queryParameters = {
