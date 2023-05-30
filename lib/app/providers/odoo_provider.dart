@@ -1575,7 +1575,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
 
 
-  Future<String> uploadAirPacketImage( file, bookingId) async {
+  Future<String> uploadRoadPacketImage(imageFiles, bookingId) async {
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
@@ -1585,8 +1585,11 @@ class OdooApiClient extends GetxService with ApiClient {
     var headers = {
       'Cookie': sessionId.toString()
     };
-    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/air/booking/luggage_image/'+bookingId.toString()));
-    request.files.add(await http.MultipartFile.fromPath('luggage_image', file.path));
+
+    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/road/booking/luggage_image/'+bookingId.toString()));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image1', imageFiles[0].path));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image2', imageFiles[1].path));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image3', imageFiles[2].path));
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -1607,7 +1610,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
 
 
-  Future<String> uploadRoadPacketImage( file, bookingId) async {
+  Future<String> uploadAirPacketImage(imageFiles, bookingId) async {
 
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
@@ -1620,8 +1623,12 @@ class OdooApiClient extends GetxService with ApiClient {
     var headers = {
       'Cookie': sessionId.toString()
     };
-    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/road/booking/luggage_image/'+bookingId.toString()));
-    request.files.add(await http.MultipartFile.fromPath('luggage_image', file.path));
+
+    var request = http.MultipartRequest('PUT', Uri.parse(Domain.serverPort+'/air/booking/luggage_image/'+bookingId.toString()));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image1', imageFiles[0].path));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image2', imageFiles[1].path));
+    request.files.add(await http.MultipartFile.fromPath('luggage_image3', imageFiles[2].path));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();

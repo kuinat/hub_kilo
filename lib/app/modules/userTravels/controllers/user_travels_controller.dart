@@ -77,7 +77,7 @@ class UserTravelsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print("my travels: $data");
+      //print("my travels: $data");
       if(data != 'Empty'){
         isLoading.value = false;
         return json.decode(data)['response'];
@@ -107,7 +107,7 @@ class UserTravelsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print("my road travels: $data");
+      //print("my road travels: $data");
       if(data != 'Empty'){
         isLoading.value = false;
         return json.decode(data)['response'];

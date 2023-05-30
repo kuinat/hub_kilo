@@ -18,15 +18,15 @@ class UploadRepository {
 
   }
 
-  Future<String> airImagePacket(File image, bookingId) {
+  Future<String> airImagePacket(List imageFiles, bookingId) {
     print('Nathalie');
-    return _odooApiClient.uploadAirPacketImage(image, bookingId);
+    return _odooApiClient.uploadAirPacketImage(imageFiles, bookingId);
 
   }
 
-  Future<String> roadImagePacket(File image, bookingId) {
+  Future<String> roadImagePacket(List imageFiles, bookingId) {
     print('Nathalie');
-    return _odooApiClient.uploadRoadPacketImage(image, bookingId);
+    return _odooApiClient.uploadRoadPacketImage(imageFiles, bookingId);
 
   }
 

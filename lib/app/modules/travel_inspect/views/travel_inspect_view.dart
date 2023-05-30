@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
@@ -293,7 +296,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         ),
                         SizedBox(height: 10),
                         Column(
-                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
                               child: Row(
@@ -308,7 +311,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                  Text("kilo_booked_price: "+booking["kilo_booked_price"].toString(), style: Get.textTheme.headline6.
+                                  Text("kilo_booked_price: "+ controller.travelCard['travel_type'].toLowerCase()=='air'?booking["kilo_booked_price"].toString():
+                                  controller.travelCard['travel_type'].toLowerCase()=='road'?booking["booking_price"].toString():booking["kilo_booked_price"].toString(),
+                                      style: Get.textTheme.headline6.
                                   merge(TextStyle(color: specialColor, fontSize: 16)))
                                 ],
                               ),
@@ -325,45 +330,55 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                  Text("Kilo Booked: "+ booking["kilo_booked"].toString() + " Kg", style: Get.textTheme.headline1.
+                                  Text("Kilo Booked: "+ controller.travelCard['travel_type']=='air'?booking["kilo_booked"].toString() + " Kg":
+                                  controller.travelCard['travel_type']=='road'?booking["luggage_weight"].toString()+ " Kg":booking["kilo_booked"].toString() + " Kg",
+                                      style: Get.textTheme.headline1.
                                   merge(TextStyle(color: appColor, fontSize: 16)))
                                 ],
                               ),
                             ),
+
+                          ],
+                        ),
+
+                        ExpansionTile(
+                          leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
+                          title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
+                          merge(TextStyle(color: appColor, fontSize: 17))),
+                          children: [
                             SizedBox(
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                      width:30,
-                                      child: Icon(FontAwesomeIcons.image, size: 18)),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 12),
-                                    width: 1,
-                                    height: 24,
-                                    color: Get.theme.focusColor.withOpacity(0.3),
-                                  ),
-                                  TextButton(
-                                      onPressed: (){
-                                        showDialog(
-                                            context: context,
-                                            builder: (_)=>
-                                                PopUpPhotoWidget(
-                                                  title: "Packet image",
-                                                  cancel: 'Cancel',
-                                                  confirm: 'Ok',
-                                                  url: Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+booking['id'].toString()+'/luggage_image',
-                                                  onTap: () async =>{
-                                                    Navigator.of(Get.context).pop(),
-                                                  }, icon: Icon(FontAwesomeIcons.image, size: 40,color: Colors.grey),
-                                                )
-                                        );
-
+                              height:100,
+                              child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: EdgeInsets.all(12),
+                                  itemBuilder: (context, index){
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      child: CachedNetworkImage(
+                                        height: 100,
+                                        width: 100,
+                                        fit: BoxFit.cover,
+                                        imageUrl: controller.travelCard['travel_type']=='air'?
+                                        Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+booking['id'].toString()+'/luggage_image'+index.toString():
+                                        controller.travelCard['travel_type']=='road'?
+                                        Domain.serverPort+'/web/image/m2st_hk_roadshipping.travel_booking/'+booking['id'].toString()+'/luggage_image'+index.toString():
+                                        '',
+                                        placeholder: (context, url) => Image.asset(
+                                          'assets/img/loading.gif',
+                                          fit: BoxFit.cover,
+                                          width: 60,
+                                          height: 100,
+                                        ),
+                                        errorWidget: (context, url, error) => Icon(Icons.error_outline),
+                                      ),
+                                    );;
                                   },
-                                      child: Text('Tap to view packet image'))
-
-                                ],
-                              ),
+                                  separatorBuilder: (context, index){
+                                    return SizedBox(width: 8);
+                                  },
+                                  itemCount: 3),
                             ),
+
                           ],
                         ),
 
@@ -396,81 +411,82 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           initiallyExpanded: false,
                         ),
                         booking["status"].toLowerCase() == 'pending'?
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                                onTap: (){
-                                  showDialog(
-                                      context: context,
-                                      builder: (_)=>
-                                          PopUpWidget(
-                                            title: "Are you sure to accept this booking? your choice can't be changed later",
-                                            cancel: 'Cancel',
-                                            confirm: 'Ok',
-                                            onTap: () async =>{
-                                              booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.acceptAirBooking(booking['id'])
-                                                  :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?controller.acceptRoadBooking(booking['id'])
-                                              :(){},
-                                              Navigator.of(Get.context).pop(),
-                                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                          )
-                                  );
+                            Column(children: [
+                              InkWell(
+                                onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
+                                    SizedBox(width: 10),
+                                    FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                      onTap: (){
+                                        showDialog(
+                                            context: context,
+                                            builder: (_)=>
+                                                PopUpWidget(
+                                                  title: "Are you sure to accept this booking? your choice can't be changed later",
+                                                  cancel: 'Cancel',
+                                                  confirm: 'Ok',
+                                                  onTap: () async =>{
+                                                    booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.acceptAirBooking(booking['id'])
+                                                        :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?controller.acceptRoadBooking(booking['id'])
+                                                        :(){},
+                                                    Navigator.of(Get.context).pop(),
+                                                  }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                                )
+                                        );
 
-                                },
-                                child: Card(
-                                    elevation: 10,
-                                    color: inactive,
-                                    margin: EdgeInsets.symmetric( vertical: 15),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                      child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
-                                )
-                            ),
+                                      },
+                                      child: Card(
+                                          elevation: 10,
+                                          color: inactive,
+                                          margin: EdgeInsets.symmetric( vertical: 15),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                            child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+                                      )
+                                  ),
+                                  SizedBox(width: 20,),
+                                  GestureDetector(
+                                      onTap: (){
+                                        showDialog(
+                                            context: context,
+                                            builder: (_)=>
+                                                PopUpWidget(
+                                                  title: "Are you sure to reject this booking? your choice can't be changed later",
+                                                  cancel: 'Cancel',
+                                                  confirm: 'Ok',
+                                                  onTap: () async =>{
+                                                    booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.rejectAirBooking(booking['id'])
+                                                        :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?await controller.rejectRoadBooking(booking['id'])
+                                                        :(){},
+                                                    Navigator.of(Get.context).pop(),
+                                                  }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                                )
+                                        );
+                                      },
+                                      child: Card(
+                                          elevation: 10,
+                                          color: specialColor,
+                                          margin: EdgeInsets.symmetric( vertical: 15),
+                                          child: Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                              child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+                                      )
+                                  ),
+                                ],
+                              )
+                            ],)
 
-                            GestureDetector(
-                                onTap: (){
-
-                                },
-                                child: Card(
-                                    elevation: 10,
-                                    color: inactive,
-                                    margin: EdgeInsets.symmetric( vertical: 15),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                      child: Text(" Negotiate ".tr, style: TextStyle(color: Colors.white),),)
-                                )
-                            ),
-
-                            GestureDetector(
-                                onTap: (){
-                                  showDialog(
-                                      context: context,
-                                      builder: (_)=>
-                                          PopUpWidget(
-                                              title: "Are you sure to reject this booking? your choice can't be changed later",
-                                              cancel: 'Cancel',
-                                              confirm: 'Ok',
-                                              onTap: () async =>{
-                                                booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.rejectAirBooking(booking['id'])
-                                                :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?await controller.rejectRoadBooking(booking['id'])
-                                                :(){},
-                                              Navigator.of(Get.context).pop(),
-                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                  )
-                                  );
-                                },
-                                child: Card(
-                                    elevation: 10,
-                                    color: specialColor,
-                                    margin: EdgeInsets.symmetric( vertical: 15),
-                                    child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                        child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
-                                )
-                            ),
-                          ],
-                        ):SizedBox()
+                            :SizedBox()
                       ])),
             )],
           ),
@@ -664,7 +680,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
               color: Get.theme.colorScheme.secondary,
               onPressed: () async{
                 if(Get.find<MyAuthService>().myUser.value.email != null){
-                  await controller.transferNow(controller.travelCard['id']);
+                  controller.travelCard['travel_type'] == "air"?
+                  await controller.transferAirNow(controller.travelCard['id']):
+                  controller.travelCard['travel_type'] == "road"?
+                  await controller.transferRoadNow(controller.travelCard['id']):
+                  (){};
                 }else{
                   await Get.offNamed(Routes.LOGIN);
                 }
@@ -846,20 +866,146 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     child: TextFieldWidget(
                       keyboardType: TextInputType.text,
                       validator: (input) => input.isEmpty ? "field required!".tr : null,
-                      onChanged: (input) => controller.dimension.value = int.parse(input),
-                      labelText: "Dimension".tr,
+                      onChanged: (input) => controller.luggageWidth.value = int.parse(input),
+                      labelText: "Luggage Width".tr,
                       iconData: FontAwesomeIcons.shoppingBag,
                     ),
                 ),
-
-            PacketImageFieldWidget(
-              label: "Packet Image".tr,
-              initialImage: null,
-              uploadCompleted: (uuid) {
-                // controller.url.value =  uuid;
-                // controller.user.value.image= uuid;
-              },
+            Visibility(
+              visible: visible,
+              child: TextFieldWidget(
+                keyboardType: TextInputType.text,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
+                labelText: "Luggage Height".tr,
+                iconData: FontAwesomeIcons.shoppingBag,
+              ),
             ),
+
+            Obx(() => Container(
+              color: Colors.white,
+              padding: EdgeInsets.all(30),
+              margin: EdgeInsets.only(top: 20, bottom: 20),
+              child: Column(
+                children: [
+                  Align(
+                    child: Text('Input 3 packet pictures'.tr),
+                    alignment: Alignment.topLeft,
+                  ),
+                  SizedBox(height: 20,),
+                  controller.imageFiles.length<=0?GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: Get.context,
+                            builder: (_){
+                              return AlertDialog(
+                                content: Container(
+                                    height: 170,
+                                    padding: EdgeInsets.all(10),
+                                    child: Column(
+                                      children: [
+                                        ListTile(
+                                          onTap: ()async{
+                                            await controller.pickImage(ImageSource.camera);
+                                            Navigator.pop(Get.context);
+                                          },
+                                          leading: Icon(FontAwesomeIcons.camera),
+                                          title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                        ),
+                                        ListTile(
+                                          onTap: ()async{
+                                            await controller.pickImage(ImageSource.gallery);
+                                            Navigator.pop(Get.context);
+                                          },
+                                          leading: Icon(FontAwesomeIcons.image),
+                                          title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                        )
+                                      ],
+                                    )
+                                ),
+                              );
+                            });
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        padding: EdgeInsets.all(20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                      )
+                  )
+                      :Column(
+                    children: [
+                      SizedBox(
+                        height:100,
+                        child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.all(12),
+                            itemBuilder: (context, index){
+                              return ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                child: Image.file(
+                                  controller.imageFiles[index],
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  height: 100,
+                                ),
+                              );;
+                            },
+                            separatorBuilder: (context, index){
+                              return SizedBox(width: 8);
+                            },
+                            itemCount: controller.imageFiles.length),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Visibility(
+                            child: InkWell(
+                              onTap: (){
+                                showDialog(
+                                    context: Get.context,
+                                    builder: (_){
+                                      return AlertDialog(
+                                        content: Container(
+                                            height: 170,
+                                            padding: EdgeInsets.all(10),
+                                            child: Column(
+                                              children: [
+                                                ListTile(
+                                                  onTap: ()async{
+                                                    await controller.pickImage(ImageSource.camera);
+                                                    Navigator.pop(Get.context);
+                                                  },
+                                                  leading: Icon(FontAwesomeIcons.camera),
+                                                  title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                ),
+                                                ListTile(
+                                                  onTap: ()async{
+                                                    await controller.pickImage(ImageSource.gallery);
+                                                    Navigator.pop(Get.context);
+                                                  },
+                                                  leading: Icon(FontAwesomeIcons.image),
+                                                  title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                )
+                                              ],
+                                            )
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Icon(FontAwesomeIcons.circlePlus),
+                            )
+                        ),
+                      )
+                    ],
+
+                  ),
+
+                ],
+              ),
+            ),),
+
 
 
           ],

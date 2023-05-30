@@ -4,6 +4,7 @@ import '../../../../common/ui.dart';
 import '../../../models/address_model.dart';
 import '../../../repositories/setting_repository.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/my_auth_service.dart';
 
 class AddressController extends GetxController {
   SettingRepository _settingRepository;
@@ -28,7 +29,7 @@ class AddressController extends GetxController {
 
   Future getAddresses() async {
     try {
-      if (Get.find<AuthService>().isAuth) {
+      if (Get.find<MyAuthService>().myUser.value.email == null) {
         addresses.assignAll(await _settingRepository.getAddresses());
       }
     } catch (e) {

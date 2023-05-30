@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -15,6 +18,7 @@ class CardWidget extends StatelessWidget {
     this.accept,
     this.transfer,
     this.reject,
+    this.packetImageUrl,
 
     @required this.negotiation,
     @required this.depTown,
@@ -51,6 +55,7 @@ class CardWidget extends StatelessWidget {
   final int qty;
   final double price;
   final String imageUrl;
+  final String packetImageUrl;
   final Function edit;
   final Function confirm;
   final Function accept;
@@ -237,6 +242,42 @@ class CardWidget extends StatelessWidget {
                       ),
                     ],
                   ),
+                ExpansionTile(
+                  leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
+                    title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
+                    merge(TextStyle(color: appColor, fontSize: 17))),
+                  children: [
+                    SizedBox(
+                      height:100,
+                      child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.all(12),
+                          itemBuilder: (context, index){
+                            return ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              child: CachedNetworkImage(
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                                imageUrl: packetImageUrl+index.toString(),
+                                placeholder: (context, url) => Image.asset(
+                                  'assets/img/loading.gif',
+                                  fit: BoxFit.cover,
+                                  width: 60,
+                                  height: 100,
+                                ),
+                                errorWidget: (context, url, error) => Icon(Icons.error_outline),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, index){
+                            return SizedBox(width: 8);
+                          },
+                          itemCount: 3),
+                    ),
+
+                  ],
+                ),
 
                 ExpansionTile(
                   leading: Icon(FontAwesomeIcons.userCheck, size: 20),
@@ -321,10 +362,22 @@ class CardWidget extends StatelessWidget {
                           )
                       ),
                       GestureDetector(
-                          onTap: confirm,
+                          onTap: editable? confirm:(){
+                          showDialog(
+                              context: context,
+                              builder: (_)=>
+                                  PopUpWidget(
+                                    title: "You cannot delete a booking accepted or confirmed",
+                                    cancel: 'Cancel',
+                                    confirm: 'Ok',
+                                    onTap: ()=>{
+                                      Navigator.of(Get.context).pop(),
+                                    }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                  )
+                          );},
                           child: Card(
                               elevation: 10,
-                              color: specialColor,
+                              color: editable?specialColor:inactive,
                               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                               child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

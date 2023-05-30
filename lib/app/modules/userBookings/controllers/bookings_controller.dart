@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../models/chat_model.dart';
@@ -19,7 +20,8 @@ class BookingsController extends GetxController {
 
   final currentSlide = 0.obs;
   final quantity = 1.obs;
-  final dimension = 1.obs;
+  final luggageWidth = 1.obs;
+  final luggageHeight= 1.obs;
   final description = ''.obs;
   final travelCard = {}.obs;
   final imageUrl = "".obs;
@@ -51,12 +53,14 @@ class BookingsController extends GetxController {
   var messages = <Message>[].obs;
   var chats = <Chat>[].obs;
   File imageFile;
+  final heroTag = "".obs;
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
   final isDone = false.obs;
   var myAirBookings = [];
   var myRoadBookings = [];
   var bookingsOnMyTravel = [];
+  var imageFiles = [].obs;
   var items = [].obs;
   var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
@@ -81,7 +85,7 @@ class BookingsController extends GetxController {
 
   @override
   void onReady(){
-
+    heroTag.value = Get.arguments.toString();
     initValues();
     super.onReady();
   }
@@ -91,7 +95,7 @@ class BookingsController extends GetxController {
     myRoadBookings = await getMyRoadBookings();
     items.value = await mixBookingCategories(myAirBookings, myRoadBookings);
     list = await mixBookingCategories(myAirBookings, myRoadBookings);
-    print(items);
+    //print(items);
     await getAllUsers();
     /*bookingsOnMyTravel = await getBookingsOnMyTravel();
     itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
@@ -152,7 +156,6 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      print(data);
       isLoading.value = false;
       return json.decode(data);
 
@@ -207,6 +210,7 @@ class BookingsController extends GetxController {
       if(json.decode(data)['result'] != null){
         await setAirPacketImage(book_id);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
+
         Navigator.pop(Get.context);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
@@ -220,15 +224,103 @@ class BookingsController extends GetxController {
 
   }
 
+
+  editRoadBooking(int book_id)async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': session_id.toString()
+    };
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/travel/booking/update/'+book_id.toString()));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "params": {
+        "receiver_name": name.value,
+        "receiver_email": email.value,
+        "receiver_phone": phone.value,
+        "receiver_address": address.value,
+        "type_of_luggage": description.value,
+        "luggage_width": luggageWidth.value,
+        "luggage_height": luggageHeight.value,
+        "luggage_weight": quantity.value
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      if(json.decode(data)['result'] != null){
+        await setRoadPacketImage(book_id);
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
+        Navigator.pop(Get.context);
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+    }
+
+
+  }
+
+
+  Future <File> pickImage(ImageSource source) async {
+    //image.value = null;
+    ImagePicker imagePicker = ImagePicker();
+    //uploading.value = true;
+    //await deleteUploaded();
+    if(source.toString() == ImageSource.camera.toString())
+    {
+      XFile pickedFile = await imagePicker.pickImage(source: source, imageQuality: 80);
+      File imageFile = File(pickedFile.path);
+      if(imageFiles.length<3)
+      {
+        imageFiles.add(imageFile) ;
+      }
+      else
+      {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+        throw new Exception('You can only upload 3 photos');
+      }
+
+    }
+    else{
+      var i =0;
+      var galleryFiles = await imagePicker.pickMultiImage();
+      while(i<galleryFiles.length){
+        File imageFile = File(galleryFiles[i].path);
+        if(imageFiles.length<3)
+        {
+          imageFiles.add(imageFile) ;
+        }
+        else
+        {
+          Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+          throw new Exception('You can only upload 3 photos');
+        }
+      }
+
+    }
+
+
+
+  }
+
   Future setAirPacketImage (bookingId)async{
     Get.lazyPut<PacketImageFieldController>(
           () => PacketImageFieldController(),
     );
-    File imageFile = Get.find<PacketImageFieldController>().image.value;
-    if (imageFile != null) {
+
+    if (imageFiles.length==3) {
       try {
         //await deleteUploaded();
-        await _uploadRepository.airImagePacket(imageFile, bookingId);
+        await _uploadRepository.airImagePacket(imageFiles, bookingId);
       } catch (e) {
         Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       }
@@ -237,7 +329,29 @@ class BookingsController extends GetxController {
     }
   }
 
+  Future setRoadPacketImage (bookingId)async{
+    Get.lazyPut<PacketImageFieldController>(
+          () => PacketImageFieldController(),
+    );
+    File imageFile = Get.find<PacketImageFieldController>().image.value;
+    if (imageFiles.length==3) {
+
+      //await deleteUploaded();
+      await _uploadRepository.roadImagePacket(imageFiles.value, bookingId);
+
+    } else {
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image files".tr));
+    }
+  }
+
   transferMyAirBookingNow(int booking_id)async{
+    transferBooking.value = true;
+    bookingIdForTransfer.value = booking_id.toString();
+    await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
+
+  }
+
+  transferMyRoadBookingNow(int booking_id)async{
     transferBooking.value = true;
     bookingIdForTransfer.value = booking_id.toString();
     await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
@@ -325,7 +439,6 @@ class BookingsController extends GetxController {
       var data = await response.stream.bytesToString();
       users.value= json.decode(data);
       resetusers.value= json.decode(data);
-      print(users);
     }
     else {
       print(response.reasonPhrase);
