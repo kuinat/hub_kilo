@@ -16,7 +16,7 @@ class UserRepository {
 
   UserRepository() {}
 
-  Future<MyUser> login(MyUser myUser) {
+   login(MyUser myUser) {
     _odooApiClient = Get.find<OdooApiClient>();
     return _odooApiClient.login(myUser);
   }
@@ -26,7 +26,7 @@ class UserRepository {
   //   return _laravelApiClient.login(user);
   // }
   //
-  Future<MyUser> get(MyUser user) {
+  Future<MyUser> get() {
     _odooApiClient = Get.find<OdooApiClient>();
     return _odooApiClient.getUser();
   }
@@ -43,9 +43,9 @@ class UserRepository {
   //   return _laravelApiClient.sendResetLinkEmail(user);
   // }
   //
-  Future<MyUser> getCurrentUser() {
-    return this.get(Get.find<MyAuthService>().myUser.value);
-  }
+  // Future<MyUser> getCurrentUser() {
+  //   return this.get(Get.find<MyAuthService>().myUser.value);
+  // }
 
   // Future<void> deleteCurrentUser() async {
   //   _laravelApiClient = Get.find<LaravelApiClient>();
@@ -62,7 +62,7 @@ class UserRepository {
   //
   // }
 
-  Future<MyUser> register(MyUser myUser) {
+   register(MyUser myUser) {
     // _laravelApiClient = Get.find<LaravelApiClient>();
     // return _laravelApiClient.register(user);
     _odooApiClient = Get.find<OdooApiClient>();

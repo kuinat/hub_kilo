@@ -67,16 +67,16 @@ class TravelInspectController extends GetxController {
     transferRoadBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
-
+    print('travelCard Value'+travelCard.value.toString());
 
     listAir = await getAirBookingsOnTravel(travelCard['id']);
     listRoad = await getRoadBookingsOnTravel(travelCard['id']);
+    print('list'+listRoad.toString());
 
     travelCard['travel_type'] == "air"?
     list = listAir
-        :travelCard['travel_type'] == "sea"?list =[]
-    : list = listRoad;
-
+        :travelCard['travel_type'] == "road"?
+     list = listRoad:list =[];
     travelBookings.value = list;
     if(travelCard['travel_type'].toLowerCase() == "air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
@@ -91,7 +91,7 @@ class TravelInspectController extends GetxController {
 
   @override
   void onReady() async {
-    await refreshEService();
+    //await refreshEService();
     super.onReady();
   }
 
@@ -115,6 +115,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      print('Listdata'+data.toString());
 
       return json.decode(data);
     }
@@ -129,7 +130,7 @@ class TravelInspectController extends GetxController {
     var headers = {
       'Cookie': 'frontend_lang=en_US; '+session_id.toString()
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/road/current/user/travel/books/2'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/road/current/user/travel/books/'+id.toString()));
     request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
     request.headers.addAll(headers);
 
@@ -137,6 +138,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      print('Listdata'+data.toString());
       return json.decode(data);
     }
     else {
@@ -374,9 +376,10 @@ class TravelInspectController extends GetxController {
       var data = await response.stream.bytesToString();
       print(data);
       if(json.decode(data)['result']['success'] != false){
-        await setAirPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Book success ".tr));
         Navigator.pop(Get.context);
+        await setAirPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
+
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }
@@ -434,9 +437,9 @@ class TravelInspectController extends GetxController {
       var data = await response.stream.bytesToString();
       print(data);
       if(json.decode(data)['result']['success'] != false){
-        await setRoadPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Book success ".tr));
         Navigator.pop(Get.context);
+        await setRoadPacketImage(json.decode(data)["result"]["response"]["booking_id"]);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }
@@ -526,8 +529,6 @@ class TravelInspectController extends GetxController {
     else {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
-
-
   }
 
   TextStyle getTitleTheme(Option option) {
@@ -582,35 +583,34 @@ class TravelInspectController extends GetxController {
     else{
       var i =0;
       var galleryFiles = await imagePicker.pickMultiImage();
+      print('length: '+galleryFiles.length.toString());
       while(i<galleryFiles.length){
         File imageFile = File(galleryFiles[i].path);
         if(imageFiles.length<3)
         {
           imageFiles.add(imageFile) ;
+
         }
         else
         {
           Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
           throw new Exception('You can only upload 3 photos');
         }
+        i++;
       }
-
     }
-
-
-
   }
 
 
   Future setAirPacketImage (bookingId)async{
-    Get.lazyPut<PacketImageFieldController>(
-          () => PacketImageFieldController(),
-    );
+    // Get.lazyPut<PacketImageFieldController>(
+    //       () => PacketImageFieldController(),
+    // );
     //File imageFile = Get.find<PacketImageFieldController>().image.value;
     if (imageFiles.length==3) {
 
         //await deleteUploaded();
-        await _uploadRepository.airImagePacket(imageFiles.value, bookingId);
+        await _uploadRepository.airImagePacket(imageFiles, bookingId);
 
     } else {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image files".tr));
@@ -618,14 +618,14 @@ class TravelInspectController extends GetxController {
   }
 
   Future setRoadPacketImage (bookingId)async{
-    Get.lazyPut<PacketImageFieldController>(
-          () => PacketImageFieldController(),
-    );
+    // Get.lazyPut<PacketImageFieldController>(
+    //       () => PacketImageFieldController(),
+    // );
     File imageFile = Get.find<PacketImageFieldController>().image.value;
     if (imageFiles.length==3) {
 
         //await deleteUploaded();
-        await _uploadRepository.roadImagePacket(imageFiles.value, bookingId);
+        await _uploadRepository.roadImagePacket(imageFiles, bookingId);
 
     } else {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image files".tr));
@@ -653,8 +653,5 @@ class TravelInspectController extends GetxController {
     else {
       print(response.reasonPhrase);
     }
-
   }
-
-
 }

@@ -12,14 +12,14 @@ class UploadRepository {
     this._odooApiClient = Get.find<OdooApiClient>();
   }
 
-  Future<String> image(File image) {
+  Future image(File image) {
     print('Nathalie');
     return _odooApiClient.uploadImage(image);
 
   }
 
   Future<String> airImagePacket(List imageFiles, bookingId) {
-    print('Nathalie');
+
     return _odooApiClient.uploadAirPacketImage(imageFiles, bookingId);
 
   }

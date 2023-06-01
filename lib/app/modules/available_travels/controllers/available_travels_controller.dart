@@ -54,11 +54,7 @@ class AvailableTravelsController extends GetxController {
   }
 
   initValues()async{
-    travelItem = await getAllTravels();
-    landTravels = travelItem['road_shippings'];
-    airTravels = travelItem['air_shippings'];
-    list.addAll(landTravels);
-    list.addAll(airTravels);
+    list = await getAllTravels();
     items.value = list;
     for(var i in items){
       print(i['id']);
@@ -82,14 +78,14 @@ class AvailableTravelsController extends GetxController {
 
   Future getAllTravels() async {
 
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/api/all/travels'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/api/list/all/travels'));
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       isLoading.value = false;
-      return json.decode(data);
+      return json.decode(data)['shippings'];
     }
     else {
       print(response.reasonPhrase);

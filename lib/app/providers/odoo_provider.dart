@@ -34,6 +34,7 @@ import '../models/review_model.dart';
 import '../models/setting_model.dart';
 import '../models/wallet_model.dart';
 import '../models/wallet_transaction_model.dart';
+import '../routes/app_routes.dart';
 import '../services/my_auth_service.dart';
 import '../services/settings_service.dart';
 import 'api_provider.dart';
@@ -131,17 +132,16 @@ class OdooApiClient extends GetxService with ApiClient {
 
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
-      //print(await response.stream.bytesToString());
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['partner'];
-      print(data);
+      print('user1  '+data.toString());
       var myuser = MyUser(
           email: data['email'],
           birthday: data['birthdate'],
           isTraveller: data['is_traveler'],
           phone: data['phone'],
           street: data['street'],
-          sex: data['sex'],
+          sex: data['sex'].toString(),
           name: data['name'],
           birthplace: data['birthplace'],
           id: data['id'],
@@ -158,8 +158,7 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<MyUser> login(MyUser myUser) async {
-
+   login(MyUser myUser) async {
 
     final box = GetStorage();
     var headers = {
@@ -186,21 +185,21 @@ class OdooApiClient extends GetxService with ApiClient {
       if(data != null){
         var userId = data['partner_id'];
         print(userId);
-        print(response.headers['set-cookie']);
         final session_id = response.headers['set-cookie'];
         box.write('session_id', session_id.split(";").first);
-        var myuser = await getUser();
+        //var myuser = await getUser();
+
         //print("session id: ${session_id.split(";").first}");
-        return (myuser);
+        //return (myuser);
 
       }
       else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
-        throw new Exception(response.reasonPhrase);
+        //throw new Exception(response.reasonPhrase);
       }
 
     }
-    else {throw new Exception(response.reasonPhrase);
+    else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
     }
 
 
@@ -235,7 +234,7 @@ class OdooApiClient extends GetxService with ApiClient {
   //   }
   // }
 
-  Future<MyUser> register(MyUser myUser) async {
+   register(MyUser myUser) async {
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=718312dd9eb4fac1b6b7d6b1b1e3ed416983f841'
@@ -264,16 +263,6 @@ class OdooApiClient extends GetxService with ApiClient {
       print(data);
       //var userId = data['partner_id'];
       var user = await login(myUser);
-      // var user = MyUser(
-      //     email: myUser.email,
-      //     birthday: data['birthday'],
-      //     isTraveller: data['is_traveller'],
-      //     phone: data['phone'],
-      //     sex: data['sex'],
-      //     name: data['name'],
-      //     birthplace: data['birthplace'],
-      //     id: data['partner_id']
-      // );
 
       return (user);
     }
@@ -1562,9 +1551,10 @@ class OdooApiClient extends GetxService with ApiClient {
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-      var user = await getUser();
-      var uuid =user.image ;
-      return uuid;
+       //var user = await getUser();
+       //var uuid =user.image ;
+
+      //return uuid;
     }
     else {
       print(response.reasonPhrase);
@@ -1597,9 +1587,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-      var user = await getUser();
-      var uuid =user.image ;
-      return uuid;
+
     }
     else {
       print(response.reasonPhrase);
@@ -1618,8 +1606,6 @@ class OdooApiClient extends GetxService with ApiClient {
     final box = GetStorage();
     var sessionId = box.read('session_id');
 
-
-
     var headers = {
       'Cookie': sessionId.toString()
     };
@@ -1635,6 +1621,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+
     }
     else {
       print(response.reasonPhrase);
@@ -1642,6 +1629,13 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+
+
+
+
+
+
+
       var user = await getUser();
       var uuid =user.image ;
       return uuid;

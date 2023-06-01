@@ -329,7 +329,7 @@ class CardWidget extends StatelessWidget {
                           },
                           child: Card(
                               elevation: 10,
-                              color: inactive,
+                              color: editable?Colors.blue:inactive,
                               margin: EdgeInsets.symmetric( vertical: 15),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),

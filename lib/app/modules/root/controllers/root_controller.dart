@@ -109,6 +109,7 @@ class RootController extends GetxController {
 
       case 3:
         {
+          Get.lazyPut(()=>ProfileController());
           await Get.find<ProfileController>().refreshProfile();
           break;
         }

@@ -23,7 +23,6 @@ class BookingsController extends GetxController {
   final luggageWidth = 1.obs;
   final luggageHeight= 1.obs;
   final description = ''.obs;
-  final travelCard = {}.obs;
   final imageUrl = "".obs;
   final bookingStep = 0.obs;
   final elevation = 0.obs;
@@ -190,17 +189,33 @@ class BookingsController extends GetxController {
       'Cookie': 'frontend_lang=en_US; '+session_id.toString()
     };
     var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/update/'+book_id.toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "receiver_name": name.value,
-        "receiver_email": email.value,
-        "receiver_phone": phone.value,
-        "receiver_address": address.value,
-        "type_of_luggage": description.value,
-        "kilo_booked": quantity.value
-      }
-    });
+
+    if(selectUser.value) {
+      print(true);
+      print(receiverId.value.toString());
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "receiver_partner_id": receiverId.value,
+          "type_of_luggage": description.value,
+          "kilo_booked": quantity.value
+        }
+      });
+    }
+    else{
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "receiver_name": name.value,
+          "receiver_email": email.value,
+          "receiver_phone": phone.value,
+          "receiver_address": address.value,
+          "type_of_luggage": description.value,
+          "kilo_booked": quantity.value
+        }
+      });
+    }
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -234,19 +249,34 @@ class BookingsController extends GetxController {
       'Cookie': session_id.toString()
     };
     var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/travel/booking/update/'+book_id.toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "receiver_name": name.value,
-        "receiver_email": email.value,
-        "receiver_phone": phone.value,
-        "receiver_address": address.value,
-        "type_of_luggage": description.value,
-        "luggage_width": luggageWidth.value,
-        "luggage_height": luggageHeight.value,
-        "luggage_weight": quantity.value
-      }
-    });
+    if(selectUser.value) {
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "receiver_partner_id": receiverId.value,
+          "luggage_width": luggageWidth.value,
+          "luggage_height": luggageHeight.value,
+          "luggage_weight": quantity.value,
+          "type_of_luggage": description.value
+        }
+      });
+    }
+    else{
+      request.body = json.encode({
+        "jsonrpc": "2.0",
+        "params": {
+          "receiver_name": name.value,
+          "receiver_email": email.value,
+          "receiver_phone": phone.value,
+          "receiver_address": address.value,
+          "type_of_luggage": description.value,
+          "luggage_width": luggageWidth.value,
+          "luggage_height": luggageHeight.value,
+          "luggage_weight": quantity.value
+        }
+      });
+    }
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -289,6 +319,7 @@ class BookingsController extends GetxController {
         throw new Exception('You can only upload 3 photos');
       }
 
+
     }
     else{
       var i =0;
@@ -304,6 +335,7 @@ class BookingsController extends GetxController {
           Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
           throw new Exception('You can only upload 3 photos');
         }
+        i++;
       }
 
     }
@@ -318,14 +350,14 @@ class BookingsController extends GetxController {
     );
 
     if (imageFiles.length==3) {
-      try {
+      //try {
         //await deleteUploaded();
         await _uploadRepository.airImagePacket(imageFiles, bookingId);
-      } catch (e) {
-        Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      }
+      // } catch (e) {
+      //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      // }
     } else {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select 3 image file".tr));
     }
   }
 

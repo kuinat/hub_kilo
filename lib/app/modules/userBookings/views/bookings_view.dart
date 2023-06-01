@@ -9,7 +9,6 @@ import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
-import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
@@ -249,10 +248,17 @@ class BookingsView extends GetView<BookingsController> {
                     controller.email.value = controller.items[index]['receiver']['receiver_email'];
                     controller.address.value= controller.items[index]['receiver']['receiver_address'];
                     controller.description.value = controller.items[index]['type_of_luggage'];
-                    controller.quantity.value = controller.items[index]['luggage_weight'];
+                    if(travel['travel_type'].toString().toLowerCase()=='air'){
+                      controller.quantity.value =controller.items[index]['kilo_booked'];
+                    }
+                    if(travel['travel_type'].toString().toLowerCase()=='road'){
+                      controller.luggageWidth.value = controller.items[index]['luggage_width'].toInt();
+                      controller.luggageHeight.value = controller.items[index]['luggage_height'].toInt();
+                      controller.quantity.value=controller.items[index]['luggage_weight'].toInt();
+                    }
+                    //controller.quantity.value = controller.items[index]['luggage_weight'].toInt();
                     //controller.dimension.value = controller.items[index]['luggage_dimension'];
-                    controller.luggageWidth.value = controller.items[index]['luggage_width'];
-                    controller.luggageHeight.value = controller.items[index]['luggage_height'];
+
 
                     return Get.bottomSheet(
                       buildEditingSheet(context,controller.items[index] ),
@@ -401,6 +407,8 @@ class BookingsView extends GetView<BookingsController> {
   }
 
   Widget build_Book_travel(BuildContext context, var sampleBooking) {
+    print(sampleBooking.toString());
+    print(sampleBooking['kilo_booked'].toString());
     return Wrap(
       direction: Axis.horizontal,
       runSpacing: 20,
@@ -422,8 +430,31 @@ class BookingsView extends GetView<BookingsController> {
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               onChanged: (input) => controller.quantity.value = int.parse(input),
               labelText: "Quantity".tr,
-              initialValue: sampleBooking['kilo_booked'].toString(),
+              initialValue: sampleBooking['travel']['travel_type'].toString().toLowerCase()=='road'?sampleBooking["luggage_weight"].toString() : sampleBooking['travel']['travel_type'].toString().toLowerCase()=='air'?sampleBooking['kilo_booked'].toString():'1.0'
+              ,
               iconData: FontAwesomeIcons.shoppingBag,
+            ),
+            Visibility(
+              visible: sampleBooking["travel"]['travel_type'].toString().toLowerCase()!='air',
+              child: TextFieldWidget(
+                keyboardType: TextInputType.text,
+                initialValue:sampleBooking['luggage_width'].toString() ,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.luggageWidth.value = int.parse(input),
+                labelText: "Luggage Width".tr,
+                iconData: FontAwesomeIcons.shoppingBag,
+              ),
+            ),
+            Visibility(
+              visible: sampleBooking["travel"]['travel_type'].toString().toLowerCase()!='air',
+              child: TextFieldWidget(
+                keyboardType: TextInputType.text,
+                initialValue:sampleBooking['luggage_height'].toString() ,
+                validator: (input) => input.isEmpty ? "field required!".tr : null,
+                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
+                labelText: "Luggage Height".tr,
+                iconData: FontAwesomeIcons.shoppingBag,
+              ),
             ),
 
             Obx(() => Container(
@@ -551,26 +582,7 @@ class BookingsView extends GetView<BookingsController> {
             ),),
 
 
-            Visibility(
-              visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
-              child: TextFieldWidget(
-                keyboardType: TextInputType.text,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageWidth.value = int.parse(input),
-                labelText: "Luggage Width".tr,
-                iconData: FontAwesomeIcons.shoppingBag,
-              ),
-            ),
-            Visibility(
-              visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
-              child: TextFieldWidget(
-                keyboardType: TextInputType.text,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
-                labelText: "Luggage Height".tr,
-                iconData: FontAwesomeIcons.shoppingBag,
-              ),
-            ),
+
 
             // Visibility(
             //   visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',

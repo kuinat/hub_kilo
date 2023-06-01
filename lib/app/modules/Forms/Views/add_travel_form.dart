@@ -213,8 +213,11 @@ class AddTravelsView extends GetView<AddTravelController> {
                         children: [
                           Icon(Icons.location_pin),
                           SizedBox(width: 15),
-                          Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value
-                              : controller.travelCard['departure_town'].toString()),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width/2,
+                            child: Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value
+                                : controller.travelCard['departure_town'].toString()),
+                          ),
                         ]
                       )
                     ]
@@ -260,8 +263,11 @@ class AddTravelsView extends GetView<AddTravelController> {
                       children: [
                         Icon(Icons.location_pin),
                         SizedBox(width: 15),
-                        Text(controller.travelCard.isEmpty || controller.town2Edit.value ? controller.arrivalTown.value
-                            : controller.travelCard['arrival_town'].toString()),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width/2,
+                          child: Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.arrivalTown.value
+                              : controller.travelCard['arrival_town'].toString()),
+                        )
                       ],
                     )
                   ],
@@ -341,13 +347,8 @@ class AddTravelsView extends GetView<AddTravelController> {
                 iconData: Icons.attach_money,
               )
             ]else...[
-              TextFieldWidget(
-                initialValue: "The price will depend on the luggage",
-                keyboardType: TextInputType.number,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                labelText: "Price".tr,
-                iconData: Icons.attach_money,
-              )
+              SizedBox(height: 30),
+              Text("The price will depend on the luggage", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 18)))
             ]
           ],
         )
@@ -429,7 +430,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 ],
               ),
             ),
-            if(controller.travelType.value != "land")
+            if(controller.travelType.value != "road")
             Container(
               padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
               margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
@@ -586,11 +587,12 @@ class AddTravelsView extends GetView<AddTravelController> {
                 BlockButtonWidget(
                   onPressed: () {
                     controller.buttonPressed.value = !controller.buttonPressed.value;
+                    print(controller.travelType.value);
                     if(controller.travelType.value == "air"){
                       print("Air");
                       controller.createAirTravel();
                     }
-                    if(controller.travelType.value == "land"){
+                    if(controller.travelType.value == "road"){
                       print("Land");
                       controller.createRoadTravel();
                     }

@@ -38,6 +38,10 @@ class ChatsView extends GetView<MessagesController> {
               shrinkWrap: false,
               primary: true,
               itemBuilder: (context, index) {
+                List receivedMessages = [];
+                if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
+                  receivedMessages.add(controller.messages[index]);
+                }
                 Future.delayed(Duration.zero, (){
                   controller.messages.sort((a, b) => b["date"].compareTo(a["date"]));
                 });
@@ -48,7 +52,7 @@ class ChatsView extends GetView<MessagesController> {
                     if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['sender_id'])
                       getSentMessageTextLayout(context, controller.messages[index]),
                     if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id'])
-                      getReceivedMessageTextLayout(context, controller.messages[index])
+                      getReceivedMessageTextLayout(context, controller.messages[index], index, receivedMessages)
                   ],
                 );
               }
@@ -98,8 +102,8 @@ class ChatsView extends GetView<MessagesController> {
                     shape: BoxShape.circle,
                     color: Colors.white,
                     image: DecorationImage(
-                        image: NetworkImage(
-                            Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ? '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920'
+                        image: NetworkImage( Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
+                             '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920'
                             : '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920'),
                         fit: BoxFit.cover
                     )
@@ -135,38 +139,60 @@ class ChatsView extends GetView<MessagesController> {
                     color: background
                 ),
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                child: Row(
-                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SizedBox(
-                          width: MediaQuery.of(Get.context).size.width/2.8,
-                          child: Column(
-                            //crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FaIcon(FontAwesomeIcons.planeDeparture),
-                              SizedBox(height: 10),
-                              Text(controller.bookingCard['travel']['departure_town'],
-                                  //controller.travelCard['departure_date'].toString(),
-                                  style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-                            ],
-                          )
-                      ),
-                      FaIcon(FontAwesomeIcons.arrowRight),
-                      Container(
-                          width: MediaQuery.of(Get.context).size.width/2.8,
-                          padding: EdgeInsets.only(left: 20),
-                          child: Column(
-                            //crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                FaIcon(FontAwesomeIcons.planeArrival),
-                                SizedBox(height: 10),
-                                Text(controller.bookingCard['travel']['arrival_town'],
-                                    //controller.travelCard['arrival_date'].toString(),
-                                    style: Get.textTheme.headline1.merge(TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-                              ]
-                          )
-                      )
-                    ]
+                child: Column(
+                  children: [
+                    controller.bookingCard['travel']['travel_type'] == 'air' ?
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                        ),
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                        )
+                      ],
+                    ) : controller.bookingCard['travel']['travel_type'].toLowerCase() == 'road' ?
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.car)),
+                        ),
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.car)),
+                        )
+                      ],
+                    ) :
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                        ),
+                        Container(width: 100,
+                          child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          alignment: Alignment.topCenter,
+                          width: 100,
+                          child: Text(controller.bookingCard['travel']['departure_town'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                        ),
+                        FaIcon(FontAwesomeIcons.arrowRight),
+                        Container(
+                            alignment: Alignment.topCenter,
+                            width: 100,
+                            child: Text(controller.bookingCard['travel']['arrival_town'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                        ),
+                      ],
+                    ),
+                  ],
                 )
             ),
             Expanded(
@@ -291,7 +317,7 @@ class ChatsView extends GetView<MessagesController> {
     );
   }
 
-  Widget getReceivedMessageTextLayout(context, var message) {
+  Widget getReceivedMessageTextLayout(context, var message, int index, List receivedMessages) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +345,8 @@ class ChatsView extends GetView<MessagesController> {
                       child: CachedNetworkImage(
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920',
+                        imageUrl: Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
+                        '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920' : '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920',
                         placeholder: (context, url) => Image.asset(
                           'assets/img/loading.gif',
                           fit: BoxFit.cover,
@@ -333,7 +360,9 @@ class ChatsView extends GetView<MessagesController> {
                     child: new Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Text(message['travel_booking']['travel']['traveler']['user_name'], style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
+                        Text(Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
+                        message['travel_booking']['travel']['traveler']['user_name'] : controller.bookingCard['sender']['sender_name'],
+                            style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
                         new Container(
                           margin: const EdgeInsets.only(top: 5.0),
                           child: new Text(
@@ -358,12 +387,17 @@ class ChatsView extends GetView<MessagesController> {
             )
           ],
         ),
+        if(index == receivedMessages.length -1)
         ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: validateColor,
             ),
             onPressed: (){
-              controller.acceptAndPriceRoadBooking(message['message']);
+              controller.bookingCard['travel']['travel_type'] == 'air'?
+              controller.acceptAndPriceAirBooking(message['message']) :
+              controller.bookingCard['travel']['travel_type'] == 'road'?
+              controller.acceptAndPriceRoadBooking(message['message']):
+              (){};
             },
             child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
         )
