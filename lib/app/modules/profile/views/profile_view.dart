@@ -183,10 +183,10 @@ class ProfileView extends GetView<ProfileController> {
                   field: 'avatar',
                   tag: controller.profileForm.hashCode.toString(),
                   initialImage: controller.url.value,
-                  uploadCompleted: (uuid) {
-                    controller.url.value =  uuid;
-                    controller.user.value.image= uuid;
-                  },
+                  // uploadCompleted: (uuid) {
+                  //   controller.url.value =  uuid;
+                  //   controller.user.value.image= uuid;
+                  // },
                   // reset: (uuid) {
                   //   controller.url.value = new Media(thumb: controller.user.value.avatar.thumb);
                   // },

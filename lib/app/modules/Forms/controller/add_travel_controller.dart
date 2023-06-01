@@ -384,7 +384,7 @@ class AddTravelController extends GetxController{
     var headers = {
       'Cookie': 'frontend_lang=en_US; '+session_id.toString()
     };
-    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/air/travel/document/upload'));
+    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/road/travel/document/upload'));
     request.fields.addAll({
       'travel_id': travelId.toString()
     });

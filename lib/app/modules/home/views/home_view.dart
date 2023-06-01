@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../providers/laravel_provider.dart';
+import '../../../services/my_auth_service.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/address_widget.dart';
 import '../controllers/home_controller.dart';
@@ -13,6 +14,7 @@ import '../widgets/welcome_widget.dart';
 class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
+    Get.lazyPut(()=>MyAuthService());
     return Scaffold(
       appBar: AppBar(
         title: Text(

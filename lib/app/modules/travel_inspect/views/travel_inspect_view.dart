@@ -726,7 +726,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     backgroundColor: inactive,
                   ),
                   onPressed: ()=>{
-                    Get.toNamed(Routes.ADD_TRAVEL_FORM, arguments: {'travelCard': controller.travelCard})
+                    Navigator.pushReplacementNamed(context, Routes.ADD_TRAVEL_FORM, arguments: {'travelCard': controller.travelCard})
+                    //Get.toNamed(, arguments: )
                   },
                   child: SizedBox(width: 100,height: 30,
                       child: Center(child: Text('Edit')))

@@ -30,46 +30,51 @@ class AccountView extends GetView<AccountController> {
           automaticallyImplyLeading: false,
           elevation: 0,
         ),
-        body: ListView(
-          primary: true,
-          children: [
-            /*Obx(() {
+        body: RefreshIndicator(
+          onRefresh: ()async{
+            await controller.onRefresh();
+
+          },
+          child: ListView(
+            primary: true,
+            children: [
+              /*Obx(() {
               return ;
             }),*/
-            Stack(
-              alignment: AlignmentDirectional.bottomCenter,
-              children: [
-                Container(
-                  height: 150,
-                  width: Get.width,
-                  decoration: BoxDecoration(
-                    color: Get.theme.colorScheme.secondary,
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-                    boxShadow: [
-                      BoxShadow(color: Get.theme.focusColor.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5)),
-                    ],
-                  ),
-                  margin: EdgeInsets.only(bottom: 80),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Text( _currentUser.value.name ?? '',
-                          style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                        ),
-                        SizedBox(height: 10),
-                        Text(_currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
-
+              Stack(
+                alignment: AlignmentDirectional.bottomCenter,
+                children: [
+                  Container(
+                    height: 150,
+                    width: Get.width,
+                    decoration: BoxDecoration(
+                      color: Get.theme.colorScheme.secondary,
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                      boxShadow: [
+                        BoxShadow(color: Get.theme.focusColor.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5)),
                       ],
                     ),
+                    margin: EdgeInsets.only(bottom: 80),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Text( _currentUser.value.name ?? '',
+                            style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
+                          ),
+                          SizedBox(height: 10),
+                          Text(_currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Container(
-                  decoration: Ui.getBoxDecoration(
-                    radius: 14,
-                    border: Border.all(width: 5, color: Get.theme.primaryColor),
-                  ),
-                  child: ClipRRect(
+                  Container(
+                    decoration: Ui.getBoxDecoration(
+                      radius: 14,
+                      border: Border.all(width: 5, color: Get.theme.primaryColor),
+                    ),
+                    child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       child: CachedNetworkImage(
                         height: 140,
@@ -85,71 +90,71 @@ class AccountView extends GetView<AccountController> {
                         ),
                         errorWidget: (context, url, error) => Icon(Icons.error_outline),
                       ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Card(
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shadowColor: inactive,
-                child: ExpansionTile(
-                  leading: Icon(FontAwesomeIcons.userCheck, size: 20),
-                  title: Text("View Profile".tr, style: Get.textTheme.bodyText2),
+                ],
+              ),
+              Card(
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shadowColor: inactive,
+                  child: ExpansionTile(
+                    leading: Icon(FontAwesomeIcons.userCheck, size: 20),
+                    title: Text("View Profile".tr, style: Get.textTheme.bodyText2),
+                    children: [
+                      AccountWidget(
+                        icon: FontAwesomeIcons.birthdayCake,
+                        text: Text('Date of Birth'),
+                        value: _currentUser.value.birthday.toString(),
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.locationDot,
+                        text: Text('Place of birth'),
+                        value: _currentUser.value.birthplace,
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.locationDot,
+                        text: Text('Address'),
+                        value: _currentUser.value.street,
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.male,
+                        text: Text('Sexe'),
+                        value: _currentUser.value.sex=='M'?"Male":"Female",
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.planeDeparture,
+                        text: Text('Number of travels'),
+                        value: "12",
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.book,
+                        text: Text('Number of Bookings'),
+                        value: "3",
+                      ),
+                      Card(
+                          elevation: 10,
+                          margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: AccountLinkWidget(
+                                icon: Icon(FontAwesomeIcons.userEdit, color: Get.theme.colorScheme.secondary),
+                                text: Text("Edit Profile".tr),
+                                onTap: (e) {
+                                  Get.toNamed(Routes.PROFILE);
+                                },
+                              ))
+                      ),
+                    ],
+                    initiallyExpanded: false,
+                  )
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: Ui.getBoxDecoration(),
+                child: Column(
                   children: [
-                    AccountWidget(
-                      icon: FontAwesomeIcons.birthdayCake,
-                      text: Text('Date of Birth'),
-                      value: _currentUser.value.birthday.toString(),
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.locationDot,
-                      text: Text('Place of birth'),
-                      value: _currentUser.value.birthplace,
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.locationDot,
-                      text: Text('Address'),
-                      value: _currentUser.value.street,
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.male,
-                      text: Text('Sexe'),
-                      value: _currentUser.value.sex=='M'?"Male":"Female",
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.planeDeparture,
-                      text: Text('Number of travels'),
-                      value: "12",
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.book,
-                      text: Text('Number of Bookings'),
-                      value: "3",
-                    ),
-                    Card(
-                      elevation: 10,
-                        margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: AccountLinkWidget(
-                            icon: Icon(FontAwesomeIcons.userEdit, color: Get.theme.colorScheme.secondary),
-                            text: Text("Edit Profile".tr),
-                            onTap: (e) {
-                              Get.toNamed(Routes.PROFILE);
-                            },
-                          ))
-                    ),
-                  ],
-                  initiallyExpanded: false,
-                )
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: Ui.getBoxDecoration(),
-              child: Column(
-                children: [
-                  /*
+                    /*
                   AccountLinkWidget(
                     icon: Icon(Icons.assignment_outlined, color: Get.theme.colorScheme.secondary),
                     text: Text("My Bookings".tr),
@@ -164,83 +169,85 @@ class AccountView extends GetView<AccountController> {
                       //Get.toNamed(Routes.NOTIFICATIONS);
                     },
                   ),*/
-                  AccountLinkWidget(
-                    icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
-                    text: Text("Messages".tr),
-                    onTap: (e) {
-                      Get.find<RootController>().changePage(2);
-                    },
-                  ),
-                  AccountLinkWidget(
-                    icon: Icon(Icons.qr_code, color: Get.theme.colorScheme.secondary),
-                    text: Text("Validate Transaction".tr),
-                    onTap: (e) {
-                      Get.offNamed(Routes.VALIDATE_TRANSACTION);
-                      //Get.find<RootController>().changePage(2);
-                    },
-                  ),
-                ],
+                    AccountLinkWidget(
+                      icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
+                      text: Text("Messages".tr),
+                      onTap: (e) {
+                        Get.find<RootController>().changePage(2);
+                      },
+                    ),
+                    AccountLinkWidget(
+                      icon: Icon(Icons.qr_code, color: Get.theme.colorScheme.secondary),
+                      text: Text("Validate Transaction".tr),
+                      onTap: (e) {
+                        Get.offNamed(Routes.VALIDATE_TRANSACTION);
+                        //Get.find<RootController>().changePage(2);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: Ui.getBoxDecoration(),
-              child: Column(
-                children: [
-                  AccountLinkWidget(
-                    icon: Icon(Icons.translate_outlined, color: Get.theme.colorScheme.secondary),
-                    text: Text("Languages".tr),
-                    onTap: (e) {
-                      Get.toNamed(Routes.SETTINGS_LANGUAGE);
-                    },
-                  ),
-                  AccountLinkWidget(
-                    icon: Icon(Icons.brightness_6_outlined, color: Get.theme.colorScheme.secondary),
-                    text: Text("Theme Mode".tr),
-                    onTap: (e) {
-                      Get.toNamed(Routes.SETTINGS_THEME_MODE);
-                    },
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: Ui.getBoxDecoration(),
+                child: Column(
+                  children: [
+                    AccountLinkWidget(
+                      icon: Icon(Icons.translate_outlined, color: Get.theme.colorScheme.secondary),
+                      text: Text("Languages".tr),
+                      onTap: (e) {
+                        Get.toNamed(Routes.SETTINGS_LANGUAGE);
+                      },
+                    ),
+                    AccountLinkWidget(
+                      icon: Icon(Icons.brightness_6_outlined, color: Get.theme.colorScheme.secondary),
+                      text: Text("Theme Mode".tr),
+                      onTap: (e) {
+                        Get.toNamed(Routes.SETTINGS_THEME_MODE);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: Ui.getBoxDecoration(),
-              child: Column(
-                children: [
-                  AccountLinkWidget(
-                    icon: Icon(Icons.support_outlined, color: Get.theme.colorScheme.secondary),
-                    text: Text("Help & FAQ".tr),
-                    onTap: (e) {
-                      Get.toNamed(Routes.HELP);
-                    },
-                  ),
-                  AccountLinkWidget(
-                    icon: Icon(Icons.logout, color: Get.theme.colorScheme.secondary),
-                    text: Text("Logout".tr),
-                    onTap: (e) async {
-                      showDialog(context: context,
-                          builder: (_)=> PopUpWidget(
-                            title: "Do you really want to quit?",
-                            cancel: 'Cancel',
-                            confirm: 'Log Out',
-                            onTap: ()async{
-                              final box = GetStorage();
-                              await Get.find<MyAuthService>().removeCurrentUser();
-                              Get.find<RootController>().changePage(0);
-                              box.remove("session_id");
-                              Navigator.pop(context);
-                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
-                          ));
-                    },
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: Ui.getBoxDecoration(),
+                child: Column(
+                  children: [
+                    AccountLinkWidget(
+                      icon: Icon(Icons.support_outlined, color: Get.theme.colorScheme.secondary),
+                      text: Text("Help & FAQ".tr),
+                      onTap: (e) {
+                        Get.toNamed(Routes.HELP);
+                      },
+                    ),
+                    AccountLinkWidget(
+                      icon: Icon(Icons.logout, color: Get.theme.colorScheme.secondary),
+                      text: Text("Logout".tr),
+                      onTap: (e) async {
+                        showDialog(context: context,
+                            builder: (_)=> PopUpWidget(
+                              title: "Do you really want to quit?",
+                              cancel: 'Cancel',
+                              confirm: 'Log Out',
+                              onTap: ()async{
+                                final box = GetStorage();
+                                await Get.find<MyAuthService>().removeCurrentUser();
+                                Get.find<RootController>().changePage(0);
+                                box.remove("session_id");
+                                Navigator.pop(context);
+                              }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
+                            ));
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ));
+            ],
+          ),
+        )
+    );
   }
 }
