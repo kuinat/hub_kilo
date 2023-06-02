@@ -329,14 +329,14 @@ class RegisterView extends GetView<AuthController> {
                         controller.currentUser?.value?.birthday = DateFormat('yy/MM/dd').format(controller.birthDate.value).toString();
                       }
 
-                      if(controller.password.value==controller.confirmPassword.value)
+                      if(controller.password.value == controller.confirmPassword.value)
                         {
                           controller.register();
                         }
 
                     },
                     color: Get.theme.colorScheme.secondary,
-                    text: !controller.loading.value?Text(
+                    text: !controller.loadingRegister.value ? Text(
                       "Register".tr,
                       style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                     ): SizedBox(height: 20,

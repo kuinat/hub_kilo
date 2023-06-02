@@ -53,10 +53,10 @@ class MessagesController extends GetxController {
     list = await getMessages(bookingCard['id']);
     messages.value = list;
     print("messages are: $messages");
-    /*timer = Timer.periodic(Duration(seconds: 3), (Timer t) =>{
+    timer = Timer.periodic(Duration(seconds: 3), (Timer t) =>{
       onInit(),
       print("Reloaded")
-    } );*/
+    } );
     super.onInit();
   }
 
@@ -67,7 +67,7 @@ class MessagesController extends GetxController {
   }
 
   stopTimer(){
-    //timer.cancel();
+            timer.cancel();
   }
 
   Future createMessage(Message _message) async {

@@ -129,7 +129,7 @@ class LoginView extends GetView<AuthController> {
                             controller.login();
                           },
                           color: Get.theme.colorScheme.secondary,
-                          text: !controller.loading.value? Text(
+                          text: !controller.loadingLogin.value? Text(
                             "Login".tr,
                             style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                           ): SizedBox(height: 20,

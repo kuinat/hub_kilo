@@ -83,7 +83,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                 ],
               ),
               Obx(() {
-                if (controller.loading.isTrue)
+                if (controller.loadingRegister.isTrue)
                   return CircularLoadingWidget(height: 300);
                 else {
                   return Column(
@@ -98,7 +98,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                         iconData: Icons.alternate_email,
                       ),
                       BlockButtonWidget(
-                        onPressed: controller.sendResetLink,
+                        onPressed: (){},
                         color: Get.theme.colorScheme.secondary,
                         text: Text(
                           "Send Reset Link".tr,

@@ -18,7 +18,8 @@ class AuthController extends GetxController {
   GlobalKey<FormState> registerFormKey;
   GlobalKey<FormState> forgotPasswordFormKey;
   final hidePassword = true.obs;
-  final loading = false.obs;
+  final loadingLogin = false.obs;
+  final loadingRegister = false.obs;
   var birthDateSet = false.obs;
   final smsSent = ''.obs;
   var birthDate = DateTime.now().obs;
@@ -37,10 +38,10 @@ class AuthController extends GetxController {
       loginFormKey.currentState.save();
 
 
-        loading.value = true;
+      loadingLogin.value = true;
         await _userRepository.login(currentUser.value);
       currentUser.value = await _userRepository.get();
-          loading.value = false;
+      loadingLogin.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
         await Get.toNamed(Routes.ROOT);
 
@@ -53,12 +54,12 @@ class AuthController extends GetxController {
     if (registerFormKey.currentState.validate()) {
       registerFormKey.currentState.save();
 
-        loading.value = true;
+      loadingRegister.value = true;
 
         await _userRepository.register(currentUser.value);
         await _userRepository.login(currentUser.value);
         currentUser.value = await _userRepository.get();
-      loading.value = false;
+      loadingRegister.value = false;
 
       Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
       await Get.toNamed(Routes.ROOT);
@@ -68,7 +69,7 @@ class AuthController extends GetxController {
 
 
 
-  void sendResetLink() async {
+  /*void sendResetLink() async {
     Get.focusScope.unfocus();
     if (forgotPasswordFormKey.currentState.validate()) {
       forgotPasswordFormKey.currentState.save();
@@ -86,7 +87,8 @@ class AuthController extends GetxController {
         loading.value = false;
       }
     }
-  }
+  }*/
+
   chooseBirthDate() async {
     DateTime pickedDate = await showRoundedDatePicker(
 

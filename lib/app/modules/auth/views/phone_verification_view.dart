@@ -86,7 +86,7 @@ class PhoneVerificationView extends GetView<AuthController> {
                 ],
               ),
               Obx(() {
-                if (controller.loading.isTrue) {
+                if (controller.loadingRegister.isTrue) {
                   return CircularLoadingWidget(height: 300);
                 } else {
                   return Column(
