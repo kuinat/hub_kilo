@@ -145,7 +145,7 @@ class OdooApiClient extends GetxService with ApiClient {
           name: data['name'],
           birthplace: data['birthplace'],
           id: data['id'],
-          image: data['image_1920']
+          image: data['image_1920'].toString()
       );
       // print(myuser.image);
       final session_id = response.headers['set-cookie'];
@@ -1627,22 +1627,6 @@ class OdooApiClient extends GetxService with ApiClient {
       print(response.reasonPhrase);
     }
 
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-
-
-
-
-
-
-
-      var user = await getUser();
-      var uuid =user.image ;
-      return uuid;
-    }
-    else {
-      print(response.reasonPhrase);
-    }
 
 
   }

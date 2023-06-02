@@ -19,9 +19,9 @@ import '../../global_widgets/packet_image_field_widget.dart';
 class BookingsController extends GetxController {
 
   final currentSlide = 0.obs;
-  final quantity = 1.obs;
-  final luggageWidth = 1.obs;
-  final luggageHeight= 1.obs;
+  final quantity = 1.0.obs;
+  final luggageWidth = 1.0.obs;
+  final luggageHeight= 1.0.obs;
   final description = ''.obs;
   final imageUrl = "".obs;
   final bookingStep = 0.obs;
@@ -198,7 +198,7 @@ class BookingsController extends GetxController {
         "params": {
           "receiver_partner_id": receiverId.value,
           "type_of_luggage": description.value,
-          "kilo_booked": quantity.value
+          "kilo_booked": quantity.value.toInt()
         }
       });
     }
@@ -211,7 +211,7 @@ class BookingsController extends GetxController {
           "receiver_phone": phone.value,
           "receiver_address": address.value,
           "type_of_luggage": description.value,
-          "kilo_booked": quantity.value
+          "kilo_booked": quantity.value.toInt()
         }
       });
     }
@@ -225,6 +225,7 @@ class BookingsController extends GetxController {
       if(json.decode(data)['result'] != null){
         await setAirPacketImage(book_id);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
+
 
         Navigator.pop(Get.context);
       }else{
@@ -250,6 +251,7 @@ class BookingsController extends GetxController {
     };
     var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/travel/booking/update/'+book_id.toString()));
     if(selectUser.value) {
+      print('road');
       request.body = json.encode({
         "jsonrpc": "2.0",
         "params": {
@@ -262,6 +264,8 @@ class BookingsController extends GetxController {
       });
     }
     else{
+      print('road again');
+
       request.body = json.encode({
         "jsonrpc": "2.0",
         "params": {

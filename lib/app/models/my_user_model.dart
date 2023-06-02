@@ -17,7 +17,7 @@ class MyUser {
   String birthplace;
   String sex;
   bool isTraveller ;
-  var image;
+  String image;
 
 
   MyUser({
@@ -46,7 +46,7 @@ class MyUser {
     birthplace: json["birthplace"],
     sex: json["sex"],
     isTraveller: json["is_traveller"],
-    image: json["image_1920"],
+    image: json["image_1920"].toString(),
   );
 
   Map<String, dynamic> toJson() => {
