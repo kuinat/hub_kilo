@@ -91,7 +91,7 @@ class ChatsView extends GetView<MessagesController> {
                   /*controller.message.value = new Message([]);
               controller.chats.clear();
               await controller.refreshMessages();*/
-                  controller.stopTimer();
+                  //controller.stopTimer();
                   Get.back();
                 }
             ),

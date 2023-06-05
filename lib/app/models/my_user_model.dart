@@ -17,7 +17,7 @@ class MyUser {
   String birthplace;
   String sex;
   bool isTraveller ;
-  var image;
+  bool image;
 
 
   MyUser({

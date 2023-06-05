@@ -249,12 +249,12 @@ class BookingsView extends GetView<BookingsController> {
                     controller.address.value= controller.items[index]['receiver']['receiver_address'];
                     controller.description.value = controller.items[index]['type_of_luggage'];
                     if(travel['travel_type'].toString().toLowerCase()=='air'){
-                      controller.quantity.value =controller.items[index]['kilo_booked'];
+                      controller.quantity.value =double.parse(controller.items[index]['kilo_booked'].toString());
                     }
                     if(travel['travel_type'].toString().toLowerCase()=='road'){
-                      controller.luggageWidth.value = controller.items[index]['luggage_width'].toInt();
-                      controller.luggageHeight.value = controller.items[index]['luggage_height'].toInt();
-                      controller.quantity.value=controller.items[index]['luggage_weight'].toInt();
+                      controller.luggageWidth.value =controller.items[index]['luggage_width'];
+                      controller.luggageHeight.value = controller.items[index]['luggage_height'];
+                      controller.quantity.value=controller.items[index]['luggage_weight'];
                     }
                     //controller.quantity.value = controller.items[index]['luggage_weight'].toInt();
                     //controller.dimension.value = controller.items[index]['luggage_dimension'];
@@ -287,7 +287,7 @@ class BookingsView extends GetView<BookingsController> {
                       context: context,
                       builder: (_)=>
                           PopUpWidget(
-                            title: "Do you really want to tranfer your booking?",
+                            title: "Do you really want to transfer your booking?",
                             cancel: 'Cancel',
                             confirm: 'Transfer',
                             onTap: ()async=>{
@@ -428,7 +428,7 @@ class BookingsView extends GetView<BookingsController> {
             TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.quantity.value = int.parse(input),
+              onChanged: (input) => controller.quantity.value = double.parse(input),
               labelText: "Quantity".tr,
               initialValue: sampleBooking['travel']['travel_type'].toString().toLowerCase()=='road'?sampleBooking["luggage_weight"].toString() : sampleBooking['travel']['travel_type'].toString().toLowerCase()=='air'?sampleBooking['kilo_booked'].toString():'1.0'
               ,
@@ -440,7 +440,7 @@ class BookingsView extends GetView<BookingsController> {
                 keyboardType: TextInputType.text,
                 initialValue:sampleBooking['luggage_width'].toString() ,
                 validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageWidth.value = int.parse(input),
+                onChanged: (input) => controller.luggageWidth.value = double.parse(input),
                 labelText: "Luggage Width".tr,
                 iconData: FontAwesomeIcons.shoppingBag,
               ),
@@ -451,7 +451,7 @@ class BookingsView extends GetView<BookingsController> {
                 keyboardType: TextInputType.text,
                 initialValue:sampleBooking['luggage_height'].toString() ,
                 validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
+                onChanged: (input) => controller.luggageHeight.value = double.parse(input),
                 labelText: "Luggage Height".tr,
                 iconData: FontAwesomeIcons.shoppingBag,
               ),
@@ -769,16 +769,16 @@ class BookingsView extends GetView<BookingsController> {
                         return GestureDetector(
                           onTap: (){
                             controller.receiverId.value = controller.users[index]['id'];
-                            //print(controller.receiverId.value.toString());
+                            print(controller.receiverId.value.toString());
                             controller.selectedIndex.value = index;
-                            controller.selected.value = true;
+                            //controller.selected.value = true;
                             controller.visible.value = false;
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
-                              border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
+                              border: controller.selectedIndex.value == index  ? Border.all(color: interfaceColor) : null ,
                               color: Get.theme.primaryColor,
 
                             ),

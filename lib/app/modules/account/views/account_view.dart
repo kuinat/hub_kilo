@@ -70,25 +70,34 @@ class AccountView extends GetView<AccountController> {
                     ),
                   ),
                   Container(
-                    decoration: Ui.getBoxDecoration(
-                      radius: 14,
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                      image: DecorationImage(
+                          image: NetworkImage(
+
+                               _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
+                              : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                          ),
+                        fit: BoxFit.fill
+                      ),
                       border: Border.all(width: 5, color: Get.theme.primaryColor),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: CachedNetworkImage(
-                        height: 140,
-                        width: 140,
-                        fit: BoxFit.cover,
-                        imageUrl: _currentUser.value.image.toString() != "null" ? Domain.serverPort+"/web/image/res.partner/"+_currentUser.value.id.toString()+"/image_1920"
-                            : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
-                        placeholder: (context, url) => Image.asset(
-                          'assets/img/loading.gif',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 100,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: double.infinity,
+                        height: 30,
+                        color: Colors.white.withOpacity(0.3),
+                        child: Center(
+                            child: IconButton(
+                                onPressed: ()async{
+                                  await controller.selectCameraOrGallery();
+                                },
+                                icon: Icon(FontAwesomeIcons.camera, size: 30, color: Colors.white)
+                            )
                         ),
-                        errorWidget: (context, url, error) => Icon(Icons.error_outline),
                       ),
                     ),
                   ),
@@ -250,4 +259,6 @@ class AccountView extends GetView<AccountController> {
         )
     );
   }
+
+
 }

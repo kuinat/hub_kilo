@@ -314,7 +314,7 @@ class RegisterView extends GetView<AuthController> {
             ],
           ),
         ),
-        bottomNavigationBar: Row(
+        bottomNavigationBar: Obx(() => Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Wrap(
@@ -330,9 +330,9 @@ class RegisterView extends GetView<AuthController> {
                       }
 
                       if(controller.password.value==controller.confirmPassword.value)
-                        {
-                          controller.register();
-                        }
+                      {
+                        controller.register();
+                      }
 
                     },
                     color: Get.theme.colorScheme.secondary,
@@ -355,13 +355,14 @@ class RegisterView extends GetView<AuthController> {
                       child: Text("Login".tr),
                     ),
 
-                ],).paddingOnly(bottom: 10)
+                  ],).paddingOnly(bottom: 10)
 
 
               ],
             ),
           ],
-        ),
+        ),)
+
       ),
     );
   }

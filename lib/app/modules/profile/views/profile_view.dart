@@ -56,6 +56,7 @@ class ProfileView extends GetView<ProfileController> {
                   onPressed: () {
                     if(!controller.birthDateSet.value){
                       controller.user.value?.birthday = DateFormat('yy/MM/dd').format(DateTime.parse(controller.user.value.birthday)).toString();
+                      //controller.birthDateSet.value = true;
                     }
                     controller.saveProfileForm();
                     controller.buttonPressed.value = !controller.buttonPressed.value;
@@ -94,107 +95,10 @@ class ProfileView extends GetView<ProfileController> {
           child: ListView(
             primary: true,
             children: [
-              Row(
-                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Profile details".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, left: 22),
-                      Text("Change the following details and save them".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
-                      // Obx(() {
-                      //   return
-
-                      //}),
-                    ],
-                  ),
-
-                  // Obx(() {
-                  //   return
-
-                  //}),
-
-
-            // InkWell(
-            //     onTap: () {
-            //       imagePicker();
-            //     },
-            //     child: profileImage != ""
-            //         ? image == null
-            //         ? CircleAvatar(
-            //       radius: 70,
-            //       backgroundColor: Colors.indigoAccent,
-            //       child: Icon(Icons.photo_camera,
-            //           size: 50, color: Palette.background),
-            //     )
-            //         : Image.file(File(image!.path),
-            //         fit: BoxFit.contain, width: 150, height: 150)
-            //         : Container(
-            //       height: 150,
-            //       width: 150,
-            //       decoration: BoxDecoration(
-            //         shape: BoxShape.circle,
-            //         //borderRadius: BorderRadius.all(Radius.circular(10)),
-            //         image: profileImageList != null &&
-            //             profileImageList['image_1920'].toString() !=
-            //                 'false'
-            //             ? DecorationImage(
-            //             image: NetworkImage(
-            //                 Domain.serverPort +
-            //                     '/v1/image/res.partner/' +
-            //                     json
-            //                         .decode(userDto!)['data'][0]
-            //                     ['partner_id'][0]['id']
-            //                         .toString() +
-            //                     '/image_1920?unique=true&file_response=true',
-            //                 headers: Domain.getTokenHeaders()),
-            //             fit: BoxFit.cover)
-            //             : DecorationImage(
-            //             image: AssetImage(
-            //                 'assets/images/photo_2022-11-25_01-12-07.jpg')),
-            //       ),
-            //     ))),
-
-
-
-
-                  // Container(
-                  //     width: 100,
-                  //     height: 100,
-                  //     margin: EdgeInsets.only(right: 10),
-                  //     decoration: BoxDecoration(
-                  //         shape: BoxShape.circle,
-                  //         image: DecorationImage(
-                  //             image: NetworkImage("https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80"),
-                  //             fit: BoxFit.cover
-                  //         )
-                  //     )
-                  // )
-
-
-                ],
-              ),
-
-              //Obx(() {
-                // return
-                ImageFieldWidget(
-                  label: "Image".tr,
-                  field: 'avatar',
-                  tag: controller.profileForm.hashCode.toString(),
-                  initialImage: controller.url.value,
-                  // uploadCompleted: (uuid) {
-                  //   controller.url.value =  uuid;
-                  //   controller.user.value.image= uuid;
-                  // },
-                  // reset: (uuid) {
-                  //   controller.url.value = new Media(thumb: controller.user.value.avatar.thumb);
-                  // },
-                ),
-              //}),
               Obx((){
                 return Column(
                   children: [
+                    Text("Change the following details and save them".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
                     TextFieldWidget(
                       onChanged: (input) => controller.user.value.name = input,
                       onSaved: (input) => controller.user.value.name = input,
@@ -275,17 +179,6 @@ class ProfileView extends GetView<ProfileController> {
 
                       ],),
 
-
-
-                    //}),
-
-
-
-
-
-
-                    // Obx((){
-                    //   return
                     InkWell(
                         onTap: (){
                           controller.chooseBirthDate();

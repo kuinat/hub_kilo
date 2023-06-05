@@ -53,22 +53,18 @@ class MessagesController extends GetxController {
     list = await getMessages(bookingCard['id']);
     messages.value = list;
     print("messages are: $messages");
-    /*timer = Timer.periodic(Duration(seconds: 3), (Timer t) =>{
-      onInit(),
-      print("Reloaded")
-    } );*/
     super.onInit();
   }
 
   @override
   void onClose() {
     //chatTextController.dispose();
-    timer.cancel();
-  }
-
-  stopTimer(){
     //timer.cancel();
   }
+
+  // stopTimer(){
+  //           timer.cancel();
+  // }
 
   Future createMessage(Message _message) async {
     _message.users.insert(0, _authService.user.value);
@@ -94,6 +90,11 @@ class MessagesController extends GetxController {
   }
 
   sendMessage(int receiverId)async{
+    timer = Timer.periodic(Duration(seconds: 3), (Timer t) async{
+      list = await getMessages(bookingCard['id']);
+      messages.value = list;
+      print("Reloaded");
+    } );
     print(chatTextController.text);
     final box = GetStorage();
     var session_id = box.read("session_id");
