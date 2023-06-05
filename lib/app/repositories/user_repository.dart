@@ -16,7 +16,7 @@ class UserRepository {
 
   UserRepository() {}
 
-   login(MyUser myUser) {
+  login(MyUser myUser) {
     _odooApiClient = Get.find<OdooApiClient>();
     return _odooApiClient.login(myUser);
   }
@@ -31,10 +31,10 @@ class UserRepository {
     return _odooApiClient.getUser();
   }
 
-  Future<MyUser> update(MyUser myUser) {
-    print("Nath");
+   update(MyUser myUser) {
+    //print("Nath");
     _odooApiClient = Get.find<OdooApiClient>();
-    print("Nathalie");
+    //print("Nathalie");
     return _odooApiClient.updateUser(myUser);
   }
   //
@@ -62,7 +62,7 @@ class UserRepository {
   //
   // }
 
-   register(MyUser myUser) {
+  register(MyUser myUser) {
     // _laravelApiClient = Get.find<LaravelApiClient>();
     // return _laravelApiClient.register(user);
     _odooApiClient = Get.find<OdooApiClient>();

@@ -8,6 +8,7 @@ import '../../../repositories/custom_page_repository.dart';
 import '../../../repositories/notification_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../../account/controllers/account_controller.dart';
 import '../../account/views/account_view.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/home2_view.dart';
@@ -109,8 +110,8 @@ class RootController extends GetxController {
 
       case 3:
         {
-          Get.lazyPut(()=>ProfileController());
-          await Get.find<ProfileController>().refreshProfile();
+          Get.lazyPut(()=>AccountController());
+          await Get.find<AccountController>().refresh();
           break;
         }
     }

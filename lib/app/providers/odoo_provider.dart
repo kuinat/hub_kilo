@@ -145,7 +145,7 @@ class OdooApiClient extends GetxService with ApiClient {
           name: data['name'],
           birthplace: data['birthplace'],
           id: data['id'],
-          image: data['image_1920'].toString()
+          image: data['image_1920']
       );
       // print(myuser.image);
       final session_id = response.headers['set-cookie'];
@@ -158,7 +158,7 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-   login(MyUser myUser) async {
+  login(MyUser myUser) async {
 
     final box = GetStorage();
     var headers = {
@@ -234,7 +234,7 @@ class OdooApiClient extends GetxService with ApiClient {
   //   }
   // }
 
-   register(MyUser myUser) async {
+  register(MyUser myUser) async {
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=718312dd9eb4fac1b6b7d6b1b1e3ed416983f841'
@@ -306,7 +306,7 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<MyUser> updateUser(MyUser myUser) async {
+   updateUser(MyUser myUser) async {
     final box = GetStorage();
     var sessionId = box.read('session_id');
     var headers = {
@@ -333,7 +333,7 @@ class OdooApiClient extends GetxService with ApiClient {
       print(await response.stream.bytesToString());
       print(myUser.email);
       print(myUser.password);
-      var user = await login(myUser);
+      //var user = await login(myUser);
       // var user = MyUser(
       //     email: myUser.email,
       //     birthday: data['birthday'],
@@ -345,7 +345,7 @@ class OdooApiClient extends GetxService with ApiClient {
       //     id: data['partner_id']
       // );
 
-      return (user);
+      //return (user);
     }
     else {
       print(response.reasonPhrase);
@@ -1551,8 +1551,8 @@ class OdooApiClient extends GetxService with ApiClient {
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-       //var user = await getUser();
-       //var uuid =user.image ;
+      //var user = await getUser();
+      //var uuid =user.image ;
 
       //return uuid;
     }

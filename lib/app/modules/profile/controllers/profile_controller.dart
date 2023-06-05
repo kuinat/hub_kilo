@@ -51,11 +51,9 @@ class ProfileController extends GetxController {
     user.value?.birthday = user.value.birthday;
     user.value.phone = user.value.phone;
     birthDate.value = user.value.birthday;
-    print('super');
-    print("Image is: " +user.value.image.toString());
-    user.value.image.toString()=='null'?
-        url.value= null:
-    url.value = Domain.serverPort+"/web/image/res.partner/"+user.value.id.toString()+"/image_1920";
+    // user.value.image.toString()=='null'?
+    // url.value= null:
+    // url.value = Domain.serverPort+"/web/image/res.partner/"+user.value.id.toString()+"/image_1920";
 
     //print("url: "+url.value);
     //user.value = Get.find<AuthService>().user.value;
@@ -74,32 +72,33 @@ class ProfileController extends GetxController {
     Get.focusScope.unfocus();
     if (profileForm.currentState.validate()) {
       //try {
-        profileForm.currentState.save();
-        /*user.value.deviceToken = null;
+      profileForm.currentState.save();
+      /*user.value.deviceToken = null;
         user.value.password = newPassword.value == confirmPassword.value ? newPassword.value : null;
         user.value.avatar = avatar.value;*/
-        // if (Get.find<SettingsService>().setting.value.enableOtp) {
-        //   await _userRepository.sendCodeToPhone();
-        //   Get.bottomSheet(
-        //     PhoneVerificationBottomSheetWidget(),
-        //     isScrollControlled: false,
-        //   );
-        // }
-        //else {
-        print(user.value.name);
-        print(user.value.email);
-        print(user.value.birthplace);
-        print(user.value.street);
-        print(user.value.birthday);
-        print(user.value.sex);
-        print(user.value.isTraveller);
-        print(user.value.phone);
+      // if (Get.find<SettingsService>().setting.value.enableOtp) {
+      //   await _userRepository.sendCodeToPhone();
+      //   Get.bottomSheet(
+      //     PhoneVerificationBottomSheetWidget(),
+      //     isScrollControlled: false,
+      //   );
+      // }
+      //else {
+      print(user.value.name);
+      print(user.value.email);
+      print(user.value.birthplace);
+      print(user.value.street);
+      print(user.value.birthday);
+      print(user.value.sex);
+      print(user.value.isTraveller);
+      print(user.value.phone);
 
-          user.value = await _userRepository.update(user.value);
-          Get.find<MyAuthService>().myUser.value = user.value;
-          Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
-          await Get.toNamed(Routes.ROOT);
-        //}
+       await _userRepository.update(user.value);
+      user.value = await _userRepository.get();
+      Get.find<MyAuthService>().myUser.value = user.value;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
+      await Get.toNamed(Routes.ROOT);
+      //}
       // } catch (e) {
       //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       // } finally {}

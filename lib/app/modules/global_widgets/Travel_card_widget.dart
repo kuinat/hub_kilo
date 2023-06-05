@@ -124,6 +124,19 @@ class TravelCardWidget extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text('$price EUR', style: Get.textTheme.headline3.merge(TextStyle(color: specialColor))),
+                      SizedBox(height: 10),
+                      if(isUser)
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        alignment: Alignment.center,
+                        child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                        decoration: BoxDecoration(
+                            color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                            border: Border.all(
+                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(20))),
+                      )
                     ]
                 ) : isUser ?
                         Container(
