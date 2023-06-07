@@ -10,6 +10,7 @@ import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/delete_account_widget.dart';
+import '../widgets/update_password_widget.dart';
 
 
 class ProfileView extends GetView<ProfileController> {
@@ -49,46 +50,31 @@ class ProfileView extends GetView<ProfileController> {
               BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, -5)),
             ],
           ),
-          child: Row(
-            children: [
-              Obx(() => Expanded(
-                child: MaterialButton(
-                  onPressed: () {
-                    if(!controller.birthDateSet.value){
-                      controller.user.value?.birthday = DateFormat('yy/MM/dd').format(DateTime.parse(controller.user.value.birthday)).toString();
-                      //controller.birthDateSet.value = true;
-                    }
-                    controller.saveProfileForm();
-                    controller.buttonPressed.value = !controller.buttonPressed.value;
-                  },
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  color: Get.theme.colorScheme.secondary,
-                  child: !controller.buttonPressed.value ? Text("Save".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
-                      : SizedBox(height: 10,
-                      child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                  elevation: 0,
-                  highlightElevation: 0,
-                  hoverElevation: 0,
-                  focusElevation: 0,
-                ),
-              )),
-              SizedBox(width: 10),
-              MaterialButton(
-                onPressed: () {
-                  controller.resetProfileForm();
-                },
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                color: Get.theme.hintColor.withOpacity(0.1),
-                child: Text("Reset".tr, style: Get.textTheme.bodyText2),
-                elevation: 0,
-                highlightElevation: 0,
-                hoverElevation: 0,
-                focusElevation: 0,
-              ),
-            ],
-          ).paddingSymmetric(vertical: 10, horizontal: 20),
+          child: Obx(() => Expanded(
+            child: MaterialButton(
+              onPressed: () {
+                if(!controller.birthDateSet.value){
+                  controller.user.value?.birthday = DateFormat('yy/MM/dd').format(DateTime.parse(controller.user.value.birthday)).toString();
+                  //controller.birthDateSet.value = true;
+                }
+                if(controller.birthDate.value.toString().contains('/')){
+                  controller.user.value.birthday = controller.birthDate.value;
+                }
+                controller.saveProfileForm();
+                controller.buttonPressed.value = !controller.buttonPressed.value;
+              },
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              color: Get.theme.colorScheme.secondary,
+              child: !controller.buttonPressed.value ? Text("Update".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
+                  : SizedBox(height: 10,
+                  child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+              elevation: 0,
+              highlightElevation: 0,
+              hoverElevation: 0,
+              focusElevation: 0,
+            ),
+          )).paddingSymmetric(vertical: 10, horizontal: 20),
         ),
         body: Form(
           key: controller.profileForm,
@@ -290,78 +276,79 @@ class ProfileView extends GetView<ProfileController> {
               }),
 
 
-
-              Text("Change password".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, right: 22, left: 22),
-              Text("Fill your old password and type new password and confirm it".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
-              Obx(() {
-                return TextFieldWidget(
-                  labelText: "Old Password".tr,
-                  hintText: "••••••••••••".tr,
-                  onSaved: (input) => controller.oldPassword.value = input,
-                  onChanged: (input) => controller.oldPassword.value = input,
-                  validator: (input) => input.length > 0 && input.length < 3 ? "Should be more than 3 letters".tr : null,
-                  //initialValue: controller.oldPassword.value,
-                  obscureText: controller.hidePassword.value,
-                  iconData: Icons.lock_outline,
-                  keyboardType: TextInputType.visiblePassword,
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      controller.hidePassword.value = !controller.hidePassword.value;
-                    },
-                    color: Theme.of(context).focusColor,
-                    icon: Icon(controller.hidePassword.value ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                  ),
-                  isFirst: true,
-                  isLast: false,
-                );
-              }),
-              Obx(() {
-                return TextFieldWidget(
-                  labelText: "New Password".tr,
-                  hintText: "••••••••••••".tr,
-                  onSaved: (input) => controller.user.value.password = input,
-                  onChanged: (input) => controller.newPassword.value = input,
-                  // validator: (input) {
-                  //   if (input.length > 0 && input.length < 3) {
-                  //     return "Should be more than 3 letters".tr;
-                  //   } else if (input != controller.confirmPassword.value) {
-                  //     return "Passwords do not match".tr;
-                  //   } else {
-                  //     return null;
-                  //   }
-                  // },
-                  //initialValue: controller.newPassword.value,
-                  obscureText: controller.hidePassword.value,
-                  iconData: Icons.lock_outline,
-                  keyboardType: TextInputType.visiblePassword,
-                  isFirst: false,
-                  isLast: false,
-                );
-              }),
-              Obx(() {
-                return TextFieldWidget(
-                  labelText: "Confirm New Password".tr,
-                  hintText: "••••••••••••".tr,
-                  //editable: controller.editPassword.value,
-                  onSaved: (input) => controller.confirmPassword.value = input,
-                  onChanged: (input) => controller.confirmPassword.value = input,
-                  validator: (input) {
-                    if (input.length > 0 && input.length < 3) {
-                      return "Should be more than 3 letters".tr;
-                    } else if (input != controller.newPassword.value) {
-                      return "Passwords do not match".tr;
-                    } else {
-                      return null;
-                    }
-                  },
-                  //initialValue: controller.confirmPassword.value,
-                  obscureText: controller.hidePassword.value,
-                  iconData: Icons.lock_outline,
-                  keyboardType: TextInputType.visiblePassword,
-                  isFirst: false,
-                  isLast: true,
-                );
-              }),
+              //
+              // Text("Change password".tr, style: Get.textTheme.headline5).paddingOnly(top: 25, bottom: 0, right: 22, left: 22),
+              // Text("Fill your old password and type new password and confirm it".tr, style: Get.textTheme.caption).paddingSymmetric(horizontal: 22, vertical: 5),
+              // Obx(() {
+              //   return TextFieldWidget(
+              //     labelText: "Old Password".tr,
+              //     hintText: "••••••••••••".tr,
+              //     onSaved: (input) => controller.oldPassword.value = input,
+              //     onChanged: (input) => controller.oldPassword.value = input,
+              //     validator: (input) => input.length > 0 && input.length < 3 ? "Should be more than 3 letters".tr : null,
+              //     //initialValue: controller.oldPassword.value,
+              //     obscureText: controller.hidePassword.value,
+              //     iconData: Icons.lock_outline,
+              //     keyboardType: TextInputType.visiblePassword,
+              //     suffixIcon: IconButton(
+              //       onPressed: () {
+              //         controller.hidePassword.value = !controller.hidePassword.value;
+              //       },
+              //       color: Theme.of(context).focusColor,
+              //       icon: Icon(controller.hidePassword.value ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+              //     ),
+              //     isFirst: true,
+              //     isLast: false,
+              //   );
+              // }),
+              // Obx(() {
+              //   return TextFieldWidget(
+              //     labelText: "New Password".tr,
+              //     hintText: "••••••••••••".tr,
+              //     onSaved: (input) => controller.user.value.password = input,
+              //     onChanged: (input) => controller.newPassword.value = input,
+              //     // validator: (input) {
+              //     //   if (input.length > 0 && input.length < 3) {
+              //     //     return "Should be more than 3 letters".tr;
+              //     //   } else if (input != controller.confirmPassword.value) {
+              //     //     return "Passwords do not match".tr;
+              //     //   } else {
+              //     //     return null;
+              //     //   }
+              //     // },
+              //     //initialValue: controller.newPassword.value,
+              //     obscureText: controller.hidePassword.value,
+              //     iconData: Icons.lock_outline,
+              //     keyboardType: TextInputType.visiblePassword,
+              //     isFirst: false,
+              //     isLast: false,
+              //   );
+              // }),
+              // Obx(() {
+              //   return TextFieldWidget(
+              //     labelText: "Confirm New Password".tr,
+              //     hintText: "••••••••••••".tr,
+              //     //editable: controller.editPassword.value,
+              //     onSaved: (input) => controller.confirmPassword.value = input,
+              //     onChanged: (input) => controller.confirmPassword.value = input,
+              //     validator: (input) {
+              //       if (input.length > 0 && input.length < 3) {
+              //         return "Should be more than 3 letters".tr;
+              //       } else if (input != controller.newPassword.value) {
+              //         return "Passwords do not match".tr;
+              //       } else {
+              //         return null;
+              //       }
+              //     },
+              //     //initialValue: controller.confirmPassword.value,
+              //     obscureText: controller.hidePassword.value,
+              //     iconData: Icons.lock_outline,
+              //     keyboardType: TextInputType.visiblePassword,
+              //     isFirst: false,
+              //     isLast: true,
+              //   );
+              // }),
+              UpdatePasswordWidget(),
               DeleteAccountWidget(),
             ],
           ),

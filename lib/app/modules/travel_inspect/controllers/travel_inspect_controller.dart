@@ -47,6 +47,8 @@ class TravelInspectController extends GetxController {
   var transferAirBookingId = ''.obs;
   var transferRoadBookingId = ''.obs;
   var imageFiles = [].obs;
+  var areBookingsLoading = false.obs;
+
 
   var visible = true.obs;
 
@@ -69,15 +71,16 @@ class TravelInspectController extends GetxController {
     travelCard.value = arguments['travelCard'];
     print('travelCard Value'+travelCard.value.toString());
 
+    areBookingsLoading.value = true;
     listAir = await getAirBookingsOnTravel(travelCard['id']);
     listRoad = await getRoadBookingsOnTravel(travelCard['id']);
-    print('list'+listRoad.toString());
 
     travelCard['travel_type'] == "air"?
     list = listAir
         :travelCard['travel_type'] == "road"?
      list = listRoad:list =[];
     travelBookings.value = list;
+    areBookingsLoading.value = false;
     if(travelCard['travel_type'].toLowerCase() == "air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
     }else if(travelCard['travel_type'].toLowerCase() == "sea"){

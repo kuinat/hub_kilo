@@ -90,15 +90,14 @@ class BookingsController extends GetxController {
   }
 
   initValues()async{
+    isLoading.value = true;
     myAirBookings = await getMyAirBookings();
     myRoadBookings = await getMyRoadBookings();
     items.value = await mixBookingCategories(myAirBookings, myRoadBookings);
     list = await mixBookingCategories(myAirBookings, myRoadBookings);
-    //print(items);
+    isLoading.value = false;
     await getAllUsers();
-    /*bookingsOnMyTravel = await getBookingsOnMyTravel();
-    itemsBookingsOnMyTravel.value = bookingsOnMyTravel;
-    print(itemsBookingsOnMyTravel);*/
+
   }
 
   refreshBookings()async{
@@ -225,9 +224,8 @@ class BookingsController extends GetxController {
       if(json.decode(data)['result'] != null){
         await setAirPacketImage(book_id);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
-
-
         Navigator.pop(Get.context);
+        imageFiles.clear();
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }
@@ -291,6 +289,7 @@ class BookingsController extends GetxController {
         await setRoadPacketImage(book_id);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
         Navigator.pop(Get.context);
+        imageFiles.clear();
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }

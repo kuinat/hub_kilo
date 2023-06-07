@@ -96,7 +96,8 @@ class ProfileController extends GetxController {
        await _userRepository.update(user.value);
       user.value = await _userRepository.get();
       Get.find<MyAuthService>().myUser.value = user.value;
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile updated successfully".tr));
       await Get.toNamed(Routes.ROOT);
       //}
       // } catch (e) {

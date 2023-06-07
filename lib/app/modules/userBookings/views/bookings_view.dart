@@ -14,10 +14,14 @@ import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../global_widgets/user_widget.dart';
 import '../controllers/bookings_controller.dart';
+import '../widgets/bookings_list_loader_widget.dart';
+
+
 
 class BookingsView extends GetView<BookingsController> {
 
   List bookings = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +81,13 @@ class BookingsView extends GetView<BookingsController> {
                     ),
                   ),
                 ),
-                Container(
+                Obx(() => Container(
                     height: MediaQuery.of(context).size.height/1.2,
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                     decoration: Ui.getBoxDecoration(color: backgroundColor),
-                    child:  controller.items.isNotEmpty ? MyBookings(context)
-                  : SizedBox(
+                    child:  controller.isLoading.value? BookingsListLoaderWidget():
+                    controller.items.isNotEmpty ? MyBookings(context)
+                        : SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +98,8 @@ class BookingsView extends GetView<BookingsController> {
                         ],
                       ),
                     )
-                ),
+                ),)
+
               ],
             ),
           )
@@ -233,10 +239,11 @@ class BookingsView extends GetView<BookingsController> {
                     ),
                   ),
                   imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                  typeOfLuggage: controller.items[index]['type_of_luggage'],
                   packetImageUrl: travel['travel_type'].toString().toLowerCase()=='road'?
-                  Domain.serverPort+'/web/image/m2st_hk_roadshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
+                  '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
                   travel['travel_type'].toString().toLowerCase()=='air'?
-                  Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
+                  '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
                   '',
                   recName: controller.items[index]['receiver']['receiver_name'],
                   recAddress: controller.items[index]['receiver']['receiver_address'],
@@ -707,6 +714,8 @@ class BookingsView extends GetView<BookingsController> {
                 ),
               ],
             ) :
+
+
             controller.visible.value?TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
@@ -773,6 +782,7 @@ class BookingsView extends GetView<BookingsController> {
                             controller.selectedIndex.value = index;
                             //controller.selected.value = true;
                             controller.visible.value = false;
+                            print('value'+controller.users[index]['image_1920'].toString());
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
@@ -785,7 +795,8 @@ class BookingsView extends GetView<BookingsController> {
                             child: UserWidget(
                               user: controller.users[index]['name'],
                               selected: false,
-                              imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                              imageUrl: controller.users[index]['image_1920'] == true ? '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
+                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                             ),
                           ),
                         );
