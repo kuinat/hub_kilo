@@ -14,10 +14,14 @@ import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../global_widgets/user_widget.dart';
 import '../controllers/bookings_controller.dart';
+import '../widgets/bookings_list_loader_widget.dart';
+
+
 
 class BookingsView extends GetView<BookingsController> {
 
   List bookings = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,50 +54,45 @@ class BookingsView extends GetView<BookingsController> {
                         color: Get.theme.focusColor.withOpacity(0.2),
                       ),
                       borderRadius: BorderRadius.circular(10)),
-                  child: GestureDetector(
-                    onTap: () {
-                      //Get.toNamed(Routes.SEARCH, arguments: controller.heroTag.value);
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12, left: 0),
-                          child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12, left: 0),
+                        child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width /1.8,
+                        child: TextField(
+                          //controller: controller.textEditingController,
+                          style: Get.textTheme.bodyText2,
+                          onChanged: (value)=>{ controller.filterSearchResults(value) },
+                          autofocus: controller.heroTag.value == "search" ? true : false,
+                          cursorColor: Get.theme.focusColor,
+                          decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
                         ),
-                        Expanded(
-                          child: Material(
-                            color: Get.theme.primaryColor,
-                            child: TextField(
-                              //controller: controller.textEditingController,
-                              style: Get.textTheme.bodyText2,
-                              onChanged: (value)=>{ controller.filterSearchResults(value) },
-                              autofocus: controller.heroTag.value == "search" ? true : false,
-                              cursorColor: Get.theme.focusColor,
-                              decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
+                Obx(() => Container(
                     height: MediaQuery.of(context).size.height/1.2,
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                     decoration: Ui.getBoxDecoration(color: backgroundColor),
-                    child:  controller.items.isNotEmpty ? MyBookings(context)
-                  : SizedBox(
+                    child:  controller.isLoading.value? BookingsListLoaderWidget():
+                    controller.items.isNotEmpty ? MyBookings(context)
+                        : SizedBox(
                       width: double.infinity,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          SizedBox(height: MediaQuery.of(context).size.height/4),
                           FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
                         ],
                       ),
                     )
-                ),
+                ),)
+
               ],
             ),
           )
@@ -101,13 +100,7 @@ class BookingsView extends GetView<BookingsController> {
         ));
   }
 
-  List transportMeans = [
-    "Water",
-    "Land",
-    "Air"
-  ];
-
-  Widget BottomFilterSheetWidget(BuildContext context){
+  /*Widget BottomFilterSheetWidget(BuildContext context){
     return Container(
       height: Get.height/2,
       decoration: BoxDecoration(
@@ -184,124 +177,128 @@ class BookingsView extends GetView<BookingsController> {
         ],
       ),
     );
-  }
-
+  }*/
 
   Widget MyBookings(BuildContext context){
-    return Obx(() => Expanded(
-        child: ListView.builder(
-            physics: AlwaysScrollableScrollPhysics(),
-            itemCount: controller.items.length+1 ,
-            shrinkWrap: true,
-            primary: false,
-            itemBuilder: (context, index) {
-              if (index == controller.items.length) {
-                return SizedBox(height: 80);
-              } else {
-                var travel = controller.items[index]['travel'];
-                Future.delayed(Duration.zero, (){
-                  controller.items.value.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
-                });
-                return CardWidget(
-                  travelType: travel['travel_type'] ,
-                  editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
-                  transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
-                  bookingState: controller.items[index]['status'],
-                  depDate: travel['departure_date'],
-                  arrTown: travel['arrival_town'],
-                  depTown: travel['departure_town'],
-                  arrDate: travel['arrival_date'],
-                  qty: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['luggage_weight'].toInt():'null',
-                  price: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked_price']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['booking_price']:'null',
-                  text: controller.items[index]['travel']['traveler']['user_name'],
-                  negotiation:  Visibility(
-                    visible:travel['travel_type'].toString().toLowerCase()=='air'&&controller.items[index]['status']=='pending'?travel['negotiation']:
-                    travel['travel_type'].toString().toLowerCase()=='road'&&controller.items[index]['status']=='pending'?true:false,
-                    child: InkWell(
-                      onTap: ()=>{
-                        //print(controller.items[index]),
-                        Get.toNamed(Routes.CHAT, arguments: {'bookingCard': controller.items[index]})
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                          SizedBox(width: 10),
-                          FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                        ],
+    return Obx(() => Column(
+      children: [
+        Expanded(
+            child: ListView.builder(
+                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: controller.items.length+1 ,
+                shrinkWrap: true,
+                primary: false,
+                itemBuilder: (context, index) {
+                  if (index == controller.items.length) {
+                    return SizedBox(height: 80);
+                  } else {
+                    var travel = controller.items[index]['travel'];
+                    Future.delayed(Duration.zero, (){
+                      controller.items.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
+                    });
+                    return CardWidget(
+                      travelType: travel['travel_type'] ,
+                      editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
+                      transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
+                      bookingState: controller.items[index]['status'],
+                      depDate: travel['departure_date'],
+                      arrTown: travel['arrival_town'],
+                      depTown: travel['departure_town'],
+                      arrDate: travel['arrival_date'],
+                      qty: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['luggage_weight'].toInt():'null',
+                      price: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked_price']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['booking_price']:'null',
+                      text: controller.items[index]['travel']['traveler']['user_name'],
+                      negotiation:  Visibility(
+                        visible:travel['travel_type'].toString().toLowerCase()=='air'&&controller.items[index]['status']=='pending'?travel['negotiation']:
+                        travel['travel_type'].toString().toLowerCase()=='road'&&controller.items[index]['status']=='pending'?true:false,
+                        child: InkWell(
+                          onTap: ()=>{
+                            //print(controller.items[index]),
+                            Get.toNamed(Routes.CHAT, arguments: {'bookingCard': controller.items[index]})
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
+                              SizedBox(width: 10),
+                              FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-                  packetImageUrl: travel['travel_type'].toString().toLowerCase()=='road'?
-                  Domain.serverPort+'/web/image/m2st_hk_roadshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
-                  travel['travel_type'].toString().toLowerCase()=='air'?
-                  Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+controller.items[index]['id'].toString()+'/luggage_image':
-                  '',
-                  recName: controller.items[index]['receiver']['receiver_name'],
-                  recAddress: controller.items[index]['receiver']['receiver_address'],
-                  recEmail: controller.items[index]['receiver']['receiver_email'],
-                  recPhone: controller.items[index]['receiver']['receiver_phone'],
-                  edit: () {
-                    controller.phone.value= controller.items[index]['receiver']['receiver_phone'];
-                    controller.name.value = controller.items[index]['receiver']['receiver_name'];
-                    controller.email.value = controller.items[index]['receiver']['receiver_email'];
-                    controller.address.value= controller.items[index]['receiver']['receiver_address'];
-                    controller.description.value = controller.items[index]['type_of_luggage'];
-                    if(travel['travel_type'].toString().toLowerCase()=='air'){
-                      controller.quantity.value =double.parse(controller.items[index]['kilo_booked'].toString());
-                    }
-                    if(travel['travel_type'].toString().toLowerCase()=='road'){
-                      controller.luggageWidth.value =controller.items[index]['luggage_width'];
-                      controller.luggageHeight.value = controller.items[index]['luggage_height'];
-                      controller.quantity.value=controller.items[index]['luggage_weight'];
-                    }
-                    //controller.quantity.value = controller.items[index]['luggage_weight'].toInt();
-                    //controller.dimension.value = controller.items[index]['luggage_dimension'];
+                      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                      typeOfLuggage: controller.items[index]['type_of_luggage'],
+                      packetImageUrl: travel['travel_type'].toString().toLowerCase()=='road'?
+                      '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
+                      travel['travel_type'].toString().toLowerCase()=='air'?
+                      '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
+                      '',
+                      recName: controller.items[index]['receiver']['receiver_name'],
+                      recAddress: controller.items[index]['receiver']['receiver_address'],
+                      recEmail: controller.items[index]['receiver']['receiver_email'],
+                      recPhone: controller.items[index]['receiver']['receiver_phone'],
+                      edit: () {
+                        controller.phone.value= controller.items[index]['receiver']['receiver_phone'];
+                        controller.name.value = controller.items[index]['receiver']['receiver_name'];
+                        controller.email.value = controller.items[index]['receiver']['receiver_email'];
+                        controller.address.value= controller.items[index]['receiver']['receiver_address'];
+                        controller.description.value = controller.items[index]['type_of_luggage'];
+                        if(travel['travel_type'].toString().toLowerCase()=='air'){
+                          controller.quantity.value =double.parse(controller.items[index]['kilo_booked'].toString());
+                        }
+                        if(travel['travel_type'].toString().toLowerCase()=='road'){
+                          controller.luggageWidth.value =controller.items[index]['luggage_width'];
+                          controller.luggageHeight.value = controller.items[index]['luggage_height'];
+                          controller.quantity.value=controller.items[index]['luggage_weight'];
+                        }
+                        //controller.quantity.value = controller.items[index]['luggage_weight'].toInt();
+                        //controller.dimension.value = controller.items[index]['luggage_dimension'];
 
 
-                    return Get.bottomSheet(
-                      buildEditingSheet(context,controller.items[index] ),
-                      isScrollControlled: true,);
+                        return Get.bottomSheet(
+                          buildEditingSheet(context,controller.items[index] ),
+                          isScrollControlled: true,);
 
-                  },
-                  confirm: ()=> showDialog(
-                      context: context,
-                      builder: (_)=>
-                          PopUpWidget(
-                            title: "Do you really want to delete this booking?",
-                            cancel: 'Cancel',
-                            confirm: 'Delete',
-                            onTap: () async =>{
-                              travel['travel_type'].toString().toLowerCase()=='air'?
-                              await controller.deleteMyAirBooking(controller.items[index]['id']):
-                              travel['travel_type'].toString().toLowerCase()=='road'?
-                              await controller.deleteMyRoadBooking(controller.items[index]['id']):
-                                  (){},
+                      },
+                      confirm: ()=> showDialog(
+                          context: context,
+                          builder: (_)=>
+                              PopUpWidget(
+                                title: "Do you really want to delete this booking?",
+                                cancel: 'Cancel',
+                                confirm: 'Delete',
+                                onTap: () async =>{
+                                  travel['travel_type'].toString().toLowerCase()=='air'?
+                                  await controller.deleteMyAirBooking(controller.items[index]['id']):
+                                  travel['travel_type'].toString().toLowerCase()=='road'?
+                                  await controller.deleteMyRoadBooking(controller.items[index]['id']):
+                                      (){},
 
-                              print(controller.items[index]['id'])
-                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                          )
-                  ),
-                  transfer: ()=> showDialog(
-                      context: context,
-                      builder: (_)=>
-                          PopUpWidget(
-                            title: "Do you really want to transfer your booking?",
-                            cancel: 'Cancel',
-                            confirm: 'Transfer',
-                            onTap: ()async=>{
-                              travel['travel_type'].toString().toLowerCase()=='air'?
-                              await controller.transferMyAirBookingNow(controller.items[index]['id']):
-                              travel['travel_type'].toString().toLowerCase()=='road'?
-                              await controller.transferMyRoadBookingNow(controller.items[index]['id']):
-                                  (){},
-                              Navigator.of(Get.context).pop(),
-                            }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                          )
-                  ),
-                );}
-            })
+                                  print(controller.items[index]['id'])
+                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                              )
+                      ),
+                      transfer: ()=> showDialog(
+                          context: context,
+                          builder: (_)=>
+                              PopUpWidget(
+                                title: "Do you really want to transfer your booking?",
+                                cancel: 'Cancel',
+                                confirm: 'Transfer',
+                                onTap: ()async=>{
+                                  travel['travel_type'].toString().toLowerCase()=='air'?
+                                  await controller.transferMyAirBookingNow(controller.items[index]['id']):
+                                  travel['travel_type'].toString().toLowerCase()=='road'?
+                                  await controller.transferMyRoadBookingNow(controller.items[index]['id']):
+                                      (){},
+                                  Navigator.of(Get.context).pop(),
+                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                              )
+                      ),
+                    );}
+                })
+        )
+      ],
     ));
   }
 
@@ -707,6 +704,8 @@ class BookingsView extends GetView<BookingsController> {
                 ),
               ],
             ) :
+
+
             controller.visible.value?TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
@@ -773,6 +772,7 @@ class BookingsView extends GetView<BookingsController> {
                             controller.selectedIndex.value = index;
                             //controller.selected.value = true;
                             controller.visible.value = false;
+                            print('value'+controller.users[index]['image_1920'].toString());
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
@@ -785,7 +785,8 @@ class BookingsView extends GetView<BookingsController> {
                             child: UserWidget(
                               user: controller.users[index]['name'],
                               selected: false,
-                              imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                              imageUrl: controller.users[index]['image_1920'] == true ? '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
+                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                             ),
                           ),
                         );

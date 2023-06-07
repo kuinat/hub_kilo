@@ -13,6 +13,8 @@ import '../../../../main.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../services/my_auth_service.dart';
+import '../../root/controllers/root_controller.dart';
+import '../../userTravels/controllers/user_travels_controller.dart';
 
 class AccountController extends GetxController {
 
@@ -23,10 +25,11 @@ class AccountController extends GetxController {
   UploadRepository _uploadRepository;
   UserRepository _userRepository;
 
+
   @override
   void onInit() async{
     await getUser();
-
+    await Get.find<UserTravelsController>().refreshMyTravels();
     super.onInit();
 
   }
@@ -34,6 +37,10 @@ class AccountController extends GetxController {
   AccountController() {
     _uploadRepository = new UploadRepository();
     _userRepository = new UserRepository();
+
+
+
+
   }
 
   onRefresh() async{
@@ -55,6 +62,7 @@ class AccountController extends GetxController {
       if (pickedImage != null) {
         image = File(pickedImage.path);
         await _uploadRepository.image(image);
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
         loadImage.value = !loadImage.value;
       }
     }
@@ -64,6 +72,7 @@ class AccountController extends GetxController {
       if (pickedImage != null) {
         image = File(pickedImage.path);
         await _uploadRepository.image(image);
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
         loadImage.value = !loadImage.value;
       }
 

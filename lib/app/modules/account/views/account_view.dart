@@ -11,6 +11,7 @@ import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../root/controllers/root_controller.dart';
+import '../../userTravels/controllers/user_travels_controller.dart';
 import '../controllers/account_controller.dart';
 import '../widgets/account_link_widget.dart';
 
@@ -69,18 +70,17 @@ class AccountView extends GetView<AccountController> {
                       ),
                     ),
                   ),
-                  Container(
+                  Obx(() =>Container(
                     width: 150,
                     height: 150,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(14)),
                       image: DecorationImage(
                           image: NetworkImage(
-
-                               _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
-                              : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                              _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
+                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
                           ),
-                        fit: BoxFit.fill
+                          fit: BoxFit.fill
                       ),
                       border: Border.all(width: 5, color: Get.theme.primaryColor),
                     ),
@@ -88,8 +88,8 @@ class AccountView extends GetView<AccountController> {
                       alignment: Alignment.bottomCenter,
                       child: Container(
                         width: double.infinity,
-                        height: 30,
-                        color: Colors.white.withOpacity(0.3),
+                        height: 40,
+                        color: _currentUser.value.image == true ? Colors.white.withOpacity(0.3) : interfaceColor.withOpacity(0.3),
                         child: Center(
                             child: IconButton(
                                 onPressed: ()async{
@@ -100,7 +100,8 @@ class AccountView extends GetView<AccountController> {
                         ),
                       ),
                     ),
-                  ),
+                  ),)
+
                 ],
               ),
               Card(
@@ -130,16 +131,7 @@ class AccountView extends GetView<AccountController> {
                         text: Text('Sexe'),
                         value: _currentUser.value.sex=='M'?"Male":"Female",
                       ),
-                      AccountWidget(
-                        icon: FontAwesomeIcons.planeDeparture,
-                        text: Text('Number of travels'),
-                        value: "12",
-                      ),
-                      AccountWidget(
-                        icon: FontAwesomeIcons.book,
-                        text: Text('Number of Bookings'),
-                        value: "3",
-                      ),
+
                       Card(
                           elevation: 10,
                           margin: EdgeInsets.symmetric(horizontal: 30, vertical: 15),

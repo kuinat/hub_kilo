@@ -23,6 +23,7 @@ import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../global_widgets/user_widget.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
+import '../../userBookings/widgets/bookings_list_loader_widget.dart';
 import '../controllers/travel_inspect_controller.dart';
 import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
@@ -97,7 +98,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         return Stack(
                           alignment: AlignmentDirectional.bottomCenter,
                           children: <Widget>[
-                            CachedNetworkImage(
+                            Container(
+                              height: 370,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(controller.imageUrl.value), fit: BoxFit.cover)
+                              ),
+                            ),
+                            /*CachedNetworkImage(
                               height: 370,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -109,7 +118,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 width: 65,
                               ),
                               errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                            ),
+                            ),*/
                             buildCarouselBullets(context)
                           ],
                         );
@@ -208,7 +217,48 @@ class TravelInspectView extends GetView<TravelInspectController> {
   }
 
   Widget buildBookingByTravel(BuildContext context){
-    return Container(
+
+    return controller.areBookingsLoading.value?
+        Container(
+          padding: EdgeInsets.all(20),
+          height: Get.height/1.2,
+          decoration: BoxDecoration(
+            color: background,
+            //Get.theme.primaryColor,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
+            ],
+          ),
+          child:  BookingsListLoaderWidget(),
+        ):
+
+    controller.list.isEmpty?
+        Container(
+            padding: EdgeInsets.all(20),
+            height: Get.height/1.2,
+            decoration: BoxDecoration(
+              color: background,
+              //Get.theme.primaryColor,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
+              ],
+            ),
+
+            child: Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                    Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                  ],
+        ),
+            ),
+          )
+        :
+      Container(
       padding: EdgeInsets.all(20),
       height: Get.height/1.2,
       decoration: BoxDecoration(
@@ -296,7 +346,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         ),
                         SizedBox(height: 10),
                         Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
                               child: Row(
@@ -311,10 +361,14 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                  Text("kilo_booked_price: "+ controller.travelCard['travel_type'].toLowerCase()=='air'?booking["kilo_booked_price"].toString():
-                                  controller.travelCard['travel_type'].toLowerCase()=='road'?booking["booking_price"].toString():booking["kilo_booked_price"].toString(),
+                                controller.travelCard['travel_type'].toLowerCase()=='air'?
+                                Text("kilo booked price: "+ booking["kilo_booked_price"].toString(),
                                       style: Get.textTheme.headline6.
-                                  merge(TextStyle(color: specialColor, fontSize: 16)))
+                                  merge(TextStyle(color: specialColor, fontSize: 16))):
+                            controller.travelCard['travel_type'].toLowerCase()=='road'?
+                                  Text("kilo booked price: "+ booking["booking_price"].toString(),
+                                      style: Get.textTheme.headline6.
+                                      merge(TextStyle(color: specialColor, fontSize: 16))):SizedBox()
                                 ],
                               ),
                             ),
@@ -330,10 +384,16 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                  Text("Kilo Booked: "+ controller.travelCard['travel_type']=='air'?booking["kilo_booked"].toString() + " Kg":
-                                  controller.travelCard['travel_type']=='road'?booking["luggage_weight"].toString()+ " Kg":booking["kilo_booked"].toString() + " Kg",
+                                  controller.travelCard['travel_type']=='air'?
+                                  Text("Kilo Booked: "+booking["kilo_booked"].toString() + " Kg",
                                       style: Get.textTheme.headline1.
-                                  merge(TextStyle(color: appColor, fontSize: 16)))
+                                  merge(TextStyle(color: appColor, fontSize: 16))):
+                                  controller.travelCard['travel_type']=='road'?
+                                  Text("Kilo Booked: "+booking["luggage_weight"].toString()+ " Kg",
+                                      style: Get.textTheme.headline1.
+                                      merge(TextStyle(color: appColor, fontSize: 16))):
+                                      SizedBox()
+
                                 ],
                               ),
                             ),
@@ -352,26 +412,25 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                   scrollDirection: Axis.horizontal,
                                   padding: EdgeInsets.all(12),
                                   itemBuilder: (context, index){
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      child: CachedNetworkImage(
-                                        height: 100,
-                                        width: 100,
-                                        fit: BoxFit.cover,
-                                        imageUrl: controller.travelCard['travel_type']=='air'?
-                                        Domain.serverPort+'/web/image/m2st_hk_airshipping.travel_booking/'+booking['id'].toString()+'/luggage_image'+index.toString():
-                                        controller.travelCard['travel_type']=='road'?
-                                        Domain.serverPort+'/web/image/m2st_hk_roadshipping.travel_booking/'+booking['id'].toString()+'/luggage_image'+index.toString():
-                                        '',
-                                        placeholder: (context, url) => Image.asset(
-                                          'assets/img/loading.gif',
-                                          fit: BoxFit.cover,
-                                          width: 60,
-                                          height: 100,
+                                    return Container(
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        image: DecorationImage(
+                                            image: NetworkImage(
+                                              controller.travelCard['travel_type']=='air'?
+                                              '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
+                                            controller.travelCard['travel_type']=='road'?
+                                            '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
+                                              '',),
+
+                                            fit: BoxFit.fill
+
                                         ),
-                                        errorWidget: (context, url, error) => Icon(Icons.error_outline),
+                                        border: Border.all(width: 2, color: Get.theme.primaryColor),
                                       ),
-                                    );;
+                                    );
                                   },
                                   separatorBuilder: (context, index){
                                     return SizedBox(width: 8);
@@ -550,7 +609,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   height: 65,
                   width: 65,
                   fit: BoxFit.cover,
-                  imageUrl: "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60",
+                  imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.travelCard['sender']['sender_id']}/image_1920',
                   placeholder: (context, url) => Image.asset(
                     'assets/img/loading.gif',
                     fit: BoxFit.cover,
@@ -774,7 +833,24 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 controller.bookingStep.value == 0 ?
                 MaterialButton(
                   onPressed: () =>{
-                    controller.bookingStep.value++
+                    if(controller.imageFiles.length!=3){
+                      showDialog(
+                          context: context,
+                          builder: (_)=>
+                              PopUpWidget(
+                                title: "You cannot continue if you have not uploaded 3 pictures",
+                                cancel: 'Cancel',
+                                confirm: 'ok',
+                                onTap: (){
+                                  Navigator.of(context).pop();
+                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                              )
+                      )
+                    }
+                    else{
+                      controller.bookingStep.value++
+                    }
+
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -944,15 +1020,37 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             scrollDirection: Axis.horizontal,
                             padding: EdgeInsets.all(12),
                             itemBuilder: (context, index){
-                              return ClipRRect(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                child: Image.file(
-                                  controller.imageFiles[index],
-                                  fit: BoxFit.cover,
-                                  width: 100,
-                                  height: 100,
-                                ),
-                              );;
+                              return Stack(
+                                //mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    child: Image.file(
+                                      controller.imageFiles[index],
+                                      fit: BoxFit.cover,
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top:0,
+                                    right:0,
+                                    child: Align(
+                                      //alignment: Alignment.centerRight,
+                                      child: IconButton(
+                                          onPressed: (){
+                                            controller.imageFiles.removeAt(index);
+                                          },
+                                          icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
+                                      ),
+                                    ),
+                                  ),
+
+
+                                      // .marginOnly(top: 10, right: 10),
+                                ],
+
+                              );
                             },
                             separatorBuilder: (context, index){
                               return SizedBox(width: 8);
@@ -1138,7 +1236,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           child: UserWidget(
                             user: controller.users[index]['name'],
                             selected: false,
-                            imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+                            imageUrl: controller.users[index]['image_1920'] == true ? '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
+                                : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                           ),
                         ),
                       );

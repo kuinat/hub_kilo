@@ -10,6 +10,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
+import '../../../main.dart';
 import '../../providers/odoo_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
@@ -28,6 +29,7 @@ class MainDrawerWidget extends StatelessWidget {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
+    var _currentUser = Get.find<MyAuthService>().myUser;
     return Drawer(
       child: ListView(
         children: [
@@ -128,7 +130,8 @@ class MainDrawerWidget extends StatelessWidget {
                             height: 80,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            imageUrl: "https://images.unsplash.com/photo-1571086291540-b137111fa1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80",
+                            imageUrl: _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
+                                : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                             //Get.find<AuthService>().user.value.avatar.thumb,
                             placeholder: (context, url) => Image.asset(
                               'assets/img/loading.gif',

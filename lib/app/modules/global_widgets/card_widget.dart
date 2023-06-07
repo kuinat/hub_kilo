@@ -31,6 +31,7 @@ class CardWidget extends StatelessWidget {
     @required this.recAddress,
     @required this.recPhone,
     @required this.qty,
+    @required this.typeOfLuggage,
     this.edit,
     this.confirm,
     @required this.price,
@@ -48,6 +49,7 @@ class CardWidget extends StatelessWidget {
   final String recPhone;
   final String depTown;
   final String arrTown;
+  final String typeOfLuggage;
   final String depDate;
   final String arrDate;
   final String bookingState;
@@ -203,6 +205,28 @@ class CardWidget extends StatelessWidget {
                       ),
                     ],
                   ),
+                  SizedBox(height: 10,),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 30,
+                        child: Icon( FontAwesomeIcons.envelopeOpenText, size: 18),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        width: 1,
+                        height: 24,
+                        color: Get.theme.focusColor.withOpacity(0.3),
+                      ),
+                      Expanded(
+                        child: Text('Description', style: Get.textTheme.headline1.
+                        merge(TextStyle(color: appColor, fontSize: 16))),
+                      ),
+                      Text(typeOfLuggage, style: Get.textTheme.headline1.
+                      merge(TextStyle(color: Colors.black, fontSize: 16)),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,6 +264,7 @@ class CardWidget extends StatelessWidget {
                           ],
                         ),
                       ),
+
                     ],
                   ),
                 ExpansionTile(
@@ -253,20 +278,18 @@ class CardWidget extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.all(12),
                           itemBuilder: (context, index){
-                            return ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              child: CachedNetworkImage(
-                                height: 100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                                imageUrl: packetImageUrl+index.toString(),
-                                placeholder: (context, url) => Image.asset(
-                                  'assets/img/loading.gif',
-                                  fit: BoxFit.cover,
-                                  width: 60,
-                                  height: 100,
+                            return Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        '${packetImageUrl}${index}',
+                                    ),
+                                    fit: BoxFit.fill
                                 ),
-                                errorWidget: (context, url, error) => Icon(Icons.error_outline),
+                                border: Border.all(width: 2, color: Get.theme.primaryColor),
                               ),
                             );
                           },

@@ -10,12 +10,13 @@ import '../../../../main.dart';
 class UserTravelsController extends GetxController {
 
   final isDone = false.obs;
-  var isLoading = false.obs;
+  var isLoading = true.obs;
   var items = [].obs;
   var state = "".obs;
   var myTravelsList = [];
   var roadTravels = [];
   var list = [];
+  var listForProfile = [].obs;
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();
@@ -40,6 +41,7 @@ class UserTravelsController extends GetxController {
     items.addAll(myTravelsList);
     items.addAll(roadTravels);
     list = items;
+    listForProfile.value =list;
     print(items);
   }
 
@@ -50,7 +52,8 @@ class UserTravelsController extends GetxController {
     items.addAll(myTravelsList);
     items.addAll(roadTravels);
     list = items;
-    print(items);
+    listForProfile.value =list;
+    print(listForProfile.length.toString());
   }
 
   void toggleTravels(bool value, String type) {
