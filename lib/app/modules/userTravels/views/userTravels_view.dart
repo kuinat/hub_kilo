@@ -84,6 +84,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                           children: [
                             controller.isLoading.value ?
                             LoadingCardWidget() :
+                            controller.items.isNotEmpty ?
                             Expanded(
                                 child: GridView.builder(
                                     physics: AlwaysScrollableScrollPhysics(),
@@ -126,6 +127,17 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                             Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
                                       );}
                                     })
+                            ) : SizedBox(
+                              width: double.infinity,
+                              height: MediaQuery.of(context).size.height/1.6,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                                  Text('No Travels found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                                ],
+                              ),
                             )
                           ]
                       )

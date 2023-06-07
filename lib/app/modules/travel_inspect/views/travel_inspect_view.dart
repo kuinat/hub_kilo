@@ -97,7 +97,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         return Stack(
                           alignment: AlignmentDirectional.bottomCenter,
                           children: <Widget>[
-                            CachedNetworkImage(
+                            Container(
+                              height: 370,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(controller.imageUrl.value), fit: BoxFit.cover)
+                              ),
+                            ),
+                            /*CachedNetworkImage(
                               height: 370,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -109,7 +117,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 width: 65,
                               ),
                               errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                            ),
+                            ),*/
                             buildCarouselBullets(context)
                           ],
                         );
@@ -550,7 +558,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   height: 65,
                   width: 65,
                   fit: BoxFit.cover,
-                  imageUrl: "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60",
+                  imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.travelCard['sender']['sender_id']}/image_1920',
                   placeholder: (context, url) => Image.asset(
                     'assets/img/loading.gif',
                     fit: BoxFit.cover,

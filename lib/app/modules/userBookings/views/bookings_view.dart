@@ -85,11 +85,11 @@ class BookingsView extends GetView<BookingsController> {
                   : SizedBox(
                       width: double.infinity,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          SizedBox(height: MediaQuery.of(context).size.height/4),
                           FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
                         ],
                       ),
                     )
@@ -101,13 +101,7 @@ class BookingsView extends GetView<BookingsController> {
         ));
   }
 
-  List transportMeans = [
-    "Water",
-    "Land",
-    "Air"
-  ];
-
-  Widget BottomFilterSheetWidget(BuildContext context){
+  /*Widget BottomFilterSheetWidget(BuildContext context){
     return Container(
       height: Get.height/2,
       decoration: BoxDecoration(
@@ -184,7 +178,7 @@ class BookingsView extends GetView<BookingsController> {
         ],
       ),
     );
-  }
+  }*/
 
 
   Widget MyBookings(BuildContext context){
@@ -200,7 +194,7 @@ class BookingsView extends GetView<BookingsController> {
               } else {
                 var travel = controller.items[index]['travel'];
                 Future.delayed(Duration.zero, (){
-                  controller.items.value.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
+                  controller.items.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
                 });
                 return CardWidget(
                   travelType: travel['travel_type'] ,

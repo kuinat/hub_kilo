@@ -161,7 +161,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 )
             ),
             InkWell(
-                onTap: ()=>{controller.chooseArrivalDate()},
+                onTap: ()=>{ controller.chooseArrivalDate() },
                 child: Container(
                   padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
                   margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
@@ -314,18 +314,33 @@ class AddTravelsView extends GetView<AddTravelController> {
                     border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
                 child: ExpansionTile(
                   title: Text("Travel Type".tr, style: Get.textTheme.bodyText2),
-                  children: List.generate(controller.transportType.length, (index) {
-                    var type = controller.transportType.elementAt(index);
-                    return SwitchListTile( //switch at right side of label
-                        value: controller.selectedTravel.contains(type),
+                  children: [
+                    Obx(() => SwitchListTile( //switch at right side of label
+                        value: controller.travelType.value == 'road' ? true : false,
                         onChanged: (bool value){
-                          controller.toggleTravels(value, type);
-                          controller.travelType.value = type;
+                          controller.travelType.value = 'road';
+                          print(controller.travelType.value);
                         },
-                        title: Text(controller.transportType[index])
-                    );
-                  }),
-                  initiallyExpanded: false,
+                        title: Text('road')
+                    )),
+                    Obx(() => SwitchListTile( //switch at right side of label
+                        value: controller.travelType.value == 'air' ? true : false,
+                        onChanged: (bool value){
+                          controller.travelType.value = 'air';
+                          print(controller.travelType.value);
+                        },
+                        title: Text("air")
+                    )),
+                    Obx(() => SwitchListTile( //switch at right side of label
+                        value: controller.travelType.value == 'sea' ? true : false,
+                        onChanged: (bool value){
+                          controller.travelType.value = 'sea';
+                          print(controller.travelType.value);
+                        },
+                        title: Text('sea')
+                    )),
+                  ],
+                  initiallyExpanded: controller.travelCard.isEmpty ? false : true,
                 )
             ),
             if(controller.travelType.value != "road")...[
@@ -539,24 +554,23 @@ class AddTravelsView extends GetView<AddTravelController> {
             text: Text('Arrival \nTown'),
             value: controller.arrivalTown.value,
           ),
-          if(controller.travelType.value == "land")
-          AccountWidget(
-            icon: FontAwesomeIcons.shoppingBasket,
-            text: Text('Quantity'),
-            value: controller.quantity.value.toString(),
-          ),
-          if(controller.travelType.value == "land")
-          AccountWidget(
-              icon: FontAwesomeIcons.moneyBill,
-              text: Text('Accept bargain?'),
-              value: controller.canBargain.value ? 'YES' : 'NO'
-          ),
-          if(controller.travelType.value == "land")
-          AccountWidget(
-              icon: FontAwesomeIcons.moneyCheck,
-              text: Text('Price /kg'),
-              value: '${controller.price.value} EUR'
-          ),
+          if(controller.travelType.value != "road")...[
+            AccountWidget(
+              icon: FontAwesomeIcons.shoppingBasket,
+              text: Text('Quantity'),
+              value: controller.quantity.value.toString(),
+            ),
+            AccountWidget(
+                icon: FontAwesomeIcons.moneyBill,
+                text: Text('Accept bargain?'),
+                value: controller.canBargain.value ? 'YES' : 'NO'
+            ),
+            AccountWidget(
+                icon: FontAwesomeIcons.moneyCheck,
+                text: Text('Price /kg'),
+                value: '${controller.price.value} EUR'
+            )
+          ],
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             child: Row(
@@ -580,28 +594,33 @@ class AddTravelsView extends GetView<AddTravelController> {
             ),
           ),
           Spacer(),
-          Row(
+          Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 controller.travelCard.isEmpty ?
                 BlockButtonWidget(
                   onPressed: () {
-                    controller.buttonPressed.value = !controller.buttonPressed.value;
-                    print(controller.travelType.value);
-                    if(controller.travelType.value == "air"){
-                      print("Air");
-                      controller.createAirTravel();
-                    }
-                    if(controller.travelType.value == "road"){
-                      print("Land");
-                      controller.createRoadTravel();
-                    }
-                    if(controller.travelType.value == "sea"){
-                      print("Sea");
-                      //controller.createSeaTravel()
+                    if(controller.travelType.value != "" && controller.quantity.value != 0 || controller.travelType.value != "road"){
+                      controller.buttonPressed.value = !controller.buttonPressed.value;
+                      print(controller.travelType.value);
+                      if(controller.travelType.value == "air"){
+                        print("Air");
+                        controller.createAirTravel();
+                      }
+                      if(controller.travelType.value == "road"){
+                        print("Land");
+                        controller.createRoadTravel();
+                      }
+                      if(controller.travelType.value == "sea"){
+                        print("Sea");
+                        //controller.createSeaTravel()
+                      }
+                    }else{
+                      print("Not Ok");
                     }
                   },
-                  color: Get.theme.colorScheme.secondary,
+                  color: controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value != "road"?
+                  Get.theme.colorScheme.secondary : inactive,
                   text: !controller.buttonPressed.value ? Text(
                     "Submit Form".tr,
                     style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
@@ -611,22 +630,27 @@ class AddTravelsView extends GetView<AddTravelController> {
                     :
                 BlockButtonWidget(
                   onPressed: () {
-                    controller.buttonPressed.value = !controller.buttonPressed.value;
+                    if(controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value != "road"){
+                      controller.buttonPressed.value = !controller.buttonPressed.value;
 
-                    if(controller.travelType.value == "air"){
-                      print("Air");
-                      controller.updateAirTravel(controller.travelCard['id']);
-                    }
-                    if(controller.travelType.value == "road"){
-                      print("Land");
-                      controller.updateRoadTravel(controller.travelCard['id']);
-                    }
-                    if(controller.travelType.value == "sea"){
-                      print("Sea");
-                      //controller.createSeaTravel()
+                      if(controller.travelType.value == "air"){
+                        print("Air");
+                        controller.updateAirTravel(controller.travelCard['id']);
+                      }
+                      if(controller.travelType.value == "road"){
+                        print("Land");
+                        controller.updateRoadTravel(controller.travelCard['id']);
+                      }
+                      if(controller.travelType.value == "sea"){
+                        print("Sea");
+                        //controller.createSeaTravel()
+                      }
+                    }else{
+                      print("Not OK");
                     }
                   },
-                  color: Get.theme.colorScheme.secondary,
+                  color: controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value != "road"?
+                  Get.theme.colorScheme.secondary : inactive,
                   text: !controller.buttonPressed.value ? Text(
                     "Update Travel".tr,
                     style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
@@ -634,6 +658,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                       child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                 ).paddingSymmetric(vertical: 10, horizontal: 20)
               ]
+          )
           )
         ],
       ),

@@ -38,15 +38,10 @@ class AddTravelController extends GetxController{
   var loadTicket = false.obs;
   File ticket;
   final travelCard = {}.obs;
-  final selectedTravel = <String>[].obs;
+  var travelTypeSelected = false.obs;
   var buttonPressed = false.obs;
   var ticketUpload = false.obs;
   GlobalKey<FormState> newTravelKey;
-  List transportType = [
-    "road",
-    "air",
-    "sea"
-  ].obs;
   ScrollController scrollController = ScrollController();
   final formStep = 0.obs;
   //TextEditingController departureTown = TextEditingController();
@@ -113,15 +108,6 @@ class AddTravelController extends GetxController{
 
     }
 
-  }
-
-  void toggleTravels(bool value, String type) {
-    if (value) {
-      selectedTravel.clear();
-      selectedTravel.add(type);
-    } else {
-      selectedTravel.removeWhere((element) => element == type);
-    }
   }
 
   backToHome()async{
@@ -282,6 +268,7 @@ class AddTravelController extends GetxController{
       print("travel response: $data");
       if(json.decode(data)['result']['status'] == 'success'){
         print('travel id: '+json.decode(data)['result']['travel']['id'].toString());
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Success... Uploading pictures !!!".tr));
         await uploadImages(json.decode(data)['result']['travel']['id']);
 
       }else{
