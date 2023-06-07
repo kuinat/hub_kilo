@@ -10,7 +10,7 @@ import '../../../../main.dart';
 class UserTravelsController extends GetxController {
 
   final isDone = false.obs;
-  var isLoading = false.obs;
+  var isLoading = true.obs;
   var items = [].obs;
   var state = "".obs;
   var myTravelsList = [];

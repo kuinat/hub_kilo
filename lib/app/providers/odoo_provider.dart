@@ -127,7 +127,6 @@ class OdooApiClient extends GetxService with ApiClient {
       'Cookie': sessionId.toString()
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
-    request.body = '''{\n     "jsonrpc": "2.0"\n}''';
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();

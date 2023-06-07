@@ -88,8 +88,8 @@ class AccountView extends GetView<AccountController> {
                       alignment: Alignment.bottomCenter,
                       child: Container(
                         width: double.infinity,
-                        height: 30,
-                        color: Colors.white.withOpacity(0.3),
+                        height: 40,
+                        color: _currentUser.value.image == true ? Colors.white.withOpacity(0.3) : interfaceColor.withOpacity(0.3),
                         child: Center(
                             child: IconButton(
                                 onPressed: ()async{
