@@ -1,4 +1,4 @@
-package com.smartersvision.home_services
+package com.hubkilo.app
 
 import io.flutter.embedding.android.FlutterActivity
 
