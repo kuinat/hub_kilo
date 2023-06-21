@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -54,18 +53,14 @@ class CategoryView extends GetView<CategoryController> {
                     return Stack(
                       alignment: AlignmentDirectional.bottomCenter,
                       children: <Widget>[
-                        CachedNetworkImage(
+                        Container(
                           height: 370,
                           width: double.infinity,
-                          fit: BoxFit.cover,
-                          imageUrl: controller.imageUrl.value,
-                          placeholder: (context, url) => Image.asset(
-                            'assets/img/loading.gif',
-                            fit: BoxFit.cover,
-                            height: 65,
-                            width: 65,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: NetworkImage(controller.imageUrl.value),
+                              fit: BoxFit.cover)
                           ),
-                          errorWidget: (context, url, error) => Icon(Icons.error_outline),
                         ),
                         buildSearchBar(context)
                       ],
@@ -90,23 +85,23 @@ class CategoryView extends GetView<CategoryController> {
                               child: SizedBox(
                                   width: MediaQuery.of(context).size.width/1.2,
                                   child: TravelCardWidget(
-                                    isUser: false,
-                                    homePage: false,
-                                    travelBy: controller.travelList[index]['travel_type'],
-                                    travelType: controller.travelList[index]['travel_type'] != "road" ? true : false,
-                                    depDate: controller.travelList[index]['departure_date'],
-                                    arrTown: controller.travelList[index]['arrival_town'],
-                                    depTown: controller.travelList[index]['departure_town'],
-                                    arrDate: controller.travelList[index]['arrival_date'],
-                                    qty: controller.travelList[index]['kilo_qty'],
-                                    price: controller.travelList[index]['price_per_kilo'],
-                                    color: Colors.white,
-                                    text: Text(""),
-                                    user: Text(controller.travelList[index]['sender']['sender_name'], style: TextStyle(fontSize: 17)),
-                                    imageUrl: controller.travelList[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.travelList[index]['sender']['sender_id']}/image_1920'
-                                        : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
+                                      isUser: false,
+                                      homePage: false,
+                                      travelBy: controller.travelList[index]['booking_type'],
+                                      travelType: controller.travelList[index]['booking_type'] != "road" ? true : false,
+                                      depDate: controller.travelList[index]['departure_date'],
+                                      arrTown: controller.travelList[index]['arrival_city_id'][1],
+                                      depTown: controller.travelList[index]['departure_city_id'][1],
+                                      arrDate: controller.travelList[index]['arrival_date'],
+                                      qty: controller.travelList[index]['kilo_qty'],
+                                      price: controller.travelList[index]['price_per_kilo'],
+                                      color: background,
+                                      text: Text(""),
+                                      user: Text(controller.travelList[index]['partner_id'][1].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
+                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.travelList[index]['partner_id']}/avatar_1920?unique=true&file_response=true'
+                                    //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
-                                  )
+                                  ),
                               ),
                               onTap: ()=>{
                                 Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),

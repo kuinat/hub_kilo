@@ -24,7 +24,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                     MaterialButton(
                       onPressed: () {
                         if(controller.landTravelList.isNotEmpty){
-                          Get.toNamed(Routes.CATEGORY, arguments: {'travels': controller.landTravelList, "travelType": "Road"});
+                          Get.toNamed(Routes.CATEGORY, arguments: {'travels': controller.landTravelList, "travelType": "road"});
                         }
                       },
                       shape: StadiumBorder(),
@@ -60,23 +60,23 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                           child: SizedBox(
                               width: MediaQuery.of(context).size.width/1.2,
                               child: TravelCardWidget(
-                                isUser: false,
-                                homePage: true,
-                                travelBy: controller.landTravelList[index]['travel_type'],
-                                travelType: controller.landTravelList[index]['travel_type'] != "road" ? true : false,
-                                depDate: controller.landTravelList[index]['departure_date'],
-                                arrTown: controller.landTravelList[index]['arrival_town'],
-                                depTown: controller.landTravelList[index]['departure_town'],
-                                arrDate: controller.landTravelList[index]['arrival_date'],
-                                qty: controller.landTravelList[index]['kilo_qty'],
-                                price: controller.landTravelList[index]['price_per_kilo'],
-                                color: Colors.white,
-                                text: Text(""),
-                                user: Text(controller.landTravelList[index]['sender']['sender_name'], style: TextStyle(fontSize: 17)),
-                                imageUrl: controller.landTravelList[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.landTravelList[index]['sender']['sender_id']}/image_1920'
-                                    : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
+                                  isUser: false,
+                                  homePage: false,
+                                  travelBy: controller.landTravelList[index]['booking_type'],
+                                  travelType: controller.landTravelList[index]['booking_type'] != "road" ? true : false,
+                                  depDate: controller.landTravelList[index]['departure_date'],
+                                  arrTown: controller.landTravelList[index]['arrival_city_id'][1],
+                                  depTown: controller.landTravelList[index]['departure_city_id'][1],
+                                  arrDate: controller.landTravelList[index]['arrival_date'],
+                                  qty: controller.landTravelList[index]['kilo_qty'],
+                                  price: controller.landTravelList[index]['price_per_kilo'],
+                                  color: background,
+                                  text: Text(""),
+                                  user: Text(controller.landTravelList[index]['partner_id'][1].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
+                                  imageUrl: '${Domain.serverPort}/image/res.users/${controller.landTravelList[index]['partner_id'][0]}/avatar_1920?unique=true&file_response=true',
+                                //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
-                              )
+                              ),
                           ),
                           onTap: ()=>{
                             Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.landTravelList[index], 'heroTag': 'services_carousel'}),

@@ -19,7 +19,7 @@ class HomeController extends GetxController {
   EServiceRepository _eServiceRepository;
   var landTravelList = [].obs;
   var airTravelList = [].obs;
-  var travelItem = {};
+  var travelItem = [];
   var isLoading = true.obs;
 
   final addresses = <Address>[].obs;
@@ -42,8 +42,11 @@ class HomeController extends GetxController {
   Future<void> onInit() async {
     await refreshHome();
     travelItem = await getAllTravels();
-    landTravels = travelItem['road_shippings'];
-    airTravels = travelItem['air_shippings'];
+    for(var a in travelItem){
+      if(a["booking_type"] == "road"){
+        landTravels.add(a);
+      }
+    }
     landTravelList.value = landTravels;
     airTravelList.value = airTravels;
     //print(listItems);
@@ -53,8 +56,12 @@ class HomeController extends GetxController {
   Future refreshHome({bool showMessage = false}) async {
     isLoading.value = true;
     travelItem = await getAllTravels();
-    landTravels = travelItem['road_shippings'];
-    airTravels = travelItem['air_shippings'];
+
+    for(var a in travelItem){
+      if(a["booking_type"] == "road"){
+        landTravels.add(a);
+      }
+    }
     landTravelList.value = landTravels;
     airTravelList.value = airTravels;
     //print(listItems);
@@ -64,13 +71,19 @@ class HomeController extends GetxController {
 
   Future getAllTravels()async{
 
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/api/all/travels'));
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.travelbooking'));
+
+    request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      print(data);
+      final data = await response.stream.bytesToString();
       isLoading.value = false;
       return json.decode(data);
     }
