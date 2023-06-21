@@ -119,37 +119,51 @@ class OdooApiClient extends GetxService with ApiClient {
   // }
 
   Future<MyUser>getUser() async {
-
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
     var headers = {
-      //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
-      'Cookie': sessionId.toString()
+      'Accept': 'application/json',
+      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.users?ids=19'));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
+
+
+
+    //
+    // final box = GetStorage();
+    // var sessionId = box.read('session_id');
+    // var headers = {
+    //   //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
+    //   'Cookie': sessionId.toString()
+    // };
+    // var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
-      var data = json.decode(result)['partner'];
+      var data = json.decode(result)[0];
       print('user1  '+data.toString());
       var myuser = MyUser(
-          email: data['email'],
-          birthday: data['birthdate'],
+          email: data['login'],
+          birthday: data['birthday'].toString(),
           isTraveller: data['is_traveler'],
-          phone: data['phone'],
-          street: data['street'],
+          phone: data['phone'].toString(),
+          street: data['street'].toString(),
           sex: data['sex'].toString(),
           name: data['name'],
-          birthplace: data['birthplace'],
-          id: data['id'],
-          image: data['image_1920']
+          birthplace: data['place_of_birth'].toString(),
+          id: data['uid'],
+          image: data['avatar_1920'].toString()
       );
       // print(myuser.image);
-      final session_id = response.headers['set-cookie'];
-      print(session_id.split(";").first);
-      box.write('session_id', session_id.split(";").first);
+      // final session_id = response.headers['set-cookie'];
+      // print(session_id.split(";").first);
+      // box.write('session_id', session_id.split(";").first);
       return myuser;
 
     } else {
@@ -158,17 +172,15 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   login(MyUser myUser) async {
-
-    final box = GetStorage();
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=cb2f15bbd89f512bde7518329c4d0a692c3380c4'
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/web/session/authenticate'));
+    var request = http.Request('POST', Uri.parse('https://preprod.hubkilo.com/web/session/authenticate'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
-        "db": "odoo15",
+        "db": "preprod.hubkilo.com",
         "login": myUser.email,
         "password": myUser.password
       }
@@ -177,15 +189,38 @@ class OdooApiClient extends GetxService with ApiClient {
 
     http.StreamedResponse response = await request.send();
 
+
+
+
+    //
+    //
+    // final box = GetStorage();
+    // var headers = {
+    //   'Content-Type': 'application/json',
+    //   'Cookie': 'session_id=cb2f15bbd89f512bde7518329c4d0a692c3380c4'
+    // };
+    // var request = http.Request('GET', Uri.parse(Domain.serverPort+'/web/session/authenticate'));
+    // request.body = json.encode({
+    //   "jsonrpc": "2.0",
+    //   "params": {
+    //     "db": "odoo15",
+    //     "login": myUser.email,
+    //     "password": myUser.password
+    //   }
+    // });
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
+
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['partner_id'];
+        var userId = data['id'];
         print(userId);
-        final session_id = response.headers['set-cookie'];
-        box.write('session_id', session_id.split(";").first);
+        //final session_id = response.headers['set-cookie'];
+        //box.write('session_id', session_id.split(";").first);
         //var myuser = await getUser();
 
         //print("session id: ${session_id.split(";").first}");

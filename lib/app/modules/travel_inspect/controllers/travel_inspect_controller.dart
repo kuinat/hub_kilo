@@ -624,7 +624,7 @@ class TravelInspectController extends GetxController {
     // Get.lazyPut<PacketImageFieldController>(
     //       () => PacketImageFieldController(),
     // );
-    File imageFile = Get.find<PacketImageFieldController>().image.value;
+    //File imageFile = Get.find<PacketImageFieldController>().image.value;
     if (imageFiles.length==3) {
 
         //await deleteUploaded();

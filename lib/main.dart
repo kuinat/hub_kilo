@@ -28,7 +28,8 @@ void initServices() async {
 
 class Domain{
 
-  static var serverPort = "http://192.168.16.102:8090";
+  static var serverPort = "https://preprod.hubkilo.com/api/v1";
+  //static var serverPort = "http://16.171.22.23:8069";
 
 
   static var apiKey = "NMMAG3K4IVS0L6VYEPXLJ1Z0RR77AR67";

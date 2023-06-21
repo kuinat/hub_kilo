@@ -144,8 +144,8 @@ class ProfileView extends GetView<ProfileController> {
                     ):
 
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         PhoneFieldWidget(
                           labelText: "Phone Number".tr,
