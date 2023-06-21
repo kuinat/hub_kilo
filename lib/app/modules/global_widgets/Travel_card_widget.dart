@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../color_constants.dart';
+import '../../../main.dart';
 
 class TravelCardWidget extends StatelessWidget {
   const TravelCardWidget({Key key,
@@ -40,7 +41,7 @@ class TravelCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = homePage ? MediaQuery.of(context).size.width/3.4 : MediaQuery.of(context).size.width/3;
+    double width = homePage ? MediaQuery.of(context).size.width/3.5 : MediaQuery.of(context).size.width/3.2;
     return Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -66,10 +67,10 @@ class TravelCardWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(width: width,
-                    child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                    child: Center(child: FaIcon(travelBy == "road" ? FontAwesomeIcons.bus : FontAwesomeIcons.planeDeparture)),
                   ),
                   Container(width: width,
-                    child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                    child: Center(child: FaIcon(travelBy == "road" ? FontAwesomeIcons.bus : FontAwesomeIcons.planeArrival)),
                   )
                 ],
               ),
@@ -165,7 +166,7 @@ class TravelCardWidget extends StatelessWidget {
                                       shape: BoxShape.circle,
                                       color: Colors.white,
                                       image: DecorationImage(
-                                          image: NetworkImage(this.imageUrl),
+                                          image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
                                           fit: BoxFit.cover
                                       )
                                   )

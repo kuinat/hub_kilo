@@ -4,9 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
+import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
+import '../../../main.dart';
 import '../account/widgets/account_link_widget.dart';
 import '../userBookings/controllers/bookings_controller.dart';
 
@@ -285,7 +286,8 @@ class CardWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
                                 image: DecorationImage(
                                     image: NetworkImage(
-                                        '${packetImageUrl}${index}',
+                                        //'${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/16/luggage_image1'
+                                      '${packetImageUrl}${index+1}',
                                     ),
                                     fit: BoxFit.fill
                                 ),

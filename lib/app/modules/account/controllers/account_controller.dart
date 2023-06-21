@@ -49,7 +49,7 @@ class AccountController extends GetxController {
 
   Future getUser() async {
     try {
-      Get.find<MyAuthService>().myUser.value = await _userRepository.get();
+      Get.find<MyAuthService>().myUser.value = await _userRepository.get(Get.find<MyAuthService>().myUser.value.id);
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }

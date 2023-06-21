@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/helper.dart';
@@ -123,7 +124,7 @@ class LoginView extends GetView<AuthController> {
                               child: Text("Forgot Password?".tr),
                             ),
                           ],
-                        ).paddingSymmetric(horizontal: 20),
+                        ).paddingSymmetric(horizontal: 30),
                         BlockButtonWidget(
                           onPressed: () {
                             controller.login();
@@ -132,9 +133,54 @@ class LoginView extends GetView<AuthController> {
                           text: !controller.loading.value? Text(
                             "Login".tr,
                             style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                          ): SizedBox(height: 20,
+                          ): SizedBox(height: 30,
                               child: SpinKitThreeBounce(color: Colors.white, size: 20)),
                         ).paddingSymmetric(vertical: 10, horizontal: 20),
+
+                        Row(
+                          children: const [
+                            Expanded(
+                              child: Divider(
+                                height: 30,
+                                //color: Colors.grey,
+                                thickness: 1,
+                              ),
+                            ),
+                            Text(
+                              " Or  ",
+                              style: TextStyle(
+                                fontSize: 16,
+                                //fontFamily:'Roboto',
+                                fontWeight: FontWeight.normal,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Expanded(
+                              child: Divider(
+                                height: 30,
+                                //color: Colors.grey,
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            //fixedSize: Size(50, 40)
+                          ),
+                            onPressed: (){
+                            controller.signInWithGoogle();
+                            },
+                          label: Text('Connect with Google',style: TextStyle(fontWeight: FontWeight.bold)),
+                          icon: Icon(FontAwesomeIcons.google),
+                        ).paddingSymmetric(vertical: 10, horizontal: 20),
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

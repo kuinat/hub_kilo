@@ -515,15 +515,37 @@ class BookingsView extends GetView<BookingsController> {
                             scrollDirection: Axis.horizontal,
                             padding: EdgeInsets.all(12),
                             itemBuilder: (context, index){
-                              return ClipRRect(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                child: Image.file(
-                                  controller.imageFiles[index],
-                                  fit: BoxFit.cover,
-                                  width: 100,
-                                  height: 100,
-                                ),
-                              );;
+                              return Stack(
+                                //mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    child: Image.file(
+                                      controller.imageFiles[index],
+                                      fit: BoxFit.cover,
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top:0,
+                                    right:0,
+                                    child: Align(
+                                      //alignment: Alignment.centerRight,
+                                      child: IconButton(
+                                          onPressed: (){
+                                            controller.imageFiles.removeAt(index);
+                                          },
+                                          icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  // .marginOnly(top: 10, right: 10),
+                                ],
+
+                              );
                             },
                             separatorBuilder: (context, index){
                               return SizedBox(width: 8);
@@ -670,8 +692,8 @@ class BookingsView extends GetView<BookingsController> {
                     )
                 ):
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PhoneFieldWidget(
                         labelText: "Phone Number".tr,

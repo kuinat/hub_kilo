@@ -1,5 +1,5 @@
-name: home_services
-description: home_services customer app
+name: app
+description: app customer app
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -68,6 +68,7 @@ dependencies:
   firebase_core: 1.24.0
   firebase_storage: 10.3.11
   # GOOGLE MAPS
+  google_sign_in: ^5.4.0
   google_maps_flutter: 2.2.1
   google_maps_flutter_web: 0.4.0+3
   map_launcher: 2.4.0

@@ -118,38 +118,34 @@ class OdooApiClient extends GetxService with ApiClient {
   //   }
   // }
 
-  Future<MyUser>getUser() async {
-
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
+  Future<MyUser>getUser(int id) async {
     var headers = {
-      //'Authorization': 'f4306f3775e61e951742869b5a627c49273d069c',
-      'Cookie': sessionId.toString()
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/api/res_partner'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.users?ids=$id'));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
-      var data = json.decode(result)['partner'];
+      var data = json.decode(result)[0];
       print('user1  '+data.toString());
       var myuser = MyUser(
-          email: data['email'],
-          birthday: data['birthdate'],
+          email: data['login'],
+          birthday: data['birthday'].toString(),
           isTraveller: data['is_traveler'],
-          phone: data['phone'],
-          street: data['street'],
+          phone: data['phone'].toString(),
+          street: data['street'].toString(),
           sex: data['sex'].toString(),
           name: data['name'],
-          birthplace: data['birthplace'],
-          id: data['id'],
-          image: data['image_1920']
+          birthplace: data['place_of_birth'].toString(),
+          id: data['uid'],
+          image: data['avatar_1920'].toString()
       );
-      // print(myuser.image);
-      final session_id = response.headers['set-cookie'];
-      print(session_id.split(";").first);
-      box.write('session_id', session_id.split(";").first);
       return myuser;
 
     } else {
@@ -157,18 +153,16 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  login(MyUser myUser) async {
-
-    final box = GetStorage();
+  Future <int> login(MyUser myUser) async {
     var headers = {
       'Content-Type': 'application/json',
-      'Cookie': 'session_id=cb2f15bbd89f512bde7518329c4d0a692c3380c4'
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/web/session/authenticate'));
+    var request = http.Request('POST', Uri.parse('https://preprod.hubkilo.com/web/session/authenticate'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
-        "db": "odoo15",
+        "db": "preprod.hubkilo.com",
         "login": myUser.email,
         "password": myUser.password
       }
@@ -182,14 +176,8 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['partner_id'];
-        print(userId);
-        final session_id = response.headers['set-cookie'];
-        box.write('session_id', session_id.split(";").first);
-        //var myuser = await getUser();
-
-        //print("session id: ${session_id.split(";").first}");
-        //return (myuser);
+        var userId = data['id'];
+        return data['uid'];
 
       }
       else{
@@ -201,37 +189,8 @@ class OdooApiClient extends GetxService with ApiClient {
     else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
     }
 
-
-    // Uri _uri = getApiBaseUri("login");
-    // Get.log(_uri.toString());
-    // var response = await _httpClient.postUri(
-    //   _uri,
-    //   data: json.encode(user.toJson()),
-    //   options: _optionsNetwork,
-    // );
-    // if (response.data['success'] == true) {
-    //   response.data['data']['auth'] = true;
-    //   return MyUser.fromJson(response.data['data']);
-    // } else {
-    //   throw new Exception(response.data['message']);
-    // }
   }
 
-  // Future<MyUser> login(MyUser user) async {
-  //   Uri _uri = getApiBaseUri("login");
-  //   Get.log(_uri.toString());
-  //   var response = await _httpClient.postUri(
-  //     _uri,
-  //     data: json.encode(user.toJson()),
-  //     options: _optionsNetwork,
-  //   );
-  //   if (response.data['success'] == true) {
-  //     response.data['data']['auth'] = true;
-  //     return MyUser.fromJson(response.data['data']);
-  //   } else {
-  //     throw new Exception(response.data['message']);
-  //   }
-  // }
 
   register(MyUser myUser) async {
     var headers = {

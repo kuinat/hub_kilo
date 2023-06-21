@@ -2,12 +2,13 @@
  * Copyright (c) 2020 .
  */
 
+import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
+// import 'package:home_services/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
 import '../../../main.dart';

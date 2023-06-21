@@ -70,7 +70,9 @@ class AccountView extends GetView<AccountController> {
                       ),
                     ),
                   ),
-                  Obx(() =>Container(
+
+                  Obx(() =>
+                      Container(
                     width: 150,
                     height: 150,
                     decoration: BoxDecoration(
@@ -78,9 +80,15 @@ class AccountView extends GetView<AccountController> {
                       image: DecorationImage(
                           image: NetworkImage(
                               _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
-                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+
                           ),
-                          fit: BoxFit.fill
+                          fit: BoxFit.fill,
+                        // onError: (exception, stackTrace) {
+                        //   // Handle the error here
+                        //   Get.showSnackbar(Ui.ErrorSnackBar(message: "Image failed to load!".tr));
+                        //   print('Image failed to load: $exception');
+                        // },
                       ),
                       border: Border.all(width: 5, color: Get.theme.primaryColor),
                     ),

@@ -113,19 +113,19 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                     child: TravelCardWidget(
                                       isUser: false,
                                       homePage: false,
-                                      travelBy: controller.items[index]['travel_type'],
-                                      travelType: controller.items[index]['travel_type'] != "road" ? true : false,
+                                      travelBy: controller.items[index]['booking_type'],
+                                      travelType: controller.items[index]['booking_type'] != "road" ? true : false,
                                       depDate: controller.items[index]['departure_date'],
-                                      arrTown: controller.items[index]['arrival_town'],
-                                      depTown: controller.items[index]['departure_town'],
+                                      arrTown: controller.items[index]['arrival_city_id'][1],
+                                      depTown: controller.items[index]['departure_city_id'][1],
                                       arrDate: controller.items[index]['arrival_date'],
                                       qty: controller.items[index]['kilo_qty'],
                                       price: controller.items[index]['price_per_kilo'],
                                       color: background,
                                       text: Text(""),
-                                      user: Text(controller.items[index]['sender']['sender_name'].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
-                                      imageUrl: controller.items[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.items[index]['sender']['sender_id']}/image_1920'
-                                          : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
+                                      user: Text(controller.items[index]['partner_id'][1].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
+                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.items[index]['partner_id']}/avatar_1920?unique=true&file_response=true'
+                                          //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                                     ),
                                   );

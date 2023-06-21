@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../common/ui.dart';
 import '../../../models/my_user_model.dart';
@@ -25,11 +27,58 @@ class AuthController extends GetxController {
   var confirmPassword = ''.obs;
   var password = ''.obs;
   UserRepository _userRepository;
+  GoogleSignIn googleAuth = GoogleSignIn();
+  GoogleSignInAccount googleAccount;
+  var auth;
 
   AuthController() {
     _userRepository = UserRepository();
     Get.put(currentUser);
+
   }
+
+
+
+  Future<void> signInWithGoogle() async {
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+
+
+
+    // googleAccount = await googleAuth.signIn();
+    //
+    // print(googleAccount.toString());
+    //
+    //
+    // if (googleAccount != null) {
+    //   print('Helle Nathalie');
+    //   final GoogleSignInAuthentication googleSignInAuthentication =
+    //   await googleAccount.authentication;
+    //   final AuthCredential authCredential = GoogleAuthProvider.credential(
+    //       idToken: googleSignInAuthentication.idToken,
+    //       accessToken: googleSignInAuthentication.accessToken);
+    //
+    //   await auth.signInWithCredential(authCredential);
+    //
+    // }
+  }
+
+  googleSignOut() async {
+    googleAccount = await googleAuth.signOut();
+
+  }
+
 
   void login() async {
     Get.focusScope.unfocus();
@@ -38,8 +87,8 @@ class AuthController extends GetxController {
 
 
         loading.value = true;
-        await _userRepository.login(currentUser.value);
-      currentUser.value = await _userRepository.get();
+        int id = await _userRepository.login(currentUser.value);
+      currentUser.value = await _userRepository.get(id);
           loading.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
         await Get.toNamed(Routes.ROOT);
@@ -56,8 +105,8 @@ class AuthController extends GetxController {
         loading.value = true;
 
         await _userRepository.register(currentUser.value);
-        await _userRepository.login(currentUser.value);
-        currentUser.value = await _userRepository.get();
+        var myUser = await _userRepository.login(currentUser.value);
+        currentUser.value = await _userRepository.get(myUser.id);
       loading.value = false;
 
       Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
