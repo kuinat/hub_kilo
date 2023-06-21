@@ -29,15 +29,13 @@ void initServices() async {
 class Domain{
 
   static var serverPort = "https://preprod.hubkilo.com/api/v1";
-  //static var serverPort = "http://16.171.22.23:8069";
 
-
-  static var apiKey = "NMMAG3K4IVS0L6VYEPXLJ1Z0RR77AR67";
+  static var authorization = "Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==";
   static var AppName = "Hub Kilo";
   static Map<String, String> getTokenHeaders() {
     Map<String, String> headers = new Map();
-    headers['Authorization'] = "Basic ZnJpZWRyaWNoOmF6ZXJ0eTEyMw==";
-    headers['content-type'] = 'application/json';
+    headers['Authorization'] = "Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==";
+    headers['accept'] = 'application/json';
     headers['Cache-Control'] = "no-cache, no-store, must-revalidate";
     headers['Pragma'] = "no-cache";
     headers['Expires'] = "0";

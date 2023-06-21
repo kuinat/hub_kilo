@@ -20,9 +20,9 @@ class CategoryController extends GetxController {
     list.addAll(travelList);
     travelType.value = arguments['travelType'];
     print(travelList);
-    if(travelList[0]['travel_type'].toLowerCase() == "air"){
+    if(arguments['travelType'] == "air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
-    }else if(travelList[0]['travel_type'].toLowerCase() == "Sea"){
+    }else if(arguments['travelType'] == "Sea"){
       travelList[0].value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
     }else{
       imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
@@ -36,8 +36,8 @@ class CategoryController extends GetxController {
     dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+      dummyListData = dummySearchList.where((element) => element['departure_city_id'][1]
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_city_id'][1]
           .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       travelList.value = dummyListData;
       return;

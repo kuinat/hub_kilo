@@ -94,7 +94,7 @@ class ProfileController extends GetxController {
       print(user.value.phone);
 
        await _userRepository.update(user.value);
-      user.value = await _userRepository.get();
+      user.value = await _userRepository.get(user.value.id);
       Get.find<MyAuthService>().myUser.value = user.value;
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile updated successfully".tr));
@@ -173,7 +173,7 @@ class ProfileController extends GetxController {
 
   Future getUser() async {
     try {
-      user.value = await _userRepository.get();
+      user.value = await _userRepository.get(user.value.id);
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }

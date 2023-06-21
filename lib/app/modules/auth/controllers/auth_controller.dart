@@ -87,8 +87,8 @@ class AuthController extends GetxController {
 
 
         loading.value = true;
-        await _userRepository.login(currentUser.value);
-      currentUser.value = await _userRepository.get();
+        int id = await _userRepository.login(currentUser.value);
+      currentUser.value = await _userRepository.get(id);
           loading.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
         await Get.toNamed(Routes.ROOT);
@@ -105,8 +105,8 @@ class AuthController extends GetxController {
         loading.value = true;
 
         await _userRepository.register(currentUser.value);
-        await _userRepository.login(currentUser.value);
-        currentUser.value = await _userRepository.get();
+        var myUser = await _userRepository.login(currentUser.value);
+        currentUser.value = await _userRepository.get(myUser.id);
       loading.value = false;
 
       Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));

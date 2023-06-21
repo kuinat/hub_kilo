@@ -66,8 +66,8 @@ class AvailableTravelsController extends GetxController {
     dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+      dummyListData = dummySearchList.where((element) => element['departure_city_id'][1]
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_city_id'][1]
           .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       items.value = dummyListData;
       return;
@@ -77,15 +77,21 @@ class AvailableTravelsController extends GetxController {
   }
 
   Future getAllTravels() async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.travelbooking'));
 
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/api/list/all/travels'));
+    request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       isLoading.value = false;
-      return json.decode(data)['shippings'];
+      return json.decode(data);
     }
     else {
       print(response.reasonPhrase);
