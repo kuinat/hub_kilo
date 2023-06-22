@@ -72,8 +72,8 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                                   price: controller.landTravelList[index]['price_per_kilo'],
                                   color: background,
                                   text: Text(""),
-                                  user: Text(controller.landTravelList[index]['partner_id'][1].split(' ').first.toUpperCase(), style: TextStyle(fontSize: 17)),
-                                  imageUrl: '${Domain.serverPort}/image/res.users/${controller.landTravelList[index]['partner_id'][0]}/avatar_1920?unique=true&file_response=true',
+                                  user: Text(controller.landTravelList[index]['partner_id'][1], style: TextStyle(fontSize: 17, color: appColor)),
+                                  imageUrl: '${Domain.serverPort}/image/res.partner/${controller.landTravelList[index]['partner_id'][0]}/avatar_1920?unique=true&file_response=true',
                                 //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                               ),

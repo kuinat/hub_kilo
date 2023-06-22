@@ -7,12 +7,12 @@ class LoadingCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
         physics: AlwaysScrollableScrollPhysics(),
-        itemCount: 10,
+        itemCount: 3,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           crossAxisSpacing: 10.0,
           mainAxisSpacing: 10.0,
-          mainAxisExtent: 200.0,
+          mainAxisExtent: 220.0,
         ),
         shrinkWrap: true,
         primary: false,

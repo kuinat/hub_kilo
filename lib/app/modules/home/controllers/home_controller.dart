@@ -44,7 +44,7 @@ class HomeController extends GetxController {
     travelItem = await getAllTravels();
     for(var a=0; a< travelItem.length; a++){
       if(travelItem[a]["booking_type"] == "road"){
-        landTravels.add(a);
+        landTravels.add(travelItem[a]);
       }
     }
     landTravelList.value = landTravels;
@@ -59,7 +59,7 @@ class HomeController extends GetxController {
 
     for(var a=0; a < travelItem.length; a++){
       if(travelItem[a]["booking_type"] == "road"){
-        landTravels.add(a);
+        landTravels.add(travelItem[a]);
       }
     }
     landTravelList.value = landTravels;
