@@ -62,7 +62,7 @@ class UserRepository {
   //
   // }
 
-  register(MyUser myUser) {
+  Future <bool> register(MyUser myUser) {
     // _laravelApiClient = Get.find<LaravelApiClient>();
     // return _laravelApiClient.register(user);
     _odooApiClient = Get.find<OdooApiClient>();

@@ -143,13 +143,15 @@ class OdooApiClient extends GetxService with ApiClient {
           sex: data['sex'].toString(),
           name: data['name'],
           birthplace: data['place_of_birth'].toString(),
-          id: data['uid'],
+          id: data['id'],
           image: data['avatar_1920'].toString()
       );
+      print("myuser.image: "+myuser.id.toString());
       return myuser;
 
     } else {
       print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
     }
   }
 
@@ -176,7 +178,7 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['id'];
+        var userId = data['uid'];
         return data['uid'];
 
       }
@@ -186,66 +188,54 @@ class OdooApiClient extends GetxService with ApiClient {
       }
 
     }
-    else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occurred, please try to login again"));
     }
 
   }
 
 
-  register(MyUser myUser) async {
+  Future <bool> register(MyUser myUser) async {
+    print(myUser.name.toString());
+    print(myUser.email.toString());
+    print(myUser.password.toString());
+    print(myUser.phone.toString());
+    print(myUser.sex.toString());
+    print(myUser.birthplace.toString());
+    print(myUser.street.toString());
     var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'session_id=718312dd9eb4fac1b6b7d6b1b1e3ed416983f841'
+      'Accept': 'application/json',
+      'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('POST', Uri.parse(Domain.serverPort+'/create/new/partner'));
-    request.body = json.encode({
-      "params": {
-        "name": myUser.name,
-        "email": myUser.email,
-        "phone": myUser.phone,
-        "birthday": myUser.birthday,
-        "birthplace": myUser.birthplace,
-        "street": myUser.street,
-        "sex": myUser.sex,
-        "is_traveler": false,
-        "password": myUser.password,
-      }
-    });
-    request.headers.addAll(headers);
+    var request = http.Request('POST',Uri.parse('https://preprod.hubkilo.com/api/v1/create/res.users?values={ '
+        '"name": "${myUser.name}",'
+        '"login": "${myUser.email}",'
+        '"password": "${myUser.password}",'
+        '"phone": "${myUser.phone}",'
+        '"sex": "${myUser.sex}",'
+        '"birth_city_id": "${myUser.birthplace}",'
+        '"residence_city_id": "${myUser.street}",'
+        '"birthday": "2012-02-21",'
+        '"sel_groups_1_9_10": 10}'
+    ));
 
-    http.StreamedResponse response = await request.send();
+  request.headers.addAll(headers);
 
-    if (response.statusCode == 200) {
-      var result = await response.stream.bytesToString();
-      var data = json.decode(result)['result'];
-      print(data);
-      //var userId = data['partner_id'];
-      var user = await login(myUser);
+  http.StreamedResponse response = await request.send();
 
-      return (user);
-    }
-    else {
-      throw new Exception(response.reasonPhrase);
-    }
-
-
-
-
-
-    // Uri _uri = getApiBaseUri("register");
-    // Get.log(_uri.toString());
-    // var response = await _httpClient.postUri(
-    //   _uri,
-    //   data: json.encode(user.toJson()),
-    //   options: _optionsNetwork,
-    // );
-    // if (response.data['success'] == true) {
-    //   response.data['data']['auth'] = true;
-    //   return User.fromJson(response.data['data']);
-    // } else {
-    //   throw new Exception(response.data['message']);
-    // }
+  if (response.statusCode == 200)  {
+  print(await response.stream.bytesToString());
+   //await login(myUser);
+    return true;
   }
+  else {
+  print(response.reasonPhrase);
+
+  Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured, Please try again"));
+  return false;
+  }
+
+}
 
   Future<bool> sendResetLinkEmail(MyUser user) async {
     Uri _uri = getApiBaseUri("send_reset_link_email");

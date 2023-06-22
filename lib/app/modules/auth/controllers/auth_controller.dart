@@ -88,10 +88,16 @@ class AuthController extends GetxController {
 
         loading.value = true;
         int id = await _userRepository.login(currentUser.value);
-      currentUser.value = await _userRepository.get(id);
-          loading.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
-        await Get.toNamed(Routes.ROOT);
+        loading.value = false;
+        if(id != null){
+          Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
+          if(Get.find<MyAuthService>().myUser.value.id != null){
+            Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
+            await Get.toNamed(Routes.ROOT);
+          }
+
+        }
+
 
     }
     //await Get.find<RootController>().changePage(0);
@@ -103,14 +109,29 @@ class AuthController extends GetxController {
       registerFormKey.currentState.save();
 
         loading.value = true;
+        var registered = await _userRepository.register(currentUser.value);
+        if(registered)
+          {
+            var id = await _userRepository.login(currentUser.value);
+            //currentUser.value = await _userRepository.get(id);
+            loading.value = false;
+            if(id != null){
+              Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
+              if(Get.find<MyAuthService>().myUser.value.id != null){
+                Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
+                await Get.toNamed(Routes.ROOT);
+              }
 
-        await _userRepository.register(currentUser.value);
-        var myUser = await _userRepository.login(currentUser.value);
-        currentUser.value = await _userRepository.get(myUser.id);
-      loading.value = false;
+            }
 
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
-      await Get.toNamed(Routes.ROOT);
+          }
+        else{
+          loading.value = false;
+        }
+
+
+
+
 
     }
   }

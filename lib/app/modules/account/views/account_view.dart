@@ -18,7 +18,7 @@ import '../widgets/account_link_widget.dart';
 class AccountView extends GetView<AccountController> {
   @override
   Widget build(BuildContext context) {
-    var _currentUser = Get.find<MyAuthService>().myUser;
+    //var _currentUser = Get.find<MyAuthService>().myUser;
     return Scaffold(
         appBar: AppBar(
           leading: null,
@@ -60,18 +60,18 @@ class AccountView extends GetView<AccountController> {
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          Text( _currentUser.value.name ?? '',
+                          Text( controller.currentUser.value.name ?? '',
                             style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                           ),
                           SizedBox(height: 10),
-                          Text(_currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+                          Text(controller.currentUser.value.email ?? '', style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
 
                         ],
                       ),
                     ),
                   ),
 
-                  Obx(() =>
+                  //Obx(() =>
                       Container(
                     width: 150,
                     height: 150,
@@ -79,8 +79,9 @@ class AccountView extends GetView<AccountController> {
                       borderRadius: BorderRadius.all(Radius.circular(14)),
                       image: DecorationImage(
                           image: NetworkImage(
-                              _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
-                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                              // _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
+                              //     :
+                              'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
 
                           ),
                           fit: BoxFit.fill,
@@ -97,7 +98,9 @@ class AccountView extends GetView<AccountController> {
                       child: Container(
                         width: double.infinity,
                         height: 40,
-                        color: _currentUser.value.image == true ? Colors.white.withOpacity(0.3) : interfaceColor.withOpacity(0.3),
+                        color:
+                        //controller.currentUser.value.image == 'true' ? Colors.white.withOpacity(0.3) :
+                        interfaceColor.withOpacity(0.3),
                         child: Center(
                             child: IconButton(
                                 onPressed: ()async{
@@ -108,7 +111,8 @@ class AccountView extends GetView<AccountController> {
                         ),
                       ),
                     ),
-                  ),)
+                  )
+                    //,)
 
                 ],
               ),
@@ -122,22 +126,22 @@ class AccountView extends GetView<AccountController> {
                       AccountWidget(
                         icon: FontAwesomeIcons.birthdayCake,
                         text: Text('Date of Birth'),
-                        value: _currentUser.value.birthday.toString(),
+                        value: controller.currentUser.value.birthday.toString(),
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.locationDot,
                         text: Text('Place of birth'),
-                        value: _currentUser.value.birthplace,
+                        value: controller.currentUser.value.birthplace,
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.locationDot,
                         text: Text('Address'),
-                        value: _currentUser.value.street,
+                        value: controller.currentUser.value.street,
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.male,
                         text: Text('Sexe'),
-                        value: _currentUser.value.sex=='M'?"Male":"Female",
+                        value: controller.currentUser.value.sex=='M'?"Male":"Female",
                       ),
 
                       Card(

@@ -24,11 +24,12 @@ class AccountController extends GetxController {
   var loadImage = false.obs;
   UploadRepository _uploadRepository;
   UserRepository _userRepository;
+  var currentUser = Get.find<MyAuthService>().myUser;
 
 
   @override
   void onInit() async{
-    await getUser();
+    //currentUser = await getUser();
     await Get.find<UserTravelsController>().refreshMyTravels();
     super.onInit();
 
@@ -49,7 +50,8 @@ class AccountController extends GetxController {
 
   Future getUser() async {
     try {
-      Get.find<MyAuthService>().myUser.value = await _userRepository.get(Get.find<MyAuthService>().myUser.value.id);
+      print('Get.find<MyAuthService>().myUser.value :'+Get.find<MyAuthService>().myUser.value.id.toString());
+      currentUser.value = await _userRepository.get(currentUser.value.id);
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
