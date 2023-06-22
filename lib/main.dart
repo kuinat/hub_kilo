@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,6 +13,7 @@ import 'app/services/firebase_messaging_service.dart';
 import 'app/services/global_service.dart';
 import 'app/services/settings_service.dart';
 import 'app/services/translation_service.dart';
+import 'package:http/http.dart' as http;
 
 void initServices() async {
   Get.log('starting services ...');
@@ -24,6 +26,29 @@ void initServices() async {
   await Get.putAsync(() => SettingsService().init());
   await Get.putAsync(() => TranslationService().init());
   Get.log('All services started...');
+  List countries = await getCountries();
+  final box = GetStorage();
+  box.write("allCountries", countries);
+}
+
+Future getCountries()async{
+  var headers = {
+    'Accept': 'application/json',
+    'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ=='
+  };
+  var request = http.Request('GET', Uri.parse('https://preprod.hubkilo.com/api/v1/search_read/res.city'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    final data = await response.stream.bytesToString();
+    return json.decode(data);
+  }
+  else {
+    print(response.reasonPhrase);
+  }
 }
 
 class Domain{
@@ -36,9 +61,6 @@ class Domain{
     Map<String, String> headers = new Map();
     headers['Authorization'] = "Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==";
     headers['accept'] = 'application/json';
-    headers['Cache-Control'] = "no-cache, no-store, must-revalidate";
-    headers['Pragma'] = "no-cache";
-    headers['Expires'] = "0";
     return headers;
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
@@ -23,38 +24,35 @@ class AddTravelsView extends GetView<AddTravelController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
       //Get.theme.colorScheme.secondary,
         appBar: AppBar(
-          title: Text(
+          backgroundColor: background,
+          title:  Text(
             "New Travel Form".tr,
             style: Get.textTheme.headline6.merge(TextStyle(color: appColor)),
           ),
           centerTitle: true,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios, color: appColor),
             onPressed: () => {Navigator.pop(context)},
-          )
+          ),
         ),
       body: Obx(() => Theme(
           data: ThemeData(
             //canvasColor: Colors.yellow,
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: controller.formStep.value != 3 ? Get.theme.colorScheme.secondary : validateColor,
-              background: Colors.red,
-              secondary: validateColor,
-            )
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                primary: controller.formStep.value != 3 ? Get.theme.colorScheme.secondary : validateColor,
+                background: Colors.red,
+                secondary: validateColor,
+              )
           ),
           child: ConstrainedBox(
-            constraints: BoxConstraints.tightFor(
-                height: MediaQuery.of(context).size.height
-            ),
-            child: _buildStepper(StepperType.horizontal)
+              constraints: BoxConstraints.tightFor(
+                  height: MediaQuery.of(context).size.height
+              ),
+              child: _buildStepper(StepperType.horizontal)
           )),
-          /*OrientationBuilder(
+        /*OrientationBuilder(
               builder: (BuildContext context, Orientation orientation){
                 switch (orientation) {
                   case Orientation.portrait:
@@ -191,9 +189,9 @@ class AddTravelsView extends GetView<AddTravelController> {
                   ),
                 )
             ),
-            Obx(() => Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
               decoration: BoxDecoration(
                   color: Get.theme.primaryColor,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -201,49 +199,73 @@ class AddTravelsView extends GetView<AddTravelController> {
                     BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
                   ],
                   border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-              child: ExpansionTile(
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text("Departure Town",
-                        style: Get.textTheme.bodyText1,
-                        textAlign: TextAlign.start,
-                      ),
-                      SizedBox(height: 10),
-                      Row(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text("Departure Town",
+                      style: Get.textTheme.bodyText1,
+                      textAlign: TextAlign.start,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
                         children: [
                           Icon(Icons.location_pin),
-                          SizedBox(width: 15),
+                          SizedBox(width: 10),
                           SizedBox(
                             width: MediaQuery.of(context).size.width/2,
-                            child: Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value
-                                : controller.travelCard['departure_town'].toString()),
+                            child: TextFormField(
+                              controller: controller.depTown,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                              ),
+                              //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                              style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                              onChanged: (value)=>{
+                                if(value.length > 2){
+                                  controller.predict1.value = true,
+                                  controller.filterSearchResults(value)
+                                }else{
+                                  controller.predict1.value = false,
+                                }
+                              },
+                              cursorColor: Get.theme.focusColor,
+                            ),
                           ),
                         ]
-                      )
-                    ]
-                  ),
-              initiallyExpanded: false,
-              children: [
-
-                CSCPicker(
-                  onCountryChanged: (value) {
-                    controller.country1.value = value;
-                  },
-                  onStateChanged:(value) {
-
-                  },
-                  onCityChanged:(value) {
-                    controller.townEdit.value = !controller.townEdit.value;
-                    controller.departureTown.value = "$value, ${controller.country1.value}";
-
-                  },
-                ),
-              ],),
-            )),
+                    )
+                  ]
+              ),
+            ),
+            if(controller.predict1.value)
             Obx(() => Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                color: Get.theme.primaryColor,
+                height: 200,
+                child: ListView(
+                    children: [
+                      for(var i =0; i < controller.countries.length; i++)...[
+                        TextButton(
+                            onPressed: (){
+                              controller.depTown.text = controller.countries[i]['display_name'];
+                              controller.predict1.value = false;
+                              controller.departureId.value = controller.countries[i]['id'];
+                            },
+                            child: Text(controller.countries[i]['display_name'] + '\n', style: TextStyle(color: appColor))
+                        )
+                      ]
+                    ]
+                )
+            )),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
               decoration: BoxDecoration(
                   color: Get.theme.primaryColor,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -251,8 +273,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                     BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
                   ],
                   border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-              child: ExpansionTile(
-                title: Column(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text("Arrival Town",
@@ -261,36 +282,62 @@ class AddTravelsView extends GetView<AddTravelController> {
                     ),
                     SizedBox(height: 10),
                     Row(
-                      children: [
-                        Icon(Icons.location_pin),
-                        SizedBox(width: 15),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width/2,
-                          child: Text(controller.travelCard.isEmpty || controller.townEdit.value ? controller.arrivalTown.value
-                              : controller.travelCard['arrival_town'].toString()),
-                        )
-                      ],
+                        children: [
+                          Icon(Icons.location_pin),
+                          SizedBox(width: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width/2,
+                            child: TextFormField(
+                              controller: controller.arrTown,
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  contentPadding:
+                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                              ),
+                              //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                              style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                              onChanged: (value)=>{
+                                if(value.length > 2){
+                                  controller.predict2.value = true,
+                                  controller.filterSearchResults(value)
+                                }else{
+                                  controller.predict2.value = false,
+                                }
+                              },
+                              cursorColor: Get.theme.focusColor,
+                            ),
+                          ),
+                        ]
                     )
-                  ],
-                ),
-                initiallyExpanded: false,
-                children: [
+                  ]
+              ),
+            ),
+            if(controller.predict2.value)
+              Obx(() => Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                  color: Get.theme.primaryColor,
+                  height: 200,
+                  child: ListView(
 
-                  CSCPicker(
-                    onCountryChanged: (value) {
-                      controller.country2.value = value;
-                    },
-                    onStateChanged:(value) {
-
-                    },
-                    onCityChanged:(value) {
-                      controller.town2Edit.value = !controller.town2Edit.value;
-                      controller.arrivalTown.value = "$value, ${controller.country2.value}";
-
-                    },
-                  ),
-                ],),
-            )),
+                      children: [
+                        for(var i =0; i < controller.countries.length; i++)...[
+                          TextButton(
+                              onPressed: (){
+                                controller.arrTown.text = controller.countries[i]['display_name'];
+                                controller.predict2.value = false;
+                                controller.arrivalId.value = controller.countries[i]['id'];
+                              },
+                              child: Text(controller.countries[i]['display_name'] + '\n', style: TextStyle(color: appColor))
+                          )
+                        ]
+                      ]
+                  )
+              )),
           ]
         )
     );
@@ -324,7 +371,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                         },
                         title: Text('road')
                     )),
-                    Obx(() => SwitchListTile( //switch at right side of label
+                    /*Obx(() => SwitchListTile( //switch at right side of label
                         value: controller.travelType.value == 'air' ? true : false,
                         onChanged: (bool value){
                           controller.travelType.value = 'air';
@@ -339,7 +386,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                           print(controller.travelType.value);
                         },
                         title: Text('sea')
-                    )),
+                    )),*/
                   ],
                   initiallyExpanded: controller.travelCard.isEmpty ? false : true,
                 )
@@ -349,7 +396,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
                 keyboardType: TextInputType.number,
                 validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.quantity.value = int.parse(input),
+                onChanged: (input) => controller.quantity.value = double.parse(input),
                 labelText: "Quantity".tr,
                 iconData: Icons.shopping_cart_rounded,
               ),
@@ -364,14 +411,21 @@ class AddTravelsView extends GetView<AddTravelController> {
               )
             ]else...[
               SizedBox(height: 30),
-              Text("The price will depend on the luggage", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 18)))
+              SwitchListTile( //switch at right side of label
+                  value: controller.canBargain.value,
+                  onChanged: (bool value){
+                    controller.canBargain.value = value;
+                  },
+                  title: Text("Bargain?")
+              ),
+              //Text("The price will depend on the luggage", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 18)))
             ]
           ],
         )
     );
   }
 
-  Widget stepThree(BuildContext context){
+  /*Widget stepThree(BuildContext context){
     return Form(
         key: controller.newTravelKey,
         child: ListView(
@@ -504,7 +558,7 @@ class AddTravelsView extends GetView<AddTravelController> {
           ],
         )
     );
-  }
+  }*/
 
   Widget buildLoader() {
     return Container(
@@ -548,12 +602,12 @@ class AddTravelsView extends GetView<AddTravelController> {
           AccountWidget(
             icon: FontAwesomeIcons.locationDot,
             text: Text('Departure \nTown'),
-            value: controller.departureTown.value,
+            value: controller.depTown.text,
           ),
           AccountWidget(
             icon: FontAwesomeIcons.locationDot,
             text: Text('Arrival \nTown'),
-            value: controller.arrivalTown.value,
+            value: controller.arrTown.text,
           ),
           if(controller.travelType.value != "road")...[
             AccountWidget(
@@ -601,27 +655,22 @@ class AddTravelsView extends GetView<AddTravelController> {
                 controller.travelCard.isEmpty ?
                 BlockButtonWidget(
                   onPressed: () {
-                    if(controller.travelType.value != "" && controller.quantity.value != 0 || controller.travelType.value == "road"){
-                      controller.buttonPressed.value = !controller.buttonPressed.value;
-                      print(controller.travelType.value);
-                      if(controller.travelType.value == "air"){
-                        print("Air");
-                        controller.createAirTravel();
-                      }
-                      if(controller.travelType.value == "road"){
-                        print("Land");
-                        controller.createRoadTravel();
-                      }
-                      if(controller.travelType.value == "sea"){
-                        print("Sea");
-                        //controller.createSeaTravel()
-                      }
-                    }else{
-                      print("Not Ok");
+
+                    if(controller.travelType.value == "air"){
+                      print("Air");
+                      //controller.createAirTravel();
+                    }
+                    if(controller.travelType.value == "road"){
+                      print("Land");
+                      controller.buttonPressed.value = true;
+                      controller.createRoadTravel();
+                    }
+                    if(controller.travelType.value == "sea"){
+                      print("Sea");
+                      //controller.createSeaTravel()
                     }
                   },
-                  color: controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value == "road"?
-                  Get.theme.colorScheme.secondary : inactive,
+                  color: Get.theme.colorScheme.secondary,
                   text: !controller.buttonPressed.value ? Text(
                     "Submit Form".tr,
                     style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
@@ -631,28 +680,22 @@ class AddTravelsView extends GetView<AddTravelController> {
                     :
                 BlockButtonWidget(
                   onPressed: () {
-                    if(controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value != "road"){
-                      controller.buttonPressed.value = !controller.buttonPressed.value;
 
-                      if(controller.travelType.value == "air"){
-                        print("Air");
-                        controller.updateAirTravel(controller.travelCard['id']);
-                      }
-                      if(controller.travelType.value == "road"){
-                        print("Land");
-                        controller.updateRoadTravel(controller.travelCard['id']);
-                      }
-                      if(controller.travelType.value == "sea"){
-                        print("Sea");
-                        //controller.createSeaTravel()
-                      }
-                    }else{
-                      print("Not OK");
-                      Get.showSnackbar(Ui.ErrorSnackBar(message: "fill the required fields first"));
+                    if(controller.travelType.value == "air"){
+                      print("Air");
+                      //controller.updateAirTravel(controller.travelCard['id']);
+                    }
+                    if(controller.travelType.value == "road"){
+                      print("Land");
+                      controller.buttonPressed.value = true;
+                      controller.updateRoadTravel();
+                    }
+                    if(controller.travelType.value == "sea"){
+                      print("Sea");
+                      //controller.createSeaTravel()
                     }
                   },
-                  color: controller.quantity.value != 0 && controller.travelType.value != "" || controller.travelType.value != "road"?
-                  Get.theme.colorScheme.secondary : inactive,
+                  color: Get.theme.colorScheme.secondary,
                   text: !controller.buttonPressed.value ? Text(
                     "Update Travel".tr,
                     style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
@@ -669,15 +712,22 @@ class AddTravelsView extends GetView<AddTravelController> {
 
   CupertinoStepper _buildStepper(StepperType type) {
     final canCancel = controller.formStep.value > 0;
-    final canContinue = controller.formStep.value < 3;
+    final canContinue = controller.formStep.value < 2 ;
     return CupertinoStepper(
       type: type,
       currentStep: controller.formStep.value,
       onStepTapped: (step) => controller.formStep.value = step,
       onStepCancel: canCancel ? () => controller.formStep.value-- : null,
-      onStepContinue: canContinue ? () => controller.formStep.value++ : null,
+      onStepContinue: canContinue ? (){
+        if(controller.depTown.text.isNotEmpty && controller.arrTown.text.isNotEmpty){
+          controller.formStep.value++;
+        }else{
+          Get.showSnackbar(Ui.ErrorSnackBar(message: "All fields are required ".tr));
+        }
+
+      } : null,
       steps: [
-        for (var i = 0; i < 3; ++i)
+        for (var i = 0; i < 2; ++i)
           _buildStep(
             title: Text(''),
             isActive: i == controller.formStep.value,
@@ -700,16 +750,15 @@ class AddTravelsView extends GetView<AddTravelController> {
   }) {
     return Step(
       title: title,
-      //subtitle: Text('Date / place'),
+      subtitle: Text('Add Travel'),
       state: state,
       isActive: isActive,
       content: LimitedBox(
         maxWidth: Get.width - 20,
-        maxHeight: controller.formStep.value != 3 ? 450 : 600,
+        maxHeight: controller.formStep.value != 2 ? 450 : 500,
 
         child: controller.formStep.value == 0 ? stepOne(Get.context)
         : controller.formStep.value == 1 ? stepTwo(Get.context)
-            : controller.formStep.value == 2 ? stepThree(Get.context)
         : overView(Get.context)
       ),
     );

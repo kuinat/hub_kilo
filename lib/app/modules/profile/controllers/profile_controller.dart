@@ -49,7 +49,7 @@ class ProfileController extends GetxController {
     user.value = Get.find<MyAuthService>().myUser.value;
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
-    user.value.phone = user.value.phone;
+    //user.value.phone = user.value.phone;
     birthDate.value = user.value.birthday;
     // user.value.image.toString()=='null'?
     // url.value= null:
