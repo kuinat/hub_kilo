@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../main.dart';
+import '../../../services/my_auth_service.dart';
 
 class UserTravelsController extends GetxController {
 
@@ -36,10 +37,12 @@ class UserTravelsController extends GetxController {
 
   initValues()async{
     myTravelsList = await myTravels();
-    roadTravels = await getMyRoadTravels();
     items.clear();
-    items.addAll(myTravelsList);
-    items.addAll(roadTravels);
+    for(var a=0; a < myTravelsList.length; a++){
+      if(myTravelsList[a]["create_uid"][0] == Get.find<MyAuthService>().myUser.value.id ){
+        items.add(myTravelsList[a]);
+      }
+    }
     list = items;
     listForProfile.value =list;
     print(items);
@@ -48,11 +51,13 @@ class UserTravelsController extends GetxController {
   Future refreshMyTravels() async {
     items.clear();
     myTravelsList = await myTravels();
-    roadTravels = await getMyRoadTravels();
-    items.addAll(myTravelsList);
-    items.addAll(roadTravels);
+    for(var a=0; a < myTravelsList.length; a++){
+      if(myTravelsList[a]["create_uid"][0] == Get.find<MyAuthService>().myUser.value.id ){
+        items.add(myTravelsList[a]);
+      }
+    }
     list = items;
-    listForProfile.value =list;
+    listForProfile.value = list;
     print(listForProfile.length.toString());
   }
 
@@ -70,9 +75,11 @@ class UserTravelsController extends GetxController {
     var id = box.read("session_id");
     print(id);
     var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/air/api/current/user/travels'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.travelbooking'));
 
     request.headers.addAll(headers);
 
@@ -80,14 +87,8 @@ class UserTravelsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      //print("my travels: $data");
-      if(data != 'Empty'){
-        isLoading.value = false;
-        return json.decode(data)['response'];
-      }else{
-        isLoading.value = false;
-        return [];
-      }
+      isLoading.value = false;
+      return json.decode(data);
     }
     else {
       var data = await response.stream.bytesToString();
@@ -96,41 +97,13 @@ class UserTravelsController extends GetxController {
     }
   }
 
-  Future getMyRoadTravels()async{
-    final box = GetStorage();
-    var id = box.read("session_id");
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/road/api/current/user/travels'));
-    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      //print("my road travels: $data");
-      if(data != 'Empty'){
-        isLoading.value = false;
-        return json.decode(data)['response'];
-      }else{
-        isLoading.value = false;
-        return [];
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }
-
   void filterSearchResults(String query) {
     List dummySearchList = [];
     dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+      dummyListData = dummySearchList.where((element) => element['departure_city_id'][1]
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_city_id'][1]
           .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       items.value = dummyListData;
       return;

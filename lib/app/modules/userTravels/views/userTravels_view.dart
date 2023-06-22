@@ -77,7 +77,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
 
                   Container(
                       height: MediaQuery.of(context).size.height/1.2,
-                      padding: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 40),
+                      padding: EdgeInsets.all(10),
                       decoration: Ui.getBoxDecoration(color: backgroundColor),
                       child: Obx(() => Column(
 
@@ -107,20 +107,20 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                       return GestureDetector(
                                         child: TravelCardWidget(
                                           isUser: true,
-                                          travelState: controller.items[index]['status'],
+                                          travelState: controller.items[index]['state'],
                                           depDate: controller.items[index]['departure_date'],
-                                          arrTown: controller.items[index]['arrival_town'],
-                                          depTown: controller.items[index]['departure_town'],
+                                          arrTown: controller.items[index]['arrival_city_id'][1],
+                                          depTown: controller.items[index]['departure_city_id'][1],
                                           arrDate: controller.items[index]['arrival_date'],
-                                          qty: controller.items[index]['kilo_qty'],
-                                          price: controller.items[index]['price_per_kilo'],
+                                          qty: controller.items[index]['total_weight'],
+                                          price: controller.items[index]['booking_price'],
                                           color: background,
                                           text: Text(""),
                                           user: Text('Me', style: TextStyle(fontSize: 17)),
                                           imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                                           homePage: false,
-                                          travelType: controller.items[index]['travel_type'] != "road" ? true : false,
-                                          travelBy: controller.items[index]['travel_type'],
+                                          travelType: controller.items[index]['booking_type'] != "road" ? true : false,
+                                          travelBy: controller.items[index]['booking_type'],
 
                                         ),
                                         onTap: ()=>

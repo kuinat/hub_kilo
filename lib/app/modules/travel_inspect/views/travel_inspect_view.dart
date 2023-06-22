@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../color_constants.dart';
+import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../providers/laravel_provider.dart';
 import '../../../providers/odoo_provider.dart';
@@ -29,6 +30,7 @@ import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
 
 class TravelInspectView extends GetView<TravelInspectController> {
+
   @override
   Widget build(BuildContext context) {
     Get.lazyPut<MyAuthService>(
@@ -82,11 +84,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         padding: EdgeInsets.all(5),
                         alignment: Alignment.center,
                         width: 120,
-                        child: Text(controller.travelCard['travel_type'], style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
+                        child: Text(controller.travelCard['booking_type'], style: Get.textTheme.headline1.merge(TextStyle(color: Colors.white))),
                         decoration: BoxDecoration(
-                            color: controller.travelCard['travel_type'] != "air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
+                            color: controller.travelCard['booking_type'] != "air" ? Colors.white.withOpacity(0.4) : interfaceColor.withOpacity(0.4),
                             border: Border.all(
-                              color: controller.travelCard['travel_type'] != "air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
+                              color: controller.travelCard['booking_type'] != "air" ? Colors.white.withOpacity(0.2) : interfaceColor.withOpacity(0.2),
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                       )
@@ -106,19 +108,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     image: NetworkImage(controller.imageUrl.value), fit: BoxFit.cover)
                               ),
                             ),
-                            /*CachedNetworkImage(
-                              height: 370,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              imageUrl: controller.imageUrl.value,
-                              placeholder: (context, url) => Image.asset(
-                                'assets/img/loading.gif',
-                                fit: BoxFit.cover,
-                                height: 65,
-                                width: 65,
-                              ),
-                              errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                            ),*/
                             buildCarouselBullets(context)
                           ],
                         );
@@ -132,30 +121,21 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       children: [
                         Obx(() => EServiceTilWidget(
                             title: Text("Description".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: interfaceColor))),
-                            title2: controller.travelCard['sender'] != null ?
-                            Get.find<MyAuthService>().myUser.value.id  == controller.travelCard['sender']['sender_id'] ?
+                            title2: Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['create_uid'][0] ?
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black,
                               ),
                               onPressed: ((){
-                                Get.bottomSheet(
-                                  buildBookingByTravel(context),
-                                  isScrollControlled: true,
-                                );
-                                print(controller.currentIndex);
-                              }),
-                              child: Text("View Bookings".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
-                            ) : SizedBox() : controller.travelCard['sender'] == null ?
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                              ),
-                              onPressed: ((){
-                                Get.bottomSheet(
-                                  buildBookingByTravel(context),
-                                  isScrollControlled: true,
-                                );
+                                if(controller.travelCard['shipping_ids'].isNotEmpty){
+                                  Get.bottomSheet(
+                                    buildBookingByTravel(context),
+                                    isScrollControlled: true,
+                                  );
+                                }else{
+                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No booking has been made on this travel yet".tr));
+                                }
+
                                 print(controller.currentIndex);
                               }),
                               child: Text("View Bookings".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
@@ -163,50 +143,48 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             content: Column(
                               children: [
                                 ListTile(
-                                  title: Text('Available Quantity (kg):', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                  trailing: Text(controller.travelCard['kilo_qty'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                  title: Text('Reference', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
+                                  trailing: Text(controller.travelCard['code'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
                                 ),
-                                if(controller.travelCard['travel_type'] != 'road')
                                 ListTile(
-                                  title: Text('Price /kg', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                  subtitle: controller.travelCard['negotiation'] != null ? Text(!controller.travelCard['negotiation'] ? "Not Negotiable" : "Negotiable") : Text(''),
-                                  trailing: Text(controller.travelCard['price_per_kilo'].toString() + " "+"EUR", style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18))),
+                                  title: Text('Available Quantity (kg):', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                                  trailing: Text(controller.travelCard['total_weight'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
                                 ),
-                                if(controller.travelCard['user'] != null && controller.travelCard['negotiation'] &&
-                                    Get.find<MyAuthService>().myUser.value.email != controller.travelCard['user']['user_email'] )
-                                  InkWell(
-                                    onTap: (){
-
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                                        SizedBox(width: 10),
-                                        FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                                      ],
-                                    ),
-                                  ),
+                                if(controller.travelCard['booking_type'] != 'road')
+                                ListTile(
+                                  title: Text('Price /kg', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                                  trailing: Text(controller.travelCard['booking_price'].toString() + " "+ controller.travelCard['local_currency_id'][1], style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18, color: appColor))),
+                                ),
                                 Divider(
                                   height: 26,
                                   thickness: 1.2,
                                 ),
                                 ListTile(
-                                  title: Text('Article Accepted', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                                  subtitle: Text(controller.travelCard['type_of_luggage_accepted'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
+                                  title: Text('Article Accepted', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
+                                  subtitle: Text(controller.travelCard['luggage_ids'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
                                 ),
                               ],
                             )
                         )),
-                        if(controller.travelCard['sender'] != null)...[
-                          if(Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['sender']['sender_id'])
-                            EServiceTilWidget(
-                              title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
-                              title2: SizedBox(),
-                              content: buildUserDetailsCard(context),
-                              actions: [],
+                        if(Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['create_uid'][0])
+                          EServiceTilWidget(
+                            title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
+                            title2: InkWell(
+                              onTap: (){
+
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
+                                  SizedBox(width: 10),
+                                  FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
+                                ],
+                              ),
                             ),
-                        ]
+                            content: buildUserDetailsCard(context),
+                            actions: [],
+                          ),
                       ],
                     ),
                   ),
@@ -271,6 +249,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
       ),
       child: Column(
         children: [
+          Container(
+            margin: EdgeInsets.only(bottom: 20),
+            width: MediaQuery.of(context).size.width/2.5,
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: Colors.white
+            ),
+          ),
           Expanded(
               child: ListView.builder(
                 itemCount: controller.travelBookings.length,
@@ -328,17 +315,17 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 height: 24,
                                 color: Get.theme.focusColor.withOpacity(0.3),
                               ),
-                              Expanded(child: Text("Booked By: " +booking["sender"]["sender_name"], style: Get.textTheme.headline1.
+                              Expanded(child: Text("Booked By: " +booking["create_uid"][1], style: Get.textTheme.headline1.
                               merge(TextStyle(color: appColor, fontSize: 17)))),
                               SizedBox(width: 40),
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                 alignment: Alignment.center,
-                                child: Text(booking["status"], style: Get.textTheme.headline2.merge(TextStyle(color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                                child: Text(booking["state"], style: Get.textTheme.headline2.merge(TextStyle(color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor : booking["state"].toLowerCase() == 'rejected' ? specialColor : Colors.black54, fontSize: 12))),
                                 decoration: BoxDecoration(
-                                    color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                                    color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.3) : booking["state"].toLowerCase() == 'rejected' ? specialColor.withOpacity(0.3)  : inactive.withOpacity(0.3),
                                     border: Border.all(
-                                      color: booking["status"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                                      color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.2) : booking["state"].toLowerCase() == 'rejected' ? specialColor.withOpacity(0.3) : inactive.withOpacity(0.2),
                                     ),
                                     borderRadius: BorderRadius.all(Radius.circular(20))),
                               )
@@ -361,14 +348,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                controller.travelCard['travel_type'].toLowerCase()=='air'?
-                                Text("kilo booked price: "+ booking["kilo_booked_price"].toString(),
+
+                                //controller.travelCard['booking_type'].toLowerCase() == 'road'?
+                                  Text("Shipping price:  "+ booking["shipping_price"].toString() + ' ' +controller.travelCard['local_currency_id'][1],
                                       style: Get.textTheme.headline6.
-                                  merge(TextStyle(color: specialColor, fontSize: 16))):
-                            controller.travelCard['travel_type'].toLowerCase()=='road'?
-                                  Text("kilo booked price: "+ booking["booking_price"].toString(),
-                                      style: Get.textTheme.headline6.
-                                      merge(TextStyle(color: specialColor, fontSize: 16))):SizedBox()
+                                      merge(TextStyle(color: specialColor, fontSize: 16)))
+                                      // :SizedBox()
                                 ],
                               ),
                             ),
@@ -384,15 +369,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     height: 24,
                                     color: Get.theme.focusColor.withOpacity(0.3),
                                   ),
-                                  controller.travelCard['travel_type']=='air'?
-                                  Text("Kilo Booked: "+booking["kilo_booked"].toString() + " Kg",
+
+                                 // controller.travelCard['booking_type']=='road'?
+                                  Text("Kilo Booked: "+ booking["total_weight"].toString()+ " Kg",
                                       style: Get.textTheme.headline1.
-                                  merge(TextStyle(color: appColor, fontSize: 16))):
-                                  controller.travelCard['travel_type']=='road'?
-                                  Text("Kilo Booked: "+booking["luggage_weight"].toString()+ " Kg",
-                                      style: Get.textTheme.headline1.
-                                      merge(TextStyle(color: appColor, fontSize: 16))):
-                                      SizedBox()
+                                      merge(TextStyle(color: appColor, fontSize: 16)))
+                                      //: SizedBox()
 
                                 ],
                               ),
@@ -401,7 +383,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           ],
                         ),
 
-                        ExpansionTile(
+                        /*ExpansionTile(
                           leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
                           title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
                           merge(TextStyle(color: appColor, fontSize: 17))),
@@ -419,9 +401,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                         borderRadius: BorderRadius.all(Radius.circular(10)),
                                         image: DecorationImage(
                                             image: NetworkImage(
-                                              controller.travelCard['travel_type']=='air'?
+                                              controller.travelCard['booking_type']=='air'?
                                               '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
-                                            controller.travelCard['travel_type']=='road'?
+                                            controller.travelCard['booking_type']=='road'?
                                             '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
                                               '',),
 
@@ -439,7 +421,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             ),
 
                           ],
-                        ),
+                        ),*/
 
                         ExpansionTile(
                           leading: Icon(FontAwesomeIcons.userCheck, size: 20),
@@ -449,28 +431,29 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             AccountWidget(
                               icon: FontAwesomeIcons.person,
                               text: Text('Full Name'),
-                              value: booking['receiver']['receiver_name'],
+                              value: booking['receiver_partner_id'][1],
                             ),
                             AccountWidget(
                               icon: Icons.alternate_email,
                               text: Text('Email'),
-                              value: booking['receiver']['receiver_email'],
+                              value: booking['receiver_email'].toString(),
                             ),
                             AccountWidget(
                               icon: FontAwesomeIcons.addressCard,
                               text: Text('Address'),
-                              value: booking['receiver']['receiver_address'],
+                              value: booking['receiver_address'],
                             ),
                             AccountWidget(
                               icon: FontAwesomeIcons.phone,
                               text: Text('Phone'),
-                              value: booking['receiver']['receiver_phone'],
+                              value: booking['receiver_phone'],
                             ),
                           ],
                           initiallyExpanded: false,
                         ),
-                        booking["status"].toLowerCase() == 'pending'?
-                            Column(children: [
+                        booking["state"].toLowerCase() == 'pending'?
+                            Column(
+                              children: [
                               InkWell(
                                 onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
                                 child: Row(
@@ -495,10 +478,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                                   cancel: 'Cancel',
                                                   confirm: 'Ok',
                                                   onTap: () async =>{
-                                                    booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.acceptAirBooking(booking['id'])
-                                                        :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?controller.acceptRoadBooking(booking['id'])
-                                                        :(){},
-                                                    Navigator.of(Get.context).pop(),
+                                                    controller.acceptRoadBooking(booking['id']),
+
                                                   }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                                                 )
                                         );
@@ -524,10 +505,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                                   cancel: 'Cancel',
                                                   confirm: 'Ok',
                                                   onTap: () async =>{
-                                                    booking["travel"]["travel_type"].toString().toLowerCase()=='air'?await controller.rejectAirBooking(booking['id'])
-                                                        :booking["travel"]["travel_type"].toString().toLowerCase()=='road'?await controller.rejectRoadBooking(booking['id'])
-                                                        :(){},
-                                                    Navigator.of(Get.context).pop(),
+                                                    await controller.rejectRoadBooking(booking['id']),
+
                                                   }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                                                 )
                                         );
@@ -605,18 +584,14 @@ class TravelInspectView extends GetView<TravelInspectController> {
             children: <Widget>[
               ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                child: CachedNetworkImage(
+                child: Container(
                   height: 65,
                   width: 65,
-                  fit: BoxFit.cover,
-                  imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.travelCard['sender']['sender_id']}/image_1920',
-                  placeholder: (context, url) => Image.asset(
-                    'assets/img/loading.gif',
-                    fit: BoxFit.cover,
-                    height: 65,
-                    width: 65,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.travelCard['partner_id']}/avatar_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                      fit: BoxFit.cover)
                   ),
-                  errorWidget: (context, url, error) => Icon(Icons.error_outline),
                 ),
               ),
               SizedBox(width: 15),
@@ -624,11 +599,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(controller.travelCard['sender']['sender_name'].toString(),
+                    Text(controller.travelCard['create_uid'][1],
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       maxLines: 2,
-                      style: Get.textTheme.bodyText2.merge(TextStyle(fontSize: 18)),
+                      style: Get.textTheme.bodyText2.merge(TextStyle(fontSize: 18, color: appColor)),
                     ),
                   ],
                 ),
@@ -672,13 +647,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
               Container(
                 alignment: Alignment.topCenter,
                 width: width,
-                child: Text(controller.travelCard['departure_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                child: Text(controller.travelCard['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
               ),
               FaIcon(FontAwesomeIcons.arrowRight),
               Container(
                   alignment: Alignment.topCenter,
                   width: width,
-                  child: Text(controller.travelCard['arrival_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                  child: Text(controller.travelCard['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
               ),
             ],
           ),
@@ -700,7 +675,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
         child: Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
 
-          child: controller.travelCard['sender'] != null && Get.find<MyAuthService>().myUser.value.email.toString() != controller.travelCard['sender']['sender_email'] && !controller.transferBooking.value ?
+          child: Get.find<MyAuthService>().myUser.value.id != controller.travelCard['create_uid'][0] ?
           BlockButtonWidget(
               text: Container(
                 height: 24,
@@ -715,15 +690,19 @@ class TravelInspectView extends GetView<TravelInspectController> {
               ),
               color: Get.theme.colorScheme.secondary,
               onPressed: () async{
-                if(Get.find<MyAuthService>().myUser.value.email != null){
+                Get.bottomSheet(
+                  buildBookingSheet(context),
+                  isScrollControlled: true,
+                );
+                /*if(Get.find<MyAuthService>().myUser.value.email != null){
                   Get.bottomSheet(
                     buildBookingSheet(context),
                     isScrollControlled: true,
                   );
                 }else{
                   await Get.offNamed(Routes.LOGIN);
-                }
-              }) : controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.email != controller.travelCard['sender']['sender_email']?
+                }*/
+              }) : controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.id == controller.travelCard['create_uid'][0]?
           BlockButtonWidget(
               text: Container(
                 height: 24,
@@ -739,9 +718,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
               color: Get.theme.colorScheme.secondary,
               onPressed: () async{
                 if(Get.find<MyAuthService>().myUser.value.email != null){
-                  controller.travelCard['travel_type'] == "air"?
+                  controller.travelCard['booking_type'] == "air"?
                   await controller.transferAirNow(controller.travelCard['id']):
-                  controller.travelCard['travel_type'] == "road"?
+                  controller.travelCard['booking_type'] == "road"?
                   await controller.transferRoadNow(controller.travelCard['id']):
                   (){};
                 }else{
@@ -761,15 +740,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               cancel: 'Cancel',
                               confirm: 'Delete',
                               onTap: (){
-                                if(controller.travelCard['travel_type'] == "air"){
+                                if(controller.travelCard['booking_type'] == "air"){
                                   controller.deleteAirTravel(controller.travelCard['id']);
                                   print("air delete");
                                 }
-                                if(controller.travelCard['travel_type'] == "road"){
+                                if(controller.travelCard['booking_type'] == "road"){
                                   controller.deleteRoadTravel(controller.travelCard['id']);
                                   print("road delete");
                                 }
-                                if(controller.travelCard['travel_type'] == "sea"){
+                                if(controller.travelCard['booking_type'] == "sea"){
                                   //controller.deleteRoadTravel(controller.travelCard['id']);
                                 }
                                 print(controller.travelCard['id']);
@@ -785,7 +764,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     backgroundColor: inactive,
                   ),
                   onPressed: ()=>{
-                    Navigator.pushReplacementNamed(context, Routes.ADD_TRAVEL_FORM, arguments: {'travelCard': controller.travelCard})
+                    Navigator.pushReplacementNamed(context, Routes.ADD_TRAVEL_FORM, arguments: {'travelCard': controller.travelCard}),
                     //Get.toNamed(, arguments: )
                   },
                   child: SizedBox(width: 100,height: 30,
@@ -871,8 +850,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
                         controller.buttonPressed.value = !controller.buttonPressed.value;
-                        controller.travelCard['travel_type'].toString().toLowerCase()== 'air'?await controller.bookAirNow(controller.travelCard['id'])
-                        :controller.travelCard['travel_type'].toString().toLowerCase()== 'road'?await controller.bookRoadNow(controller.travelCard['id'])
+                        controller.travelCard['booking_type'].toString().toLowerCase()== 'air'?await controller.bookAirNow(controller.travelCard['id'])
+                        :controller.travelCard['booking_type'].toString().toLowerCase()== 'road'?await controller.bookRoadNow(controller.travelCard['id'])
                         :(){};
 
                       })
@@ -886,7 +865,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
               padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
               children: [
                 controller.bookingStep.value == 0 ?
-                build_Book_travel(context, controller.travelCard['travel_type'])
+                build_Book_travel(context, controller.travelCard['booking_type'])
                     : build_Receiver_details(context)
               ],
             ),
@@ -1112,6 +1091,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       ],
     );
   }
+
   Widget build_Receiver_details(BuildContext context) {
     return Wrap(
       direction: Axis.horizontal,
