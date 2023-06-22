@@ -675,7 +675,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
         child: Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
 
-          child: Get.find<MyAuthService>().myUser.value.id != controller.travelCard['create_uid'][0] ?
+          child: Get.find<MyAuthService>().myUser.value.id != controller.travelCard['partner_id'][0] ?
           BlockButtonWidget(
               text: Container(
                 height: 24,
@@ -702,7 +702,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 }else{
                   await Get.offNamed(Routes.LOGIN);
                 }*/
-              }) : controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.id == controller.travelCard['create_uid'][0]?
+              }) : controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.id == controller.travelCard['partner_id'][0]?
           BlockButtonWidget(
               text: Container(
                 height: 24,
