@@ -144,7 +144,10 @@ class OdooApiClient extends GetxService with ApiClient {
           name: data['name'],
           birthplace: data['place_of_birth'].toString(),
           id: data['id'],
-          image: data['avatar_1920'].toString()
+          image: data['avatar_1920'].toString(),
+          partnerId: data['partner_id'][0]
+
+
       );
       print("myuser.image: "+myuser.id.toString());
       return myuser;
@@ -201,6 +204,7 @@ class OdooApiClient extends GetxService with ApiClient {
     print(myUser.phone.toString());
     print(myUser.sex.toString());
     print(myUser.birthplace.toString());
+    print(myUser.birthday.toString());
     print(myUser.street.toString());
     var headers = {
       'Accept': 'application/json',
@@ -213,9 +217,9 @@ class OdooApiClient extends GetxService with ApiClient {
         '"password": "${myUser.password}",'
         '"phone": "${myUser.phone}",'
         '"sex": "${myUser.sex}",'
-        '"birth_city_id": "${myUser.birthplace}",'
-        '"residence_city_id": "${myUser.street}",'
-        '"birthday": "2012-02-21",'
+        '"place_of_birth": "${myUser.birthplace}",'
+        '"street": "${myUser.street}",'
+        '"birthday": "${myUser.birthday}",'
         '"sel_groups_1_9_10": 10}'
     ));
 
@@ -226,6 +230,7 @@ class OdooApiClient extends GetxService with ApiClient {
   if (response.statusCode == 200)  {
   print(await response.stream.bytesToString());
    //await login(myUser);
+  //updateUser(myUser);
     return true;
   }
   else {
@@ -255,45 +260,76 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
    updateUser(MyUser myUser) async {
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': sessionId.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
-    request.body = json.encode({
-      "params": {
-        "street": myUser.street,
-        "name": myUser.name,
-        "email": myUser.email,
-        "phone": myUser.phone,
-        "birthday": myUser.birthday,
-        "birthplace": myUser.birthplace,
-        "sex": myUser.sex,
-      }
-    });
-    request.headers.addAll(headers);
+     var headers = {
+       'Accept': 'application/json',
+       'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+     };
 
-    http.StreamedResponse response = await request.send();
+     var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
+         '"name": "${myUser.name}",'
+         '"phone": "${myUser.phone}",'
+         '"login": "${myUser.email}",'
+         '"sex": "${myUser.sex}",'
+         '"place_of_birth": "${myUser.birthday}",'
+         '"street": "${myUser.street}",'
+         '"birthday": "${myUser.birthday}"}'
+     ));
+
+     // var request = http.Request('PUT',Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={ '
+     //     '"name": "${myUser.name}",'
+     //     '"login": "${myUser.email}",'
+     //     '"password": "${myUser.password}",'
+     //     '"phone": "${myUser.phone}",'
+     //     '"sex": "${myUser.sex}",'
+     //     '"place_of_birth": "${myUser.birthplace}",'
+     //     '"street": "${myUser.street}",'
+     //     '"birthday": "${myUser.birthday}"'
+     // ));
+
+     // var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
+     // '"name": "${myUser.name}",'
+     // '"login": "${myUser.email}",'
+     // '"password": "${myUser.password}",'
+     // '"phone": "${myUser.phone}",'
+     // '"sex": "${myUser.sex}",'
+     // '"place_of_birth": "${myUser.birthplace}",'
+     // '"street": "${myUser.street}",'
+     // '"birthday": "${myUser.birthday}",'
+     // }'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+
+    //
+    // final box = GetStorage();
+    // var sessionId = box.read('session_id');
+    // var headers = {
+    //   'Content-Type': 'application/json',
+    //   'Cookie': sessionId.toString()
+    // };
+    // var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
+    // request.body = json.encode({
+    //   "params": {
+    //     "street": myUser.street,
+    //     "name": myUser.name,
+    //     "email": myUser.email,
+    //     "phone": myUser.phone,
+    //     "birthday": myUser.birthday,
+    //     "birthplace": myUser.birthplace,
+    //     "sex": myUser.sex,
+    //   }
+    // });
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-      print(myUser.email);
-      print(myUser.password);
-      //var user = await login(myUser);
-      // var user = MyUser(
-      //     email: myUser.email,
-      //     birthday: data['birthday'],
-      //     isTraveller: data['is_traveller'],
-      //     phone: data['phone'],
-      //     sex: data['sex'],
-      //     name: data['name'],
-      //     birthplace: data['birthplace'],
-      //     id: data['partner_id']
-      // );
 
-      //return (user);
+
     }
     else {
       print(response.reasonPhrase);
@@ -1482,23 +1518,38 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<String> uploadImage(File file) async {
+  Future<String> uploadImage(File file, MyUser myUser) async {
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
 
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
+
+
     var headers = {
-      'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
+      'Accept': 'application/json',
+      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Cookie': 'session_id=997d9e6103047cb1ee7fadebe4c84e77d4d78733'
     };
-    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
-    request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/${myUser.id}'));
+    request.files.add(await http.MultipartFile.fromPath('', file.path));
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
+    //
+    // final box = GetStorage();
+    // var sessionId = box.read('session_id');
+    // var headers = {
+    //   'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
+    // };
+    // var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
+    // request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
+
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      print("Yrreee: "+await response.stream.bytesToString());
       //var user = await getUser();
       //var uuid =user.image ;
 

@@ -119,9 +119,14 @@ class AuthController extends GetxController {
             var id = await _userRepository.login(currentUser.value);
             //currentUser.value = await _userRepository.get(id);
             loading.value = false;
+            if(id == null)
+            {
+              loading.value = false;
+            }
             if(id != null){
               Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
               if(Get.find<MyAuthService>().myUser.value.id != null){
+                loading.value = false;
                 Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
                 await Get.toNamed(Routes.ROOT);
               }

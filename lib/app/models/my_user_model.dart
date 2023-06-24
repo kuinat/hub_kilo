@@ -8,6 +8,7 @@ import '../services/settings_service.dart';
 
 class MyUser {
   int id;
+  int partnerId;
   String name;
   String email;
   String street;
@@ -22,6 +23,7 @@ class MyUser {
 
   MyUser({
     this.id,
+    this.partnerId,
     this.name,
      this.email,
     this.street,

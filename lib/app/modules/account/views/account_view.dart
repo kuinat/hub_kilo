@@ -81,7 +81,8 @@ class AccountView extends GetView<AccountController> {
                           image: NetworkImage(
                               // _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
                               //     :
-                              'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                            'https://preprod.hubkilo.com/api/v1/image/res.partner/${controller.currentUser.value.partnerId}/image_1920?unique=true&file_response=true',
+                              //'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
 
                           ),
                           fit: BoxFit.fill,
@@ -182,6 +183,13 @@ class AccountView extends GetView<AccountController> {
                       //Get.toNamed(Routes.NOTIFICATIONS);
                     },
                   ),*/
+                    AccountLinkWidget(
+                      icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
+                      text: Text("Import Identity files".tr),
+                      onTap: (e) {
+                        Get.find<RootController>().changePage(2);
+                      },
+                    ),
                     AccountLinkWidget(
                       icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
                       text: Text("Messages".tr),
