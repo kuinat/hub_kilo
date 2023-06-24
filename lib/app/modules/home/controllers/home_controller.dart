@@ -39,15 +39,17 @@ class HomeController extends GetxController {
   }
 
   @override
-  Future<void> onInit() async {
-    await refreshHome();
+  void onInit() async {
+    landTravels = [];
     travelItem = await getAllTravels();
     for(var a=0; a< travelItem.length; a++){
-      if(travelItem[a]["booking_type"] == "road"){
+      if(travelItem[a]['state'] == "negotiating"){
         landTravels.add(travelItem[a]);
       }
     }
-    landTravelList.value = landTravels;
+    final seen = Set();
+    landTravelList.value = landTravels.where((str) => seen.add(str)).toList();
+
     airTravelList.value = airTravels;
     //print(listItems);
     super.onInit();
@@ -55,18 +57,17 @@ class HomeController extends GetxController {
 
   Future refreshHome({bool showMessage = false}) async {
     isLoading.value = true;
+    landTravels = [];
     travelItem = await getAllTravels();
-
-    for(var a=0; a < travelItem.length; a++){
-      if(travelItem[a]["booking_type"] == "road"){
+    for(var a=0; a< travelItem.length; a++){
+      if(travelItem[a]['state'] == "negotiating"){
         landTravels.add(travelItem[a]);
       }
     }
-    landTravelList.value = landTravels;
+    final seen = Set();
+    landTravelList.value = landTravels.where((str) => seen.add(str)).toList();
+
     airTravelList.value = airTravels;
-    //print(listItems);
-    /*print("land travel: $airTravelList");
-    print("air travel: $airTravelList");*/
   }
 
   Future getAllTravels()async{

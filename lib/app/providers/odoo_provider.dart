@@ -124,7 +124,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.users?ids=$id'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
 
     request.headers.addAll(headers);
 
@@ -133,20 +133,20 @@ class OdooApiClient extends GetxService with ApiClient {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
-      print('user1  '+data.toString());
       var myuser = MyUser(
-          email: data['login'],
-          birthday: data['birthday'].toString(),
+          email: data['email'].toString(),
+          birthday: data['birthdate'].toString(),
           isTraveller: data['is_traveler'],
           phone: data['phone'].toString(),
           street: data['street'].toString(),
           sex: data['sex'].toString(),
           name: data['name'],
-          birthplace: data['place_of_birth'].toString(),
+          birthplace: data['birth_city_id'].toString(),
           id: data['id'],
-          image: data['avatar_1920'].toString()
+          image: data['image_1920'].toString()
       );
-      print("myuser.image: "+myuser.id.toString());
+      print('user  '+myuser.toString());
+
       return myuser;
 
     } else {
@@ -155,7 +155,7 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future <int> login(MyUser myUser) async {
+  Future <int>login(MyUser myUser) async {
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
@@ -178,15 +178,14 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['uid'];
-        return data['uid'];
+        var userId = data['partner_id'];
 
+        return userId;
       }
       else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
         //throw new Exception(response.reasonPhrase);
       }
-
     }
     else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occurred, please try to login again"));
     }

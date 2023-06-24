@@ -50,6 +50,7 @@ class MyUser {
   );
 
   Map<String, dynamic> toJson() => {
+    "partner_id": id,
     "name": name,
     "email": email,
     "street": street,

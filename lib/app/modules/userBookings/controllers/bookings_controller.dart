@@ -1,20 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
-import '../../../models/chat_model.dart';
-import '../../../models/message_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
-import '../../global_widgets/packet_image_field_widget.dart';
+import '../../../services/my_auth_service.dart';
 
 class BookingsController extends GetxController {
 
@@ -32,38 +29,28 @@ class BookingsController extends GetxController {
   final address = "".obs;
   final selectUser = false.obs;
   final buttonPressed = false.obs;
-  var url = ''.obs;
-  var users =[].obs;
-  var resetusers =[].obs;
+  var showTravelInfo = false.obs;
   var transferBooking = false.obs;
   var bookingIdForTransfer =''.obs;
+  var luggageModels = [].obs;
+  var luggageSelected = [].obs;
+  var users =[].obs;
+  final luggageLoading = true.obs;
+  final shippingPrice = 0.0.obs;
 
   var selectedIndex = 0.obs;
-  var receiverId = 0.obs;
   var selected = false.obs;
-
-  var visible = true.obs;
-  var editNumber = false.obs;
-
-
-
-  final uploading = false.obs;
-  final currentState = 0.obs;
-  var messages = <Message>[].obs;
-  var chats = <Chat>[].obs;
-  File imageFile;
+  var receiverId = 0.obs;
   final heroTag = "".obs;
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
   final isDone = false.obs;
-  var myAirBookings = [];
-  var myRoadBookings = [];
-  var bookingsOnMyTravel = [];
   var imageFiles = [].obs;
   var items = [].obs;
   var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
   var list = [];
+  var shippingList = [];
 
   UploadRepository _uploadRepository;
 
@@ -79,6 +66,12 @@ class BookingsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
     initValues();
   }
 
@@ -91,16 +84,13 @@ class BookingsController extends GetxController {
 
   initValues()async{
     isLoading.value = true;
-    myAirBookings = await getMyAirBookings();
-    myRoadBookings = await getMyRoadBookings();
-
-    print('road bookings'+myRoadBookings.toString());
-    print('air bookings'+myAirBookings.toString());
-
-    items.value = await mixBookingCategories(myAirBookings, myRoadBookings);
-    list = await mixBookingCategories(myAirBookings, myRoadBookings);
+    await getUser(Get.find<MyAuthService>().myUser.value.id);
+    List listUsers = await getAllUsers();
+    list = await getMyShipping();
+    items.value = list;
+    users.value = listUsers;
     isLoading.value = false;
-    await getAllUsers();
+    //await getAllUsers();
 
   }
 
@@ -113,8 +103,8 @@ class BookingsController extends GetxController {
     dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['travel']['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['travel']['arrival_town']
+      dummyListData = dummySearchList.where((element) => element['departure_town']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
           .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       items.value = dummyListData;
       return;
@@ -123,13 +113,68 @@ class BookingsController extends GetxController {
     }
   }
 
-  Future getMyAirBookings() async {
+  Future getUser(int id) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result)[0];
+
+      shippingList = data['shipping_ids'];
+
+    } else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+  }
+
+  Future getAllUsers()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/res.partner'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  Future getMyShipping() async {
+
     final box = GetStorage();
     var id = box.read('session_id');
+    print("shipping ids are: $shippingList");
+
     var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/air/current/user/my_booking/made'));
+
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shippingList'));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -145,29 +190,27 @@ class BookingsController extends GetxController {
     }
   }
 
-  getMyRoadBookings()async{
-    final box = GetStorage();
-    var id = box.read('session_id');
+  Future getTravelInfo(int id)async{
     var headers = {
-      'Cookie': 'frontend_lang=en_US; '+id.toString()
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/road/current/user/my_booking/made'));
-    request.body = '''{\r\n  "jsonrpc": "2.0"\r\n}''';
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$id'));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      //isLoading.value = false;
-      print(data);
-      return json.decode(data);
-
+      return json.decode(data)[0];
     }
     else {
-      print(response.reasonPhrase);
+      var data = await response.stream.bytesToString();
+      isLoading.value = false;
+      print(data);
     }
-
   }
 
   mixBookingCategories(var myAirBookings, var myRoadBookings)async{
@@ -186,315 +229,81 @@ class BookingsController extends GetxController {
     return bookings;
   }
 
-  editAirBooking(int book_id)async{
-    if(imageFiles.length == 0 || imageFiles.length ==3 ){
-      final box = GetStorage();
-      var session_id = box.read('session_id');
-      var headers = {
-        'Content-Type': 'application/json',
-        'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-      };
-      var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/update/'+book_id.toString()));
-
-      if(selectUser.value) {
-        print(true);
-        print(receiverId.value.toString());
-        request.body = json.encode({
-          "jsonrpc": "2.0",
-          "params": {
-            "receiver_partner_id": receiverId.value,
-            "type_of_luggage": description.value,
-            "kilo_booked": quantity.value.toInt()
-          }
-        });
-      }
-      else{
-        request.body = json.encode({
-          "jsonrpc": "2.0",
-          "params": {
-            "receiver_name": name.value,
-            "receiver_email": email.value,
-            "receiver_phone": phone.value,
-            "receiver_address": address.value,
-            "type_of_luggage": description.value,
-            "kilo_booked": quantity.value.toInt()
-          }
-        });
-      }
-
-      request.headers.addAll(headers);
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-        var data = await response.stream.bytesToString();
-        if(json.decode(data)['result'] != null){
-          await setAirPacketImage(book_id);
-          Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
-          Navigator.pop(Get.context);
-          imageFiles.clear();
-        }else{
-          Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-        }
-      }
-      else {
-        print(response.reasonPhrase);
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-
-
-    }
-    else{
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please upload 3 photos or don't update the pictures!".tr));
-    }
-
-
-
-  }
-
-
-  editRoadBooking(int book_id)async{
-    if(imageFiles.length == 0 || imageFiles.length ==3 ){
-      final box = GetStorage();
-      var session_id = box.read('session_id');
-
-      var headers = {
-        'Content-Type': 'application/json',
-        'Cookie': session_id.toString()
-      };
-      var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/travel/booking/update/'+book_id.toString()));
-      if(selectUser.value) {
-        print('road');
-        request.body = json.encode({
-          "jsonrpc": "2.0",
-          "params": {
-            "receiver_partner_id": receiverId.value,
-            "luggage_width": luggageWidth.value,
-            "luggage_height": luggageHeight.value,
-            "luggage_weight": quantity.value,
-            "type_of_luggage": description.value
-          }
-        });
-      }
-      else{
-        print('road again');
-
-        request.body = json.encode({
-          "jsonrpc": "2.0",
-          "params": {
-            "receiver_name": name.value,
-            "receiver_email": email.value,
-            "receiver_phone": phone.value,
-            "receiver_address": address.value,
-            "type_of_luggage": description.value,
-            "luggage_width": luggageWidth.value,
-            "luggage_height": luggageHeight.value,
-            "luggage_weight": quantity.value
-          }
-        });
-      }
-
-      request.headers.addAll(headers);
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-        var data = await response.stream.bytesToString();
-        if(json.decode(data)['result'] != null){
-          await setRoadPacketImage(book_id);
-          Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
-          Navigator.pop(Get.context);
-          imageFiles.clear();
-        }else{
-          Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-        }
-      }
-      else {
-        print(response.reasonPhrase);
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else{
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "Please upload 3 photos or don't update the pictures!".tr));
-    }
-
-
-
-  }
-
-
-  Future <File> pickImage(ImageSource source) async {
-    //image.value = null;
-    ImagePicker imagePicker = ImagePicker();
-    //uploading.value = true;
-    //await deleteUploaded();
-    if(source.toString() == ImageSource.camera.toString())
-    {
-      XFile pickedFile = await imagePicker.pickImage(source: source, imageQuality: 80);
-      File imageFile = File(pickedFile.path);
-      if(imageFiles.length<3)
-      {
-        imageFiles.add(imageFile) ;
-      }
-      else
-      {
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
-        throw new Exception('You can only upload 3 photos');
-      }
-
-
-    }
-    else{
-      var i =0;
-      var galleryFiles = await imagePicker.pickMultiImage();
-      while(i<galleryFiles.length){
-        File imageFile = File(galleryFiles[i].path);
-        if(imageFiles.length<3)
-        {
-          imageFiles.add(imageFile) ;
-        }
-        else
-        {
-          Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
-          throw new Exception('You can only upload 3 photos');
-        }
-        i++;
-      }
-
-    }
-
-
-
-  }
-
-  Future setAirPacketImage (bookingId)async{
-    Get.lazyPut<PacketImageFieldController>(
-          () => PacketImageFieldController(),
-    );
-
-    if (imageFiles.length==3) {
-      //try {
-        //await deleteUploaded();
-        await _uploadRepository.airImagePacket(imageFiles, bookingId);
-      // } catch (e) {
-      //   Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-      // }
-    }
-  }
-
-  Future setRoadPacketImage (bookingId)async{
-    Get.lazyPut<PacketImageFieldController>(
-          () => PacketImageFieldController(),
-    );
-    File imageFile = Get.find<PacketImageFieldController>().image.value;
-    if (imageFiles.length==3) {
-
-      //await deleteUploaded();
-      await _uploadRepository.roadImagePacket(imageFiles.value, bookingId);
-
-    }
-  }
-
-  transferMyAirBookingNow(int booking_id)async{
-    transferBooking.value = true;
-    bookingIdForTransfer.value = booking_id.toString();
-    await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
-
-  }
-
-  transferMyRoadBookingNow(int booking_id)async{
-    transferBooking.value = true;
-    bookingIdForTransfer.value = booking_id.toString();
-    await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
-
-  }
-
-  deleteMyAirBooking(int book_id)async{
-    final box = GetStorage();
-    var id = box.read('session_id');
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
-    };
-    var request = http.Request('DELETE', Uri.parse('${Domain.serverPort}/air/booking/$book_id/delete'));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      final data = await response.stream.bytesToString();
-      if(json.decode(data)['success']) {
-        Get.showSnackbar(Ui.SuccessSnackBar(message: json.decode(data)['message']));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-        initValues();
-        throw new Exception(response.reasonPhrase);
-      }
-    }
-    else {
-      throw new Exception(response.reasonPhrase);
-    }
-  }
-
-  deleteMyRoadBooking(int id)async{
-    print('delete Road Booking');
-    final box = GetStorage();
-    var session_id = box.read("session_id");
-
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.Request('DELETE', Uri.parse(Domain.serverPort
-        +'/road/booking/'+id.toString()+'/delete'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      if(json.decode(data)['status'] == 200){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "${json.decode(data)['message']}".tr));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-  }
-
-  getAllUsers()async{
+  editRoadBooking(var shipping)async{
     final box = GetStorage();
     var session_id = box.read('session_id');
+
     var headers = {
-      'Content-Type': 'text/plain',
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/hubkilo/all/partners'));
-    request.body = '''{\r\n     "jsonrpc": "2.0"\r\n}''';
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"travelbooking_id": ${shipping['travelbooking_id']},'
+        '"receiver_partner_id": ${shipping['receiver_partner_id']},'
+        '"shipping_price": ${shippingPrice.value}'
+        '}&ids=${shipping['id']}'
+    ));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      users.value= json.decode(data);
-      resetusers.value= json.decode(data);
+      if(json.decode(data)['result'] != null){
+
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
+        Navigator.pop(Get.context);
+        imageFiles.clear();
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      }
     }
     else {
       print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
+  }
 
+  transferShipping(int booking_id)async{
+    transferBooking.value = true;
+    bookingIdForTransfer.value = booking_id.toString();
+    await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
+
+  }
+
+  cancelShipping(int shipping_id)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"state": "rejected"}&ids=$shipping_id'));
+
+    http.StreamedResponse response = await request.send();
+
+    request.headers.addAll(headers);
+
+    if (response.statusCode == 200) {
+
+      final data = await response.stream.bytesToString();
+      print(data);
+      await getUser(Get.find<MyAuthService>().myUser.value.id);
+      list = await getMyShipping();
+      items.value = list;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping Canceled"));
+      Navigator.pop(Get.context);
+
+    }
+    else {
+      final data = await response.stream.bytesToString();
+      print(data);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      throw new Exception(response.reasonPhrase);
+    }
   }
 
   @override

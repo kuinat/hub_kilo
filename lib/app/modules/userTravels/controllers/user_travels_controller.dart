@@ -5,7 +5,10 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../common/ui.dart';
 import '../../../../main.dart';
+import '../../../models/my_user_model.dart';
+import '../../../providers/odoo_provider.dart';
 import '../../../services/my_auth_service.dart';
 
 class UserTravelsController extends GetxController {
@@ -17,6 +20,7 @@ class UserTravelsController extends GetxController {
   var myTravelsList = [];
   var roadTravels = [];
   var list = [];
+  var travelList = [];
   var listForProfile = [].obs;
   final selectedState = <String>[].obs;
 
@@ -36,28 +40,26 @@ class UserTravelsController extends GetxController {
   }
 
   initValues()async{
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
+    await getUser(Get.find<MyAuthService>().myUser.value.id);
     myTravelsList = await myTravels();
     items.clear();
-    for(var a=0; a < myTravelsList.length; a++){
-      if(myTravelsList[a]["create_uid"][0] == Get.find<MyAuthService>().myUser.value.id ){
-        items.add(myTravelsList[a]);
-      }
-    }
-    list = items;
-    listForProfile.value =list;
+
+    items.value = myTravelsList;
+
     print(items);
   }
 
   Future refreshMyTravels() async {
     items.clear();
+    await getUser(Get.find<MyAuthService>().myUser.value.id);
     myTravelsList = await myTravels();
-    for(var a=0; a < myTravelsList.length; a++){
-      if(myTravelsList[a]["create_uid"][0] == Get.find<MyAuthService>().myUser.value.id ){
-        items.add(myTravelsList[a]);
-      }
-    }
-    list = items;
-    listForProfile.value = list;
+    items.value = myTravelsList;
     print(listForProfile.length.toString());
   }
 
@@ -70,16 +72,40 @@ class UserTravelsController extends GetxController {
     }
   }
 
+  Future getUser(int id) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result)[0];
+
+      travelList = data['travelbooking_ids'];
+
+    } else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+  }
+
   Future myTravels()async{
     final box = GetStorage();
     var id = box.read("session_id");
-    print(id);
+    print("travel ids are: $travelList");
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.travelbooking'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$travelList'));
 
     request.headers.addAll(headers);
 

@@ -34,9 +34,9 @@ void initServices() async {
 Future getCountries()async{
   var headers = {
     'Accept': 'application/json',
-    'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ=='
+    'Authorization': Domain.authorization
   };
-  var request = http.Request('GET', Uri.parse('https://preprod.hubkilo.com/api/v1/search_read/res.city'));
+  var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/res.city'));
 
   request.headers.addAll(headers);
 
@@ -55,11 +55,11 @@ class Domain{
 
   static var serverPort = "https://preprod.hubkilo.com/api/v1";
 
-  static var authorization = "Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==";
+  static var authorization = "Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=";
   static var AppName = "Hub Kilo";
   static Map<String, String> getTokenHeaders() {
     Map<String, String> headers = new Map();
-    headers['Authorization'] = "Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==";
+    headers['Authorization'] = authorization;
     headers['accept'] = 'application/json';
     return headers;
   }
