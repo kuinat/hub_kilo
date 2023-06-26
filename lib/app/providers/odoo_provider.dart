@@ -97,27 +97,6 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  // Future<MyUser> getUser(MyUser user) async {
-  //
-  //   if (!authService.isAuth) {
-  //     throw new Exception("You don't have the permission to access to this area!".tr + "[ getUser() ]");
-  //   }
-  //   var _queryParameters = {
-  //     'api_token': authService.apiToken,
-  //   };
-  //   Uri _uri = getApiBaseUri("user").replace(queryParameters: _queryParameters);
-  //   Get.log(_uri.toString());
-  //   var response = await _httpClient.getUri(
-  //     _uri,
-  //     options: _optionsNetwork,
-  //   );
-  //   if (response.data['success'] == true) {
-  //     return MyUser.fromJson(response.data['data']);
-  //   } else {
-  //     throw new Exception(response.data['message']);
-  //   }
-  // }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
@@ -133,9 +112,8 @@ class OdooApiClient extends GetxService with ApiClient {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
-      print('user1  '+data.toString());
       var myuser = MyUser(
-          email: data['login'],
+          email: data['login'].toString(),
           birthday: data['birthday'].toString(),
           isTraveller: data['is_traveler'],
           phone: data['phone'].toString(),
@@ -143,10 +121,12 @@ class OdooApiClient extends GetxService with ApiClient {
           sex: data['sex'].toString(),
           name: data['name'],
           birthplace: data['place_of_birth'].toString(),
-          id: data['id'],
-          image: data['avatar_1920'].toString()
+          id: data['partner_id'][0],
+          userId: data['id'],
+          image: data['image_1920'].toString()
       );
-      print("myuser.image: "+myuser.id.toString());
+      print('user  '+myuser.toString());
+
       return myuser;
 
     } else {
@@ -155,7 +135,7 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future <int> login(MyUser myUser) async {
+  Future <int>login(MyUser myUser) async {
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
@@ -179,14 +159,13 @@ class OdooApiClient extends GetxService with ApiClient {
       print(data);
       if(data != null){
         var userId = data['uid'];
-        return data['uid'];
 
+        return userId;
       }
       else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
         //throw new Exception(response.reasonPhrase);
       }
-
     }
     else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occurred, please try to login again"));
     }
@@ -201,6 +180,7 @@ class OdooApiClient extends GetxService with ApiClient {
     print(myUser.phone.toString());
     print(myUser.sex.toString());
     print(myUser.birthplace.toString());
+    print(myUser.birthday.toString());
     print(myUser.street.toString());
     var headers = {
       'Accept': 'application/json',
@@ -213,10 +193,11 @@ class OdooApiClient extends GetxService with ApiClient {
         '"password": "${myUser.password}",'
         '"phone": "${myUser.phone}",'
         '"sex": "${myUser.sex}",'
-        '"birth_city_id": "${myUser.birthplace}",'
-        '"residence_city_id": "${myUser.street}",'
-        '"birthday": "2012-02-21",'
+        '"place_of_birth": "${myUser.birthplace}",'
+        '"street": "${myUser.street}",'
+        '"birthday": "${myUser.birthday}",'
         '"sel_groups_1_9_10": 10}'
+
     ));
 
   request.headers.addAll(headers);
@@ -226,6 +207,7 @@ class OdooApiClient extends GetxService with ApiClient {
   if (response.statusCode == 200)  {
   print(await response.stream.bytesToString());
    //await login(myUser);
+  //updateUser(myUser);
     return true;
   }
   else {
@@ -255,45 +237,76 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
    updateUser(MyUser myUser) async {
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': sessionId.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
-    request.body = json.encode({
-      "params": {
-        "street": myUser.street,
-        "name": myUser.name,
-        "email": myUser.email,
-        "phone": myUser.phone,
-        "birthday": myUser.birthday,
-        "birthplace": myUser.birthplace,
-        "sex": myUser.sex,
-      }
-    });
-    request.headers.addAll(headers);
+     var headers = {
+       'Accept': 'application/json',
+       'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+     };
 
-    http.StreamedResponse response = await request.send();
+     var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
+         '"name": "${myUser.name}",'
+         '"phone": "${myUser.phone}",'
+         '"login": "${myUser.email}",'
+         '"sex": "${myUser.sex}",'
+         '"place_of_birth": "${myUser.birthday}",'
+         '"street": "${myUser.street}",'
+         '"birthday": "${myUser.birthday}"}'
+     ));
+
+     // var request = http.Request('PUT',Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={ '
+     //     '"name": "${myUser.name}",'
+     //     '"login": "${myUser.email}",'
+     //     '"password": "${myUser.password}",'
+     //     '"phone": "${myUser.phone}",'
+     //     '"sex": "${myUser.sex}",'
+     //     '"place_of_birth": "${myUser.birthplace}",'
+     //     '"street": "${myUser.street}",'
+     //     '"birthday": "${myUser.birthday}"'
+     // ));
+
+     // var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
+     // '"name": "${myUser.name}",'
+     // '"login": "${myUser.email}",'
+     // '"password": "${myUser.password}",'
+     // '"phone": "${myUser.phone}",'
+     // '"sex": "${myUser.sex}",'
+     // '"place_of_birth": "${myUser.birthplace}",'
+     // '"street": "${myUser.street}",'
+     // '"birthday": "${myUser.birthday}",'
+     // }'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+
+    //
+    // final box = GetStorage();
+    // var sessionId = box.read('session_id');
+    // var headers = {
+    //   'Content-Type': 'application/json',
+    //   'Cookie': sessionId.toString()
+    // };
+    // var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
+    // request.body = json.encode({
+    //   "params": {
+    //     "street": myUser.street,
+    //     "name": myUser.name,
+    //     "email": myUser.email,
+    //     "phone": myUser.phone,
+    //     "birthday": myUser.birthday,
+    //     "birthplace": myUser.birthplace,
+    //     "sex": myUser.sex,
+    //   }
+    // });
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-      print(myUser.email);
-      print(myUser.password);
-      //var user = await login(myUser);
-      // var user = MyUser(
-      //     email: myUser.email,
-      //     birthday: data['birthday'],
-      //     isTraveller: data['is_traveller'],
-      //     phone: data['phone'],
-      //     sex: data['sex'],
-      //     name: data['name'],
-      //     birthplace: data['birthplace'],
-      //     id: data['partner_id']
-      // );
 
-      //return (user);
+
     }
     else {
       print(response.reasonPhrase);
@@ -1482,23 +1495,37 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<String> uploadImage(File file) async {
+  Future<String> uploadImage(File file, MyUser myUser) async {
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
 
-    final box = GetStorage();
-    var sessionId = box.read('session_id');
+
     var headers = {
-      'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
+      'Accept': 'application/json',
+      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Cookie': 'session_id=997d9e6103047cb1ee7fadebe4c84e77d4d78733'
     };
-    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
-    request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/${myUser.id}'));
+    request.files.add(await http.MultipartFile.fromPath('', file.path));
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
+    //
+    // final box = GetStorage();
+    // var sessionId = box.read('session_id');
+    // var headers = {
+    //   'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
+    // };
+    // var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
+    // request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
+    // request.headers.addAll(headers);
+    //
+    // http.StreamedResponse response = await request.send();
+
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      print("Yrreee: "+await response.stream.bytesToString());
       //var user = await getUser();
       //var uuid =user.image ;
 

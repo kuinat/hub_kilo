@@ -8,6 +8,7 @@ import '../services/settings_service.dart';
 
 class MyUser {
   int id;
+  int userId;
   String name;
   String email;
   String street;
@@ -22,6 +23,7 @@ class MyUser {
 
   MyUser({
     this.id,
+    this.userId,
     this.name,
      this.email,
     this.street,
@@ -36,7 +38,8 @@ class MyUser {
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) => MyUser(
-    id: json["partner_id"],
+    id: json["id"],
+    userId: json['partner_id'],
     name: json["name"] ,
     email: json["email"],
     street: json["street"],
@@ -50,6 +53,7 @@ class MyUser {
   );
 
   Map<String, dynamic> toJson() => {
+    "partner_id": id,
     "name": name,
     "email": email,
     "street": street,

@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
-import '../../../providers/laravel_provider.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
@@ -121,7 +120,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       children: [
                         Obx(() => EServiceTilWidget(
                             title: Text("Description".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: interfaceColor))),
-                            title2: Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['create_uid'][0] ?
+                            title2: Get.find<MyAuthService>().myUser.value.id  == controller.travelCard['partner_id'][0] ?
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black,
@@ -138,7 +137,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
                                 print(controller.currentIndex);
                               }),
-                              child: Text("View Bookings".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
+                              child: Text("View Shipping".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
                             ) : SizedBox(),
                             content: Column(
                               children: [
@@ -147,8 +146,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                   trailing: Text(controller.travelCard['code'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
                                 ),
                                 ListTile(
-                                  title: Text('Available Quantity (kg):', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
-                                  trailing: Text(controller.travelCard['total_weight'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                                  title: Text('State:', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                                  trailing: Text(controller.travelCard['state'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                 ),
                                 if(controller.travelCard['booking_type'] != 'road')
                                 ListTile(
@@ -166,7 +165,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               ],
                             )
                         )),
-                        if(Get.find<MyAuthService>().myUser.value.id  != controller.travelCard['create_uid'][0])
                           EServiceTilWidget(
                             title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
                             title2: InkWell(
@@ -184,7 +182,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             ),
                             content: buildUserDetailsCard(context),
                             actions: [],
-                          ),
+                          )
                       ],
                     ),
                   ),
@@ -192,6 +190,35 @@ class TravelInspectView extends GetView<TravelInspectController> {
               )),
         );
     });
+  }
+
+
+  EServiceTitleBarWidget buildEServiceTitleBarWidget(BuildContext context) {
+    double width = MediaQuery.of(context).size.width/2.8;
+    return EServiceTitleBarWidget(
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                width: width,
+                child: Text(controller.travelCard['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+              ),
+              FaIcon(FontAwesomeIcons.arrowRight),
+              Container(
+                  alignment: Alignment.topCenter,
+                  width: width,
+                  child: Text(controller.travelCard['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildBookingByTravel(BuildContext context){
@@ -315,7 +342,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 height: 24,
                                 color: Get.theme.focusColor.withOpacity(0.3),
                               ),
-                              Expanded(child: Text("Booked By: " +booking["create_uid"][1], style: Get.textTheme.headline1.
+                              Expanded(child: Text("Shipped By: " +booking["partner_id"][1], style: Get.textTheme.headline1.
                               merge(TextStyle(color: appColor, fontSize: 17)))),
                               SizedBox(width: 40),
                               Container(
@@ -474,11 +501,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                             context: context,
                                             builder: (_)=>
                                                 PopUpWidget(
-                                                  title: "Are you sure to accept this booking? your choice can't be changed later",
+                                                  title: "Are you sure to accept this shipping? your choice can't be changed later",
                                                   cancel: 'Cancel',
                                                   confirm: 'Ok',
                                                   onTap: () async =>{
-                                                    controller.acceptRoadBooking(booking['id']),
+                                                    controller.acceptShipping(booking['id']),
 
                                                   }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                                                 )
@@ -501,11 +528,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                             context: context,
                                             builder: (_)=>
                                                 PopUpWidget(
-                                                  title: "Are you sure to reject this booking? your choice can't be changed later",
+                                                  title: "Are you sure to reject this shipping? your choice can't be changed later",
                                                   cancel: 'Cancel',
                                                   confirm: 'Ok',
                                                   onTap: () async =>{
-                                                    await controller.rejectRoadBooking(booking['id']),
+                                                    await controller.rejectShipping(booking['id']),
 
                                                   }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                                                 )
@@ -589,7 +616,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   width: 65,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.travelCard['partner_id']}/avatar_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                        image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.travelCard['partner_id'][0]}/avatar_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
                       fit: BoxFit.cover)
                   ),
                 ),
@@ -599,7 +626,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(controller.travelCard['create_uid'][1],
+                    Text(controller.travelCard['partner_id'][1],
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       maxLines: 2,
@@ -634,34 +661,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
     );
   }
 
-  EServiceTitleBarWidget buildEServiceTitleBarWidget(BuildContext context) {
-    double width = MediaQuery.of(context).size.width/2.8;
-    return EServiceTitleBarWidget(
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                alignment: Alignment.topCenter,
-                width: width,
-                child: Text(controller.travelCard['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-              ),
-              FaIcon(FontAwesomeIcons.arrowRight),
-              Container(
-                  alignment: Alignment.topCenter,
-                  width: width,
-                  child: Text(controller.travelCard['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget buildBottomWidget(BuildContext context) {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 20),
@@ -672,7 +671,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
             BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, -5)),
           ],
         ),
-        child: Padding(
+        child: controller.travelCard['state'] != 'completed' ?
+        Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
 
           child: Get.find<MyAuthService>().myUser.value.id != controller.travelCard['partner_id'][0] ?
@@ -681,7 +681,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 height: 24,
                 alignment: Alignment.center,
                 child: Text(
-                  "Book Now".tr,
+                  "Ship Now".tr,
                   textAlign: TextAlign.center,
                   style: Get.textTheme.headline6.merge(
                     TextStyle(color: Get.theme.primaryColor),
@@ -690,19 +690,18 @@ class TravelInspectView extends GetView<TravelInspectController> {
               ),
               color: Get.theme.colorScheme.secondary,
               onPressed: () async{
-                Get.bottomSheet(
-                  buildBookingSheet(context),
-                  isScrollControlled: true,
-                );
-                /*if(Get.find<MyAuthService>().myUser.value.email != null){
+                print(Get.find<MyAuthService>().myUser.value.id);
+
+                if(Get.find<MyAuthService>().myUser.value.email != null){
                   Get.bottomSheet(
                     buildBookingSheet(context),
                     isScrollControlled: true,
                   );
                 }else{
                   await Get.offNamed(Routes.LOGIN);
-                }*/
-              }) : controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.id == controller.travelCard['partner_id'][0]?
+                }
+              }) :
+          controller.transferBooking.value && Get.find<MyAuthService>().myUser.value.id == controller.travelCard['partner_id'][0]?
           BlockButtonWidget(
               text: Container(
                 height: 24,
@@ -718,15 +717,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
               color: Get.theme.colorScheme.secondary,
               onPressed: () async{
                 if(Get.find<MyAuthService>().myUser.value.email != null){
-                  controller.travelCard['booking_type'] == "air"?
-                  await controller.transferAirNow(controller.travelCard['id']):
-                  controller.travelCard['booking_type'] == "road"?
-                  await controller.transferRoadNow(controller.travelCard['id']):
-                  (){};
+                  controller.transferTravelShipping();
                 }else{
                   await Get.offNamed(Routes.LOGIN);
                 }
-              }):
+              }) :
+          controller.travelCard['state'] != 'negotiating' ?
+          controller.travelCard['state'] != 'accepted' ?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -736,28 +733,18 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       context: context,
                         builder: (_)=>
                             PopUpWidget(
-                              title: "Do you really want to delete this post?",
-                              cancel: 'Cancel',
-                              confirm: 'Delete',
+                              title: "Do you really want to Cancel this post?",
+                              cancel: 'Annuler',
+                              confirm: 'Cancel',
                               onTap: (){
-                                if(controller.travelCard['booking_type'] == "air"){
-                                  controller.deleteAirTravel(controller.travelCard['id']);
-                                  print("air delete");
-                                }
-                                if(controller.travelCard['booking_type'] == "road"){
-                                  controller.deleteRoadTravel(controller.travelCard['id']);
-                                  print("road delete");
-                                }
-                                if(controller.travelCard['booking_type'] == "sea"){
-                                  //controller.deleteRoadTravel(controller.travelCard['id']);
-                                }
+                                controller.cancelTravel(controller.travelCard['id']);
                                 print(controller.travelCard['id']);
                               }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                             )
                     )
                   },
                   child: SizedBox(width: 100,height: 30,
-                      child: Center(child: Text('Delete')))
+                      child: Center(child: Text('Cancel')))
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -771,15 +758,49 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       child: Center(child: Text('Edit')))
               )
             ],
+          ) : Container(
+              margin: EdgeInsets.symmetric(horizontal: 20,),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: doneStatus,
+                  ),
+                  onPressed: ()=>{
+                  Get.offNamed(Routes.VALIDATE_TRANSACTION)
+                  },
+                  child: Text("Set travel to complete"))
           )
-        ),
+              : Container(
+              margin: EdgeInsets.symmetric(horizontal: 20,),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: validateColor,
+                  ),
+                  onPressed: ()=>{
+                    controller.validateTravel(controller.travelCard['id'])
+                  } ,
+                  child: Text("Validate"))
+          ),
+        ) : Padding(
+          padding: EdgeInsets.only(left: 40,right: 40),
+           child: Container(
+               margin: EdgeInsets.symmetric(horizontal: 20,),
+               child: ElevatedButton(
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: inactive,
+                   ),
+                   onPressed: ()=>{
+                   Get.showSnackbar(Ui.notificationSnackBar(message: "This travel was completed on ${controller.travelCard['__last_update']}".tr))
+                   },
+                   child: Text("Travel Completed"))
+           )
+        )
       );
   }
 
   Widget buildBookingSheet(BuildContext context){
 
     return Container(
-      height: Get.height/1.8,
+      height: Get.height/1.2,
       decoration: BoxDecoration(
         color: background,
         //Get.theme.primaryColor,
@@ -797,7 +818,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 controller.bookingStep.value != 0 ?
                   MaterialButton(
                     onPressed: () =>{
-                      controller.bookingStep.value = 0
+                      for(var i=0; i<controller.luggageId.length; i++)
+                        controller.deleteShippingLuggage(controller.luggageId[i])
                     },
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -806,28 +828,19 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   ) : SizedBox(width: 60),
                 Spacer(),
                 controller.bookingStep.value == 0 ?
-                Text('Booking Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
+                Text('Shipping Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
                 Text('Receiver Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
                 Spacer(),
                 controller.bookingStep.value == 0 ?
                 MaterialButton(
                   onPressed: () =>{
-                    if(controller.imageFiles.length!=3){
-                      showDialog(
-                          context: context,
-                          builder: (_)=>
-                              PopUpWidget(
-                                title: "You cannot continue if you have not uploaded 3 pictures",
-                                cancel: 'Cancel',
-                                confirm: 'ok',
-                                onTap: (){
-                                  Navigator.of(context).pop();
-                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                              )
-                      )
-                    }
-                    else{
-                      controller.bookingStep.value++
+                    if(controller.luggageSelected.isNotEmpty){
+                      controller.errorField.value = false,
+                      controller.bookingStep.value++,
+                      for(var i=0; i<controller.luggageSelected.length; i++)
+                        controller.createShippingLuggage(controller.luggageSelected[i])
+                    }else{
+                      controller.errorField.value = true
                     }
 
                   },
@@ -850,9 +863,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
                         controller.buttonPressed.value = !controller.buttonPressed.value;
-                        controller.travelCard['booking_type'].toString().toLowerCase()== 'air'?await controller.bookAirNow(controller.travelCard['id'])
-                        :controller.travelCard['booking_type'].toString().toLowerCase()== 'road'?await controller.bookRoadNow(controller.travelCard['id'])
-                        :(){};
+                        controller.shipNow();
 
                       })
                 ),
@@ -893,7 +904,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
   }
 
   Widget build_Book_travel(BuildContext context, String travelType) {
-    var visible =  travelType.toString().toLowerCase()=='road';
+
     return Wrap(
       direction: Axis.horizontal,
       runSpacing: 20,
@@ -903,49 +914,109 @@ class TravelInspectView extends GetView<TravelInspectController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             TextFieldWidget(
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.number,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.description.value = input,
-              labelText: "Description".tr,
-              iconData: FontAwesomeIcons.fileLines,
+              onChanged: (input) => controller.shippingPrice.value = double.parse(input),
+              labelText: "Shipping Price".tr,
+              iconData: Icons.monetization_on_rounded,
             ),
-            TextFieldWidget(
-              keyboardType: TextInputType.text,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.quantity.value = int.parse(input),
-              labelText: "Quantity".tr,
-              iconData: FontAwesomeIcons.shoppingBag,
-            ),
-
-                Visibility(
-                  visible: visible,
-                    child: TextFieldWidget(
-                      keyboardType: TextInputType.text,
-                      validator: (input) => input.isEmpty ? "field required!".tr : null,
-                      onChanged: (input) => controller.luggageWidth.value = int.parse(input),
-                      labelText: "Luggage Width".tr,
-                      iconData: FontAwesomeIcons.shoppingBag,
-                    ),
-                ),
-            Visibility(
-              visible: visible,
-              child: TextFieldWidget(
-                keyboardType: TextInputType.text,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageHeight.value = int.parse(input),
-                labelText: "Luggage Height".tr,
-                iconData: FontAwesomeIcons.shoppingBag,
-              ),
-            ),
-
             Obx(() => Container(
-              color: Colors.white,
+              height: 200,
+              padding: EdgeInsets.all( 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: controller.errorField.value ? Border.all(color: specialColor) : null,
+                color: Colors.white,
+              ),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Select Luggage Type", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
+                  SizedBox(height: 10),
+                  Expanded(
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          if(!controller.luggageLoading.value)...[
+                            for(var i=0; i< controller.luggageModels.length; i++)...[
+                              GestureDetector(
+                                onTap: () {
+                                  if(controller.luggageSelected.contains(controller.luggageModels[i])){
+                                    controller.luggageSelected.remove(controller.luggageModels[i]);
+                                  }else{
+                                    controller.luggageSelected.add(controller.luggageModels[i]);
+                                  }
+                                  print(controller.luggageSelected);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  margin: EdgeInsets.only(right: 10),
+                                  height: 150,
+                                  width: 130,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      border: controller.luggageSelected.contains(controller.luggageModels[i])
+                                          ? Border.all(color: interfaceColor, width: 3) : Border.all(),
+                                      color: backgroundColor
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      controller.luggageModels[i]['type'] == "envelope" ?
+                                      Text("${controller.luggageModels[i]['type']} ${controller.luggageModels[i]['nature']}") : Text("${controller.luggageModels[i]['type']}"),
+                                      SizedBox(width: 10),
+                                      controller.luggageModels[i]['type'] == "envelope" ?
+                                      Icon(FontAwesomeIcons.envelope, size: 30) : Icon(FontAwesomeIcons.briefcase, size: 30),
+                                      SizedBox(height: 10),
+                                      ListTile(
+                                          title: Text("${controller.luggageModels[i]['average_height']} x ${controller.luggageModels[i]['average_width']}", style: TextStyle(color: appColor)),
+                                          subtitle: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text("${controller.luggageModels[i]['amount_to_deduct']} EUR", style: TextStyle(color: Colors.red)),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Icon(FontAwesomeIcons.shoppingBag, size: 13,),
+                                                  SizedBox(width: 10),
+                                                  Text('${controller.luggageModels[i]['average_weight']} Kg'),
+                                                ],
+                                              )
+                                            ],
+                                          )
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              )
+                            ]
+                          ]else...[
+                            Row(
+                              children: [
+                                SizedBox(width: MediaQuery.of(context).size.width/2.7),
+                                SizedBox(
+                                    height: 20,
+                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
+                              ],
+                            )
+                          ]
+                        ],
+                      ))
+                ],
+              ),
+            )),
+            Obx(() => Container(
+
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Colors.white,
+              ),
               padding: EdgeInsets.all(30),
               margin: EdgeInsets.only(top: 20, bottom: 20),
               child: Column(
                 children: [
                   Align(
-                    child: Text('Input 3 packet pictures'.tr),
+                    child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
                     alignment: Alignment.topLeft,
                   ),
                   SizedBox(height: 20,),
@@ -1024,11 +1095,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                       ),
                                     ),
                                   ),
-
-
-                                      // .marginOnly(top: 10, right: 10),
                                 ],
-
                               );
                             },
                             separatorBuilder: (context, index){
@@ -1084,8 +1151,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
               ),
             ),),
 
-
-
           ],
         ),
       ],
@@ -1106,9 +1171,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 onChanged: (bool value){
                   controller.selectUser.value = value;
                 },
-                title: Text("Select a user ?", style: Get.textTheme.headline1.merge(TextStyle(color: appColor)))
+                title: Text("Receiver not in the system ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
             ),
-            !controller.selectUser.value ?
+            controller.selectUser.value ?
             Column(
               children: [
                 TextFieldWidget(
@@ -1143,38 +1208,24 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 ),
               ],
             ) :
-            controller.visible.value?TextFieldWidget(
+            controller.visible.value ?
+            TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
               iconData: FontAwesomeIcons.userGroup,
-              onChanged: (value){
-                var userFilter = [];
-                if(value==''){
-                  controller.users.value=controller.resetusers;
-                }
-                else{
-                  for(var item in controller.users){
-                    print(item['name'].toString());
-                    if(item['name'].toLowerCase().contains(value)){
-                      userFilter.add(item);
-                      controller.users.value = userFilter;
-                    }else{
-                      controller.users.value = userFilter;
-                    }
-                    //controller.users.value = userFilter;
-                  }
-                }
+              onChanged: (value)=>{
+                controller.filterSearchResults(value)
               },
             ):TextButton(
                 onPressed: (){
                   controller.visible.value = true;
-                  controller.users.value = controller.resetusers;
+                  controller.users.value = controller.users;
 
             }, child: Text('Select another user')),
 
-            if(controller.selectUser.value)
+            if(!controller.selectUser.value)
             controller.users.isNotEmpty ?
             Container(
                 margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
@@ -1214,10 +1265,10 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
                           ),
                           child: UserWidget(
-                            user: controller.users[index]['name'],
+                            user: controller.users[index]['display_name'],
                             selected: false,
-                            imageUrl: controller.users[index]['image_1920'] == true ? '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
-                                : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                            imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                                //'${Domain.serverPort}/image/res.partner/${controller.users[index]['id']}/image_1920?unique=true&file_response=true',
                           ),
                         ),
                       );
@@ -1230,4 +1281,5 @@ class TravelInspectView extends GetView<TravelInspectController> {
       ],
     );
   }
+
 }

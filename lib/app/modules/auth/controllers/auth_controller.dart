@@ -85,13 +85,9 @@ class AuthController extends GetxController {
     if (loginFormKey.currentState.validate()) {
       loginFormKey.currentState.save();
 
-
         loading.value = true;
-        int id = await _userRepository.login(currentUser.value);
-        if(id == null)
-          {
-            loading.value = false;
-          }
+        var id = await _userRepository.login(currentUser.value);
+
         if(id != null){
           Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
           if(Get.find<MyAuthService>().myUser.value.id != null){
@@ -99,10 +95,12 @@ class AuthController extends GetxController {
             Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
             await Get.toNamed(Routes.ROOT);
           }
-
+          else{
+            loading.value = false;
+          }
+        }else{
+          loading.value = false;
         }
-
-
     }
     //await Get.find<RootController>().changePage(0);
   }
@@ -119,9 +117,14 @@ class AuthController extends GetxController {
             var id = await _userRepository.login(currentUser.value);
             //currentUser.value = await _userRepository.get(id);
             loading.value = false;
+            if(id == null)
+            {
+              loading.value = false;
+            }
             if(id != null){
               Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
               if(Get.find<MyAuthService>().myUser.value.id != null){
+                loading.value = false;
                 Get.showSnackbar(Ui.SuccessSnackBar(message: "You registered successfully ".tr ));
                 await Get.toNamed(Routes.ROOT);
               }

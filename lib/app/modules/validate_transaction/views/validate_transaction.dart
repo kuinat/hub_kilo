@@ -254,17 +254,17 @@ class ValidationView extends GetView<ValidationController> {
           Obx(() => Expanded(
               child: controller.isLoading.value ?
               LoadingCardWidget() :
-              controller.bookings.value.isNotEmpty ?
+              controller.shipping.isNotEmpty ?
               ListView.builder(
-                  itemCount: controller.bookings.length,
+                  itemCount: controller.shipping.length,
                   itemBuilder: (context, index){
                     Future.delayed(Duration.zero, (){
-                      controller.bookings.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
+                      controller.shipping.sort((a, b) => a['__last_update'].compareTo(b['__last_update']));
                     });
                     return InkWell(
                         onTap: ()=>{
                           Get.bottomSheet(
-                            buildBookingSheet(context, controller.bookings[index]['code']),
+                            buildBookingSheet(context, controller.travelInfo['code']),
                             isScrollControlled: true,
                           )
                         },
@@ -304,13 +304,13 @@ class ValidationView extends GetView<ValidationController> {
                                           Container(
                                             alignment: Alignment.topCenter,
                                             width: 100,
-                                            child: Text(controller.bookings[index]['travel']['departure_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                            child: Text(controller.travelInfo['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                                           ),
                                           FaIcon(FontAwesomeIcons.arrowRight),
                                           Container(
                                               alignment: Alignment.topCenter,
                                               width: 100,
-                                              child: Text(controller.bookings[index]['travel']['arrival_town'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                                              child: Text(controller.travelInfo['arrival_city_id'][1].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                                           ),
                                         ],
                                       ),
@@ -340,11 +340,25 @@ class ValidationView extends GetView<ValidationController> {
                                             height: 24,
                                             color: Get.theme.focusColor.withOpacity(0.3),
                                           ),
-                                          Expanded(
-                                            child: Text('Date de Départ', style: Get.textTheme.headline1.
-                                            merge(TextStyle(color: appColor, fontSize: 16))),
+                                          Text("${controller.travelInfo['departure_date']} - ${controller.travelInfo['arrival_date']}", style: Get.textTheme.headline1.
+                                          merge(TextStyle(color: interfaceColor, fontSize: 16)),
                                           ),
-                                          Text(controller.bookings[index]['travel']['departure_date'].toString(), style: Get.textTheme.headline1.
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 30,
+                                            child: Icon( FontAwesomeIcons.briefcase, size: 18),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.symmetric(horizontal: 12),
+                                            width: 1,
+                                            height: 24,
+                                            color: Get.theme.focusColor.withOpacity(0.3),
+                                          ),
+                                          Text(controller.luggageInfo['name'], style: Get.textTheme.headline1.
                                           merge(TextStyle(color: interfaceColor, fontSize: 16)),
                                           ),
                                         ],
@@ -366,7 +380,7 @@ class ValidationView extends GetView<ValidationController> {
                                                   height: 24,
                                                   color: Get.theme.focusColor.withOpacity(0.3),
                                                 ),
-                                                Text(controller.bookings[index]['kilo_booked'].toString(), style: Get.textTheme.headline6.
+                                                Text(controller.shipping[index]['shipping_price'].toString()+ " "+ "EUR", style: Get.textTheme.headline6.
                                                 merge(TextStyle(color: specialColor, fontSize: 16)))
                                               ],
                                             ),
@@ -381,7 +395,7 @@ class ValidationView extends GetView<ValidationController> {
                                                   height: 24,
                                                   color: Get.theme.focusColor.withOpacity(0.3),
                                                 ),
-                                                Text(controller.bookings[index]['kilo_booked_price'].toString() + " Kg", style: Get.textTheme.headline1.
+                                                Text(controller.shipping[index]['total_weight'].toString() + " Kg", style: Get.textTheme.headline1.
                                                 merge(TextStyle(color: appColor, fontSize: 16)))
                                               ],
                                             ),
@@ -439,7 +453,7 @@ class ValidationView extends GetView<ValidationController> {
               ),
             ),
             SizedBox(height: 20),
-            Text('Booking Validation', style: Get.textTheme.headline4.merge(TextStyle(fontSize: 20))),
+            Text('Shipping Validation', style: Get.textTheme.headline4.merge(TextStyle(fontSize: 20))),
             SizedBox(height: 20),
             DelayedAnimation(
                 delay: 100,
@@ -476,7 +490,6 @@ class ValidationView extends GetView<ValidationController> {
                           textAlign: TextAlign.start,
                         ),
                         TextFormField(
-                          maxLines: 1,
                           initialValue: bookingCode.toString(),
                           //controller: codeController,
                           onTap: ()=>{

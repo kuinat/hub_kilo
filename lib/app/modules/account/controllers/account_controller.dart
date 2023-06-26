@@ -63,7 +63,7 @@ class AccountController extends GetxController {
       await _picker.pickImage(source: ImageSource.camera);
       if (pickedImage != null) {
         image = File(pickedImage.path);
-        await _uploadRepository.image(image);
+        await _uploadRepository.image(image, currentUser.value);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
         loadImage.value = !loadImage.value;
       }
@@ -73,7 +73,7 @@ class AccountController extends GetxController {
       await _picker.pickImage(source: ImageSource.gallery);
       if (pickedImage != null) {
         image = File(pickedImage.path);
-        await _uploadRepository.image(image);
+        await _uploadRepository.image(image, currentUser.value);
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
         loadImage.value = !loadImage.value;
       }

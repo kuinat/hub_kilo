@@ -132,7 +132,8 @@ class RegisterView extends GetView<AuthController> {
                         InkWell(
                             onTap: (){
                               controller.chooseBirthDate();
-                              controller.currentUser?.value?.birthday = DateFormat('yy/MM/dd').format(controller.birthDate.value);
+                              controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value);
+                              print( controller.currentUser?.value?.birthday.toString());
                               controller.birthDateSet.value = true;
 
                             },
@@ -326,7 +327,7 @@ class RegisterView extends GetView<AuthController> {
                   child: BlockButtonWidget(
                     onPressed: () {
                       if(!controller.birthDateSet.value){
-                        controller.currentUser?.value?.birthday = DateFormat('yy/MM/dd').format(controller.birthDate.value).toString();
+                        controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value).toString();
                       }
 
                       if(controller.password.value==controller.confirmPassword.value)

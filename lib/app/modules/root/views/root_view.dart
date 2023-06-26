@@ -33,7 +33,7 @@ class RootView extends GetView<RootController> {
             ),
             CustomBottomNavigationItem(
               icon: FontAwesomeIcons.book,
-              label: "Bookings".tr,
+              label: "Shipping".tr,
             ),
             CustomBottomNavigationItem(
               icon: FontAwesomeIcons.planeCircleCheck,

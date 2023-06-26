@@ -102,10 +102,11 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                       return SizedBox(height: 80);
                                       } else {
                                         Future.delayed(Duration.zero, (){
-                                          controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
+                                          controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                                         });
                                       return GestureDetector(
                                         child: TravelCardWidget(
+                                          code: controller.items[index]['code'],
                                           isUser: true,
                                           travelState: controller.items[index]['state'],
                                           depDate: controller.items[index]['departure_date'],

@@ -38,10 +38,10 @@ class ImagesFieldController extends GetxController {
     if (imageFile != null) {
       try {
         uploading.value = true;
-        var _uuid = await _uploadRepository.image(imageFile);
-        uuids.add(_uuid);
-        images.add(imageFile);
-        uploadCompleted(_uuid);
+        //var _uuid = await _uploadRepository.image(imageFile);
+        //uuids.add(_uuid);
+        //images.add(imageFile);
+        //uploadCompleted(_uuid);
         uploading.value = false;
       } catch (e) {
         uploading.value = false;

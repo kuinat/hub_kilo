@@ -54,10 +54,10 @@ class ProfileView extends GetView<ProfileController> {
             child: MaterialButton(
               onPressed: () {
                 if(!controller.birthDateSet.value){
-                  controller.user.value?.birthday = DateFormat('yy/MM/dd').format(DateTime.parse(controller.user.value.birthday)).toString();
+                  controller.user.value?.birthday = DateFormat('yyyy-MM-dd').format(DateTime.parse(controller.user.value.birthday)).toString();
                   //controller.birthDateSet.value = true;
                 }
-                if(controller.birthDate.value.toString().contains('/')){
+                if(controller.birthDate.value.toString().contains('-')){
                   controller.user.value.birthday = controller.birthDate.value;
                 }
                 controller.saveProfileForm();

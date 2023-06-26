@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 
+import '../models/my_user_model.dart';
 import '../providers/laravel_provider.dart';
 import '../providers/odoo_provider.dart';
 
@@ -12,9 +13,9 @@ class UploadRepository {
     this._odooApiClient = Get.find<OdooApiClient>();
   }
 
-  Future image(File image) {
+  Future image(File image, MyUser myser) {
     print('Nathalie');
-    return _odooApiClient.uploadImage(image);
+    return _odooApiClient.uploadImage(image, myser);
 
   }
 

@@ -128,7 +128,7 @@ class ProfileController extends GetxController {
     );
     if (pickedDate != null && pickedDate != birthDate.value) {
       birthDate.value = DateFormat('dd/MM/yy').format(pickedDate);
-      user.value.birthday = DateFormat('yy/MM/dd').format(pickedDate);
+      user.value.birthday = DateFormat('yyyy-MM-dd').format(pickedDate);
     }
   }
 
