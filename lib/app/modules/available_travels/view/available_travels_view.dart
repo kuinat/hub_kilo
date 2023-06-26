@@ -113,6 +113,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                     child: TravelCardWidget(
                                       isUser: false,
                                       homePage: false,
+                                      code: controller.items[index]['code'],
                                       travelBy: controller.items[index]['booking_type'],
                                       travelType: controller.items[index]['booking_type'] != "road" ? true : false,
                                       depDate: controller.items[index]['departure_date'],
@@ -124,7 +125,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                       color: background,
                                       text: Text(""),
                                       user: Text(controller.items[index]['partner_id'][1], style: TextStyle(fontSize: 17, color: appColor)),
-                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.items[index]['partner_id'][0]}/avatar_1920?unique=true&file_response=true'
+                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.items[index]['partner_id'][0]}/image_1920?unique=true&file_response=true'
                                           //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                                     ),

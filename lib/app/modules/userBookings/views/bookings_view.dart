@@ -16,12 +16,7 @@ import '../../global_widgets/user_widget.dart';
 import '../controllers/bookings_controller.dart';
 import '../widgets/bookings_list_loader_widget.dart';
 
-
-
 class BookingsView extends GetView<BookingsController> {
-
-  List bookings = [];
-
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +25,7 @@ class BookingsView extends GetView<BookingsController> {
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           title: Text(
-            "Bookings".tr,
+            "Shipping".tr,
             style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
           ),
           centerTitle: true,
@@ -78,7 +73,7 @@ class BookingsView extends GetView<BookingsController> {
                     height: MediaQuery.of(context).size.height/1.2,
                     padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                     decoration: Ui.getBoxDecoration(color: backgroundColor),
-                    child:  controller.isLoading.value? BookingsListLoaderWidget():
+                    child:  controller.isLoading.value ? BookingsListLoaderWidget() :
                     controller.items.isNotEmpty ? MyBookings(context)
                         : SizedBox(
                       width: double.infinity,
@@ -189,28 +184,26 @@ class BookingsView extends GetView<BookingsController> {
                 shrinkWrap: true,
                 primary: false,
                 itemBuilder: (context, index) {
+
                   if (index == controller.items.length) {
                     return SizedBox(height: 80);
                   } else {
-                    var travel = controller.items[index]['travel'];
+
                     Future.delayed(Duration.zero, (){
-                      controller.items.sort((a, b) => a['travel']["departure_date"].compareTo(b['travel']["departure_date"]));
+                      controller.items.sort((a, b) => a["__last_update"].compareTo(b["__last_update"]));
                     });
                     return CardWidget(
-                      travelType: travel['travel_type'] ,
-                      editable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
-                      transferable: controller.items[index]['status'].toLowerCase()=='rejected'||controller.items[index]['status'].toLowerCase()=='pending'?true:false,
-                      bookingState: controller.items[index]['status'],
-                      depDate: travel['departure_date'],
-                      arrTown: travel['arrival_town'],
-                      depTown: travel['departure_town'],
-                      arrDate: travel['arrival_date'],
-                      qty: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['luggage_weight'].toInt():'null',
-                      price: travel['travel_type'].toString().toLowerCase()=='air'?controller.items[index]['kilo_booked_price']:travel['travel_type'].toString().toLowerCase()=='road'?controller.items[index]['booking_price']:'null',
-                      text: controller.items[index]['travel']['traveler']['user_name'],
+                      shippingDate: controller.items[index]['shipping_date'],
+                      code: controller.items[index]['display_name'],
+                      travelType: controller.items[index]['booking_type'],
+                      editable: controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
+                      transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
+                      bookingState: controller.items[index]['state'],
+                      qty: controller.items[index]['total_weight'],
+                      price: controller.items[index]['shipping_price'],
+                      text: controller.items[index]['partner_id'][1],
                       negotiation:  Visibility(
-                        visible:travel['travel_type'].toString().toLowerCase()=='air'&&controller.items[index]['status']=='pending'?travel['negotiation']:
-                        travel['travel_type'].toString().toLowerCase()=='road'&&controller.items[index]['status']=='pending'?true:false,
+                        visible:  true,
                         child: InkWell(
                           onTap: ()=>{
                             //print(controller.items[index]),
@@ -226,34 +219,22 @@ class BookingsView extends GetView<BookingsController> {
                           ),
                         ),
                       ),
-                      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-                      typeOfLuggage: controller.items[index]['type_of_luggage'],
-                      packetImageUrl: travel['travel_type'].toString().toLowerCase()=='road'?
-                      '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
-                      travel['travel_type'].toString().toLowerCase()=='air'?
-                      '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${controller.items[index]['id']}/luggage_image':
-                      '',
-                      recName: controller.items[index]['receiver']['receiver_name'],
-                      recAddress: controller.items[index]['receiver']['receiver_address'],
-                      recEmail: controller.items[index]['receiver']['receiver_email'],
-                      recPhone: controller.items[index]['receiver']['receiver_phone'],
-                      edit: () {
-                        controller.phone.value= controller.items[index]['receiver']['receiver_phone'];
-                        controller.name.value = controller.items[index]['receiver']['receiver_name'];
-                        controller.email.value = controller.items[index]['receiver']['receiver_email'];
-                        controller.address.value= controller.items[index]['receiver']['receiver_address'];
-                        controller.description.value = controller.items[index]['type_of_luggage'];
-                        if(travel['travel_type'].toString().toLowerCase()=='air'){
-                          controller.quantity.value =double.parse(controller.items[index]['kilo_booked'].toString());
-                        }
-                        if(travel['travel_type'].toString().toLowerCase()=='road'){
-                          controller.luggageWidth.value =controller.items[index]['luggage_width'];
-                          controller.luggageHeight.value = controller.items[index]['luggage_height'];
-                          controller.quantity.value=controller.items[index]['luggage_weight'];
-                        }
-                        //controller.quantity.value = controller.items[index]['luggage_weight'].toInt();
-                        //controller.dimension.value = controller.items[index]['luggage_dimension'];
+                      button: TextButton(
+                          onPressed: ()async{
 
+                            var data = await controller.getTravelInfo(controller.items[index]['travelbooking_id'][0]);
+                            Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': data, 'heroTag': 'services_carousel'});
+
+                          },
+                          child: Text('View travel info', style: Get.textTheme.headline1.merge(
+                              TextStyle(fontSize: 18, decoration: TextDecoration.underline)))),
+                      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+
+                      recName: controller.items[index]['receiver_partner_id'][1],
+                      recAddress: controller.items[index]['receiver_address'],
+                      recEmail: controller.items[index]['receiver_email'].toString(),
+                      recPhone: controller.items[index]['receiver_phone'],
+                      edit: () {
 
                         return Get.bottomSheet(
                           buildEditingSheet(context,controller.items[index] ),
@@ -264,17 +245,14 @@ class BookingsView extends GetView<BookingsController> {
                           context: context,
                           builder: (_)=>
                               PopUpWidget(
-                                title: "Do you really want to delete this booking?",
-                                cancel: 'Cancel',
-                                confirm: 'Delete',
+                                title: "Do you really want to Cancel this shipping?",
+                                cancel: 'Back',
+                                confirm: 'Cancel',
                                 onTap: () async =>{
-                                  travel['travel_type'].toString().toLowerCase()=='air'?
-                                  await controller.deleteMyAirBooking(controller.items[index]['id']):
-                                  travel['travel_type'].toString().toLowerCase()=='road'?
-                                  await controller.deleteMyRoadBooking(controller.items[index]['id']):
-                                      (){},
 
-                                  print(controller.items[index]['id'])
+                                  print(controller.items[index]['id']),
+                                  await controller.cancelShipping(controller.items[index]['id']),
+
                                 }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                               )
                       ),
@@ -282,15 +260,11 @@ class BookingsView extends GetView<BookingsController> {
                           context: context,
                           builder: (_)=>
                               PopUpWidget(
-                                title: "Do you really want to transfer your booking?",
+                                title: "Do you really want to transfer your shipping?",
                                 cancel: 'Cancel',
                                 confirm: 'Transfer',
-                                onTap: ()async=>{
-                                  travel['travel_type'].toString().toLowerCase()=='air'?
-                                  await controller.transferMyAirBookingNow(controller.items[index]['id']):
-                                  travel['travel_type'].toString().toLowerCase()=='road'?
-                                  await controller.transferMyRoadBookingNow(controller.items[index]['id']):
-                                      (){},
+                                onTap: () async => {
+                                  controller.transferShipping(controller.items[index]['id']),
                                   Navigator.of(Get.context).pop(),
                                 }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                               )
@@ -304,7 +278,7 @@ class BookingsView extends GetView<BookingsController> {
 
   Widget buildEditingSheet(BuildContext context, var sampleBooking){
     return Container(
-      height: Get.height/1.8,
+      height: Get.height/1.2,
       decoration: BoxDecoration(
         color: background,
         //Get.theme.primaryColor,
@@ -331,7 +305,7 @@ class BookingsView extends GetView<BookingsController> {
                 ) : SizedBox(width: 60),
                 Spacer(),
                 controller.bookingStep.value == 0 ?
-                Text('Booking Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
+                Text('Shipping Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
                 Text('Receiver Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
                 Spacer(),
                 controller.bookingStep.value == 0 ?
@@ -357,13 +331,9 @@ class BookingsView extends GetView<BookingsController> {
                         ),
                         color: Get.theme.colorScheme.secondary,
                         onPressed: ()async{
-                          controller.buttonPressed.value = !controller.buttonPressed.value;
-                          sampleBooking['travel']['travel_type'].toLowerCase() =='air'?
-                          await controller.editAirBooking(sampleBooking['id']):
-                          sampleBooking['travel']['travel_type'].toLowerCase() =='road'?
-                          await controller.editRoadBooking(sampleBooking['id']):
-                          (){};
-                          controller.buttonPressed.value = !controller.buttonPressed.value;
+
+                          await controller.editRoadBooking(sampleBooking);
+                          controller.buttonPressed.value = false;
 
                         })
                 ),
@@ -377,7 +347,7 @@ class BookingsView extends GetView<BookingsController> {
               children: [
                 controller.bookingStep.value == 0 ?
                 build_Book_travel(context, sampleBooking)
-                    : build_Receiver_details(context, sampleBooking)
+                    : build_Receiver_details(context)
               ],
             ),
           ),
@@ -404,7 +374,7 @@ class BookingsView extends GetView<BookingsController> {
   }
 
   Widget build_Book_travel(BuildContext context, var sampleBooking) {
-    print(sampleBooking.toString());
+
     print(sampleBooking['kilo_booked'].toString());
     return Wrap(
       direction: Axis.horizontal,
@@ -415,212 +385,105 @@ class BookingsView extends GetView<BookingsController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             TextFieldWidget(
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.number,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.description.value = input,
-              labelText: "Description".tr,
-               initialValue: sampleBooking['type_of_luggage'],
-              iconData: FontAwesomeIcons.fileLines,
+              onChanged: (input) => controller.shippingPrice.value = double.parse(input),
+              labelText: "Shipping Price".tr,
+              iconData: Icons.monetization_on_rounded,
             ),
-            TextFieldWidget(
-              keyboardType: TextInputType.text,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.quantity.value = double.parse(input),
-              labelText: "Quantity".tr,
-              initialValue: sampleBooking['travel']['travel_type'].toString().toLowerCase()=='road'?sampleBooking["luggage_weight"].toString() : sampleBooking['travel']['travel_type'].toString().toLowerCase()=='air'?sampleBooking['kilo_booked'].toString():'1.0'
-              ,
-              iconData: FontAwesomeIcons.shoppingBag,
-            ),
-            Visibility(
-              visible: sampleBooking["travel"]['travel_type'].toString().toLowerCase()!='air',
-              child: TextFieldWidget(
-                keyboardType: TextInputType.text,
-                initialValue:sampleBooking['luggage_width'].toString() ,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageWidth.value = double.parse(input),
-                labelText: "Luggage Width".tr,
-                iconData: FontAwesomeIcons.shoppingBag,
-              ),
-            ),
-            Visibility(
-              visible: sampleBooking["travel"]['travel_type'].toString().toLowerCase()!='air',
-              child: TextFieldWidget(
-                keyboardType: TextInputType.text,
-                initialValue:sampleBooking['luggage_height'].toString() ,
-                validator: (input) => input.isEmpty ? "field required!".tr : null,
-                onChanged: (input) => controller.luggageHeight.value = double.parse(input),
-                labelText: "Luggage Height".tr,
-                iconData: FontAwesomeIcons.shoppingBag,
-              ),
-            ),
-
             Obx(() => Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(30),
-              margin: EdgeInsets.only(top: 20, bottom: 20),
+              height: 200,
+              padding: EdgeInsets.all( 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Colors.white,
+              ),
+              width: double.infinity,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Align(
-                    child: Text('Input 3 Packet Files'.tr),
-                    alignment: Alignment.topLeft,
-                  ),
-                  SizedBox(height: 20,),
-                  controller.imageFiles.length<=0?GestureDetector(
-                      onTap: () {
-                        showDialog(
-                            context: Get.context,
-                            builder: (_){
-                              return AlertDialog(
-                                content: Container(
-                                    height: 170,
-                                    padding: EdgeInsets.all(10),
+                  Text("Select Luggage Type", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
+                  SizedBox(height: 10),
+                  Expanded(
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          if(!controller.luggageLoading.value)...[
+                            for(var i=0; i< controller.luggageModels.length; i++)...[
+                              GestureDetector(
+                                  onTap: () {
+                                    if(controller.luggageSelected.contains(controller.luggageModels[i]['id'])){
+                                      controller.luggageSelected.remove(controller.luggageModels[i]['id']);
+                                    }else{
+                                      controller.luggageSelected.add(controller.luggageModels[i]['id']);
+                                    }
+
+                                    print(controller.luggageSelected);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.only(right: 10),
+                                    height: 150,
+                                    width: 130,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        border: controller.luggageSelected.contains(controller.luggageModels[i]['id'])
+                                            ? Border.all(color: interfaceColor, width: 3) : Border.all(),
+                                        color: backgroundColor
+                                    ),
                                     child: Column(
                                       children: [
+                                        controller.luggageModels[i]['type'] == "envelope" ?
+                                        Text("${controller.luggageModels[i]['type']} ${controller.luggageModels[i]['nature']}") : Text("${controller.luggageModels[i]['type']}"),
+                                        SizedBox(width: 10),
+                                        controller.luggageModels[i]['type'] == "envelope" ?
+                                        Icon(FontAwesomeIcons.envelope, size: 30) : Icon(FontAwesomeIcons.briefcase, size: 30),
+                                        SizedBox(height: 10),
                                         ListTile(
-                                          onTap: ()async{
-                                            await controller.pickImage(ImageSource.camera);
-                                            Navigator.pop(Get.context);
-                                          },
-                                          leading: Icon(FontAwesomeIcons.camera),
-                                          title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                        ),
-                                        ListTile(
-                                          onTap: ()async{
-                                            await controller.pickImage(ImageSource.gallery);
-                                            Navigator.pop(Get.context);
-                                          },
-                                          leading: Icon(FontAwesomeIcons.image),
-                                          title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                        )
-                                      ],
-                                    )
-                                ),
-                              );
-                            });
-                      },
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        padding: EdgeInsets.all(20),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                        child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                      )
-                  )
-                      :Column(
-                    children: [
-                      SizedBox(
-                        height:100,
-                        child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding: EdgeInsets.all(12),
-                            itemBuilder: (context, index){
-                              return Stack(
-                                //mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                    child: Image.file(
-                                      controller.imageFiles[index],
-                                      fit: BoxFit.cover,
-                                      width: 100,
-                                      height: 100,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top:0,
-                                    right:0,
-                                    child: Align(
-                                      //alignment: Alignment.centerRight,
-                                      child: IconButton(
-                                          onPressed: (){
-                                            controller.imageFiles.removeAt(index);
-                                          },
-                                          icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
-                                      ),
-                                    ),
-                                  ),
-
-
-                                  // .marginOnly(top: 10, right: 10),
-                                ],
-
-                              );
-                            },
-                            separatorBuilder: (context, index){
-                              return SizedBox(width: 8);
-                            },
-                            itemCount: controller.imageFiles.length),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Visibility(
-                            child: InkWell(
-                              onTap: (){
-                                showDialog(
-                                    context: Get.context,
-                                    builder: (_){
-                                      return AlertDialog(
-                                        content: Container(
-                                            height: 170,
-                                            padding: EdgeInsets.all(10),
-                                            child: Column(
+                                            title: Text("${controller.luggageModels[i]['average_height']} x ${controller.luggageModels[i]['average_width']}", style: TextStyle(color: appColor)),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                ListTile(
-                                                  onTap: ()async{
-                                                    await controller.pickImage(ImageSource.camera);
-                                                    Navigator.pop(Get.context);
-                                                  },
-                                                  leading: Icon(FontAwesomeIcons.camera),
-                                                  title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                ),
-                                                ListTile(
-                                                  onTap: ()async{
-                                                    await controller.pickImage(ImageSource.gallery);
-                                                    Navigator.pop(Get.context);
-                                                  },
-                                                  leading: Icon(FontAwesomeIcons.image),
-                                                  title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                Text("${controller.luggageModels[i]['amount_to_deduct']} EUR", style: TextStyle(color: Colors.red)),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Icon(FontAwesomeIcons.shoppingBag, size: 13,),
+                                                    SizedBox(width: 10),
+                                                    Text('${controller.luggageModels[i]['average_weight']} Kg'),
+                                                  ],
                                                 )
                                               ],
                                             )
                                         ),
-                                      );
-                                    });
-                              },
-                              child: Icon(FontAwesomeIcons.circlePlus),
+                                      ],
+                                    ),
+                                  )
+                              )
+                            ]
+                          ]else...[
+                            Row(
+                              children: [
+                                SizedBox(width: MediaQuery.of(context).size.width/2.7),
+                                SizedBox(
+                                    height: 20,
+                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
+                              ],
                             )
-                        ),
-                      )
-                    ],
-
-                  ),
-
+                          ]
+                        ],
+                      ))
                 ],
               ),
-            ),),
-
-
-
-
-            // Visibility(
-            //   visible: sampleBooking["travel"]['travel_id'].toString().toLowerCase()=='road',
-            //   child: TextFieldWidget(
-            //     keyboardType: TextInputType.text,
-            //     validator: (input) => input.isEmpty ? "field required!".tr : null,
-            //     onChanged: (input) => controller.dimension.value = int.parse(input),
-            //     labelText: "Dimension".tr,
-            //     iconData: FontAwesomeIcons.shoppingBag,
-            //   ),
-            // ),
-
+            )),
 
           ],
         ),
       ],
     );
   }
-  Widget build_Receiver_details(BuildContext context, var sampleBooking) {
+
+  Widget build_Receiver_details(BuildContext context) {
     return Wrap(
       direction: Axis.horizontal,
       runSpacing: 20,
@@ -634,9 +497,9 @@ class BookingsView extends GetView<BookingsController> {
                 onChanged: (bool value){
                   controller.selectUser.value = value;
                 },
-                title: Text("Select a user ?", style: Get.textTheme.headline1.merge(TextStyle(color: appColor)))
+                title: Text("Receiver not in the system ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
             ),
-            !controller.selectUser.value ?
+            controller.selectUser.value ?
             Column(
               children: [
                 TextFieldWidget(
@@ -644,7 +507,6 @@ class BookingsView extends GetView<BookingsController> {
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.name.value = input,
                   labelText: "Full Name".tr,
-                  initialValue: sampleBooking['receiver']['receiver_name'],
                   iconData: FontAwesomeIcons.person,
                 ),
                 TextFieldWidget(
@@ -652,118 +514,43 @@ class BookingsView extends GetView<BookingsController> {
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.email.value = input,
                   labelText: "Email".tr,
-                  initialValue: sampleBooking['receiver']['receiver_email'],
                   iconData: Icons.alternate_email,
                 ),
-                Obx(() =>
-                controller.editNumber.value==false?
-                InkWell(
-                    onTap: ()=>{controller.editNumber.value == true},
-                    child: Container(
-                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                      margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-                      decoration: BoxDecoration(
-                          color: Get.theme.primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                          ],
-                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          //Text(controller.currentUser.value.phone,style: Get.textTheme.bodyText1,),
-                              ListTile(
-                                  leading: FaIcon(FontAwesomeIcons.phone, size: 20),
-                                  title: Text(sampleBooking['receiver']['receiver_phone'],style: Get.textTheme.bodyText1,
-
-                                  )
-                              ),
-
-
-                          // Text('Edit...',style: Get.textTheme.bodyText1,),
-                          TextButton(
-                            onPressed: ((){
-                              controller.editNumber.value = true;
-                            }),
-                            child: Text('Edit...',style: Get.textTheme.bodyText1,),)
-                        ],
-                      ),
-                    )
-                ):
-                Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PhoneFieldWidget(
-                        labelText: "Phone Number".tr,
-                        hintText: "223 665 7896".tr,
-                        //initialValue: controller.currentUser.value.phone,
-                        onSaved: (phone) {
-                          controller.phone.value = "${phone.countryCode}${phone.number}";
-                        },
-                        onChanged: (phone) => controller.phone.value = "${phone.countryCode}${phone.number}"
-                    ),
-                    TextButton(
-                      onPressed: ((){
-                        controller.editNumber.value = false;
-
-                      }),
-                      child: Text('Cancel...',style: Get.textTheme.bodyText1,),)
-
-                  ],),
+                PhoneFieldWidget(
+                  labelText: "Phone Number".tr,
+                  hintText: "223 665 7896".tr,
+                  initialCountryCode: "CM",
+                  //initialValue: controller.currentUser?.value?.getPhoneNumber()?.number,
+                  onChanged: (phone){
+                    controller.phone.value = "${phone.countryCode}${phone.number}";
+                  },
                 ),
-
-
-
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.address.value = input,
                   labelText: "Address".tr,
                   iconData: FontAwesomeIcons.addressCard,
-                  initialValue: sampleBooking['receiver']['receiver_address'],
                 ),
               ],
             ) :
-
-
-            controller.visible.value?TextFieldWidget(
+            controller.selectUser.value ?
+            TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
               iconData: FontAwesomeIcons.userGroup,
-              onChanged: (value){
-                var userFilter = [];
-                if(value==''){
-                  controller.users.value=controller.resetusers.value;
-                }
-                else{
-                  for(var item in controller.users){
-                    print(item['name'].toString());
-                    if(item['name'].toLowerCase().contains(value)){
-                      userFilter.add(item);
-                      controller.users.value = userFilter;
-                    }else{
-                      controller.users.value = userFilter;
-                    }
-                    //controller.users.value = userFilter;
-                  }
-                }
-
-
-
-
+              onChanged: (value)=>{
+                controller.filterSearchResults(value)
               },
-            ):TextButton(
+            ) : TextButton(
                 onPressed: (){
-                  controller.visible.value = true;
-                  controller.users.value = controller.resetusers.value;
+                  controller.selectUser.value = true;
+                  controller.users.value = controller.users;
 
                 }, child: Text('Select another user')),
 
-            if(controller.selectUser.value)
               controller.users.isNotEmpty ?
               Container(
                   margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
@@ -776,7 +563,6 @@ class BookingsView extends GetView<BookingsController> {
                     ],
                   ),
 
-
                   child: ListView.separated(
                     //physics: AlwaysScrollableScrollPhysics(),
                       itemCount: controller.users.length,
@@ -786,42 +572,37 @@ class BookingsView extends GetView<BookingsController> {
                       shrinkWrap: true,
                       primary: false,
                       itemBuilder: (context, index) {
-                        var travel = controller.users[index];
                         return GestureDetector(
                           onTap: (){
                             controller.receiverId.value = controller.users[index]['id'];
                             print(controller.receiverId.value.toString());
                             controller.selectedIndex.value = index;
-                            //controller.selected.value = true;
-                            controller.visible.value = false;
-                            print('value'+controller.users[index]['image_1920'].toString());
+                            controller.selected.value = true;
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
-                              border: controller.selectedIndex.value == index  ? Border.all(color: interfaceColor) : null ,
+                              border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
                               color: Get.theme.primaryColor,
 
                             ),
                             child: UserWidget(
-                              user: controller.users[index]['name'],
-                              selected: false,
-                              imageUrl: controller.users[index]['image_1920'] == true ? '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
-                                  : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                                user: controller.users[index]['display_name'],
+                                selected: false,
+                                imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
+                              //: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
                             ),
                           ),
                         );
                       })
               ) : Container(
-                  child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18)).marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
-
-
+                  child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
+                      .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
           ],
         ),
       ],
     );
   }
-
 
 }

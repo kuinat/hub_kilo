@@ -14,6 +14,7 @@ import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../models/media_model.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/my_auth_service.dart';
 import '../../root/controllers/root_controller.dart';
 import 'package:http/http.dart' as http;
 
@@ -52,24 +53,31 @@ class AddTravelController extends GetxController{
 
   @override
   void onInit() async {
-    var arguments = Get.arguments as Map<String, dynamic>;
-    travelCard.value = arguments['travelCard'];
-    print("travel is $travelCard");
-    if (travelCard != null) {
-      travelType.value = travelCard['booking_type'];
-      departureId.value = travelCard['departure_city_id'][0];
-      arrivalId.value = travelCard['arrival_city_id'][0];
-      departureDate.value = travelCard['departure_date'];
-      arrivalDate.value = travelCard['arrival_date'];
-      depTown.text = travelCard['departure_city_id'][1];
-      arrTown.text = travelCard['arrival_city_id'][1];
-      quantity.value = travelCard['total_weight'];
-      price.value = travelCard['booking_price'];
-      //restriction.value = travelCard['total_weight'];
-    }
+
     final box = GetStorage();
     list = box.read("allCountries");
     countries.value = list;
+    print("first country is ${countries[0]}");
+    var arguments = Get.arguments as Map<String, dynamic>;
+
+    if(arguments != null){
+      travelCard.value = arguments['travelCard'];
+
+      print("travel is $travelCard");
+      if (travelCard != null) {
+        travelType.value = travelCard['booking_type'];
+        departureId.value = travelCard['departure_city_id'][0];
+        arrivalId.value = travelCard['arrival_city_id'][0];
+        departureDate.value = travelCard['departure_date'];
+        arrivalDate.value = travelCard['arrival_date'];
+        depTown.text = travelCard['departure_city_id'][1];
+        arrTown.text = travelCard['arrival_city_id'][1];
+        quantity.value = travelCard['total_weight'];
+        price.value = travelCard['booking_price'];
+        //restriction.value = travelCard['total_weight'];
+      }
+    }
+
     super.onInit();
   }
 
@@ -214,7 +222,8 @@ class AddTravelController extends GetxController{
         '"departure_city_id": "${departureId.value}",'
         '"arrival_city_id": "${arrivalId.value}",'
         '"arrival_date": "${arrivalDate.value}",'
-        '"departure_date": "${departureDate.value}"'
+        '"departure_date": "${departureDate.value}",'
+        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
         '}'
     ));
 
@@ -225,20 +234,17 @@ class AddTravelController extends GetxController{
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       print("travel response: $data");
-      if(json.decode(data) != []){
-        //await uploadCNI(json.decode(data)['result']['travel']['id']);
 
-        buttonPressed.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-        Get.offNamed(Routes.MY_TRAVELS);
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
+      Navigator.pushReplacementNamed(Get.context, Routes.MY_TRAVELS);
 
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-        buttonPressed.value = !buttonPressed.value;
-        throw new Exception(response.reasonPhrase);
-      }
     }
     else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      buttonPressed.value = false;
+      print("Error response: ${json.decode(data)['message']}");
       throw new Exception(response.reasonPhrase);
     }
   }
@@ -283,63 +289,7 @@ class AddTravelController extends GetxController{
     }
   }
 
-  /*uploadCNI(int travelId)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/road/travel/document/upload'));
-    request.fields.addAll({
-      'travel_id': travelId.toString()
-    });
-    request.files.add(await http.MultipartFile.fromPath('cni_doc', passport.path));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-      buttonPressed.value = !buttonPressed.value;
-      //uploadImages(id);
-      Navigator.pop(Get.context);
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }*/
-
-  /*uploadImages(int travelId)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/air/travel/document/upload'));
-    request.fields.addAll({
-      'travel_id': travelId.toString()
-    });
-    request.files.add(await http.MultipartFile.fromPath('cni_doc', passport.path));
-    request.files.add(await http.MultipartFile.fromPath('ticket_doc', ticket.path));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-      buttonPressed.value = !buttonPressed.value;
-      //uploadImages(id);
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-  }*/
-
-
-  selectCameraOrGallery()async{
+  /*selectCameraOrGallery()async{
     showDialog(
         context: Get.context,
         builder: (_){
@@ -373,7 +323,7 @@ class AddTravelController extends GetxController{
             ),
           );
         });
-  }
+  }*/
 
   @override
   void onClose() {

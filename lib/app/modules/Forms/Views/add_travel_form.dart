@@ -41,7 +41,7 @@ class AddTravelsView extends GetView<AddTravelController> {
           data: ThemeData(
             //canvasColor: Colors.yellow,
               colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: controller.formStep.value != 3 ? Get.theme.colorScheme.secondary : validateColor,
+                primary: controller.formStep.value != 2 ? Get.theme.colorScheme.secondary : validateColor,
                 background: Colors.red,
                 secondary: validateColor,
               )

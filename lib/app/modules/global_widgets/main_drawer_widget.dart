@@ -269,11 +269,11 @@ class MainDrawerWidget extends StatelessWidget {
                         cancel: 'Cancel',
                         confirm: 'Log Out',
                         onTap: ()async{
-                          final box = GetStorage();
+
                           await Get.find<MyAuthService>().removeCurrentUser();
                           Scaffold.of(context).closeDrawer();
                           Navigator.pop(context);
-                          box.remove("session_id");
+
                         }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: inactive),
                       ));
                 },

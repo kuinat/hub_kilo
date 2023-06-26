@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -55,10 +56,16 @@ class AvailableTravelsController extends GetxController {
 
   initValues()async{
     list = await getAllTravels();
-    items.value = list;
-    for(var i in items){
-      print(i['id']);
+    landTravels = [];
+    for(var a=0; a < list.length; a++){
+      if(list[a]['state'] == "negotiating"){
+        landTravels.add(list[a]);
+      }
     }
+    final seen = Set();
+    items.value = landTravels.where((str) => seen.add(str)).toList();
+        //landTravels.toSet().toList();
+    print(items);
   }
 
   void filterSearchResults(String query) {

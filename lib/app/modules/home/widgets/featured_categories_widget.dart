@@ -47,7 +47,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
               ) :
               controller.landTravelList.isNotEmpty ?
               Container(
-                height: 250,
+                height: 280,
                 child: ListView.builder(
                     padding: EdgeInsets.only(bottom: 10),
                     primary: false,
@@ -62,6 +62,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                               child: TravelCardWidget(
                                   isUser: false,
                                   homePage: false,
+                                  code: controller.landTravelList[index]['code'],
                                   travelBy: controller.landTravelList[index]['booking_type'],
                                   travelType: controller.landTravelList[index]['booking_type'] != "road" ? true : false,
                                   depDate: controller.landTravelList[index]['departure_date'],
@@ -73,7 +74,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                                   color: background,
                                   text: Text(""),
                                   user: Text(controller.landTravelList[index]['partner_id'][1], style: TextStyle(fontSize: 17, color: appColor)),
-                                  imageUrl: '${Domain.serverPort}/image/res.partner/${controller.landTravelList[index]['partner_id'][0]}/avatar_1920?unique=true&file_response=true',
+                                  imageUrl: '${Domain.serverPort}/image/res.partner/${controller.landTravelList[index]['partner_id'][0]}/image_1920?unique=true&file_response=true',
                                 //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                               ),
@@ -85,9 +86,9 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                       );
                     }),
               ) : Container(
-                  height: 270,
+                  height: 220,
                   child: Center(
-                    child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                    child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3), size: 120),
                   ))
               ),
             ],
@@ -138,6 +139,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                           child: SizedBox(
                               width: MediaQuery.of(context).size.width/1.2,
                               child: TravelCardWidget(
+                                code: controller.airTravelList[index]['code'],
                                 isUser: false,
                                 homePage: true,
                                 travelBy: controller.airTravelList[index]['travel_type'],
@@ -164,9 +166,9 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                     }
                 ),
               ) : Container(
-                  height: 270,
+                  height: 220,
                   child: Center(
-                    child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                    child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 120),
                   ))
               ),
             ],

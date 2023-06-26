@@ -17,6 +17,7 @@ class TravelCardWidget extends StatelessWidget {
     @required this.depDate,
     @required this.travelType,
     this.isUser,
+    this.code,
     this.travelState,
     this.qty,
     @required this.travelBy,
@@ -31,7 +32,8 @@ class TravelCardWidget extends StatelessWidget {
   final String depDate;
   final String arrDate;
   final String travelState;
-  final int qty;
+  final String code;
+  final double qty;
   final String travelBy;
   final bool isUser;
   final bool homePage;
@@ -109,7 +111,13 @@ class TravelCardWidget extends StatelessWidget {
                             if(travelBy == "sea")
                               Icon(FontAwesomeIcons.ship, size: 40, color: background) ,
                             SizedBox(width: 20),
-                            Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                                Text("Code: $code", style: TextStyle(color: appColor.withOpacity(0.4), fontSize: 15)),
+                              ],
+                            ),
                           ]
                       ),
               Spacer(),
@@ -130,27 +138,30 @@ class TravelCardWidget extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(10),
                         alignment: Alignment.center,
-                        child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                        child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : travelState == 'negotiating' ?
+                        pendingStatus : travelState == 'completed' ? doneStatus : Colors.black54, fontSize: 12))),
                         decoration: BoxDecoration(
-                            color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                            color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : travelState == 'negotiating' ?
+                            pendingStatus.withOpacity(0.3) : travelState == 'completed' ? doneStatus.withOpacity(0.3) : inactive.withOpacity(0.3),
                             border: Border.all(
-                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : travelState == 'negotiating' ?
+                              pendingStatus.withOpacity(0.2) : travelState == 'completed' ? doneStatus.withOpacity(0.2) : inactive.withOpacity(0.2),
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20))),
                       )
                     ]
                 ) : isUser ?
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
-                          decoration: BoxDecoration(
-                              color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
-                              border: Border.all(
-                                color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(20))),
-                        ) : SizedBox()
+              Container(
+                padding: EdgeInsets.all(10),
+                alignment: Alignment.center,
+                child: Text(travelState, style: Get.textTheme.headline1.merge(TextStyle(color: travelState == 'accepted' ? interfaceColor : travelState == 'negotiating' ? pendingStatus : Colors.black54, fontSize: 12))),
+                decoration: BoxDecoration(
+                    color: travelState == 'accepted' ? interfaceColor.withOpacity(0.3) : travelState == 'negotiating' ? pendingStatus.withOpacity(0.3) :  inactive.withOpacity(0.3),
+                    border: Border.all(
+                      color: travelState == 'accepted' ? interfaceColor.withOpacity(0.2) : travelState == 'negotiating' ? pendingStatus.withOpacity(0.2) :  inactive.withOpacity(0.2),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+              ) : SizedBox()
             ]
         ),
                 Spacer(),
@@ -177,7 +188,7 @@ class TravelCardWidget extends StatelessWidget {
                         ),
                       Spacer(),
                     ]
-                ),
+                )
               ],
           )
         )

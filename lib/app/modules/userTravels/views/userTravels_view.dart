@@ -106,6 +106,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                         });
                                       return GestureDetector(
                                         child: TravelCardWidget(
+                                          code: controller.items[index]['code'],
                                           isUser: true,
                                           travelState: controller.items[index]['state'],
                                           depDate: controller.items[index]['departure_date'],

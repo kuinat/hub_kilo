@@ -1,13 +1,10 @@
-import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
-import '../../../main.dart';
 import '../account/widgets/account_link_widget.dart';
 import '../userBookings/controllers/bookings_controller.dart';
 
@@ -18,23 +15,24 @@ class CardWidget extends StatelessWidget {
     this.transferable,
     this.accept,
     this.transfer,
+    this.departureTown,
+    this.arrivalTown,
     this.reject,
     this.packetImageUrl,
 
     @required this.negotiation,
-    @required this.depTown,
-    @required this.arrTown,
+    @required this.shippingDate,
+    @required this.code,
     @required this.imageUrl,
-    @required this.arrDate,
-    @required this.depDate,
     @required this.recName,
     @required this.recEmail,
     @required this.recAddress,
     @required this.recPhone,
     @required this.qty,
-    @required this.typeOfLuggage,
     this.edit,
     this.confirm,
+    this.viewTravelInfo,
+    @required this.button,
     @required this.price,
     @required this.travelType,
     @required this.text,
@@ -42,24 +40,25 @@ class CardWidget extends StatelessWidget {
 
   final Widget negotiation;
   final String text;
+  final String departureTown;
+  final String arrivalTown;
+  final String code;
   final String recName;
+  final String shippingDate;
   final bool transferable;
   final bool editable;
   final String recEmail;
   final String recAddress;
   final String recPhone;
-  final String depTown;
-  final String arrTown;
-  final String typeOfLuggage;
-  final String depDate;
-  final String arrDate;
   final String bookingState;
   final String travelType;
-  final int qty;
+  final double qty;
+  final Widget button;
   final double price;
   final String imageUrl;
   final String packetImageUrl;
   final Function edit;
+  final Function viewTravelInfo;
   final Function confirm;
   final Function accept;
   final Function reject;
@@ -71,7 +70,7 @@ class CardWidget extends StatelessWidget {
     Get.lazyPut<BookingsController>(
           () => BookingsController(),
     );
-    var selected = Get.find<BookingsController>().currentState.value ;
+    //var selected = Get.find<BookingsController>().currentState.value ;
     return Card(
       elevation: 10,
       color: Colors.white,
@@ -80,69 +79,18 @@ class CardWidget extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           //alignment: AlignmentDirectional.topStart,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  travelType.toLowerCase()=='air'?
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                      ),
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                      )
-                    ],
-                  ):travelType.toLowerCase()=='road'?Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.car)),
-                      ),
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.car)),
-                      )
-                    ],
-                  ):
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                      ),
-                      Container(width: 100,
-                        child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        alignment: Alignment.topCenter,
-                        width: 100,
-                        child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                      ),
-                      FaIcon(FontAwesomeIcons.arrowRight),
-                      Container(
-                          alignment: Alignment.topCenter,
-                          width: 100,
-                          child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Text(shippingDate, style: TextStyle(color: appColor, fontSize: 17)),
+                Spacer(),
+                Text(code, style: TextStyle(color: appColor, fontSize: 17)),
+              ],
             ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -174,60 +122,17 @@ class CardWidget extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                           alignment: Alignment.center,
-                          child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : Colors.black54, fontSize: 12))),
+                          child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : bookingState == 'rejected' ? specialColor : inactive, fontSize: 12))),
                           decoration: BoxDecoration(
-                              color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : inactive.withOpacity(0.3),
+                              color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) : inactive.withOpacity(0.3),
                               border: Border.all(
-                                color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                                color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) : inactive.withOpacity(0.2),
                               ),
                               borderRadius: BorderRadius.all(Radius.circular(20))),
                         )
                       ]
                   ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        child: Icon( FontAwesomeIcons.calendarDay, size: 18),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        width: 1,
-                        height: 24,
-                        color: Get.theme.focusColor.withOpacity(0.3),
-                      ),
-                      Expanded(
-                        child: Text('Date de Départ', style: Get.textTheme.headline1.
-                        merge(TextStyle(color: appColor, fontSize: 16))),
-                      ),
-                      Text(depDate, style: Get.textTheme.headline1.
-                      merge(TextStyle(color: interfaceColor, fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10,),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        child: Icon( FontAwesomeIcons.envelopeOpenText, size: 18),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        width: 1,
-                        height: 24,
-                        color: Get.theme.focusColor.withOpacity(0.3),
-                      ),
-                      Expanded(
-                        child: Text('Description', style: Get.textTheme.headline1.
-                        merge(TextStyle(color: appColor, fontSize: 16))),
-                      ),
-                      Text(typeOfLuggage, style: Get.textTheme.headline1.
-                      merge(TextStyle(color: Colors.black, fontSize: 16)),
-                      ),
-                    ],
-                  ),
+
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -245,7 +150,7 @@ class CardWidget extends StatelessWidget {
                               height: 24,
                               color: Get.theme.focusColor.withOpacity(0.3),
                             ),
-                            Text(price.toString(), style: Get.textTheme.headline6.
+                            Text(price.toString() + " EUR", style: Get.textTheme.headline6.
                             merge(TextStyle(color: specialColor, fontSize: 16)))
                           ],
                         ),
@@ -268,7 +173,7 @@ class CardWidget extends StatelessWidget {
 
                     ],
                   ),
-                ExpansionTile(
+                /*ExpansionTile(
                   leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
                     title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
                     merge(TextStyle(color: appColor, fontSize: 17))),
@@ -302,48 +207,59 @@ class CardWidget extends StatelessWidget {
                     ),
 
                   ],
-                ),
+                ),*/
 
-                ExpansionTile(
-                  leading: Icon(FontAwesomeIcons.userCheck, size: 20),
-                  title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
-                  merge(TextStyle(color: appColor, fontSize: 17))),
-                  children: [
-                    AccountWidget(
-                      icon: FontAwesomeIcons.person,
-                      text: Text('Full Name'),
-                      value: recName,
-                    ),
-                    AccountWidget(
-                      icon: Icons.alternate_email,
-                      text: Text('Email'),
-                      value: recEmail,
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.addressCard,
-                      text: Text('Address'),
-                      value: recAddress,
-                    ),
-                    AccountWidget(
-                      icon: FontAwesomeIcons.phone,
-                      text: Text('Phone'),
-                      value: recPhone,
-                    )
-                ],
-                  initiallyExpanded: false,
-              ),
-                  negotiation,
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                        Expanded(
+                          child: button,
+                        ),
+                      SizedBox(width: 10),
+                      negotiation
+                    ]
+                  ),
+
+                  ExpansionTile(
+                    leading: Icon(FontAwesomeIcons.userCheck, size: 20),
+                    title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
+                    merge(TextStyle(color: appColor, fontSize: 17))),
+                    children: [
+                      AccountWidget(
+                        icon: FontAwesomeIcons.person,
+                        text: Text('Full Name'),
+                        value: recName,
+                      ),
+                      AccountWidget(
+                        icon: Icons.alternate_email,
+                        text: Text('Email'),
+                        value: recEmail,
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.addressCard,
+                        text: Text('Address'),
+                        value: recAddress,
+                      ),
+                      AccountWidget(
+                        icon: FontAwesomeIcons.phone,
+                        text: Text('Phone'),
+                        value: recPhone,
+                      )
+                    ],
+                    initiallyExpanded: false,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                          onTap: editable?edit:
+                          onTap: editable ? edit :
                               (){
                             showDialog(
                                 context: context,
                                 builder: (_)=>
                                     PopUpWidget(
-                                      title: "You cannot edit a booking accepted or confirmed",
+                                      title: "You cannot edit a shpping accepted or confirmed",
                                       cancel: 'Cancel',
                                       confirm: 'Ok',
                                       onTap: ()=>{
@@ -361,14 +277,15 @@ class CardWidget extends StatelessWidget {
                                 child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
                           )
                       ),
+                      SizedBox(width: 10),
                       GestureDetector(
-                          onTap: transferable?transfer:
+                          onTap: transferable ? transfer:
                               (){
                             showDialog(
                                 context: context,
                                 builder: (_)=>
                                     PopUpWidget(
-                                      title: "You can transfer your booking only if it was rejected or is pending validation",
+                                      title: "You can transfer your shipping only if it was rejected or is pending validation",
                                       cancel: 'Cancel',
                                       confirm: 'Ok',
                                       onTap: ()=>{
@@ -386,13 +303,14 @@ class CardWidget extends StatelessWidget {
                                   child: Text("Transfer".tr, style: TextStyle(color: Colors.white)))
                           )
                       ),
+                      SizedBox(width: 10),
                       GestureDetector(
-                          onTap: editable? confirm:(){
+                          onTap: editable ? confirm:(){
                           showDialog(
                               context: context,
                               builder: (_)=>
                                   PopUpWidget(
-                                    title: "You cannot delete a booking accepted or confirmed",
+                                    title: "You cannot delete a Shipping accepted or confirmed",
                                     cancel: 'Cancel',
                                     confirm: 'Ok',
                                     onTap: ()=>{
@@ -406,14 +324,15 @@ class CardWidget extends StatelessWidget {
                               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                               child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  child: Text("Delete".tr, style: TextStyle(color: Colors.white)))
+                                  child: Text("Cancel".tr, style: TextStyle(color: Colors.white)))
                           )
                       ),
 
 
                     ],
                   )
-            ])),
+            ])
+            ),
           ],
         ),
       )
