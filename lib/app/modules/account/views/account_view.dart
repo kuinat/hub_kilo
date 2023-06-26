@@ -81,7 +81,7 @@ class AccountView extends GetView<AccountController> {
                           image: NetworkImage(
                               // _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
                               //     :
-                            'https://preprod.hubkilo.com/api/v1/image/res.partner/${controller.currentUser.value.partnerId}/image_1920?unique=true&file_response=true',
+                            'https://preprod.hubkilo.com/api/v1/image/res.partner/${controller.currentUser.value.id}/image_1920?unique=true&file_response=true',
                               //'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
 
                           ),

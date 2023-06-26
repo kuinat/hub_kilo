@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../color_constants.dart';
+import '../../../main.dart';
 import '../account/widgets/account_link_widget.dart';
 
 class UserWidget extends StatelessWidget {
@@ -27,7 +28,7 @@ class UserWidget extends StatelessWidget {
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                  image: NetworkImage(imageUrl), fit: BoxFit.cover
+                  image: NetworkImage(imageUrl, headers: Domain.getTokenHeaders()), fit: BoxFit.cover
               )),
         ),
         SizedBox(width: 20),

@@ -95,6 +95,9 @@ class AuthController extends GetxController {
             Get.showSnackbar(Ui.SuccessSnackBar(message: "You logged in successfully ".tr ));
             await Get.toNamed(Routes.ROOT);
           }
+          else{
+            loading.value = false;
+          }
         }else{
           loading.value = false;
         }

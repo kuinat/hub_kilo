@@ -626,7 +626,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(controller.travelCard['create_uid'][1],
+                    Text(controller.travelCard['partner_id'][1],
                       overflow: TextOverflow.fade,
                       softWrap: false,
                       maxLines: 2,
@@ -818,7 +818,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 controller.bookingStep.value != 0 ?
                   MaterialButton(
                     onPressed: () =>{
-                      controller.bookingStep.value = 0
+                      for(var i=0; i<controller.luggageId.length; i++)
+                        controller.deleteShippingLuggage(controller.luggageId[i])
                     },
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -833,7 +834,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 controller.bookingStep.value == 0 ?
                 MaterialButton(
                   onPressed: () =>{
-                    controller.bookingStep.value++
+                    if(controller.luggageSelected.isNotEmpty){
+                      controller.errorField.value = false,
+                      controller.bookingStep.value++,
+                      for(var i=0; i<controller.luggageSelected.length; i++)
+                        controller.createShippingLuggage(controller.luggageSelected[i])
+                    }else{
+                      controller.errorField.value = true
+                    }
+
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -916,6 +925,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
               padding: EdgeInsets.all( 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: controller.errorField.value ? Border.all(color: specialColor) : null,
                 color: Colors.white,
               ),
               width: double.infinity,
@@ -932,12 +942,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             for(var i=0; i< controller.luggageModels.length; i++)...[
                               GestureDetector(
                                 onTap: () {
-                                  if(controller.luggageSelected.contains(controller.luggageModels[i]['id'])){
-                                    controller.luggageSelected.remove(controller.luggageModels[i]['id']);
+                                  if(controller.luggageSelected.contains(controller.luggageModels[i])){
+                                    controller.luggageSelected.remove(controller.luggageModels[i]);
                                   }else{
-                                    controller.luggageSelected.add(controller.luggageModels[i]['id']);
+                                    controller.luggageSelected.add(controller.luggageModels[i]);
                                   }
-
                                   print(controller.luggageSelected);
                                 },
                                 child: Container(
@@ -947,7 +956,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                   width: 130,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      border: controller.luggageSelected.contains(controller.luggageModels[i]['id'])
+                                      border: controller.luggageSelected.contains(controller.luggageModels[i])
                                           ? Border.all(color: interfaceColor, width: 3) : Border.all(),
                                       color: backgroundColor
                                   ),
@@ -1258,8 +1267,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           child: UserWidget(
                             user: controller.users[index]['display_name'],
                             selected: false,
-                            imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
-                                //: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                            imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                                //'${Domain.serverPort}/image/res.partner/${controller.users[index]['id']}/image_1920?unique=true&file_response=true',
                           ),
                         ),
                       );

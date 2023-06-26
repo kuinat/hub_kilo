@@ -97,34 +97,13 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  // Future<MyUser> getUser(MyUser user) async {
-  //
-  //   if (!authService.isAuth) {
-  //     throw new Exception("You don't have the permission to access to this area!".tr + "[ getUser() ]");
-  //   }
-  //   var _queryParameters = {
-  //     'api_token': authService.apiToken,
-  //   };
-  //   Uri _uri = getApiBaseUri("user").replace(queryParameters: _queryParameters);
-  //   Get.log(_uri.toString());
-  //   var response = await _httpClient.getUri(
-  //     _uri,
-  //     options: _optionsNetwork,
-  //   );
-  //   if (response.data['success'] == true) {
-  //     return MyUser.fromJson(response.data['data']);
-  //   } else {
-  //     throw new Exception(response.data['message']);
-  //   }
-  // }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.users?ids=$id'));
 
     request.headers.addAll(headers);
 
@@ -134,17 +113,17 @@ class OdooApiClient extends GetxService with ApiClient {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
       var myuser = MyUser(
-          email: data['email'].toString(),
-          birthday: data['birthdate'].toString(),
+          email: data['login'].toString(),
+          birthday: data['birthday'].toString(),
           isTraveller: data['is_traveler'],
           phone: data['phone'].toString(),
           street: data['street'].toString(),
           sex: data['sex'].toString(),
           name: data['name'],
-          birthplace: data['birth_city_id'].toString(),
-          id: data['id'],
-          image: data['image_1920'].toString(),
-          //partnerId: data['partner_id'][0]
+          birthplace: data['place_of_birth'].toString(),
+          id: data['partner_id'][0],
+          userId: data['id'],
+          image: data['image_1920'].toString()
       );
       print('user  '+myuser.toString());
 
@@ -179,7 +158,7 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['partner_id'];
+        var userId = data['uid'];
 
         return userId;
       }
@@ -218,6 +197,7 @@ class OdooApiClient extends GetxService with ApiClient {
         '"street": "${myUser.street}",'
         '"birthday": "${myUser.birthday}",'
         '"sel_groups_1_9_10": 10}'
+
     ));
 
   request.headers.addAll(headers);

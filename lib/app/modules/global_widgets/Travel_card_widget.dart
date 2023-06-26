@@ -47,7 +47,10 @@ class TravelCardWidget extends StatelessWidget {
     return Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
-          side: BorderSide(
+          side:  !isUser ? BorderSide(
+              color: inactive, width: 2
+              //travelState != 'accepted' && isUser ? inactive : interfaceColor.withOpacity(0.4), width: 2
+          ) : BorderSide(
               color: travelState != 'accepted' && isUser ? inactive : interfaceColor.withOpacity(0.4), width: 2
           ),
           borderRadius: BorderRadius.all(Radius.circular(20)),

@@ -122,11 +122,14 @@ class CardWidget extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                           alignment: Alignment.center,
-                          child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : bookingState == 'rejected' ? specialColor : inactive, fontSize: 12))),
+                          child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : bookingState == 'rejected' ? specialColor :
+                          bookingState == 'received' ? doneStatus : inactive, fontSize: 12))),
                           decoration: BoxDecoration(
-                              color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) : inactive.withOpacity(0.3),
+                              color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
+                              bookingState == 'received' ? doneStatus.withOpacity(0.3) : inactive.withOpacity(0.3),
                               border: Border.all(
-                                color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) : inactive.withOpacity(0.2),
+                                color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
+                                bookingState == 'received' ? doneStatus.withOpacity(0.2) : inactive.withOpacity(0.2),
                               ),
                               borderRadius: BorderRadius.all(Radius.circular(20))),
                         )
