@@ -97,34 +97,13 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  // Future<MyUser> getUser(MyUser user) async {
-  //
-  //   if (!authService.isAuth) {
-  //     throw new Exception("You don't have the permission to access to this area!".tr + "[ getUser() ]");
-  //   }
-  //   var _queryParameters = {
-  //     'api_token': authService.apiToken,
-  //   };
-  //   Uri _uri = getApiBaseUri("user").replace(queryParameters: _queryParameters);
-  //   Get.log(_uri.toString());
-  //   var response = await _httpClient.getUri(
-  //     _uri,
-  //     options: _optionsNetwork,
-  //   );
-  //   if (response.data['success'] == true) {
-  //     return MyUser.fromJson(response.data['data']);
-  //   } else {
-  //     throw new Exception(response.data['message']);
-  //   }
-  // }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.user?ids=$id'));
 
     request.headers.addAll(headers);
 
@@ -142,7 +121,8 @@ class OdooApiClient extends GetxService with ApiClient {
           sex: data['sex'].toString(),
           name: data['name'],
           birthplace: data['birth_city_id'].toString(),
-          id: data['id'],
+          id: data['partner_id'][0],
+          userId: data['id'],
           image: data['image_1920'].toString()
       );
       print('user  '+myuser.toString());
@@ -215,7 +195,7 @@ class OdooApiClient extends GetxService with ApiClient {
         '"birth_city_id": "${myUser.birthplace}",'
         '"residence_city_id": "${myUser.street}",'
         '"birthday": "2012-02-21",'
-        '"sel_groups_1_9_10": 10}'
+        '"sel_groups_1_9_10": 9}'
     ));
 
   request.headers.addAll(headers);

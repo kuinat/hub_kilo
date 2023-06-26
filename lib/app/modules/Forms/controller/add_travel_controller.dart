@@ -213,7 +213,7 @@ class AddTravelController extends GetxController{
 
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelbooking?values='

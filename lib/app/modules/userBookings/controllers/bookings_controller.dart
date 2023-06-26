@@ -21,6 +21,7 @@ class BookingsController extends GetxController {
   final luggageHeight= 1.0.obs;
   final description = ''.obs;
   final imageUrl = "".obs;
+  final errorField = false.obs;
   final bookingStep = 0.obs;
   final elevation = 0.obs;
   final name = "".obs;
@@ -47,6 +48,7 @@ class BookingsController extends GetxController {
   final isDone = false.obs;
   var imageFiles = [].obs;
   var items = [].obs;
+  var luggageId = [].obs;
   var itemsBookingsOnMyTravel = [].obs;
   ScrollController scrollController = ScrollController();
   var list = [];
@@ -87,6 +89,8 @@ class BookingsController extends GetxController {
     await getUser(Get.find<MyAuthService>().myUser.value.id);
     List listUsers = await getAllUsers();
     list = await getMyShipping();
+    List models = await getAllLuggageModel();
+    luggageModels.value = models;
     items.value = list;
     users.value = listUsers;
     isLoading.value = false;
@@ -134,6 +138,81 @@ class BookingsController extends GetxController {
     } else {
       print(response.reasonPhrase);
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+  }
+
+  createShippingLuggage(var item)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.luggage?values={'
+        '"average_height": ${item["average_height"]},'
+        '"average_weight": ${item["average_weight"]},'
+        '"average_width": ${item["average_width"]},'
+        '"luggage_model_id": ${item["id"]}'
+        '}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      luggageId.value = [];
+      var data = await response.stream.bytesToString();
+      luggageId.add(json.decode(data)[0]);
+      print("added id: $luggageId");
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+    }
+  }
+
+  deleteShippingLuggage(var luggageId)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('DELETE', Uri.parse('${Domain.serverPort}/unlink/m1st_hk_roadshipping.luggage?ids=$luggageId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      bookingStep.value = 0;
+      print(data);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+    }
+  }
+
+  Future getAllLuggageModel()async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m0sthk.luggage_model'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      luggageLoading.value = false;
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 
@@ -229,9 +308,7 @@ class BookingsController extends GetxController {
     return bookings;
   }
 
-  editRoadBooking(var shipping)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
+  editShipping(var shipping)async{
 
     var headers = {
       'Accept': 'application/json',
@@ -242,6 +319,7 @@ class BookingsController extends GetxController {
         '"travelbooking_id": ${shipping['travelbooking_id']},'
         '"receiver_partner_id": ${shipping['receiver_partner_id']},'
         '"shipping_price": ${shippingPrice.value}'
+        '"luggage_ids": $luggageId,'
         '}&ids=${shipping['id']}'
     ));
 
@@ -265,6 +343,7 @@ class BookingsController extends GetxController {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
     }
   }
+
 
   transferShipping(int booking_id)async{
     transferBooking.value = true;

@@ -190,7 +190,7 @@ class BookingsView extends GetView<BookingsController> {
                   } else {
 
                     Future.delayed(Duration.zero, (){
-                      controller.items.sort((a, b) => a["__last_update"].compareTo(b["__last_update"]));
+                      controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                     });
                     return CardWidget(
                       shippingDate: controller.items[index]['shipping_date'],
@@ -201,7 +201,7 @@ class BookingsView extends GetView<BookingsController> {
                       bookingState: controller.items[index]['state'],
                       qty: controller.items[index]['total_weight'],
                       price: controller.items[index]['shipping_price'],
-                      text: controller.items[index]['partner_id'][1],
+                      text: controller.items[index]['travelbooking_id'][1],
                       negotiation:  Visibility(
                         visible:  true,
                         child: InkWell(
@@ -277,6 +277,9 @@ class BookingsView extends GetView<BookingsController> {
   }
 
   Widget buildEditingSheet(BuildContext context, var sampleBooking){
+
+    controller.shippingPrice.value = sampleBooking['shipping_price'];
+
     return Container(
       height: Get.height/1.2,
       decoration: BoxDecoration(
@@ -296,7 +299,8 @@ class BookingsView extends GetView<BookingsController> {
                 controller.bookingStep.value != 0 ?
                 MaterialButton(
                   onPressed: () =>{
-                    controller.bookingStep.value = 0
+                    for(var i=0; i<controller.luggageId.length; i++)
+                    controller.deleteShippingLuggage(controller.luggageId[i])
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -311,7 +315,14 @@ class BookingsView extends GetView<BookingsController> {
                 controller.bookingStep.value == 0 ?
                 MaterialButton(
                   onPressed: () =>{
-                    controller.bookingStep.value++
+                    if(controller.luggageSelected.isNotEmpty){
+                      controller.errorField.value = false,
+                      controller.bookingStep.value++,
+                      for(var i=0; i<controller.luggageSelected.length; i++)
+                        controller.createShippingLuggage(controller.luggageSelected[i])
+                    }else{
+                      controller.errorField.value = true
+                    }
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -331,11 +342,13 @@ class BookingsView extends GetView<BookingsController> {
                         ),
                         color: Get.theme.colorScheme.secondary,
                         onPressed: ()async{
+                          if(controller.selected.value){
+                            await controller.editShipping(sampleBooking);
+                            controller.buttonPressed.value = false;
+                          }
 
-                          await controller.editRoadBooking(sampleBooking);
-                          controller.buttonPressed.value = false;
-
-                        })
+                        }
+                    )
                 ),
               ],
             ),
@@ -374,8 +387,8 @@ class BookingsView extends GetView<BookingsController> {
   }
 
   Widget build_Book_travel(BuildContext context, var sampleBooking) {
-
-    print(sampleBooking['kilo_booked'].toString());
+    controller.errorField.value = false;
+    controller.luggageSelected.value = [];
     return Wrap(
       direction: Axis.horizontal,
       runSpacing: 20,
@@ -385,6 +398,7 @@ class BookingsView extends GetView<BookingsController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             TextFieldWidget(
+              initialValue: sampleBooking['shipping_price'].toString(),
               keyboardType: TextInputType.number,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               onChanged: (input) => controller.shippingPrice.value = double.parse(input),
@@ -396,6 +410,7 @@ class BookingsView extends GetView<BookingsController> {
               padding: EdgeInsets.all( 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: controller.errorField.value ? Border.all(color: specialColor) : null,
                 color: Colors.white,
               ),
               width: double.infinity,
@@ -412,10 +427,10 @@ class BookingsView extends GetView<BookingsController> {
                             for(var i=0; i< controller.luggageModels.length; i++)...[
                               GestureDetector(
                                   onTap: () {
-                                    if(controller.luggageSelected.contains(controller.luggageModels[i]['id'])){
-                                      controller.luggageSelected.remove(controller.luggageModels[i]['id']);
+                                    if(controller.luggageSelected.contains(controller.luggageModels[i])){
+                                      controller.luggageSelected.remove(controller.luggageModels[i]);
                                     }else{
-                                      controller.luggageSelected.add(controller.luggageModels[i]['id']);
+                                      controller.luggageSelected.add(controller.luggageModels[i]);
                                     }
 
                                     print(controller.luggageSelected);
@@ -427,7 +442,7 @@ class BookingsView extends GetView<BookingsController> {
                                     width: 130,
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(10)),
-                                        border: controller.luggageSelected.contains(controller.luggageModels[i]['id'])
+                                        border: controller.luggageSelected.contains(controller.luggageModels[i])
                                             ? Border.all(color: interfaceColor, width: 3) : Border.all(),
                                         color: backgroundColor
                                     ),
@@ -534,7 +549,6 @@ class BookingsView extends GetView<BookingsController> {
                 ),
               ],
             ) :
-            controller.selectUser.value ?
             TextFieldWidget(
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
@@ -544,12 +558,7 @@ class BookingsView extends GetView<BookingsController> {
               onChanged: (value)=>{
                 controller.filterSearchResults(value)
               },
-            ) : TextButton(
-                onPressed: (){
-                  controller.selectUser.value = true;
-                  controller.users.value = controller.users;
-
-                }, child: Text('Select another user')),
+            ),
 
               controller.users.isNotEmpty ?
               Container(
@@ -590,8 +599,8 @@ class BookingsView extends GetView<BookingsController> {
                             child: UserWidget(
                                 user: controller.users[index]['display_name'],
                                 selected: false,
-                                imageUrl: '${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920'
-                              //: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
+                                imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                              //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
                             ),
                           ),
                         );
@@ -604,5 +613,4 @@ class BookingsView extends GetView<BookingsController> {
       ],
     );
   }
-
 }

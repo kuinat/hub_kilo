@@ -99,19 +99,25 @@ class RootController extends GetxController {
         }
       case 1:
         {
-          await Get.find<BookingsController>().refreshBookings();
+          if(Get.find<MyAuthService>().myUser.value.email != null){
+            await Get.find<BookingsController>().refreshBookings();
+          }
           break;
         }
       case 2:
         {
-          await Get.find<UserTravelsController>().refreshMyTravels();
+          if(Get.find<MyAuthService>().myUser.value.email != null){
+            await Get.find<UserTravelsController>().refreshMyTravels();
+          }
           break;
         }
 
       case 3:
         {
-          Get.lazyPut(()=>AccountController());
-          await Get.find<AccountController>().refresh();
+          if(Get.find<MyAuthService>().myUser.value.email != null){
+            Get.lazyPut(()=>AccountController());
+            await Get.find<AccountController>().refresh();
+          }
           break;
         }
     }

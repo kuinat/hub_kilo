@@ -36,6 +36,7 @@ class TravelInspectController extends GetxController {
   var accept = false.obs;
   var reject = false.obs;
   var selected = false.obs;
+  var selectedLuggage = false.obs;
   var users =[].obs;
   var travelBookings = [].obs;
   var list = [];
@@ -45,8 +46,10 @@ class TravelInspectController extends GetxController {
   var transferRoadBookingId = ''.obs;
   var imageFiles = [].obs;
   var luggageModels = [].obs;
+  var luggageId = [].obs;
   var luggageSelected = [].obs;
   var areBookingsLoading = false.obs;
+  final errorField = false.obs;
 
 
   var visible = true.obs;
@@ -195,7 +198,7 @@ class TravelInspectController extends GetxController {
 
       list = await getThisTravelShipping(travelCard['shipping_ids']);
       travelBookings.value = list;
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking accepted Successfully".tr));
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "shipping accepted Successfully".tr));
       Navigator.pop(Get.context);
     }
     else {
@@ -250,7 +253,7 @@ class TravelInspectController extends GetxController {
       list = await getThisTravelShipping(travelCard['shipping_ids']);
       travelBookings.value = list;
       print(data);
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking rejected ".tr));
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "shipping rejected ".tr));
       Navigator.pop(Get.context);
     }
     else {
@@ -259,8 +262,6 @@ class TravelInspectController extends GetxController {
   }
 
   shipNow()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
     var headers = {
       'Accept': 'application/json',
@@ -271,7 +272,7 @@ class TravelInspectController extends GetxController {
         '"travelbooking_id": ${travelCard['id']},'
         '"receiver_partner_id": ${quantity.value},'
         '"shipping_price": ${shippingPrice.value},'
-        //'"luggage_ids": ${luggageSelected},'
+        '"luggage_ids": $luggageId,'
         '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
         '}'
     ));
@@ -396,6 +397,59 @@ class TravelInspectController extends GetxController {
         }
         i++;
       }
+    }
+  }
+
+  createShippingLuggage(var item)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.luggage?values={'
+        '"average_height": ${item["average_height"]},'
+        '"average_weight": ${item["average_weight"]},'
+        '"average_width": ${item["average_width"]},'
+        '"luggage_model_id": ${item["id"]}'
+        '}'
+    ));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    luggageId.value = [];
+    var data = await response.stream.bytesToString();
+    luggageId.add(json.decode(data)[0]);
+    print("added id: $luggageId");
+  }
+  else {
+    var data = await response.stream.bytesToString();
+    print(data);
+  }
+}
+
+  deleteShippingLuggage(var luggageId)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('DELETE', Uri.parse('${Domain.serverPort}/unlink/m1st_hk_roadshipping.luggage?ids=$luggageId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      bookingStep.value = 0;
+      print(data);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
     }
   }
 

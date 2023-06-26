@@ -26,7 +26,7 @@ class PopUpWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       icon: icon,
       content: SizedBox(
-          height: MediaQuery.of(context).size.height/6,
+          height: MediaQuery.of(context).size.height/7,
           child: Column(
               children: [
                 Text(title, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
