@@ -237,7 +237,7 @@ class AddTravelController extends GetxController{
 
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-      Navigator.pushReplacementNamed(Get.context, Routes.MY_TRAVELS);
+      await Get.toNamed(Routes.MY_TRAVELS);
 
     }
     else {

@@ -1,38 +1,39 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../color_constants.dart';
 import '../../../main.dart';
+import 'block_button_widget.dart';
 
 class TravelCardWidget extends StatelessWidget {
   const TravelCardWidget({Key key,
-    @required this.user,
+    this.user,
     @required this.depTown,
     @required this.homePage,
     @required this.color,
     @required this.arrTown,
     @required this.imageUrl,
-    @required this.arrDate,
     @required this.depDate,
     @required this.travelType,
     this.isUser,
-    this.code,
     this.travelState,
+    this.action,
     this.qty,
+    this.rating,
     @required this.travelBy,
     @required this.price,
     @required this.text}) : super(key: key);
 
   final Color color;
-  final Widget user;
+  final String user;
+  final double rating;
   final Widget text;
   final String depTown;
   final String arrTown;
   final String depDate;
-  final String arrDate;
   final String travelState;
-  final String code;
   final double qty;
   final String travelBy;
   final bool isUser;
@@ -40,6 +41,7 @@ class TravelCardWidget extends StatelessWidget {
   final bool travelType;
   final double price;
   final String imageUrl;
+  final Function action;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,7 @@ class TravelCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         child: Container(
-          height: 250,
+          height: 200,
           padding: EdgeInsets.all(10),
           child: Column(
               children: [
@@ -69,22 +71,11 @@ class TravelCardWidget extends StatelessWidget {
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(width: width,
-                    child: Center(child: FaIcon(travelBy == "road" ? FontAwesomeIcons.bus : FontAwesomeIcons.planeDeparture)),
-                  ),
-                  Container(width: width,
-                    child: Center(child: FaIcon(travelBy == "road" ? FontAwesomeIcons.bus : FontAwesomeIcons.planeArrival)),
-                  )
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Container(
-                    alignment: Alignment.topCenter,
+                    alignment: Alignment.topLeft,
+                    //margin: EdgeInsets.only(right: 10),
                     width: width,
                     height: 30,
                     child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
@@ -92,6 +83,7 @@ class TravelCardWidget extends StatelessWidget {
                   FaIcon(FontAwesomeIcons.arrowRight),
                   Container(
                       alignment: Alignment.topCenter,
+                      //margin: EdgeInsets.symmetric(horizontal: 10),
                       width: width,
                       height: 30,
                       child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
@@ -101,7 +93,6 @@ class TravelCardWidget extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 10),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -114,13 +105,7 @@ class TravelCardWidget extends StatelessWidget {
                             if(travelBy == "sea")
                               Icon(FontAwesomeIcons.ship, size: 40, color: background) ,
                             SizedBox(width: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-                                Text("Code: $code", style: TextStyle(color: appColor.withOpacity(0.4), fontSize: 15)),
-                              ],
-                            ),
+                            Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
                           ]
                       ),
               Spacer(),
@@ -168,25 +153,50 @@ class TravelCardWidget extends StatelessWidget {
             ]
         ),
                 Spacer(),
+                if(isUser && travelState == 'pending')
+                  ElevatedButton.icon(
+                    onPressed: action,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: validateColor
+                      ),
+                    icon: Icon(Icons.publish_rounded),
+                    label: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          "Publier".tr,
+                          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                        )
+                    )
+                  ).paddingSymmetric(vertical: 10, horizontal: 20),
                 Row(
                     children: [
                       if(!isUser)
                         Row(
                             children: [
-                              Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      image: DecorationImage(
-                                          image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
-                                          fit: BoxFit.cover
-                                      )
+                              ClipOval(
+                                  child: FadeInImage(
+                                    width: 50,
+                                    height: 50,
+                                    image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
+                                    placeholder: AssetImage(
+                                        "assets/img/loading.gif"),
+                                    imageErrorBuilder:
+                                        (context, error, stackTrace) {
+                                      return Image.asset(
+                                          'assets/img/user.png',
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.fitWidth);
+                                    },
                                   )
                               ),
                               SizedBox(width: 10),
-                              this.user
+                              RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(text: this.user, style: TextStyle(fontSize: 18, color: appColor)),
+                                      TextSpan(text: "\n⭐️ ${this.rating}", style: TextStyle(fontSize: 15, color: appColor)),
+                                    ]
+                                  )),
                             ]
                         ),
                       Spacer(),

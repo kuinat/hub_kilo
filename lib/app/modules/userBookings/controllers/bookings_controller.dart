@@ -7,7 +7,6 @@ import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
@@ -36,10 +35,12 @@ class BookingsController extends GetxController {
   var luggageModels = [].obs;
   var luggageSelected = [].obs;
   var users =[].obs;
+  var shippingLuggage =[].obs;
   final luggageLoading = true.obs;
   final shippingPrice = 0.0.obs;
-
+  var loading = false.obs;
   var selectedIndex = 0.obs;
+  var luggageIndex = 0.obs;
   var selected = false.obs;
   var receiverId = 0.obs;
   final heroTag = "".obs;
@@ -53,6 +54,7 @@ class BookingsController extends GetxController {
   ScrollController scrollController = ScrollController();
   var list = [];
   var shippingList = [];
+  var view = false.obs;
 
   UploadRepository _uploadRepository;
 
@@ -339,15 +341,18 @@ class BookingsController extends GetxController {
       }
     }
     else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
     }
   }
 
 
   transferShipping(int booking_id)async{
+    print ('Hello');
     transferBooking.value = true;
     bookingIdForTransfer.value = booking_id.toString();
+    print (bookingIdForTransfer.value.toString());
+    // Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
     await Get.offAndToNamed(Routes.AVAILABLE_TRAVELS);
 
   }
@@ -379,7 +384,6 @@ class BookingsController extends GetxController {
     }
     else {
       final data = await response.stream.bytesToString();
-      print(data);
       Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
       throw new Exception(response.reasonPhrase);
     }
@@ -388,5 +392,28 @@ class BookingsController extends GetxController {
   @override
   void onClose() {
     //chatTextController.dispose();
+  }
+
+  Future getLuggageInfo(var ids) async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      view.value = true;
+      loading.value = false;
+      shippingLuggage.value = json.decode(data);
+    }
+    else {
+    print(response.reasonPhrase);
+    }
   }
 }

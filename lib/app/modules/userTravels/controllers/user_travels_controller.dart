@@ -123,6 +123,32 @@ class UserTravelsController extends GetxController {
     }
   }
 
+  publishTravel(int travelId)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7884fbe019046ffc1379f17c73f57a9e344a6d8a'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.travelbooking?values='
+        '{"state": "negotiating"}&ids=$travelId'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      //var data = await response.stream.bytesToString();
+      items.value = myTravelsList;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Travel opened to the public".tr));
+      await getUser(Get.find<MyAuthService>().myUser.value.id);
+      myTravelsList = await myTravels();
+      items.clear();
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+    }
+  }
+
   void filterSearchResults(String query) {
     List dummySearchList = [];
     dummySearchList = list;

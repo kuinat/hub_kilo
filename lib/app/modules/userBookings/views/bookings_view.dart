@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
+import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
@@ -82,7 +82,7 @@ class BookingsView extends GetView<BookingsController> {
                         children: [
                           SizedBox(height: MediaQuery.of(context).size.height/4),
                           FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                          Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
+                          Text('No Shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
                         ],
                       ),
                     )
@@ -193,15 +193,81 @@ class BookingsView extends GetView<BookingsController> {
                       controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                     });
                     return CardWidget(
+                      luggageView: controller.luggageIndex == index ? true : false,
                       shippingDate: controller.items[index]['shipping_date'],
                       code: controller.items[index]['display_name'],
                       travelType: controller.items[index]['booking_type'],
                       editable: controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       bookingState: controller.items[index]['state'],
-                      qty: controller.items[index]['total_weight'],
                       price: controller.items[index]['shipping_price'],
                       text: controller.items[index]['travelbooking_id'][1],
+                      viewButton: BlockButtonWidget(
+                        onPressed: () =>{
+                          controller.loading.value = true,
+                          controller.getLuggageInfo(controller.items[index]['luggage_ids'])
+                        },
+                        color: Colors.black,
+                        text: !controller.loading.value? Text(
+                          "View luggage info".tr,
+                          style: Get.textTheme.headline1.merge(TextStyle(color: Get.theme.primaryColor, fontSize: 16)),
+                        ): SizedBox(height: 30,
+                            child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                      ).paddingSymmetric(vertical: 10, horizontal: 20),
+                      luggageWidget: ExpansionTile(
+                        leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
+                        title: Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                        merge(TextStyle(color: appColor, fontSize: 17))),
+                        children: [
+                          for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                            SizedBox(
+                              height:100,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  for(var i=1; i<4; i++)...[
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      child: FadeInImage(
+                                        width: 100,
+                                        height: 100,
+                                        image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image$i?unique=true&file_response=true',
+                                            headers: Domain.getTokenHeaders()),
+                                        placeholder: AssetImage(
+                                            "assets/img/loading.gif"),
+                                        imageErrorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                              'assets/img/istockphoto-859916128-612x612.jpg',
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.fitWidth);
+                                        },
+                                      )
+                                    ),
+                                    SizedBox(width: 10)
+                                  ]
+                                ],
+                              ),
+                            ),
+                            AccountWidget(
+                              icon: FontAwesomeIcons.shoppingBag,
+                              text: Text('Name'),
+                              value: controller.shippingLuggage[a]['name'],
+                            ),
+                            AccountWidget(
+                              icon: FontAwesomeIcons.shoppingBag,
+                              text: Text('Dimensions'),
+                              value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                            ),
+                            AccountWidget(
+                              icon: FontAwesomeIcons.weightScale,
+                              text: Text('Average weight'),
+                              value: controller.shippingLuggage[a]['average_weight'].toString(),
+                            )
+                          ],
+                        ],
+                      ),
                       negotiation:  Visibility(
                         visible:  true,
                         child: InkWell(
@@ -264,8 +330,8 @@ class BookingsView extends GetView<BookingsController> {
                                 cancel: 'Cancel',
                                 confirm: 'Transfer',
                                 onTap: () async => {
-                                  controller.transferShipping(controller.items[index]['id']),
                                   Navigator.of(Get.context).pop(),
+                                  controller.transferShipping(controller.items[index]['id']),
                                 }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                               )
                       ),

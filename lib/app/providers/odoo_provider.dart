@@ -193,9 +193,6 @@ class OdooApiClient extends GetxService with ApiClient {
         '"password": "${myUser.password}",'
         '"phone": "${myUser.phone}",'
         '"sex": "${myUser.sex}",'
-        '"place_of_birth": "${myUser.birthplace}",'
-        '"street": "${myUser.street}",'
-        '"birthday": "${myUser.birthday}",'
         '"sel_groups_1_9_10": 10}'
 
     ));
@@ -205,9 +202,9 @@ class OdooApiClient extends GetxService with ApiClient {
   http.StreamedResponse response = await request.send();
 
   if (response.statusCode == 200)  {
-  print(await response.stream.bytesToString());
-   //await login(myUser);
-  //updateUser(myUser);
+    var result = await response.stream.bytesToString();
+    var data = json.decode(result);
+  await updateToPortalUser(data[0]);
     return true;
   }
   else {
@@ -243,7 +240,7 @@ class OdooApiClient extends GetxService with ApiClient {
        'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
      };
 
-     var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
+     var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.userId}&values={'
          '"name": "${myUser.name}",'
          '"phone": "${myUser.phone}",'
          '"login": "${myUser.email}",'
@@ -253,55 +250,9 @@ class OdooApiClient extends GetxService with ApiClient {
          '"birthday": "${myUser.birthday}"}'
      ));
 
-     // var request = http.Request('PUT',Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={ '
-     //     '"name": "${myUser.name}",'
-     //     '"login": "${myUser.email}",'
-     //     '"password": "${myUser.password}",'
-     //     '"phone": "${myUser.phone}",'
-     //     '"sex": "${myUser.sex}",'
-     //     '"place_of_birth": "${myUser.birthplace}",'
-     //     '"street": "${myUser.street}",'
-     //     '"birthday": "${myUser.birthday}"'
-     // ));
-
-     // var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.id}&values={'
-     // '"name": "${myUser.name}",'
-     // '"login": "${myUser.email}",'
-     // '"password": "${myUser.password}",'
-     // '"phone": "${myUser.phone}",'
-     // '"sex": "${myUser.sex}",'
-     // '"place_of_birth": "${myUser.birthplace}",'
-     // '"street": "${myUser.street}",'
-     // '"birthday": "${myUser.birthday}",'
-     // }'));
-
   request.headers.addAll(headers);
 
   http.StreamedResponse response = await request.send();
-
-
-    //
-    // final box = GetStorage();
-    // var sessionId = box.read('session_id');
-    // var headers = {
-    //   'Content-Type': 'application/json',
-    //   'Cookie': sessionId.toString()
-    // };
-    // var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/hubkilo/update/partner'));
-    // request.body = json.encode({
-    //   "params": {
-    //     "street": myUser.street,
-    //     "name": myUser.name,
-    //     "email": myUser.email,
-    //     "phone": myUser.phone,
-    //     "birthday": myUser.birthday,
-    //     "birthplace": myUser.birthplace,
-    //     "sex": myUser.sex,
-    //   }
-    // });
-    // request.headers.addAll(headers);
-    //
-    // http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
@@ -312,30 +263,70 @@ class OdooApiClient extends GetxService with ApiClient {
       print(response.reasonPhrase);
     }
 
-
-
-
-
-
-
-
-    // var _queryParameters = {
-    //   'api_token': authService.apiToken,
-    // };
-    // Uri _uri = getApiBaseUri("users/${user.id}").replace(queryParameters: _queryParameters);
-    // Get.log(_uri.toString());
-    // var response = await _httpClient.postUri(
-    //   _uri,
-    //   data: json.encode(user.toJson()),
-    //   options: _optionsNetwork,
-    // );
-    // if (response.data['success'] == true) {
-    //   response.data['data']['auth'] = true;
-    //   return MyUser.fromJson(response.data['data']);
-    // } else {
-    //   throw new Exception(response.data['message']);
-    // }
   }
+
+
+
+
+  updatePartner(MyUser myUser) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=fb684dfb6b5282f2f26a5696dae345076e431019'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=${myUser.id}&values={'
+        '"name": "${myUser.name}",'
+        '"phone": "${myUser.phone}",'
+        '"gender": "${myUser.sex}",'
+        '"email": "${myUser.email}"}'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+
+      // await updateToPortalUser(myUser);
+
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+
+  }
+
+  updateToPortalUser(int id) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
+        '"sel_groups_1_9_10": 9}'
+    ));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+
+  }
+
+
+
 
   Future<bool> deleteUser(MyUser user) async {
     if (!authService.isAuth) {
@@ -1503,7 +1494,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=997d9e6103047cb1ee7fadebe4c84e77d4d78733'
     };
     var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/${myUser.id}'));

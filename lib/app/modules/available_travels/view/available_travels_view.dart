@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
@@ -98,7 +99,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                   crossAxisCount: 1,
                                   crossAxisSpacing: 10.0,
                                   mainAxisSpacing: 10.0,
-                                  mainAxisExtent: 260.0,
+                                  mainAxisExtent: 220.0,
                                 ),
                                 shrinkWrap: true,
                                 primary: false,
@@ -113,18 +114,17 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                     child: TravelCardWidget(
                                       isUser: false,
                                       homePage: false,
-                                      code: controller.items[index]['code'],
                                       travelBy: controller.items[index]['booking_type'],
                                       travelType: controller.items[index]['booking_type'] != "road" ? true : false,
-                                      depDate: controller.items[index]['departure_date'],
+                                      depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.items[index]['departure_date'])).toString(),
                                       arrTown: controller.items[index]['arrival_city_id'][1],
                                       depTown: controller.items[index]['departure_city_id'][1],
-                                      arrDate: controller.items[index]['arrival_date'],
                                       qty: controller.items[index]['kilo_qty'],
                                       price: controller.items[index]['price_per_kilo'],
                                       color: background,
                                       text: Text(""),
-                                      user: Text(controller.items[index]['partner_id'][1], style: TextStyle(fontSize: 17, color: appColor)),
+                                      user: controller.items[index]['partner_id'][1],
+                                      rating: 3.6,
                                       imageUrl: '${Domain.serverPort}/image/res.partner/${controller.items[index]['partner_id'][0]}/image_1920?unique=true&file_response=true'
                                           //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 

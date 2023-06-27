@@ -127,22 +127,22 @@ class AccountView extends GetView<AccountController> {
                       AccountWidget(
                         icon: FontAwesomeIcons.birthdayCake,
                         text: Text('Date of Birth'),
-                        value: controller.currentUser.value.birthday.toString(),
+                        value: controller.currentUser.value.birthday.toString()=='false'?'--':controller.currentUser.value.birthday.toString()
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.locationDot,
                         text: Text('Place of birth'),
-                        value: controller.currentUser.value.birthplace,
+                        value: controller.currentUser.value.birthplace.toString() == 'false'?'--':controller.currentUser.value.birthplace,
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.locationDot,
                         text: Text('Address'),
-                        value: controller.currentUser.value.street,
+                        value: controller.currentUser.value.street == 'false'?'--':controller.currentUser.value.street,
                       ),
                       AccountWidget(
                         icon: FontAwesomeIcons.male,
                         text: Text('Sexe'),
-                        value: controller.currentUser.value.sex=='M'?"Male":"Female",
+                        value: controller.currentUser.value.sex=='male'?"Male":"Female",
                       ),
 
                       Card(

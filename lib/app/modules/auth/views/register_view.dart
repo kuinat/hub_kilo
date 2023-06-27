@@ -129,68 +129,68 @@ class RegisterView extends GetView<AuthController> {
                           iconData: Icons.alternate_email,
                         ),
 
-                        InkWell(
-                            onTap: (){
-                              controller.chooseBirthDate();
-                              controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value);
-                              print( controller.currentUser?.value?.birthday.toString());
-                              controller.birthDateSet.value = true;
+                        // InkWell(
+                        //     onTap: (){
+                        //       controller.chooseBirthDate();
+                        //       controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value);
+                        //       print( controller.currentUser?.value?.birthday.toString());
+                        //       controller.birthDateSet.value = true;
+                        //
+                        //     },
+                        //     child: Container(
+                        //       padding: EdgeInsets.all(20),
+                        //       margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                        //       decoration: BoxDecoration(
+                        //           color: Get.theme.primaryColor,
+                        //           borderRadius: BorderRadius.all(Radius.circular(10)),
+                        //           boxShadow: [
+                        //             BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                        //           ],
+                        //           border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                        //       child: Column(
+                        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+                        //         children: [
+                        //           Text("Birth Date".tr,
+                        //             style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
+                        //             textAlign: TextAlign.start,
+                        //           ),
+                        //           SizedBox(height: 10),
+                        //           Obx(() =>
+                        //               Row(
+                        //                 children: [
+                        //                   Icon(FontAwesomeIcons.birthdayCake, color: inactive,),
+                        //                   SizedBox(width: 20),
+                        //                   Text(DateFormat('dd/MM/yy').format(controller.birthDate.value).toString(),
+                        //                       style: TextStyle(color: labelColor)),
+                        //                       ]
+                        //                   )
+                        //               )
+                        //         ],
+                        //       ),
+                        //     )
+                        // ),
 
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-                              decoration: BoxDecoration(
-                                  color: Get.theme.primaryColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  boxShadow: [
-                                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                                  ],
-                                  border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Text("Birth Date".tr,
-                                    style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
-                                    textAlign: TextAlign.start,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Obx(() =>
-                                      Row(
-                                        children: [
-                                          Icon(FontAwesomeIcons.birthdayCake, color: inactive,),
-                                          SizedBox(width: 20),
-                                          Text(DateFormat('dd/MM/yy').format(controller.birthDate.value).toString(),
-                                              style: TextStyle(color: labelColor)),
-                                              ]
-                                          )
-                                      )
-                                ],
-                              ),
-                            )
-                        ),
-
-                        TextFieldWidget(
-                          labelText: "Birth Place".tr,
-                          hintText: "Nairobi".tr,
-                          initialValue: controller.currentUser?.value?.birthplace,
-                          onSaved: (input) => controller.currentUser?.value?.birthplace = input,
-                          validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                          iconData: Icons.location_on,
-                          isFirst: true,
-                          isLast: false,
-                        ),
-
-                        TextFieldWidget(
-                          labelText: "Address".tr,
-                          hintText: "Bamako".tr,
-                          initialValue: controller.currentUser?.value?.street,
-                          onSaved: (input) => controller.currentUser?.value?.street = input,
-                          validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                          iconData: FontAwesomeIcons.addressCard,
-                          isFirst: true,
-                          isLast: false,
-                        ),
+                        // TextFieldWidget(
+                        //   labelText: "Birth Place".tr,
+                        //   hintText: "Nairobi".tr,
+                        //   initialValue: controller.currentUser?.value?.birthplace,
+                        //   onSaved: (input) => controller.currentUser?.value?.birthplace = input,
+                        //   validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                        //   iconData: Icons.location_on,
+                        //   isFirst: true,
+                        //   isLast: false,
+                        // ),
+                        //
+                        // TextFieldWidget(
+                        //   labelText: "Address".tr,
+                        //   hintText: "Bamako".tr,
+                        //   initialValue: controller.currentUser?.value?.street,
+                        //   onSaved: (input) => controller.currentUser?.value?.street = input,
+                        //   validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                        //   iconData: FontAwesomeIcons.addressCard,
+                        //   isFirst: true,
+                        //   isLast: false,
+                        // ),
 
                         Container(
                           decoration: BoxDecoration(
@@ -229,10 +229,10 @@ class RegisterView extends GetView<AuthController> {
                               onChanged: (String newValue) {
                                 selectedGender.value = newValue;
                                 if(selectedGender.value == "Male"){
-                                  controller.currentUser?.value?.sex = "M";
+                                  controller.currentUser?.value?.sex = "male";
                                 }
                                 else{
-                                  controller.currentUser?.value?.sex = "F";
+                                  controller.currentUser?.value?.sex = "female";
                                 }
 
 
@@ -326,9 +326,9 @@ class RegisterView extends GetView<AuthController> {
                   width: Get.width,
                   child: BlockButtonWidget(
                     onPressed: () {
-                      if(!controller.birthDateSet.value){
-                        controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value).toString();
-                      }
+                      // if(!controller.birthDateSet.value){
+                      //   controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value).toString();
+                      // }
 
                       if(controller.password.value==controller.confirmPassword.value)
                       {
