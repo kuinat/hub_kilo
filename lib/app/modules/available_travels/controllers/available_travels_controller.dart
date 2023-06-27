@@ -65,7 +65,6 @@ class AvailableTravelsController extends GetxController {
     final seen = Set();
     items.value = landTravels.where((str) => seen.add(str)).toList();
         //landTravels.toSet().toList();
-    print(items);
   }
 
   void filterSearchResults(String query) {

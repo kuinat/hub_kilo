@@ -85,7 +85,6 @@ class CategoryView extends GetView<CategoryController> {
                               child: SizedBox(
                                   width: MediaQuery.of(context).size.width/1.2,
                                   child: TravelCardWidget(
-                                    code: controller.travelList[index]['code'],
                                       isUser: false,
                                       homePage: false,
                                       travelBy: controller.travelList[index]['booking_type'],
@@ -93,14 +92,13 @@ class CategoryView extends GetView<CategoryController> {
                                       depDate: controller.travelList[index]['departure_date'],
                                       arrTown: controller.travelList[index]['arrival_city_id'][1],
                                       depTown: controller.travelList[index]['departure_city_id'][1],
-                                      arrDate: controller.travelList[index]['arrival_date'],
                                       qty: controller.travelList[index]['kilo_qty'],
                                       price: controller.travelList[index]['price_per_kilo'],
                                       color: background,
                                       text: Text(""),
-                                      user: Text(controller.travelList[index]['partner_id'][1].toUpperCase(), style: TextStyle(fontSize: 17)),
+                                      user: controller.travelList[index]['partner_id'][1],
+                                      rating: 3.5,
                                       imageUrl: '${Domain.serverPort}/image/res.partner/${controller.travelList[index]['partner_id']}/image_1920?unique=true&file_response=true'
-                                    //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                                   ),
                               ),

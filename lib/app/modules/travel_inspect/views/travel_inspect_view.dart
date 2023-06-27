@@ -154,14 +154,14 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                   title: Text('Price /kg', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
                                   trailing: Text(controller.travelCard['booking_price'].toString() + " "+ controller.travelCard['local_currency_id'][1], style: Get.textTheme.headline2.merge(TextStyle(fontSize: 18, color: appColor))),
                                 ),
-                                Divider(
+                                /*Divider(
                                   height: 26,
                                   thickness: 1.2,
                                 ),
                                 ListTile(
                                   title: Text('Article Accepted', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
                                   subtitle: Text(controller.travelCard['luggage_ids'].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
-                                ),
+                                ),*/
                               ],
                             )
                         )),
@@ -257,7 +257,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                    Text('No Bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                    Text('No Shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
                   ],
         ),
             ),
@@ -409,47 +409,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
                           ],
                         ),
-
-                        /*ExpansionTile(
-                          leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
-                          title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
-                          merge(TextStyle(color: appColor, fontSize: 17))),
-                          children: [
-                            SizedBox(
-                              height:100,
-                              child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  padding: EdgeInsets.all(12),
-                                  itemBuilder: (context, index){
-                                    return Container(
-                                      height: 100,
-                                      width: 100,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                        image: DecorationImage(
-                                            image: NetworkImage(
-                                              controller.travelCard['booking_type']=='air'?
-                                              '${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
-                                            controller.travelCard['booking_type']=='road'?
-                                            '${Domain.serverPort}/web/image/m2st_hk_roadshipping.travel_booking/${booking['id'].toString()}/luggage_image${index}':
-                                              '',),
-
-                                            fit: BoxFit.fill
-
-                                        ),
-                                        border: Border.all(width: 2, color: Get.theme.primaryColor),
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder: (context, index){
-                                    return SizedBox(width: 8);
-                                  },
-                                  itemCount: 3),
-                            ),
-
-                          ],
-                        ),*/
-
                         ExpansionTile(
                           leading: Icon(FontAwesomeIcons.userCheck, size: 20),
                           title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
@@ -610,16 +569,22 @@ class TravelInspectView extends GetView<TravelInspectController> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                child: Container(
-                  height: 65,
-                  width: 65,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.travelCard['partner_id'][0]}/avatar_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
-                      fit: BoxFit.cover)
-                  ),
-                ),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  child: FadeInImage(
+                    width: 65,
+                    height: 65,
+                    image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.travelCard['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                    placeholder: AssetImage(
+                        "assets/img/loading.gif"),
+                    imageErrorBuilder:
+                        (context, error, stackTrace) {
+                      return Image.asset(
+                          'assets/img/user.png',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.fitWidth);
+                    },
+                  )
               ),
               SizedBox(width: 15),
               Expanded(
@@ -913,13 +878,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            TextFieldWidget(
-              keyboardType: TextInputType.number,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              onChanged: (input) => controller.shippingPrice.value = double.parse(input),
-              labelText: "Shipping Price".tr,
-              iconData: Icons.monetization_on_rounded,
-            ),
             Obx(() => Container(
               height: 200,
               padding: EdgeInsets.all( 10),

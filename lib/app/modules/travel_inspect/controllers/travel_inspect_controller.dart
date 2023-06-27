@@ -16,7 +16,6 @@ import '../../userBookings/controllers/bookings_controller.dart';
 class TravelInspectController extends GetxController {
   final currentSlide = 0.obs;
   final quantity = 1.00.obs;
-  final shippingPrice = 0.0.obs;
   final travelCard = {}.obs;
   final imageUrl = "".obs;
   final bookingStep = 0.obs;
@@ -234,8 +233,6 @@ class TravelInspectController extends GetxController {
   }
 
   rejectShipping(int id)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
     var headers = {
       'Accept': 'application/json',
@@ -271,7 +268,7 @@ class TravelInspectController extends GetxController {
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
         '"travelbooking_id": ${travelCard['id']},'
         '"receiver_partner_id": ${quantity.value},'
-        '"shipping_price": ${shippingPrice.value},'
+        '"shipping_price": 0.0,'
         '"luggage_ids": $luggageId,'
         '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
         '}'

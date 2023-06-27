@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
@@ -47,7 +48,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
               ) :
               controller.landTravelList.isNotEmpty ?
               Container(
-                height: 280,
+                height: 220,
                 child: ListView.builder(
                     padding: EdgeInsets.only(bottom: 10),
                     primary: false,
@@ -62,20 +63,18 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                               child: TravelCardWidget(
                                   isUser: false,
                                   homePage: false,
-                                  code: controller.landTravelList[index]['code'],
                                   travelBy: controller.landTravelList[index]['booking_type'],
                                   travelType: controller.landTravelList[index]['booking_type'] != "road" ? true : false,
-                                  depDate: controller.landTravelList[index]['departure_date'],
+                                  depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.landTravelList[index]['departure_date'])).toString(),
                                   arrTown: controller.landTravelList[index]['arrival_city_id'][1],
                                   depTown: controller.landTravelList[index]['departure_city_id'][1],
-                                  arrDate: controller.landTravelList[index]['arrival_date'],
                                   qty: controller.landTravelList[index]['kilo_qty'],
                                   price: controller.landTravelList[index]['price_per_kilo'],
                                   color: background,
                                   text: Text(""),
-                                  user: Text(controller.landTravelList[index]['partner_id'][1], style: TextStyle(fontSize: 17, color: appColor)),
+                                  user: controller.landTravelList[index]['partner_id'][1],
+                                  rating: 4.2,
                                   imageUrl: '${Domain.serverPort}/image/res.partner/${controller.landTravelList[index]['partner_id'][0]}/image_1920?unique=true&file_response=true',
-                                //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
                               ),
                           ),
@@ -86,7 +85,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                       );
                     }),
               ) : Container(
-                  height: 220,
+                  height: 200,
                   child: Center(
                     child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3), size: 120),
                   ))
@@ -126,7 +125,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                   )
               ) : controller.airTravelList.isNotEmpty ?
               Container(
-                height: 270,
+                height: 220,
                 child: ListView.builder(
                     padding: EdgeInsets.only(bottom: 10),
                     primary: false,
@@ -139,20 +138,19 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                           child: SizedBox(
                               width: MediaQuery.of(context).size.width/1.2,
                               child: TravelCardWidget(
-                                code: controller.airTravelList[index]['code'],
                                 isUser: false,
                                 homePage: true,
                                 travelBy: controller.airTravelList[index]['travel_type'],
                                 travelType: controller.airTravelList[index]['travel_type'] != "road" ? true : false,
-                                depDate: controller.airTravelList[index]['departure_date'],
+                                depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.airTravelList[index]['departure_date'])).toString(),
                                 arrTown: controller.airTravelList[index]['arrival_town'],
                                 depTown: controller.airTravelList[index]['departure_town'],
-                                arrDate: controller.airTravelList[index]['arrival_date'],
                                 qty: controller.airTravelList[index]['kilo_qty'],
                                 price: controller.airTravelList[index]['price_per_kilo'],
                                 color: Colors.white,
                                 text: Text(""),
-                                user: Text(controller.airTravelList[index]['sender']['sender_name'], style: TextStyle(fontSize: 17)),
+                                user: controller.airTravelList[index]['sender']['sender_name'],
+                                rating: 4.4,
                                 imageUrl: controller.airTravelList[index]['sender']['sender_id'].toString() != 'false' ? '${Domain.serverPort}/web/image/res.partner/${controller.airTravelList[index]['sender']['sender_id']}/image_1920'
                                     : "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png",
 
@@ -166,7 +164,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                     }
                 ),
               ) : Container(
-                  height: 220,
+                  height: 200,
                   child: Center(
                     child: FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 120),
                   ))

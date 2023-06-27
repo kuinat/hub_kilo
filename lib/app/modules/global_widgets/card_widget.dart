@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
 
 import '../../../color_constants.dart';
+import '../../../main.dart';
 import '../account/widgets/account_link_widget.dart';
 import '../userBookings/controllers/bookings_controller.dart';
 
@@ -19,8 +20,8 @@ class CardWidget extends StatelessWidget {
     this.arrivalTown,
     this.reject,
     this.packetImageUrl,
-
     @required this.negotiation,
+    @required this.luggageView,
     @required this.shippingDate,
     @required this.code,
     @required this.imageUrl,
@@ -28,7 +29,8 @@ class CardWidget extends StatelessWidget {
     @required this.recEmail,
     @required this.recAddress,
     @required this.recPhone,
-    @required this.qty,
+    @required this.viewButton,
+    @required this.luggageWidget,
     this.edit,
     this.confirm,
     this.viewTravelInfo,
@@ -36,7 +38,8 @@ class CardWidget extends StatelessWidget {
     @required this.price,
     @required this.travelType,
     @required this.text,
-    @required this.bookingState}) : super(key: key);
+    @required this.bookingState
+  }) : super(key: key);
 
   final Widget negotiation;
   final String text;
@@ -44,6 +47,8 @@ class CardWidget extends StatelessWidget {
   final String arrivalTown;
   final String code;
   final String recName;
+  final bool luggageView;
+  final Widget luggageWidget;
   final String shippingDate;
   final bool transferable;
   final bool editable;
@@ -52,7 +57,6 @@ class CardWidget extends StatelessWidget {
   final String recPhone;
   final String bookingState;
   final String travelType;
-  final double qty;
   final Widget button;
   final double price;
   final String imageUrl;
@@ -63,6 +67,7 @@ class CardWidget extends StatelessWidget {
   final Function accept;
   final Function reject;
   final Function transfer;
+  final Widget viewButton;
 
 
   @override
@@ -137,80 +142,6 @@ class CardWidget extends StatelessWidget {
                   ),
 
                   SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 30,
-                              child: Icon( Icons.attach_money_outlined, size: 18),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(horizontal: 12),
-                              width: 1,
-                              height: 24,
-                              color: Get.theme.focusColor.withOpacity(0.3),
-                            ),
-                            Text(price.toString() + " EUR", style: Get.textTheme.headline6.
-                            merge(TextStyle(color: specialColor, fontSize: 16)))
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.shoppingBag, size: 18),
-                            Container(
-                              margin: EdgeInsets.symmetric(horizontal: 12),
-                              width: 1,
-                              height: 24,
-                              color: Get.theme.focusColor.withOpacity(0.3),
-                            ),
-                            Text(qty.toString() + " Kg", style: Get.textTheme.headline1.
-                            merge(TextStyle(color: appColor, fontSize: 16)))
-                          ],
-                        ),
-                      ),
-
-                    ],
-                  ),
-                /*ExpansionTile(
-                  leading: Icon(FontAwesomeIcons.boxesPacking, size: 20),
-                    title: Text("Packet Images".tr, style: Get.textTheme.bodyText1.
-                    merge(TextStyle(color: appColor, fontSize: 17))),
-                  children: [
-                    SizedBox(
-                      height:100,
-                      child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.all(12),
-                          itemBuilder: (context, index){
-                            return Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                image: DecorationImage(
-                                    image: NetworkImage(
-                                        //'${Domain.serverPort}/web/image/m2st_hk_airshipping.travel_booking/16/luggage_image1'
-                                      '${packetImageUrl}${index+1}',
-                                    ),
-                                    fit: BoxFit.fill
-                                ),
-                                border: Border.all(width: 2, color: Get.theme.primaryColor),
-                              ),
-                            );
-                          },
-                          separatorBuilder: (context, index){
-                            return SizedBox(width: 8);
-                          },
-                          itemCount: 3),
-                    ),
-
-                  ],
-                ),*/
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -222,7 +153,12 @@ class CardWidget extends StatelessWidget {
                       negotiation
                     ]
                   ),
-
+                  !luggageView ?
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: this.viewButton
+                      ) :
+                      this.luggageWidget,
                   ExpansionTile(
                     leading: Icon(FontAwesomeIcons.userCheck, size: 20),
                     title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.

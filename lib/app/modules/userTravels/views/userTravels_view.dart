@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../routes/app_routes.dart';
@@ -93,7 +94,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                       crossAxisCount: 1,
                                       crossAxisSpacing: 10.0,
                                       mainAxisSpacing: 10.0,
-                                      mainAxisExtent: 250.0,
+                                      mainAxisExtent: 210.0,
                                     ),
                                     shrinkWrap: true,
                                     primary: false,
@@ -106,20 +107,18 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                         });
                                       return GestureDetector(
                                         child: TravelCardWidget(
-                                          code: controller.items[index]['code'],
                                           isUser: true,
                                           travelState: controller.items[index]['state'],
-                                          depDate: controller.items[index]['departure_date'],
+                                          depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.items[index]['departure_date'])).toString(),
                                           arrTown: controller.items[index]['arrival_city_id'][1],
                                           depTown: controller.items[index]['departure_city_id'][1],
-                                          arrDate: controller.items[index]['arrival_date'],
                                           qty: controller.items[index]['total_weight'],
                                           price: controller.items[index]['booking_price'],
                                           color: background,
                                           text: Text(""),
-                                          user: Text('Me', style: TextStyle(fontSize: 17)),
                                           imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                                           homePage: false,
+                                          action: ()=> controller.publishTravel(controller.items[index]['id']),
                                           travelType: controller.items[index]['booking_type'] != "road" ? true : false,
                                           travelBy: controller.items[index]['booking_type'],
 

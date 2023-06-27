@@ -126,23 +126,23 @@ class MainDrawerWidget extends StatelessWidget {
                         width: 80,
                         height: 80,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(80)),
-                          child: CachedNetworkImage(
-                            height: 80,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            imageUrl: _currentUser.value.image == true ? '${Domain.serverPort}/web/image/res.partner/${_currentUser.value.id}/image_1920'
-                                : 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg',
-                            //Get.find<AuthService>().user.value.avatar.thumb,
-                            placeholder: (context, url) => Image.asset(
-                              'assets/img/loading.gif',
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 80,
-                            ),
-                            errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                          ),
-                        ),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: FadeInImage(
+                              width: 65,
+                              height: 65,
+                              image: NetworkImage('${Domain.serverPort}/image/res.partner/${_currentUser.value.id}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                              placeholder: AssetImage(
+                                  "assets/img/loading.gif"),
+                              imageErrorBuilder:
+                                  (context, error, stackTrace) {
+                                return Image.asset(
+                                    'assets/img/user.png',
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.fitWidth);
+                              },
+                            )
+                        )
                       ),
                       Positioned(
                         top: 0,
