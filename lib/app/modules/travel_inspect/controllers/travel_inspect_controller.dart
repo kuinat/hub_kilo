@@ -65,7 +65,7 @@ class TravelInspectController extends GetxController {
 
   @override
   void onInit() async {
-    //transferBooking = Get.find<BookingsController>().transferBooking;
+    transferBooking = Get.find<BookingsController>().transferBooking;
     print("transfer "+transferBooking.toString());
     transferAirBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     transferRoadBookingId =Get.find<BookingsController>().bookingIdForTransfer;

@@ -173,7 +173,7 @@ class ProfileController extends GetxController {
 
   Future getUser() async {
     try {
-      user.value = await _userRepository.get(user.value.id);
+      user.value = await _userRepository.get(user.value.userId);
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }

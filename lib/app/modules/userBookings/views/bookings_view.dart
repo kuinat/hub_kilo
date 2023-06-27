@@ -264,8 +264,8 @@ class BookingsView extends GetView<BookingsController> {
                                 cancel: 'Cancel',
                                 confirm: 'Transfer',
                                 onTap: () async => {
-                                  controller.transferShipping(controller.items[index]['id']),
                                   Navigator.of(Get.context).pop(),
+                                  controller.transferShipping(controller.items[index]['id']),
                                 }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
                               )
                       ),

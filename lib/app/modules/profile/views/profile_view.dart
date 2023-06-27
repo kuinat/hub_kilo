@@ -243,7 +243,7 @@ class ProfileView extends GetView<ProfileController> {
                             alignment: Alignment.bottomCenter,
 
                             style: Get.textTheme.bodyText1,
-                            value: controller.user.value.sex=="M"?controller.selectedGender.value=controller.genderList[0]:controller.selectedGender.value=controller.genderList[1],
+                            value: controller.user.value.sex=="male"?controller.selectedGender.value=controller.genderList[0]:controller.selectedGender.value=controller.genderList[1],
                             // Down Arrow Icon
                             icon: const Icon(Icons.keyboard_arrow_down),
 

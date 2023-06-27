@@ -164,35 +164,35 @@ class AuthController extends GetxController {
       }
     }
   }
-  chooseBirthDate() async {
-    DateTime pickedDate = await showRoundedDatePicker(
+  // chooseBirthDate() async {
+  //   DateTime pickedDate = await showRoundedDatePicker(
+  //
+  //       context: Get.context,
+  //
+  //       imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
+  //       initialDate: DateTime.now().subtract(Duration(days: 1)),
+  //       firstDate: DateTime(1900),
+  //       lastDate: DateTime.now(),
+  //       styleDatePicker: MaterialRoundedDatePickerStyle(
+  //           textStyleYearButton: TextStyle(
+  //             fontSize: 52,
+  //             color: Colors.white,
+  //           )
+  //       ),
+  //       borderRadius: 16,
+  //       selectableDayPredicate: disableDate
+  //   );
+  //   if (pickedDate != null && pickedDate != birthDate.value) {
+  //     birthDate.value = pickedDate;
+  //   }
+  // }
 
-        context: Get.context,
-
-        imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
-        initialDate: DateTime.now().subtract(Duration(days: 1)),
-        firstDate: DateTime(1900),
-        lastDate: DateTime.now(),
-        styleDatePicker: MaterialRoundedDatePickerStyle(
-            textStyleYearButton: TextStyle(
-              fontSize: 52,
-              color: Colors.white,
-            )
-        ),
-        borderRadius: 16,
-        selectableDayPredicate: disableDate
-    );
-    if (pickedDate != null && pickedDate != birthDate.value) {
-      birthDate.value = pickedDate;
-    }
-  }
-
-  bool disableDate(DateTime day) {
-    if ((day.isAfter(DateTime.now().subtract(Duration(days: 1))))) {
-      return false;
-    }
-    return true;
-  }
+  // bool disableDate(DateTime day) {
+  //   if ((day.isAfter(DateTime.now().subtract(Duration(days: 1))))) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
 
 
