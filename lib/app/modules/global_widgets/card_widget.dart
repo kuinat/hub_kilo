@@ -29,11 +29,8 @@ class CardWidget extends StatelessWidget {
     @required this.recEmail,
     @required this.recAddress,
     @required this.recPhone,
-    @required this.viewButton,
-    @required this.luggageWidget,
     this.edit,
     this.confirm,
-    this.viewTravelInfo,
     @required this.button,
     @required this.price,
     @required this.travelType,
@@ -47,8 +44,7 @@ class CardWidget extends StatelessWidget {
   final String arrivalTown;
   final String code;
   final String recName;
-  final bool luggageView;
-  final Widget luggageWidget;
+  final Widget luggageView;
   final String shippingDate;
   final bool transferable;
   final bool editable;
@@ -62,12 +58,10 @@ class CardWidget extends StatelessWidget {
   final String imageUrl;
   final String packetImageUrl;
   final Function edit;
-  final Function viewTravelInfo;
   final Function confirm;
   final Function accept;
   final Function reject;
   final Function transfer;
-  final Widget viewButton;
 
 
   @override
@@ -153,12 +147,10 @@ class CardWidget extends StatelessWidget {
                       negotiation
                     ]
                   ),
-                  !luggageView ?
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: this.viewButton
-                      ) :
-                      this.luggageWidget,
+                  Align(alignment: Alignment.bottomRight,
+                  child: SizedBox(width: 200,
+                  child: luggageView),
+                  ),
                   ExpansionTile(
                     leading: Icon(FontAwesomeIcons.userCheck, size: 20),
                     title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.

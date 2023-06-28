@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -165,6 +162,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               ],
                             )
                         )),
+                        if(Get.find<MyAuthService>().myUser.value.id != controller.travelCard['partner_id'][0])
                           EServiceTilWidget(
                             title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
                             title2: InkWell(
@@ -579,7 +577,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     imageErrorBuilder:
                         (context, error, stackTrace) {
                       return Image.asset(
-                          'assets/img/user.png',
+                          'assets/img/téléchargement (3).png',
                           width: 50,
                           height: 50,
                           fit: BoxFit.fitWidth);
@@ -799,15 +797,19 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 controller.bookingStep.value == 0 ?
                 MaterialButton(
                   onPressed: () =>{
+                    print(controller.imageFiles.length),
                     if(controller.luggageSelected.isNotEmpty){
                       controller.errorField.value = false,
                       controller.bookingStep.value++,
-                      for(var i=0; i<controller.luggageSelected.length; i++)
-                        controller.createShippingLuggage(controller.luggageSelected[i])
-                    }else{
-                      controller.errorField.value = true
-                    }
-
+                      controller.luggageId.value = [],
+                      for(var i = 0; i <
+                          controller.luggageSelected.length; i++)
+                        controller.createShippingLuggage(
+                            controller.luggageSelected[i])
+                    } else
+                      {
+                        controller.errorField.value = true
+                      }
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -827,6 +829,10 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       ),
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
+
+                        for(var a=1; a<4; a++){
+                          await controller.sendImages(a, controller.imageFiles[a-1]);
+                        }
                         controller.buttonPressed.value = !controller.buttonPressed.value;
                         controller.shipNow();
 
@@ -1225,8 +1231,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           child: UserWidget(
                             user: controller.users[index]['display_name'],
                             selected: false,
-                            imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
-                                //'${Domain.serverPort}/image/res.partner/${controller.users[index]['id']}/image_1920?unique=true&file_response=true',
+                            imageUrl: '${Domain.serverPort}/image/res.partner/${controller.users[index]['id']}/image_1920?unique=true&file_response=true',
                           ),
                         ),
                       );

@@ -25,28 +25,21 @@ class PopUpWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       icon: icon,
-      content: SizedBox(
-          height: MediaQuery.of(context).size.height/7,
-          child: Column(
-              children: [
-                Text(title, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                Spacer(),
-                Divider(color: Colors.black),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(onPressed: ()=>{
-                      Navigator.pop(context)
-                    },
-                        child: Text(cancel, style: TextStyle(color: inactive))),
-                    SizedBox(width: 10),
-                    TextButton(onPressed: onTap,
-                        child: Text(confirm, style: TextStyle(color: specialColor)))
-                  ],
-                )
-              ]
-          )
-      ),
+      content: Text(title, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(onPressed: ()=>{
+              Navigator.pop(context)
+            },
+                child: Text(cancel, style: TextStyle(color: inactive))),
+            SizedBox(width: 10),
+            TextButton(onPressed: onTap,
+                child: Text(confirm, style: TextStyle(color: specialColor)))
+          ],
+        )
+      ],
     );
   }
 }

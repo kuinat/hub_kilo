@@ -10,6 +10,7 @@ import '../../../models/option_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
+import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
 
@@ -284,7 +285,7 @@ class TravelInspectController extends GetxController {
       print(data);
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      Navigator.pop(Get.context);
+      Get.toNamed(Routes.BOOKING);
 
     }
     else {
@@ -416,7 +417,6 @@ class TravelInspectController extends GetxController {
   http.StreamedResponse response = await request.send();
 
   if (response.statusCode == 200) {
-    luggageId.value = [];
     var data = await response.stream.bytesToString();
     luggageId.add(json.decode(data)[0]);
     print("added id: $luggageId");
@@ -447,6 +447,31 @@ class TravelInspectController extends GetxController {
     else {
       var data = await response.stream.bytesToString();
       print(data);
+    }
+  }
+
+  sendImages(int a, var imageFil)async{
+    for(var b=0; b<luggageId.length;b++){
+      var headers = {
+        'Accept': 'application/json',
+        'Authorization': Domain.authorization,
+        'Content-Type': 'multipart/form-data',
+        'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+      };
+      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${luggageId[b]}/luggage_image$a'));
+      request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
+      else {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
     }
   }
 

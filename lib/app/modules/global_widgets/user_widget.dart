@@ -22,14 +22,22 @@ class UserWidget extends StatelessWidget {
     return Row(
       //mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          height: 30,
-          width: 30,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                  image: NetworkImage(imageUrl, headers: Domain.getTokenHeaders()), fit: BoxFit.cover
-              )),
+        ClipOval(
+            child: FadeInImage(
+              width: 30,
+              height: 30,
+              image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
+              placeholder: AssetImage(
+                  "assets/img/loading.gif"),
+              imageErrorBuilder:
+                  (context, error, stackTrace) {
+                return Image.asset(
+                    "assets/img/téléchargement (1).png",
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.fitWidth);
+              },
+            )
         ),
         SizedBox(width: 20),
         Text(user)

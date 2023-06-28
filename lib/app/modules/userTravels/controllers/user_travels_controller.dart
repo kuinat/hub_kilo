@@ -137,11 +137,10 @@ class UserTravelsController extends GetxController {
 
     if (response.statusCode == 200) {
       //var data = await response.stream.bytesToString();
-      items.value = myTravelsList;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Travel opened to the public".tr));
       await getUser(Get.find<MyAuthService>().myUser.value.id);
       myTravelsList = await myTravels();
-      items.clear();
+      items.value = myTravelsList;
     }
     else {
       var data = await response.stream.bytesToString();
