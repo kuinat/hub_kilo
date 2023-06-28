@@ -182,7 +182,7 @@ class TravelCardWidget extends StatelessWidget {
                                     imageErrorBuilder:
                                         (context, error, stackTrace) {
                                       return Image.asset(
-                                          'assets/img/user.png',
+                                          "assets/img/téléchargement (1).png",
                                           width: 50,
                                           height: 50,
                                           fit: BoxFit.fitWidth);

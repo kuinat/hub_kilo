@@ -38,7 +38,6 @@ class BookingsController extends GetxController {
   var shippingLuggage =[].obs;
   final luggageLoading = true.obs;
   final shippingPrice = 0.0.obs;
-  var loading = false.obs;
   var selectedIndex = 0.obs;
   var luggageIndex = 0.obs;
   var selected = false.obs;
@@ -54,7 +53,7 @@ class BookingsController extends GetxController {
   ScrollController scrollController = ScrollController();
   var list = [];
   var shippingList = [];
-  var view = false.obs;
+  var viewPressed = false.obs;
 
   UploadRepository _uploadRepository;
 
@@ -360,11 +359,12 @@ class BookingsController extends GetxController {
 
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"state": "rejected"}&ids=$shipping_id'));
+        '"state": "rejected"}'
+        '&ids=$shipping_id'));
 
     http.StreamedResponse response = await request.send();
 
@@ -407,8 +407,6 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      view.value = true;
-      loading.value = false;
       shippingLuggage.value = json.decode(data);
     }
     else {
