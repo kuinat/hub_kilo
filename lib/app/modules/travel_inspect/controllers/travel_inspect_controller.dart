@@ -50,6 +50,7 @@ class TravelInspectController extends GetxController {
   var luggageSelected = [].obs;
   var areBookingsLoading = false.obs;
   final errorField = false.obs;
+  var shippingLuggage =[].obs;
 
 
   var visible = true.obs;
@@ -496,6 +497,27 @@ class TravelInspectController extends GetxController {
       print(response.reasonPhrase);
     }
 
+  }
+
+  Future getLuggageInfo(var ids) async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      shippingLuggage.value = json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
   }
 
   Future getAllUsers()async{

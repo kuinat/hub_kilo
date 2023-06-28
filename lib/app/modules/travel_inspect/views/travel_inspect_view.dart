@@ -13,6 +13,7 @@ import '../../../services/my_auth_service.dart';
 import '../../account/widgets/account_link_widget.dart';
 
 import '../../global_widgets/block_button_widget.dart';
+import '../../global_widgets/card_widget.dart';
 import '../../global_widgets/packet_image_field_widget.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_photo_widget.dart';
@@ -166,9 +167,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                           EServiceTilWidget(
                             title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
                             title2: InkWell(
-                              onTap: (){
-
-                              },
+                              onTap: () => Get.toNamed(Routes.CHAT, arguments: {'travelBooking': controller.travelCard, 'heroTag': 'services_carousel'}),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
@@ -298,7 +297,181 @@ class TravelInspectView extends GetView<TravelInspectController> {
   }
 
   Widget buildBookingsView(BuildContext context, var booking){
-    return Card(
+    return CardWidget(
+      shippingDate: booking['create_date'],
+      code: booking['display_name'],
+      travelType: booking['booking_type'],
+      editable: booking['state'].toLowerCase()=='pending' ? true:false,
+      transferable: booking['state'].toLowerCase()=='rejected' || booking['state'].toLowerCase()=='pending' ? true:false,
+      bookingState: booking['state'],
+      price: booking['shipping_price'],
+      text: booking['travelbooking_id'][1],
+      luggageView: ElevatedButton(
+          onPressed: ()async{
+            showDialog(
+                context: context,
+                builder: (_){
+                  controller.getLuggageInfo(booking['luggage_ids']);
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        )),
+                    child: SizedBox(
+                        height: MediaQuery.of(context).size.height/2,
+                        child: Column(
+                          children: [
+                            SizedBox(height: 15),
+                            Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                            merge(TextStyle(color: appColor, fontSize: 17))),
+                            SizedBox(height: 15),
+                            for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                              SizedBox(
+                                width: double.infinity,
+                                height: 120,
+                                child: Expanded(
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: 3,
+                                      itemBuilder: (context, index){
+                                        return Card(
+                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                child: FadeInImage(
+                                                  width: 100,
+                                                  height: 100,
+                                                  image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                      headers: Domain.getTokenHeaders()),
+                                                  placeholder: AssetImage(
+                                                      "assets/img/loading.gif"),
+                                                  imageErrorBuilder:
+                                                      (context, error, stackTrace) {
+                                                    return Image.asset(
+                                                        'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                        width: 50,
+                                                        height: 50,
+                                                        fit: BoxFit.fitWidth);
+                                                  },
+                                                )
+                                            )
+                                        );
+                                      }),
+                                ),
+                              ),
+                              SizedBox(height: 15),
+                              AccountWidget(
+                                icon: FontAwesomeIcons.shoppingBag,
+                                text: Text('Name'),
+                                value: controller.shippingLuggage[a]['name'],
+                              ),
+                              AccountWidget(
+                                icon: FontAwesomeIcons.shoppingBag,
+                                text: Text('Dimensions'),
+                                value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                              ),
+                              AccountWidget(
+                                icon: FontAwesomeIcons.weightScale,
+                                text: Text('Average weight'),
+                                value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
+                              ),
+                              Spacer(),
+                              Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Back'))
+                              )
+                            ],
+                          ],
+                        )
+                    ),
+                  );
+                });
+          },
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Text('View luggage info'),
+          )
+      ),
+      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
+      button: booking["state"].toLowerCase() == 'pending'?
+      Column(
+        children: [
+          InkWell(
+            onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
+                SizedBox(width: 10),
+                FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                  onTap: (){
+                    showDialog(
+                        context: context,
+                        builder: (_)=>
+                            PopUpWidget(
+                              title: "Are you sure to accept this shipping? your choice can't be changed later",
+                              cancel: 'Cancel',
+                              confirm: 'Ok',
+                              onTap: () async =>{
+                                controller.acceptShipping(booking['id']),
+
+                              }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                            )
+                    );
+
+                  },
+                  child: Card(
+                      elevation: 10,
+                      color: inactive,
+                      margin: EdgeInsets.symmetric( vertical: 15),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+                  )
+              ),
+              SizedBox(width: 20,),
+              GestureDetector(
+                  onTap: (){
+                    showDialog(
+                        context: context,
+                        builder: (_)=>
+                            PopUpWidget(
+                              title: "Are you sure to reject this shipping? your choice can't be changed later",
+                              cancel: 'Cancel',
+                              confirm: 'Ok',
+                              onTap: () async =>{
+                                await controller.rejectShipping(booking['id']),
+
+                              }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                            )
+                    );
+                  },
+                  child: Card(
+                      elevation: 10,
+                      color: specialColor,
+                      margin: EdgeInsets.symmetric( vertical: 15),
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+                  )
+              ),
+            ],
+          )
+        ],) : SizedBox(),
+      recName: booking['receiver_partner_id'][1],
+      recAddress: booking['receiver_address'],
+      recEmail: booking['receiver_email'].toString(),
+      recPhone: booking['receiver_phone'],
+    );
+    /*return Card(
         elevation: 10,
         color: Colors.white,
         shape: RoundedRectangleBorder(
@@ -404,7 +577,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                         ExpansionTile(
@@ -513,7 +685,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
             )],
           ),
         )
-    );
+    );*/
   }
 
   Container buildCarouselBullets(BuildContext context) {

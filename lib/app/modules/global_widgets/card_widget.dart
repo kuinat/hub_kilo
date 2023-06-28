@@ -20,7 +20,7 @@ class CardWidget extends StatelessWidget {
     this.arrivalTown,
     this.reject,
     this.packetImageUrl,
-    @required this.negotiation,
+    this.negotiation,
     @required this.luggageView,
     @required this.shippingDate,
     @required this.code,

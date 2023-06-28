@@ -38,7 +38,6 @@ class BookingsController extends GetxController {
   var shippingLuggage =[].obs;
   final luggageLoading = true.obs;
   final shippingPrice = 0.0.obs;
-  var loading = false.obs;
   var selectedIndex = 0.obs;
   var luggageIndex = 0.obs;
   var selected = false.obs;
@@ -54,7 +53,6 @@ class BookingsController extends GetxController {
   ScrollController scrollController = ScrollController();
   var list = [];
   var shippingList = [];
-  var view = false.obs;
   var viewPressed = false.obs;
 
   UploadRepository _uploadRepository;
@@ -410,8 +408,6 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      view.value = true;
-      loading.value = false;
       shippingLuggage.value = json.decode(data);
     }
     else {
