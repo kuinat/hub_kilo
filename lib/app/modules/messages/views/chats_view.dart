@@ -39,9 +39,9 @@ class ChatsView extends GetView<MessagesController> {
               primary: true,
               itemBuilder: (context, index) {
                 List receivedMessages = [];
-                if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
+                /*if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
                   receivedMessages.add(controller.messages[index]);
-                }
+                }*/
                 Future.delayed(Duration.zero, (){
                   controller.messages.sort((a, b) => b["date"].compareTo(a["date"]));
                 });
@@ -77,6 +77,15 @@ class ChatsView extends GetView<MessagesController> {
     if (controller.message.value.id != null) {
       controller.listenForChats();
     }*/
+
+    String departureCity = controller.travel['departure_city_id'][1].split('(').first;
+    String a = controller.travel['departure_city_id'][1].split('(').last;
+    String departureCountry = a.split(')').first;
+
+    String arrivalCity = controller.travel['arrival_city_id'][1].split('(').first;
+    String b = controller.travel['arrival_city_id'][1].split('(').last;
+    String arrivalCountry = b.split(')').first;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -95,18 +104,21 @@ class ChatsView extends GetView<MessagesController> {
                   Get.back();
                 }
             ),
-            Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    image: DecorationImage(
-                        image: NetworkImage( Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
-                             '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920'
-                            : '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920'),
-                        fit: BoxFit.cover
-                    )
+            ClipOval(
+                child: FadeInImage(
+                  width: 40,
+                  height: 40,
+                  image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.card['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                  placeholder: AssetImage(
+                      "assets/img/loading.gif"),
+                  imageErrorBuilder:
+                      (context, error, stackTrace) {
+                    return Image.asset(
+                        'assets/img/téléchargement (3).png',
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.fitWidth);
+                  },
                 )
             ),
           ],
@@ -114,12 +126,11 @@ class ChatsView extends GetView<MessagesController> {
         automaticallyImplyLeading: false,
         leadingWidth: 90,
         title: Obx(() {
-          return Text( Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
-          controller.bookingCard['travel']['traveler']['user_name'] : controller.bookingCard['sender']['sender_name'],
+          return Text( controller.card['partner_id'][1],
             //controller.message.value.name,
             overflow: TextOverflow.fade,
             maxLines: 1,
-            style: Get.textTheme.headline6.merge(TextStyle(letterSpacing: 1.3)),
+            style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15, color: appColor)),
           );
         }),
       ),
@@ -141,40 +152,6 @@ class ChatsView extends GetView<MessagesController> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                 child: Column(
                   children: [
-                    controller.bookingCard['travel']['travel_type'] == 'air' ?
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                        ),
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                        )
-                      ],
-                    ) : controller.bookingCard['travel']['travel_type'].toLowerCase() == 'road' ?
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.car)),
-                        ),
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.car)),
-                        )
-                      ],
-                    ) :
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                        ),
-                        Container(width: 100,
-                          child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                        )
-                      ],
-                    ),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,13 +159,25 @@ class ChatsView extends GetView<MessagesController> {
                         Container(
                           alignment: Alignment.topCenter,
                           width: 100,
-                          child: Text(controller.bookingCard['travel']['departure_town'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                          child: RichText(
+                              text: TextSpan(
+                                  children: [
+                                    TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                    TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                  ]
+                              ))
                         ),
                         FaIcon(FontAwesomeIcons.arrowRight),
                         Container(
                             alignment: Alignment.topCenter,
                             width: 100,
-                            child: Text(controller.bookingCard['travel']['arrival_town'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                            child: RichText(
+                                text: TextSpan(
+                                    children: [
+                                      TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                      TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                    ]
+                                ))
                         ),
                       ],
                     ),
@@ -205,43 +194,71 @@ class ChatsView extends GetView<MessagesController> {
               ),
               child: Row(
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width /1.6,
                     child: TextField(
                       controller: controller.chatTextController,
                       style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
-                      keyboardType: TextInputType.number,
+                      //keyboardType: TextInputType.number,
+                      maxLines: 7,
+                      minLines: 1,
+                      onChanged: (value)=> controller.checkValue(value),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.all(20),
-                        hintText: "Enter your proposition".tr,
+                        hintText: "Add a message".tr,
                         hintStyle: TextStyle(color: Get.theme.focusColor.withOpacity(0.8)),
-                        suffixIcon: IconButton(
-                          padding: EdgeInsetsDirectional.only(end: 20, start: 10),
-                          onPressed: () {
-                            //controller.messages.add(controller.chatTextController.text);
-                            if(Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id']){
-                              controller.sendMessage( controller.bookingCard['travel']['traveler']['user_id'] );
-                            }
-                            if(Get.find<MyAuthService>().myUser.value.id == controller.bookingCard['travel']['traveler']['user_id']){
-                              controller.sendMessage( controller.bookingCard['sender']['sender_id'] );
-                            }
-
-                            //controller.addMessage(controller.message.value, controller.chatTextController.text);
-                            Timer(Duration(milliseconds: 100), () {
-                              controller.chatTextController.clear();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.send_outlined,
-                            color: Get.theme.colorScheme.secondary,
-                            size: 30,
-                          ),
-                        ),
                         border: UnderlineInputBorder(borderSide: BorderSide.none),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
                         focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
                       ),
                     ),
                   ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color: Get.theme.focusColor.withOpacity(0.3),
+                  ),
+                  Obx(() => SizedBox(
+                      width: 140,
+                      child: TextField(
+                        controller: controller.priceController,
+                        style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value)=> controller.checkValue(value),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(20),
+                          hintText: "Price".tr,
+                          hintStyle: TextStyle(color: Get.theme.focusColor.withOpacity(0.8)),
+                          suffixIcon: IconButton(
+                            padding: EdgeInsetsDirectional.only(end: 20, start: 10),
+                            onPressed: () {
+                              if(controller.enableSend.value){
+                                controller.messages.add("${controller.chatTextController.text}, ${controller.priceController.text}");
+                                /*if(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id']){
+                                    controller.sendMessage( controller.card['travel']['traveler']['user_id'] );
+                                  }
+                                  if(Get.find<MyAuthService>().myUser.value.id == controller.card['travel']['traveler']['user_id']){
+                                    controller.sendMessage( controller.card['sender']['sender_id'] );
+                                  }*/
+                              }
+
+                              //controller.addMessage(controller.message.value, controller.chatTextController.text);
+                              Timer(Duration(milliseconds: 100), () {
+                                controller.chatTextController.clear();
+                                controller.priceController.clear();
+                              });
+                            },
+                            icon: Icon(
+                              Icons.send_outlined,
+                              color: controller.enableSend.value ? Get.theme.colorScheme.secondary : inactive,
+                              size: 30,
+                            ),
+                          ),
+                          border: UnderlineInputBorder(borderSide: BorderSide.none),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+                        ),
+                      )))
                 ],
               ),
             )
@@ -345,8 +362,8 @@ class ChatsView extends GetView<MessagesController> {
                       child: CachedNetworkImage(
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        imageUrl: Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
-                        '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['sender']['sender_id']}/image_1920' : '${Domain.serverPort}/web/image/res.partner/${controller.bookingCard['travel']['traveler']['user_id']}/image_1920',
+                        imageUrl: Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id'] ?
+                        '${Domain.serverPort}/web/image/res.partner/${controller.card['sender']['sender_id']}/image_1920' : '${Domain.serverPort}/web/image/res.partner/${controller.card['travel']['traveler']['user_id']}/image_1920',
                         placeholder: (context, url) => Image.asset(
                           'assets/img/loading.gif',
                           fit: BoxFit.cover,
@@ -360,8 +377,8 @@ class ChatsView extends GetView<MessagesController> {
                     child: new Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(Get.find<MyAuthService>().myUser.value.id != controller.bookingCard['travel']['traveler']['user_id'] ?
-                        message['travel_booking']['travel']['traveler']['user_name'] : controller.bookingCard['sender']['sender_name'],
+                        Text(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id'] ?
+                        message['travel_booking']['travel']['traveler']['user_name'] : controller.card['sender']['sender_name'],
                             style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
                         new Container(
                           margin: const EdgeInsets.only(top: 5.0),
@@ -393,9 +410,9 @@ class ChatsView extends GetView<MessagesController> {
               backgroundColor: validateColor,
             ),
             onPressed: (){
-              controller.bookingCard['travel']['travel_type'] == 'air'?
+              controller.card['travel']['travel_type'] == 'air'?
               controller.acceptAndPriceAirBooking(message['message']) :
-              controller.bookingCard['travel']['travel_type'] == 'road'?
+              controller.card['travel']['travel_type'] == 'road'?
               controller.acceptAndPriceRoadBooking(message['message']):
               (){};
             },

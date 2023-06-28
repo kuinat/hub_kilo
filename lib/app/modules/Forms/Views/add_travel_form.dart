@@ -65,59 +65,6 @@ class AddTravelsView extends GetView<AddTravelController> {
               }
           )*/
       )
-      /*Container(
-          height: Get.height,
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-            boxShadow: [
-              BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
-            ],
-          ),
-          //decoration: Ui.getBoxDecoration(color: backgroundColor),
-          child: Column(
-            children: [
-
-              Container(
-                height: Get.height/1.5,
-                child: Obx(()=> controller.formStep.value == 0 ?
-                AnimatedSwitcher(
-                  duration: Duration(seconds: 3),
-                child: stepOne(context)) :
-                    AnimatedSwitcher(
-                      duration: Duration(seconds: 5),
-                    child: stepTwo(context))
-                ),
-              ),
-              Spacer(),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    DelayedAnimation(delay: 250,
-                        child: BlockButtonWidget(
-                          onPressed: () =>{controller.formStep.value = 0},
-                          color: inactive,
-                          text: Text(
-                            "Back".tr,
-                            style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
-                          ),
-                        ).paddingSymmetric(vertical: 10, horizontal: 20)
-                    ),
-                    DelayedAnimation(delay: 250,
-                        child: BlockButtonWidget(
-                          onPressed: () =>{controller.formStep.value++},
-                          color: Get.theme.colorScheme.secondary,
-                          text: Text(
-                            "Next".tr,
-                            style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
-                          ),
-                        ).paddingSymmetric(vertical: 10, horizontal: 20)
-                    )
-                  ]
-              )
-            ],
-          )
-      )*/
     );
   }
 
@@ -253,11 +200,11 @@ class AddTravelsView extends GetView<AddTravelController> {
                       for(var i =0; i < controller.countries.length; i++)...[
                         TextButton(
                             onPressed: (){
-                              controller.depTown.text = controller.countries[i]['display_name'];
+                              controller.depTown.text = '${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})';
                               controller.predict1.value = false;
                               controller.departureId.value = controller.countries[i]['id'];
                             },
-                            child: Text(controller.countries[i]['display_name'] + '\n', style: TextStyle(color: appColor))
+                            child: Text('${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})\n', style: TextStyle(color: appColor))
                         )
                       ]
                     ]
@@ -328,11 +275,11 @@ class AddTravelsView extends GetView<AddTravelController> {
                         for(var i =0; i < controller.countries.length; i++)...[
                           TextButton(
                               onPressed: (){
-                                controller.arrTown.text = controller.countries[i]['display_name'];
+                                controller.arrTown.text = '${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})';
                                 controller.predict2.value = false;
                                 controller.arrivalId.value = controller.countries[i]['id'];
                               },
-                              child: Text(controller.countries[i]['display_name'] + '\n', style: TextStyle(color: appColor))
+                              child: Text('${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})\n', style: TextStyle(color: appColor))
                           )
                         ]
                       ]

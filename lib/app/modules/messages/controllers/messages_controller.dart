@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,11 +29,14 @@ class MessagesController extends GetxController {
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
   final isDone = false.obs;
+  final enableSend = false.obs;
   var list = [];
   var messages = [].obs;
-  final bookingCard = {}.obs;
+  final card = {}.obs;
+  final travel = {}.obs;
   ScrollController scrollController = ScrollController();
   TextEditingController chatTextController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   var chatText = 0.0.obs;
   Timer timer;
   /*MessagesController() {
@@ -45,12 +47,12 @@ class MessagesController extends GetxController {
 
   @override
   void onInit() async {
-
     var arguments = Get.arguments as Map<String, dynamic>;
-    bookingCard.value = arguments['bookingCard'];
-
-    print("book details: $bookingCard");
-    list = await getMessages(bookingCard['id']);
+    card.value = arguments['shippingCard'];
+    var data = await getTravelInfo(card['travelbooking_id'][0]);
+    travel.value = data;
+    print("book details: $card");
+    list = await getMessages(card['travelmessage_ids']);
     messages.value = list;
     print("messages are: $messages");
     super.onInit();
@@ -65,6 +67,14 @@ class MessagesController extends GetxController {
   // stopTimer(){
   //           timer.cancel();
   // }
+
+  checkValue(String value){
+    if(value.isNotEmpty){
+      enableSend.value = true;
+    }else{
+      enableSend.value = false;
+    }
+  }
 
   Future createMessage(Message _message) async {
     _message.users.insert(0, _authService.user.value);
@@ -91,7 +101,7 @@ class MessagesController extends GetxController {
 
   sendMessage(int receiverId)async{
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) async{
-      list = await getMessages(bookingCard['id']);
+      list = await getMessages(card['travelmessage_ids']);
       messages.value = list;
       print("Reloaded");
     } );
@@ -105,16 +115,16 @@ class MessagesController extends GetxController {
     };
 
       var request = http.Request('POST', Uri.parse(
-          bookingCard['travel']['travel_type'] == 'air'
+          card['travel']['travel_type'] == 'air'
           ? '${Domain.serverPort}/air/send_message' :
-      bookingCard['travel']['travel_type'] == 'road' ?
+      card['travel']['travel_type'] == 'road' ?
       '${Domain.serverPort}/road/send_message' : ''
       ));
 
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
-        "travel_booking_id": bookingCard['id'],
+        "travel_booking_id": card['id'],
         "receiver_id": receiverId,
         "message": chatTextController.text
       }
@@ -135,20 +145,37 @@ class MessagesController extends GetxController {
 
   }
 
-  Future getMessages(int id)async{
+  Future getTravelInfo(int id)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$id'));
 
-    final box = GetStorage();
-    var session_id = box.read("session_id");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      return json.decode(data)[0];
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      isLoading.value = false;
+      print(data);
+    }
+  }
+
+  Future getMessages(List ids)async{
 
     var headers = {
-      'Cookie': 'frontend_lang=en_US; $session_id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
-    var request = http.Request('GET', Uri.parse(
-        bookingCard['travel']['travel_type'] == 'air'
-            ? '${Domain.serverPort}/air/message_history/$id' :
-        bookingCard['travel']['travel_type'] == 'road' ?
-        '${Domain.serverPort}/road/message_history/$id' : ''
-    ));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelmessage?ids=$ids'));
 
     request.headers.addAll(headers);
 
@@ -157,7 +184,7 @@ class MessagesController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       isLoading.value = false;
-      return json.decode(data)['response'];
+      return json.decode(data);
     }
     else {
     print(response.reasonPhrase);
@@ -165,7 +192,7 @@ class MessagesController extends GetxController {
   }
 
   acceptAndPriceRoadBooking(var message)async{
-    print(bookingCard['id']);
+    print(card['id']);
     final box = GetStorage();
     var session_id = box.read("session_id");
 
@@ -173,7 +200,7 @@ class MessagesController extends GetxController {
       'Content-Type': 'application/json',
       'Cookie': 'frontend_lang=en_US; $session_id'
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/road/travel/booking_price/${bookingCard['id']}'));
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/road/travel/booking_price/${card['id']}'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
@@ -189,7 +216,7 @@ class MessagesController extends GetxController {
 
       if(json.decode(data)['result'] != null){
         print(data);
-        acceptRoadBooking(bookingCard['id']);
+        acceptRoadBooking(card['id']);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }
@@ -230,7 +257,7 @@ class MessagesController extends GetxController {
   }
 
   acceptAndPriceAirBooking(var message)async{
-    print(bookingCard['id']);
+    print(card['id']);
     final box = GetStorage();
     var session_id = box.read("session_id");
 
@@ -239,7 +266,7 @@ class MessagesController extends GetxController {
       'Content-Type': 'application/json',
       'Cookie': session_id.toString()
     };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/new_price/'+bookingCard['id'].toString()));
+    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/new_price/'+card['id'].toString()));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "params": {
@@ -255,7 +282,7 @@ class MessagesController extends GetxController {
 
       if(json.decode(data)['result'] != null){
         print(data);
-        acceptAirBooking(bookingCard['id']);
+        acceptAirBooking(card['id']);
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }

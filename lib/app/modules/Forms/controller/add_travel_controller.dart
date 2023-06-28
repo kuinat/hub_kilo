@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
@@ -217,7 +218,7 @@ class AddTravelController extends GetxController{
       'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelbooking?values='
-        '{"name": "New Travel",'
+        '{"name": "New_Travel/${DateFormat("yyyy/MM/dd").format(DateTime.now())}",'
         '"booking_type": "${travelType.value}",'
         '"departure_city_id": "${departureId.value}",'
         '"arrival_city_id": "${arrivalId.value}",'

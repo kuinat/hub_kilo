@@ -46,6 +46,14 @@ class TravelCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = homePage ? MediaQuery.of(context).size.width/3.5 : MediaQuery.of(context).size.width/3.2;
+    String departureCity = depTown.split('(').first;
+    String a = depTown.split('(').last;
+    String departureCountry = a.split(')').first;
+
+    String arrivalCity = arrTown.split('(').first;
+    String b = arrTown.split('(').last;
+    String arrivalCountry = b.split(')').first;
+
     return Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -77,16 +85,29 @@ class TravelCardWidget extends StatelessWidget {
                     alignment: Alignment.topLeft,
                     //margin: EdgeInsets.only(right: 10),
                     width: width,
-                    height: 30,
-                    child: Text(depTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                    height: 40,
+                    child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                            TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                          ]
+                        ))
                   ),
                   FaIcon(FontAwesomeIcons.arrowRight),
                   Container(
                       alignment: Alignment.topCenter,
                       //margin: EdgeInsets.symmetric(horizontal: 10),
                       width: width,
-                      height: 30,
-                      child: Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                      height: 40,
+                      child: RichText(
+                          text: TextSpan(
+                              children: [
+                                TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                              ]
+                          ))
+                      //Text(arrTown, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                   ),
                 ],
               ),
@@ -182,7 +203,7 @@ class TravelCardWidget extends StatelessWidget {
                                     imageErrorBuilder:
                                         (context, error, stackTrace) {
                                       return Image.asset(
-                                          'assets/img/user.png',
+                                          "assets/img/téléchargement (1).png",
                                           width: 50,
                                           height: 50,
                                           fit: BoxFit.fitWidth);

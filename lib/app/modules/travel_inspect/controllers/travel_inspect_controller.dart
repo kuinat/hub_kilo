@@ -10,6 +10,7 @@ import '../../../models/option_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
+import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
 
@@ -41,7 +42,7 @@ class TravelInspectController extends GetxController {
   var list = [];
   var listUsers =[];
   var transferBooking = false.obs;
-  var transferAirBookingId = ''.obs;
+  var transferBookingId = ''.obs;
   var transferRoadBookingId = ''.obs;
   var imageFiles = [].obs;
   var luggageModels = [].obs;
@@ -49,6 +50,7 @@ class TravelInspectController extends GetxController {
   var luggageSelected = [].obs;
   var areBookingsLoading = false.obs;
   final errorField = false.obs;
+  var shippingLuggage =[].obs;
 
 
   var visible = true.obs;
@@ -66,7 +68,7 @@ class TravelInspectController extends GetxController {
   void onInit() async {
     transferBooking = Get.find<BookingsController>().transferBooking;
     print("transfer "+transferBooking.toString());
-    transferAirBookingId =Get.find<BookingsController>().bookingIdForTransfer;
+    transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     transferRoadBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
@@ -284,7 +286,7 @@ class TravelInspectController extends GetxController {
       print(data);
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      Navigator.pop(Get.context);
+      Get.toNamed(Routes.BOOKING);
 
     }
     else {
@@ -305,11 +307,15 @@ class TravelInspectController extends GetxController {
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
     };
+
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
         '"travelbooking_id": ${travelCard['id']},'
-        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-        '}'
+        '}&ids=${transferBookingId}'
     ));
+
+
+    //'"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
+
 
     request.headers.addAll(headers);
 
@@ -416,7 +422,6 @@ class TravelInspectController extends GetxController {
   http.StreamedResponse response = await request.send();
 
   if (response.statusCode == 200) {
-    luggageId.value = [];
     var data = await response.stream.bytesToString();
     luggageId.add(json.decode(data)[0]);
     print("added id: $luggageId");
@@ -450,6 +455,31 @@ class TravelInspectController extends GetxController {
     }
   }
 
+  sendImages(int a, var imageFil)async{
+    for(var b=0; b<luggageId.length;b++){
+      var headers = {
+        'Accept': 'application/json',
+        'Authorization': Domain.authorization,
+        'Content-Type': 'multipart/form-data',
+        'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+      };
+      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${luggageId[b]}/luggage_image$a'));
+      request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
+      else {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
+    }
+  }
+
   Future getAllLuggageModel()async{
     var headers = {
       'Accept': 'application/json',
@@ -471,6 +501,27 @@ class TravelInspectController extends GetxController {
       print(response.reasonPhrase);
     }
 
+  }
+
+  Future getLuggageInfo(var ids) async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      shippingLuggage.value = json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
   }
 
   Future getAllUsers()async{

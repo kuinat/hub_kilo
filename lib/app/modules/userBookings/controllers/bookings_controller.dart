@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import 'package:http/http.dart' as http;
@@ -29,6 +31,7 @@ class BookingsController extends GetxController {
   final address = "".obs;
   final selectUser = false.obs;
   final buttonPressed = false.obs;
+  final editPhotos = true.obs;
   var showTravelInfo = false.obs;
   var transferBooking = false.obs;
   var bookingIdForTransfer =''.obs;
@@ -38,7 +41,6 @@ class BookingsController extends GetxController {
   var shippingLuggage =[].obs;
   final luggageLoading = true.obs;
   final shippingPrice = 0.0.obs;
-  var loading = false.obs;
   var selectedIndex = 0.obs;
   var luggageIndex = 0.obs;
   var selected = false.obs;
@@ -54,7 +56,7 @@ class BookingsController extends GetxController {
   ScrollController scrollController = ScrollController();
   var list = [];
   var shippingList = [];
-  var view = false.obs;
+  var viewPressed = false.obs;
 
   UploadRepository _uploadRepository;
 
@@ -348,7 +350,6 @@ class BookingsController extends GetxController {
 
 
   transferShipping(int booking_id)async{
-    print ('Hello');
     transferBooking.value = true;
     bookingIdForTransfer.value = booking_id.toString();
     print (bookingIdForTransfer.value.toString());
@@ -358,18 +359,19 @@ class BookingsController extends GetxController {
   }
 
   cancelShipping(int shipping_id)async{
-
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"state": "rejected"}&ids=$shipping_id'));
+        '"state": "rejected",}&ids=$shipping_id'
+    ));
 
-    http.StreamedResponse response = await request.send();
+  request.headers.addAll(headers);
 
-    request.headers.addAll(headers);
+  http.StreamedResponse response = await request.send();
+
 
     if (response.statusCode == 200) {
 
@@ -388,6 +390,98 @@ class BookingsController extends GetxController {
       throw new Exception(response.reasonPhrase);
     }
   }
+
+  Future <File> pickImage(ImageSource source) async {
+
+    ImagePicker imagePicker = ImagePicker();
+
+    if(source.toString() == ImageSource.camera.toString())
+    {
+      XFile pickedFile = await imagePicker.pickImage(source: source, imageQuality: 80);
+      File imageFile = File(pickedFile.path);
+      if(imageFiles.length<3)
+      {
+        imageFiles.add(imageFile) ;
+      }
+      else
+      {
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+        throw new Exception('You can only upload 3 photos');
+      }
+    }
+    else{
+      var i =0;
+      var galleryFiles = await imagePicker.pickMultiImage();
+      while(i<galleryFiles.length){
+        File imageFile = File(galleryFiles[i].path);
+        if(imageFiles.length<3)
+        {
+          imageFiles.add(imageFile) ;
+        }
+        else
+        {
+          Get.showSnackbar(Ui.ErrorSnackBar(message: "You can only upload 3 photos!".tr));
+          throw new Exception('You can only upload 3 photos');
+        }
+        i++;
+      }
+    }
+  }
+
+  sendImages(int a, var imageFil)async{
+    for(var b=0; b<luggageId.length;b++){
+      var headers = {
+        'Accept': 'application/json',
+        'Authorization': Domain.authorization,
+        'Content-Type': 'multipart/form-data',
+        'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+      };
+      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${luggageId[b]}/luggage_image$a'));
+      request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
+      else {
+        var data = await response.stream.bytesToString();
+        print(data);
+      }
+    }
+  }
+
+  assignLuggageToShipping(var shipping)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"luggage_ids": $luggageId,'
+        '}&ids=${shipping['id']}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
+        Navigator.pop(Get.context);
+        imageFiles.clear();
+
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+    }
+  }
+
 
   @override
   void onClose() {
@@ -408,8 +502,6 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      view.value = true;
-      loading.value = false;
       shippingLuggage.value = json.decode(data);
     }
     else {
