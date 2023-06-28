@@ -348,7 +348,6 @@ class BookingsController extends GetxController {
 
 
   transferShipping(int booking_id)async{
-    print ('Hello');
     transferBooking.value = true;
     bookingIdForTransfer.value = booking_id.toString();
     print (bookingIdForTransfer.value.toString());
