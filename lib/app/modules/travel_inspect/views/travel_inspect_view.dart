@@ -141,7 +141,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               children: [
                                 ListTile(
                                   title: Text('Reference', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
-                                  trailing: Text(controller.travelCard['code'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
+                                  trailing: Text(controller.travelCard['display_name'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
                                 ),
                                 ListTile(
                                   title: Text('State:', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
@@ -166,17 +166,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         if(Get.find<MyAuthService>().myUser.value.id != controller.travelCard['partner_id'][0])
                           EServiceTilWidget(
                             title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
-                            title2: InkWell(
-                              onTap: () => Get.toNamed(Routes.CHAT, arguments: {'travelBooking': controller.travelCard, 'heroTag': 'services_carousel'}),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                                  SizedBox(width: 10),
-                                  FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                                ],
-                              ),
-                            ),
                             content: buildUserDetailsCard(context),
                             actions: [],
                           )
@@ -192,6 +181,15 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
   EServiceTitleBarWidget buildEServiceTitleBarWidget(BuildContext context) {
     double width = MediaQuery.of(context).size.width/2.8;
+
+    String departureCity = controller.travelCard['departure_city_id'][1].split('(').first;
+    String a = controller.travelCard['departure_city_id'][1].split('(').last;
+    String departureCountry = a.split(')').first;
+
+    String arrivalCity = controller.travelCard['arrival_city_id'][1].split('(').first;
+    String b = controller.travelCard['arrival_city_id'][1].split('(').last;
+    String arrivalCountry = b.split(')').first;
+
     return EServiceTitleBarWidget(
       title: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -203,13 +201,25 @@ class TravelInspectView extends GetView<TravelInspectController> {
               Container(
                 alignment: Alignment.topCenter,
                 width: width,
-                child: Text(controller.travelCard['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                child: RichText(
+                    text: TextSpan(
+                        children: [
+                          TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                          TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                        ]
+                    ))
               ),
               FaIcon(FontAwesomeIcons.arrowRight),
               Container(
                   alignment: Alignment.topCenter,
                   width: width,
-                  child: Text(controller.travelCard['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                  child: RichText(
+                      text: TextSpan(
+                          children: [
+                            TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                            TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                          ]
+                      ))
               ),
             ],
           ),
@@ -398,7 +408,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       Column(
         children: [
           InkWell(
-            onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
+            onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -471,221 +481,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
       recEmail: booking['receiver_email'].toString(),
       recPhone: booking['receiver_phone'],
     );
-    /*return Card(
-        elevation: 10,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-        ),
-        child: Container(
-          child: Column(
-            //alignment: AlignmentDirectional.topStart,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
-                  color: Colors.white,
-                ),
-                child:
-              Container(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                  ),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: 30,
-                                child: Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
-                              ),
-                              Container(
-                                margin: EdgeInsets.symmetric(horizontal: 12),
-                                width: 1,
-                                height: 24,
-                                color: Get.theme.focusColor.withOpacity(0.3),
-                              ),
-                              Expanded(child: Text("Shipped By: " +booking["partner_id"][1], style: Get.textTheme.headline1.
-                              merge(TextStyle(color: appColor, fontSize: 17)))),
-                              SizedBox(width: 40),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                alignment: Alignment.center,
-                                child: Text(booking["state"], style: Get.textTheme.headline2.merge(TextStyle(color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor : booking["state"].toLowerCase() == 'rejected' ? specialColor : Colors.black54, fontSize: 12))),
-                                decoration: BoxDecoration(
-                                    color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.3) : booking["state"].toLowerCase() == 'rejected' ? specialColor.withOpacity(0.3)  : inactive.withOpacity(0.3),
-                                    border: Border.all(
-                                      color: booking["state"].toLowerCase() == 'accepted' ? interfaceColor.withOpacity(0.2) : booking["state"].toLowerCase() == 'rejected' ? specialColor.withOpacity(0.3) : inactive.withOpacity(0.2),
-                                    ),
-                                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                              )
-                            ]
-                        ),
-                        SizedBox(height: 10),
-                        Column(
-                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 30,
-                                    child: Icon( Icons.attach_money_outlined, size: 25),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 12),
-                                    width: 1,
-                                    height: 24,
-                                    color: Get.theme.focusColor.withOpacity(0.3),
-                                  ),
-
-                                //controller.travelCard['booking_type'].toLowerCase() == 'road'?
-                                  Text("Shipping price:  "+ booking["shipping_price"].toString() + ' ' +controller.travelCard['local_currency_id'][1],
-                                      style: Get.textTheme.headline6.
-                                      merge(TextStyle(color: specialColor, fontSize: 16)))
-                                      // :SizedBox()
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width:30,
-                                      child: Icon(FontAwesomeIcons.shoppingBag, size: 18)),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 12),
-                                    width: 1,
-                                    height: 24,
-                                    color: Get.theme.focusColor.withOpacity(0.3),
-                                  ),
-
-                                 // controller.travelCard['booking_type']=='road'?
-                                  Text("Kilo Booked: "+ booking["total_weight"].toString()+ " Kg",
-                                      style: Get.textTheme.headline1.
-                                      merge(TextStyle(color: appColor, fontSize: 16)))
-                                      //: SizedBox()
-
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        ExpansionTile(
-                          leading: Icon(FontAwesomeIcons.userCheck, size: 20),
-                          title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
-                          merge(TextStyle(color: appColor, fontSize: 17))),
-                          children: [
-                            AccountWidget(
-                              icon: FontAwesomeIcons.person,
-                              text: Text('Full Name'),
-                              value: booking['receiver_partner_id'][1],
-                            ),
-                            AccountWidget(
-                              icon: Icons.alternate_email,
-                              text: Text('Email'),
-                              value: booking['receiver_email'].toString(),
-                            ),
-                            AccountWidget(
-                              icon: FontAwesomeIcons.addressCard,
-                              text: Text('Address'),
-                              value: booking['receiver_address'],
-                            ),
-                            AccountWidget(
-                              icon: FontAwesomeIcons.phone,
-                              text: Text('Phone'),
-                              value: booking['receiver_phone'],
-                            ),
-                          ],
-                          initiallyExpanded: false,
-                        ),
-                        booking["state"].toLowerCase() == 'pending'?
-                            Column(
-                              children: [
-                              InkWell(
-                                onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                                    SizedBox(width: 10),
-                                    FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                                  ],
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                      onTap: (){
-                                        showDialog(
-                                            context: context,
-                                            builder: (_)=>
-                                                PopUpWidget(
-                                                  title: "Are you sure to accept this shipping? your choice can't be changed later",
-                                                  cancel: 'Cancel',
-                                                  confirm: 'Ok',
-                                                  onTap: () async =>{
-                                                    controller.acceptShipping(booking['id']),
-
-                                                  }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                                )
-                                        );
-
-                                      },
-                                      child: Card(
-                                          elevation: 10,
-                                          color: inactive,
-                                          margin: EdgeInsets.symmetric( vertical: 15),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                            child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
-                                      )
-                                  ),
-                                  SizedBox(width: 20,),
-                                  GestureDetector(
-                                      onTap: (){
-                                        showDialog(
-                                            context: context,
-                                            builder: (_)=>
-                                                PopUpWidget(
-                                                  title: "Are you sure to reject this shipping? your choice can't be changed later",
-                                                  cancel: 'Cancel',
-                                                  confirm: 'Ok',
-                                                  onTap: () async =>{
-                                                    await controller.rejectShipping(booking['id']),
-
-                                                  }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                                )
-                                        );
-                                      },
-                                      child: Card(
-                                          elevation: 10,
-                                          color: specialColor,
-                                          margin: EdgeInsets.symmetric( vertical: 15),
-                                          child: Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                              child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
-                                      )
-                                  ),
-                                ],
-                              )
-                            ],)
-
-                            :SizedBox()
-                      ])),
-            )],
-          ),
-        )
-    );*/
   }
 
   Container buildCarouselBullets(BuildContext context) {
@@ -695,7 +490,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       child: Container(
           alignment: Alignment.center,
           width: width,
-          height: 80,
+          height: 100,
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.7),
@@ -708,8 +503,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 children: [
                   FaIcon(FontAwesomeIcons.planeDeparture),
                   SizedBox(height: 10),
-                  Text(controller.travelCard['departure_date'].toString(),
-                      style: TextStyle(fontSize: 20, color: appColor)),
+                  RichText(
+                      text: TextSpan(
+                          children: [
+                            TextSpan(text: controller.travelCard['departure_date'].split(" ").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                            TextSpan(text: "\n${controller.travelCard['departure_date'].split(" ").last}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                          ]
+                      ))
                 ],
               ),
               Spacer(),
@@ -717,8 +517,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 children: [
                   FaIcon(FontAwesomeIcons.planeArrival),
                   SizedBox(height: 10),
-                  Text(controller.travelCard['arrival_date'].toString(),
-                      style: TextStyle(fontSize: 20, color: appColor))
+                  RichText(
+                      text: TextSpan(
+                          children: [
+                            TextSpan(text: controller.travelCard['arrival_date'].split(" ").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
+                            TextSpan(text: "\n${controller.travelCard['arrival_date'].split(" ").last}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                          ]
+                      ))
                 ],
               )
             ],

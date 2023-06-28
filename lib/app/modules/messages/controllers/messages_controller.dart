@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,11 +29,14 @@ class MessagesController extends GetxController {
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
   final isDone = false.obs;
+  final enableSend = false.obs;
   var list = [];
   var messages = [].obs;
   final card = {}.obs;
+  final travel = {}.obs;
   ScrollController scrollController = ScrollController();
   TextEditingController chatTextController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   var chatText = 0.0.obs;
   Timer timer;
   /*MessagesController() {
@@ -45,10 +47,10 @@ class MessagesController extends GetxController {
 
   @override
   void onInit() async {
-
     var arguments = Get.arguments as Map<String, dynamic>;
-    card.value = arguments['travelBooking'];
-
+    card.value = arguments['shippingCard'];
+    var data = await getTravelInfo(card['travelbooking_id'][0]);
+    travel.value = data;
     print("book details: $card");
     list = await getMessages(card['travelmessage_ids']);
     messages.value = list;
@@ -65,6 +67,14 @@ class MessagesController extends GetxController {
   // stopTimer(){
   //           timer.cancel();
   // }
+
+  checkValue(String value){
+    if(value.isNotEmpty){
+      enableSend.value = true;
+    }else{
+      enableSend.value = false;
+    }
+  }
 
   Future createMessage(Message _message) async {
     _message.users.insert(0, _authService.user.value);
@@ -133,6 +143,29 @@ class MessagesController extends GetxController {
       print(response.reasonPhrase);
     }
 
+  }
+
+  Future getTravelInfo(int id)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      return json.decode(data)[0];
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      isLoading.value = false;
+      print(data);
+    }
   }
 
   Future getMessages(List ids)async{
