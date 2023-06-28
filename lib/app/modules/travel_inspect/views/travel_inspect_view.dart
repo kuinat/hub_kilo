@@ -166,17 +166,6 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         if(Get.find<MyAuthService>().myUser.value.id != controller.travelCard['partner_id'][0])
                           EServiceTilWidget(
                             title: Text("About Traveler".tr, style: Get.textTheme.subtitle2),
-                            title2: InkWell(
-                              onTap: () => Get.toNamed(Routes.CHAT, arguments: {'travelBooking': controller.travelCard, 'heroTag': 'services_carousel'}),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                                  SizedBox(width: 10),
-                                  FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                                ],
-                              ),
-                            ),
                             content: buildUserDetailsCard(context),
                             actions: [],
                           )
@@ -398,7 +387,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       Column(
         children: [
           InkWell(
-            onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'bookingCard': booking}) },
+            onTap: ()=>{ Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

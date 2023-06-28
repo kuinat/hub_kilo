@@ -39,9 +39,9 @@ class ChatsView extends GetView<MessagesController> {
               primary: true,
               itemBuilder: (context, index) {
                 List receivedMessages = [];
-                if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
+                /*if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
                   receivedMessages.add(controller.messages[index]);
-                }
+                }*/
                 Future.delayed(Duration.zero, (){
                   controller.messages.sort((a, b) => b["date"].compareTo(a["date"]));
                 });
@@ -150,13 +150,13 @@ class ChatsView extends GetView<MessagesController> {
                         Container(
                           alignment: Alignment.topCenter,
                           width: 100,
-                          child: Text(controller.card['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                          child: Text(controller.travel['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
                         ),
                         FaIcon(FontAwesomeIcons.arrowRight),
                         Container(
                             alignment: Alignment.topCenter,
                             width: 100,
-                            child: Text(controller.card['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                            child: Text(controller.travel['arrival_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
                         ),
                       ],
                     ),
@@ -173,43 +173,71 @@ class ChatsView extends GetView<MessagesController> {
               ),
               child: Row(
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width /1.6,
                     child: TextField(
                       controller: controller.chatTextController,
                       style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
-                      keyboardType: TextInputType.number,
+                      //keyboardType: TextInputType.number,
+                      maxLines: 7,
+                      minLines: 1,
+                      onChanged: (value)=> controller.checkValue(value),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.all(20),
-                        hintText: "Enter your proposition".tr,
+                        hintText: "Add a message".tr,
                         hintStyle: TextStyle(color: Get.theme.focusColor.withOpacity(0.8)),
-                        suffixIcon: IconButton(
-                          padding: EdgeInsetsDirectional.only(end: 20, start: 10),
-                          onPressed: () {
-                            //controller.messages.add(controller.chatTextController.text);
-                            /*if(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id']){
-                              controller.sendMessage( controller.card['travel']['traveler']['user_id'] );
-                            }
-                            if(Get.find<MyAuthService>().myUser.value.id == controller.card['travel']['traveler']['user_id']){
-                              controller.sendMessage( controller.card['sender']['sender_id'] );
-                            }*/
-
-                            //controller.addMessage(controller.message.value, controller.chatTextController.text);
-                            Timer(Duration(milliseconds: 100), () {
-                              controller.chatTextController.clear();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.send_outlined,
-                            color: Get.theme.colorScheme.secondary,
-                            size: 30,
-                          ),
-                        ),
                         border: UnderlineInputBorder(borderSide: BorderSide.none),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
                         focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
                       ),
                     ),
                   ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color: Get.theme.focusColor.withOpacity(0.3),
+                  ),
+                  Obx(() => SizedBox(
+                      width: 140,
+                      child: TextField(
+                        controller: controller.priceController,
+                        style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value)=> controller.checkValue(value),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(20),
+                          hintText: "Price".tr,
+                          hintStyle: TextStyle(color: Get.theme.focusColor.withOpacity(0.8)),
+                          suffixIcon: IconButton(
+                            padding: EdgeInsetsDirectional.only(end: 20, start: 10),
+                            onPressed: () {
+                              if(controller.enableSend.value){
+                                controller.messages.add("${controller.chatTextController.text}, ${controller.priceController.text}");
+                                /*if(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id']){
+                                    controller.sendMessage( controller.card['travel']['traveler']['user_id'] );
+                                  }
+                                  if(Get.find<MyAuthService>().myUser.value.id == controller.card['travel']['traveler']['user_id']){
+                                    controller.sendMessage( controller.card['sender']['sender_id'] );
+                                  }*/
+                              }
+
+                              //controller.addMessage(controller.message.value, controller.chatTextController.text);
+                              Timer(Duration(milliseconds: 100), () {
+                                controller.chatTextController.clear();
+                                controller.priceController.clear();
+                              });
+                            },
+                            icon: Icon(
+                              Icons.send_outlined,
+                              color: controller.enableSend.value ? Get.theme.colorScheme.secondary : inactive,
+                              size: 30,
+                            ),
+                          ),
+                          border: UnderlineInputBorder(borderSide: BorderSide.none),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide.none),
+                        ),
+                      )))
                 ],
               ),
             )

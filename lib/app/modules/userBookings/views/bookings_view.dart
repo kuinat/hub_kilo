@@ -293,7 +293,7 @@ class BookingsView extends GetView<BookingsController> {
                         child: InkWell(
                           onTap: ()=>{
                             //print(controller.items[index]),
-                            Get.toNamed(Routes.CHAT, arguments: {'bookingCard': controller.items[index]})
+                            Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]})
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
