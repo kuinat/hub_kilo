@@ -42,7 +42,7 @@ class TravelInspectController extends GetxController {
   var list = [];
   var listUsers =[];
   var transferBooking = false.obs;
-  var transferAirBookingId = ''.obs;
+  var transferBookingId = ''.obs;
   var transferRoadBookingId = ''.obs;
   var imageFiles = [].obs;
   var luggageModels = [].obs;
@@ -68,7 +68,7 @@ class TravelInspectController extends GetxController {
   void onInit() async {
     transferBooking = Get.find<BookingsController>().transferBooking;
     print("transfer "+transferBooking.toString());
-    transferAirBookingId =Get.find<BookingsController>().bookingIdForTransfer;
+    transferBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     transferRoadBookingId =Get.find<BookingsController>().bookingIdForTransfer;
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
@@ -307,11 +307,14 @@ class TravelInspectController extends GetxController {
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
     };
+
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
         '"travelbooking_id": ${travelCard['id']},'
-        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-        '}'
+        '}&ids=${transferBookingId}'
     ));
+
+
+    //'"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
 
 
     request.headers.addAll(headers);
