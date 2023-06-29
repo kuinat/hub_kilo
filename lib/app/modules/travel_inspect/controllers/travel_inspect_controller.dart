@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../../root/controllers/root_controller.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
 
 class TravelInspectController extends GetxController {
@@ -286,7 +287,7 @@ class TravelInspectController extends GetxController {
       print(data);
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      Get.toNamed(Routes.BOOKING);
+      await Get.find<RootController>().changePage(1);
 
     }
     else {

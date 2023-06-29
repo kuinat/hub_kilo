@@ -78,13 +78,7 @@ class ChatsView extends GetView<MessagesController> {
       controller.listenForChats();
     }*/
 
-    String departureCity = controller.travel['departure_city_id'][1].split('(').first;
-    String a = controller.travel['departure_city_id'][1].split('(').last;
-    String departureCountry = a.split(')').first;
 
-    String arrivalCity = controller.travel['arrival_city_id'][1].split('(').first;
-    String b = controller.travel['arrival_city_id'][1].split('(').last;
-    String arrivalCountry = b.split(')').first;
 
     return Scaffold(
       appBar: AppBar(
@@ -162,8 +156,8 @@ class ChatsView extends GetView<MessagesController> {
                           child: RichText(
                               text: TextSpan(
                                   children: [
-                                    TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                    TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                    TextSpan(text: controller.departureTown.value, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                    TextSpan(text: "\n${controller.departureCountry.value}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
                                   ]
                               ))
                         ),
@@ -174,10 +168,11 @@ class ChatsView extends GetView<MessagesController> {
                             child: RichText(
                                 text: TextSpan(
                                     children: [
-                                      TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                      TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                      TextSpan(text: controller.arrivalTown.value, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                      TextSpan(text: "\n${controller.arrivalCountry.value}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
                                     ]
-                                ))
+                                )
+                            )
                         ),
                       ],
                     ),

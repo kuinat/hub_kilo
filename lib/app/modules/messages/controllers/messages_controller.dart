@@ -34,6 +34,10 @@ class MessagesController extends GetxController {
   var messages = [].obs;
   final card = {}.obs;
   final travel = {}.obs;
+  final departureTown = "".obs;
+  final departureCountry = "".obs;
+  final arrivalTown = "".obs;
+  final arrivalCountry = "".obs;
   ScrollController scrollController = ScrollController();
   TextEditingController chatTextController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -51,6 +55,18 @@ class MessagesController extends GetxController {
     card.value = arguments['shippingCard'];
     var data = await getTravelInfo(card['travelbooking_id'][0]);
     travel.value = data;
+    if(travel != null){
+      String departureCity = travel['departure_city_id'][1].split('(').first;
+      String a = travel['departure_city_id'][1].split('(').last;
+      String country1 = a.split(')').first;
+      departureTown.value = departureCity;
+      departureCountry.value = country1;
+      String arrivalCity = travel['arrival_city_id'][1].split('(').first;
+      String b = travel['arrival_city_id'][1].split('(').last;
+      String country2 = b.split(')').first;
+      arrivalTown.value = departureCity;
+      arrivalCountry.value = country2;
+    }
     print("book details: $card");
     list = await getMessages(card['travelmessage_ids']);
     messages.value = list;

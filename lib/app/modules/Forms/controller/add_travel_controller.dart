@@ -23,8 +23,8 @@ class AddTravelController extends GetxController{
 
   var avatar = new Media().obs;
   final isDone = false.obs;
-  var departureDate = DateTime.now().add(Duration(days: 2)).toString().obs;
-  var arrivalDate = DateTime.now().add(Duration(days: 3)).toString().obs;
+  var departureDate = DateTime.now().add(Duration(days: 2)).toString().toString().split(".").first.obs;
+  var arrivalDate = DateTime.now().add(Duration(days: 3)).toString().toString().split(".").first.toString().obs;
   var departureId = 0.obs;
   var arrivalId = 0.obs;
   var restriction = ''.obs;
@@ -36,6 +36,7 @@ class AddTravelController extends GetxController{
   var townEdit = false.obs;
   var town2Edit = false.obs;
   var travelType = "".obs;
+  var errorCity1 = false.obs;
   File passport;
   var countries = [].obs;
   var list = [];
@@ -163,9 +164,17 @@ class AddTravelController extends GetxController{
       borderRadius: 16,
       selectableDayPredicate: disableDate
     );
-    if (pickedDate != null && pickedDate != departureDate.value) {
+    String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
+    if (formattedDate.isNotEmpty) {
       departureDate.value = pickedDate.toString();
+      TimeOfDay selectedTime = await showTimePicker(
+        context: Get.context,
+        initialTime: TimeOfDay.now(),
+      );
+      departureDate.value = "$formattedDate ${selectedTime.hour.toString().padLeft(2, "0")}:${selectedTime.minute.toString().padLeft(2, "0")}:00";
+
     }
+    print(departureDate.value);
   }
 
   chooseArrivalDate() async {
@@ -184,8 +193,15 @@ class AddTravelController extends GetxController{
       borderRadius: 16,
       selectableDayPredicate: disableDate
     );
-    if (pickedDate != null && pickedDate != arrivalDate.value) {
+    String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
+    if (formattedDate.isNotEmpty) {
       arrivalDate.value = pickedDate.toString();
+      TimeOfDay selectedTime = await showTimePicker(
+        context: Get.context,
+        initialTime: TimeOfDay.now(),
+      );
+      arrivalDate.value = "$formattedDate ${selectedTime.hour.toString().padLeft(2, "0")}:${selectedTime.minute.toString().padLeft(2, "0")}:00";
+      print(arrivalDate.value);
     }
   }
 
@@ -238,7 +254,7 @@ class AddTravelController extends GetxController{
 
       buttonPressed.value = false;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-      await Get.toNamed(Routes.MY_TRAVELS);
+      await Get.find<RootController>().changePage(2);
 
     }
     else {
@@ -251,16 +267,14 @@ class AddTravelController extends GetxController{
   }
 
   updateRoadTravel()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=7884fbe019046ffc1379f17c73f57a9e344a6d8a'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.travelbooking?values={'
-        '"name": "Travel update",'
+        '"name": "Update_Travel/${DateFormat("yyyy/MM/dd").format(DateTime.now())}",'
         '"booking_type": "${travelType.value}",'
         '"departure_city_id": "${departureId.value}",'
         '"arrival_city_id": "${arrivalId.value}",'
@@ -285,7 +299,7 @@ class AddTravelController extends GetxController{
       var data = await response.stream.bytesToString();
       print(data);
       buttonPressed.value = false;
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
       throw new Exception(response.reasonPhrase);
     }
   }

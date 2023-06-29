@@ -94,7 +94,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                       crossAxisCount: 1,
                                       crossAxisSpacing: 10.0,
                                       mainAxisSpacing: 10.0,
-                                      mainAxisExtent: 210.0,
+                                      mainAxisExtent: 220.0,
                                     ),
                                     shrinkWrap: true,
                                     primary: false,
