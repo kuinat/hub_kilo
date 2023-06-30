@@ -6,15 +6,18 @@ import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
+import '../../../models/my_user_model.dart';
 import '../../../models/option_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
+import '../../../repositories/user_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
 
 class TravelInspectController extends GetxController {
+  final Rx<MyUser> currentUser = Get.find<MyAuthService>().myUser;
   final currentSlide = 0.obs;
   final quantity = 1.00.obs;
   final travelCard = {}.obs;
@@ -40,7 +43,7 @@ class TravelInspectController extends GetxController {
   var users =[].obs;
   var travelBookings = [].obs;
   var list = [];
-  var listUsers =[];
+  var listBeneficiaries =[];
   var transferBooking = false.obs;
   var transferBookingId = ''.obs;
   var transferRoadBookingId = ''.obs;
@@ -54,6 +57,7 @@ class TravelInspectController extends GetxController {
 
 
   var visible = true.obs;
+  UserRepository _userRepository;
 
   UploadRepository _uploadRepository;
   TravelInspectController() {
@@ -61,6 +65,8 @@ class TravelInspectController extends GetxController {
     Get.lazyPut<BookingsController>(
           () => BookingsController(),
     );
+    _userRepository = UserRepository();
+    Get.put(currentUser);
 
   }
 
@@ -84,10 +90,12 @@ class TravelInspectController extends GetxController {
 
      list = await getThisTravelShipping(travelCard['shipping_ids']);
      if(Get.find<MyAuthService>().myUser.value.id != travelCard['partner_id'][0]){
-       listUsers = await getAllUsers();
+       print(currentUser.value.id);
+       listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
+       //listBeneficiaries = await getAllUsers();
        List models = await getAllLuggageModel();
        luggageModels.value = models;
-      users.value = listUsers;
+      users.value = listBeneficiaries;
      }
     travelBookings.value = list;
     areBookingsLoading.value = false;
@@ -103,7 +111,7 @@ class TravelInspectController extends GetxController {
 
   void filterSearchResults(String query) {
     List dummySearchList = [];
-    dummySearchList = listUsers;
+    dummySearchList = listBeneficiaries;
     if(query.isNotEmpty) {
       List dummyListData = [];
       dummyListData = dummySearchList.where((element) => element['display_name']
@@ -111,7 +119,7 @@ class TravelInspectController extends GetxController {
       users.value = dummyListData;
       return;
     } else {
-      users.value = listUsers;
+      users.value = listBeneficiaries;
     }
   }
 
@@ -267,13 +275,152 @@ class TravelInspectController extends GetxController {
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
     };
-    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
-        '"travelbooking_id": ${travelCard['id']},'
-        '"receiver_partner_id": ${quantity.value},'
-        '"shipping_price": 0.0,'
-        '"luggage_ids": $luggageId,'
-        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-        '}'
+    if(!selectUser.value) {
+      var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
+          '"travelbooking_id": ${travelCard['id']},'
+          '"receiver_partner_id": ${quantity.value},'
+          '"shipping_price": 0.0,'
+          '"luggage_ids": $luggageId,'
+          '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
+          '}'
+      ));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        var data = await response.stream.bytesToString();
+        print(data);
+        buttonPressed.value = false;
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
+        Get.toNamed(Routes.BOOKING);
+
+      }
+      else {
+        var data = await response.stream.bytesToString();
+        print(data);
+        buttonPressed.value = false;
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      }
+    }
+    else{
+      print('Helllllllllllllllllllllllllllllllllllllllllllo');
+      var receiver_partner_id = await createBeneficiary(name.value, email.value, phone.value);
+      print('Helllllllllllllllllllllllllllllllllllllllllllo: '+receiver_partner_id.toString());
+      var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
+          '"travelbooking_id": ${travelCard['id']},'
+          '"receiver_partner_id": $receiver_partner_id,'
+          '"shipping_price": 0.0,'
+          '"luggage_ids": $luggageId,'
+          '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
+          '}'
+      ));
+
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+
+        var data = await response.stream.bytesToString();
+        print(data);
+        buttonPressed.value = false;
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
+        Get.toNamed(Routes.BOOKING);
+
+      }
+      else {
+        var data = await response.stream.bytesToString();
+        print(data);
+        buttonPressed.value = false;
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      }
+
+
+    }
+
+  }
+
+   createBeneficiary(String name, String email, String phone ) async {
+
+    print(name);
+    print(email);
+    print(phone);
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+    var request = http.Request('POST',Uri.parse('${Domain.serverPort}/create/res.users?values={ '
+        '"name": "$name",'
+        '"login": "$email",'
+        '"email": "$email",'
+        '"phone": "$phone",'
+        '"sel_groups_1_9_10": 10}'
+
+    ));
+
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200)  {
+      print('Hollolalallalllallallllalla');
+      var result = await response.stream.bytesToString();
+      print(result);
+      var data = json.decode(result);
+      var portalId = await updateBeneficiaryToPortalUser(data[0]);
+      var partnerId = await getCreatedBeneficiary(portalId[0]);
+      //await updateBeneficiaryPartnerEmail(partnerId, email);
+      return partnerId;
+    }
+    else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured, Please try again"));
+    }
+
+  }
+
+  // updateBeneficiaryPartnerEmail(int id, String email) async {
+  //   var headers = {
+  //     'Accept': 'application/json',
+  //     'Authorization': Domain.authorization,
+  //     'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+  //   };
+  //
+  //   var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
+  //       '"email": "$email"}'
+  //   ));
+  //
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //   if (response.statusCode == 200) {
+  //     print(await response.stream.bytesToString());
+  //
+  //
+  //   }
+  //   else {
+  //     print(response.reasonPhrase);
+  //   }
+  //
+  // }
+
+
+  updateBeneficiaryToPortalUser(int id) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
+        '"sel_groups_1_9_10": 9}'
     ));
 
     request.headers.addAll(headers);
@@ -281,21 +428,47 @@ class TravelInspectController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-
       var data = await response.stream.bytesToString();
-      print(data);
-      buttonPressed.value = false;
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      Get.toNamed(Routes.BOOKING);
+      print('Updated to portal user');
+      return json.decode(data);
+
 
     }
     else {
-      var data = await response.stream.bytesToString();
-      print(data);
-      buttonPressed.value = false;
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+    }
+
+  }
+
+  getCreatedBeneficiary(int id) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/res.users?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result);
+      var id = data[0]['partner_id'][0];
+      print('The id of the created beneficiary is: '+id.toString());
+      return id;
+
+    } else {
+      print(response.reasonPhrase);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
     }
   }
+
+
+
 
   transferTravelShipping()async{
 
@@ -523,6 +696,60 @@ class TravelInspectController extends GetxController {
       print(response.reasonPhrase);
     }
   }
+
+  Future getAllBeneficiaries(int id)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+        var result = json.decode(data);
+        var list= result[0]['receiver_partner_ids'];
+        var listUser = await getUsersInAddressBook(list);
+        print('Partner list'+listUser.toString());
+        return listUser==null?[]:listUser;
+
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+
+  getUsersInAddressBook(List list)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=fb684dfb6b5282f2f26a5696dae345076e431019'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/res.partner?ids=$list'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      var result = json.decode(data);
+      return result;
+    }
+    else {
+    print(response.reasonPhrase);
+    }
+
+  }
+
 
   Future getAllUsers()async{
     final box = GetStorage();

@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../common/ui.dart';
+import '../../../../main.dart';
 import '../../../models/my_user_model.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../routes/app_routes.dart';
@@ -122,6 +124,7 @@ class AuthController extends GetxController {
               loading.value = false;
             }
             if(id != null){
+              await updatePartnerGender(id, currentUser.value.sex);
               Get.find<MyAuthService>().myUser.value = await _userRepository.get(id);
               if(Get.find<MyAuthService>().myUser.value.id != null){
                 loading.value = false;
@@ -141,6 +144,36 @@ class AuthController extends GetxController {
 
 
     }
+  }
+
+  updatePartnerGender(int id, String gender) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=$id}&values={'
+        '"gender": "$gender"}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+
+
+
+    if (response.statusCode == 200) {
+      print('Helllllllllllllllllllllllllllllllllllllo');
+      print(await response.stream.bytesToString());
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 
 

@@ -187,7 +187,7 @@ class AccountView extends GetView<AccountController> {
                       icon: Icon(Icons.chat_outlined, color: Get.theme.colorScheme.secondary),
                       text: Text("Import Identity files".tr),
                       onTap: (e) {
-                        Get.find<RootController>().changePage(2);
+                        Get.toNamed(Routes.IDENTITY_FILES);
                       },
                     ),
                     AccountLinkWidget(

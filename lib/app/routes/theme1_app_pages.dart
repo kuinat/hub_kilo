@@ -27,6 +27,8 @@ import '../modules/gallery/views/gallery_view.dart';
 import '../modules/help_privacy/bindings/help_privacy_binding.dart';
 import '../modules/help_privacy/views/help_view.dart';
 import '../modules/help_privacy/views/privacy_view.dart';
+import '../modules/identity_files/Views/import_identity_files_form.dart';
+import '../modules/identity_files/binding/import_identity_files_binding.dart';
 import '../modules/messages/binding/message_binding.dart';
 import '../modules/messages/views/chats_view.dart';
 import '../modules/notifications/bindings/notifications_binding.dart';
@@ -64,6 +66,7 @@ class Theme1AppPages {
     GetPage(name: Routes.SETTINGS_ADDRESSES, page: () => AddressesView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_THEME_MODE, page: () => ThemeModeView(), binding: SettingsBinding()),
     GetPage(name: Routes.ADD_TRAVEL_FORM, page: () => AddTravelsView(), binding: AddTravelBinding()),
+    GetPage(name: Routes.IDENTITY_FILES, page: () => ImportIdentityFilesView(), binding: ImportIdentityFilesBinding()),
     GetPage(name: Routes.SETTINGS_LANGUAGE, page: () => LanguageView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_ADDRESS_PICKER, page: () => AddressPickerView()),
     GetPage(name: Routes.AVAILABLE_TRAVELS, page: ()=> AvailableTravelsView(), binding: AvailableTravelBinding()),

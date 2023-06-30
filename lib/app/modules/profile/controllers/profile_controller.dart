@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../common/ui.dart';
@@ -37,6 +38,24 @@ class ProfileController extends GetxController {
     "MALE".tr,
     "FEMALE".tr
   ].obs;
+
+  var departureId = 0.obs;
+  var arrivalId = 0.obs;
+
+
+  var predict1 = false.obs;
+  var predict2 = false.obs;
+  //File passport;
+  var countries = [].obs;
+  var list = [];
+
+  ScrollController scrollController = ScrollController();
+  final formStep = 0.obs;
+  TextEditingController depTown = TextEditingController();
+  TextEditingController arrTown = TextEditingController();
+
+
+
   GlobalKey<FormState> profileForm;
   UserRepository _userRepository;
 
@@ -46,6 +65,15 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
+    final box = GetStorage();
+    list = box.read("allCountries");
+    countries.value = list;
+
+    print('List is sssssss:   '+countries.value.toString());
+    profileForm = new GlobalKey<FormState>();
+
+
+
     user.value = Get.find<MyAuthService>().myUser.value;
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
@@ -107,6 +135,24 @@ class ProfileController extends GetxController {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "There are errors in some fields please correct them!".tr));
     }
   }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = list;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['display_name']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
+      countries.value = dummyListData;
+      for(var i in countries){
+        print(i['display_name']);
+      }
+      return;
+    } else {
+      countries.value = list;
+    }
+  }
+
 
   chooseBirthDate() async {
     DateTime pickedDate = await showRoundedDatePicker(

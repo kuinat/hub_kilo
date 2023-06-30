@@ -807,9 +807,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
 
-                        for(var a=1; a<4; a++){
-                          await controller.sendImages(a, controller.imageFiles[a-1]);
-                        }
+                        // for(var a=1; a<4; a++){
+                        //   await controller.sendImages(a, controller.imageFiles[a-1]);
+                        // }
                         controller.buttonPressed.value = !controller.buttonPressed.value;
                         controller.shipNow();
 
@@ -1112,7 +1112,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 onChanged: (bool value){
                   controller.selectUser.value = value;
                 },
-                title: Text("Receiver not in the system ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
+                title: Text("Look into your address book ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
             ),
             controller.selectUser.value ?
             Column(
@@ -1182,7 +1182,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
                 child: ListView.separated(
                     //physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: controller.users.length,
+                    itemCount: controller.users==null?1:controller.users.length,
                     separatorBuilder: (context, index) {
                       return SizedBox(height: 5);
                     },
@@ -1206,7 +1206,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
 
                           ),
                           child: UserWidget(
-                            user: controller.users[index]['display_name'],
+                            user: controller.users[index]['name'],
                             selected: false,
                             imageUrl: '${Domain.serverPort}/image/res.partner/${controller.users[index]['id']}/image_1920?unique=true&file_response=true',
                           ),
@@ -1214,7 +1214,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       );
                     })
             ) : Container(
-                child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
+                child: Text('No receiver in your address book', style: TextStyle(color: inactive, fontSize: 18))
                     .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
           ],
         ),
