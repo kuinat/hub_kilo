@@ -79,13 +79,6 @@ class ProfileController extends GetxController {
     user.value?.birthday = user.value.birthday;
     //user.value.phone = user.value.phone;
     birthDate.value = user.value.birthday;
-    // user.value.image.toString()=='null'?
-    // url.value= null:
-    // url.value = Domain.serverPort+"/web/image/res.partner/"+user.value.id.toString()+"/image_1920";
-
-    //print("url: "+url.value);
-    //user.value = Get.find<AuthService>().user.value;
-    //avatar.value = new Media(thumb: user.value.avatar.thumb);
     super.onInit();
   }
 
@@ -101,25 +94,6 @@ class ProfileController extends GetxController {
     if (profileForm.currentState.validate()) {
       //try {
       profileForm.currentState.save();
-      /*user.value.deviceToken = null;
-        user.value.password = newPassword.value == confirmPassword.value ? newPassword.value : null;
-        user.value.avatar = avatar.value;*/
-      // if (Get.find<SettingsService>().setting.value.enableOtp) {
-      //   await _userRepository.sendCodeToPhone();
-      //   Get.bottomSheet(
-      //     PhoneVerificationBottomSheetWidget(),
-      //     isScrollControlled: false,
-      //   );
-      // }
-      //else {
-      print(user.value.name);
-      print(user.value.email);
-      print(user.value.birthplace);
-      print(user.value.street);
-      print(user.value.birthday);
-      print(user.value.sex);
-      print(user.value.isTraveller);
-      print(user.value.phone);
 
        await _userRepository.update(user.value);
       user.value = await _userRepository.get(user.value.id);
@@ -184,33 +158,6 @@ class ProfileController extends GetxController {
     }
     return true;
   }
-
-
-  // imagePicker() async {
-  //   FilePickerResult? result = await FilePicker.platform.pickFiles();
-  //
-  //   if (result != null) {
-  //     setState(() {
-  //       image = File(result.files.single.path.toString());
-  //       uploadImage(partnerId);
-  //     });
-  //   } else {
-  //     print("No file selected");
-  //   }
-  // }
-
-
-  // Future<void> verifyPhone() async {
-  //   try {
-  //     await _userRepository.verifyPhone(smsSent.value);
-  //     /*user.value = await _userRepository.update(user.value);
-  //     Get.find<AuthService>().user.value = user.value;*/
-  //     Get.back();
-  //     Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
-  //   } catch (e) {
-  //     Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-  //   }
-  // }
 
   void resetProfileForm() {
     //avatar.value = new Media(thumb: user.value.avatar.thumb);

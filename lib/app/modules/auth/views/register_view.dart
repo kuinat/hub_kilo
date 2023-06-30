@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/helper.dart';
@@ -129,69 +130,6 @@ class RegisterView extends GetView<AuthController> {
                           iconData: Icons.alternate_email,
                         ),
 
-                        // InkWell(
-                        //     onTap: (){
-                        //       controller.chooseBirthDate();
-                        //       controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value);
-                        //       print( controller.currentUser?.value?.birthday.toString());
-                        //       controller.birthDateSet.value = true;
-                        //
-                        //     },
-                        //     child: Container(
-                        //       padding: EdgeInsets.all(20),
-                        //       margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-                        //       decoration: BoxDecoration(
-                        //           color: Get.theme.primaryColor,
-                        //           borderRadius: BorderRadius.all(Radius.circular(10)),
-                        //           boxShadow: [
-                        //             BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                        //           ],
-                        //           border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                        //       child: Column(
-                        //         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        //         children: [
-                        //           Text("Birth Date".tr,
-                        //             style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
-                        //             textAlign: TextAlign.start,
-                        //           ),
-                        //           SizedBox(height: 10),
-                        //           Obx(() =>
-                        //               Row(
-                        //                 children: [
-                        //                   Icon(FontAwesomeIcons.birthdayCake, color: inactive,),
-                        //                   SizedBox(width: 20),
-                        //                   Text(DateFormat('dd/MM/yy').format(controller.birthDate.value).toString(),
-                        //                       style: TextStyle(color: labelColor)),
-                        //                       ]
-                        //                   )
-                        //               )
-                        //         ],
-                        //       ),
-                        //     )
-                        // ),
-
-                        // TextFieldWidget(
-                        //   labelText: "Birth Place".tr,
-                        //   hintText: "Nairobi".tr,
-                        //   initialValue: controller.currentUser?.value?.birthplace,
-                        //   onSaved: (input) => controller.currentUser?.value?.birthplace = input,
-                        //   validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                        //   iconData: Icons.location_on,
-                        //   isFirst: true,
-                        //   isLast: false,
-                        // ),
-                        //
-                        // TextFieldWidget(
-                        //   labelText: "Address".tr,
-                        //   hintText: "Bamako".tr,
-                        //   initialValue: controller.currentUser?.value?.street,
-                        //   onSaved: (input) => controller.currentUser?.value?.street = input,
-                        //   validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
-                        //   iconData: FontAwesomeIcons.addressCard,
-                        //   isFirst: true,
-                        //   isLast: false,
-                        // ),
-
                         Container(
                           decoration: BoxDecoration(
                               color: Get.theme.primaryColor,
@@ -240,19 +178,34 @@ class RegisterView extends GetView<AuthController> {
                           )
                         ).paddingOnly(left: 5, right: 5, top: 20, bottom: 14,
                         ),
+                        Container(
+                          padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                          margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+                          decoration: BoxDecoration(
+                              color: Get.theme.primaryColor,
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              boxShadow: [
+                                BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                              ],
+                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                          child: IntlPhoneField(
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              labelStyle: TextStyle(
+                                color: Colors.grey,
+                              ),
+                              hintText: '032655333333',
+                              labelText: 'Phone Number',
+                              suffixIcon: Icon(Icons.phone_android_outlined),
+                            ),
+                            initialCountryCode: 'BE',
 
-
-                        PhoneFieldWidget(
-                          labelText: "Phone Number".tr,
-                          hintText: "223 665 7896".tr,
-                          initialCountryCode: controller.currentUser?.value?.getPhoneNumber()?.countryISOCode,
-                          initialValue: controller.currentUser?.value?.getPhoneNumber()?.number,
-                          onSaved: (phone) {
-                            return controller.currentUser?.value?.phone = phone.completeNumber;
-                          },
-                          isLast: false,
-                          isFirst: false,
+                            onSaved: (phone) {
+                              return controller.currentUser?.value?.phone = phone.completeNumber;
+                            },
+                          ),
                         ),
+
                         Obx(() {
                           return TextFieldWidget(
                             onChanged: (newValue){

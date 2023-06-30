@@ -25,7 +25,7 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
   var selectedPiece = "Select identity piece".obs;
 
 
-  var genderList = [
+  var pieceList = [
     'Select identity piece'.tr,
     'CNI'.tr,
     'Passport'.tr,
@@ -93,7 +93,7 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                                   icon: const Icon(Icons.keyboard_arrow_down),
 
                                   // Array list of items
-                                  items: genderList.map((String items) {
+                                  items: pieceList.map((String items) {
                                     return DropdownMenuItem(
                                       value: items,
                                       child: Text(items, style: TextStyle(color: labelColor),),

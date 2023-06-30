@@ -14,6 +14,7 @@ import '../../../repositories/upload_repository.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../../root/controllers/root_controller.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
 
 class TravelInspectController extends GetxController {
@@ -278,7 +279,7 @@ class TravelInspectController extends GetxController {
     if(!selectUser.value) {
       var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
           '"travelbooking_id": ${travelCard['id']},'
-          '"receiver_partner_id": ${quantity.value},'
+          '"receiver_partner_id": ${receiverId.value},'
           '"shipping_price": 0.0,'
           '"luggage_ids": $luggageId,'
           '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
@@ -293,9 +294,11 @@ class TravelInspectController extends GetxController {
 
         var data = await response.stream.bytesToString();
         print(data);
+
         buttonPressed.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-        Get.toNamed(Routes.BOOKING);
+        await Get.find<RootController>().changePage(1);
+
 
       }
       else {
@@ -306,9 +309,8 @@ class TravelInspectController extends GetxController {
       }
     }
     else{
-      print('Helllllllllllllllllllllllllllllllllllllllllllo');
+
       var receiver_partner_id = await createBeneficiary(name.value, email.value, phone.value);
-      print('Helllllllllllllllllllllllllllllllllllllllllllo: '+receiver_partner_id.toString());
       var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
           '"travelbooking_id": ${travelCard['id']},'
           '"receiver_partner_id": $receiver_partner_id,'
@@ -329,7 +331,7 @@ class TravelInspectController extends GetxController {
         print(data);
         buttonPressed.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-        Get.toNamed(Routes.BOOKING);
+        await Get.find<RootController>().changePage(1);
 
       }
       else {
@@ -429,8 +431,17 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+
       print('Updated to portal user');
-      return json.decode(data);
+      print(data);
+
+      // buttonPressed.value = false;
+      // Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
+      // await Get.find<RootController>().changePage(1);
+      // return json.decode(data);
+
+
+
 
 
     }

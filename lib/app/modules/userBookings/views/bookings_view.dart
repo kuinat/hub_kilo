@@ -424,7 +424,7 @@ class BookingsView extends GetView<BookingsController> {
                                                       await controller.sendImages(a, controller.imageFiles[a-1]);
                                                     }
                                                     controller.buttonPressed.value = !controller.buttonPressed.value;
-                                                    controller.assignLuggageToShipping(controller.items[index]);
+                                                    //controller.assignLuggageToShipping(controller.items[index]);
 
                                                   },
 

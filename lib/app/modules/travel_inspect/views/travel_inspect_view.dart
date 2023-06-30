@@ -807,9 +807,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
 
-                        // for(var a=1; a<4; a++){
-                        //   await controller.sendImages(a, controller.imageFiles[a-1]);
-                        // }
+                        for(var a=1; a<4; a++){
+                          await controller.sendImages(a, controller.imageFiles[a-1]);
+                        }
                         controller.buttonPressed.value = !controller.buttonPressed.value;
                         controller.shipNow();
 
@@ -1112,7 +1112,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 onChanged: (bool value){
                   controller.selectUser.value = value;
                 },
-                title: Text("Look into your address book ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
+                title: Text("Create a contact ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
             ),
             controller.selectUser.value ?
             Column(

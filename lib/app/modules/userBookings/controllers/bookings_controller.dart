@@ -60,6 +60,8 @@ class BookingsController extends GetxController {
 
   UploadRepository _uploadRepository;
 
+  var idLuggage = 0.obs;
+
   BookingsController() {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
@@ -91,11 +93,11 @@ class BookingsController extends GetxController {
   initValues()async{
     isLoading.value = true;
     await getUser(Get.find<MyAuthService>().myUser.value.id);
-    List listUsers = await getAllUsers();
     list = await getMyShipping();
-    List models = await getAllLuggageModel();
-    luggageModels.value = models;
     items.value = list;
+    List models = await getAllLuggageModel();
+    List listUsers = await getAllUsers();
+    luggageModels.value = models;
     users.value = listUsers;
     isLoading.value = false;
     //await getAllUsers();
@@ -221,8 +223,6 @@ class BookingsController extends GetxController {
   }
 
   Future getAllUsers()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
     var headers = {
       'Accept': 'application/json',
@@ -246,10 +246,6 @@ class BookingsController extends GetxController {
 
   Future getMyShipping() async {
 
-    final box = GetStorage();
-    var id = box.read('session_id');
-    print("shipping ids are: $shippingList");
-
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
@@ -265,7 +261,6 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       //isLoading.value = false;
-      print(data);
       return json.decode(data);
     }
     else {
@@ -378,10 +373,10 @@ class BookingsController extends GetxController {
       final data = await response.stream.bytesToString();
       print(data);
       await getUser(Get.find<MyAuthService>().myUser.value.id);
-      list = await getMyShipping();
-      items.value = list;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping Canceled"));
       Navigator.pop(Get.context);
+      list = await getMyShipping();
+      items.value = list;
 
     }
     else {
@@ -429,14 +424,22 @@ class BookingsController extends GetxController {
   }
 
   sendImages(int a, var imageFil)async{
-    for(var b=0; b<luggageId.length;b++){
+    // var headers = {
+    //   'Accept': 'application/json',
+    //   'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
+    //   'Content-Type': 'multipart/form-data',
+    //   'Cookie': 'session_id=a5b5f221b0eca50ae954ad4923fead1063097951'
+    // };
+    // var request = http.MultipartRequest('POST', Uri.parse('https://preprod.hubkilo.com/api/v1/upload/m1st_hk_roadshipping.luggage/1/luggage_image2'));
+
+    //for(var b=0; b<luggageId.length;b++){
       var headers = {
         'Accept': 'application/json',
         'Authorization': Domain.authorization,
         'Content-Type': 'multipart/form-data',
         'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
       };
-      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${luggageId[b]}/luggage_image$a'));
+      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${idLuggage}/luggage_image$a'));
       request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
       request.headers.addAll(headers);
 
@@ -444,13 +447,16 @@ class BookingsController extends GetxController {
 
       if (response.statusCode == 200) {
         var data = await response.stream.bytesToString();
-        print(data);
+        print("Hello"+data.toString());
+        Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
+        Navigator.pop(Get.context);
+        imageFiles.clear();
       }
       else {
         var data = await response.stream.bytesToString();
         print(data);
       }
-    }
+    //}
   }
 
   assignLuggageToShipping(var shipping)async{
@@ -471,6 +477,7 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      print('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: '+data.toString());
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
         Navigator.pop(Get.context);
         imageFiles.clear();
@@ -489,6 +496,8 @@ class BookingsController extends GetxController {
   }
 
   Future getLuggageInfo(var ids) async{
+
+    idLuggage = ids;
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,

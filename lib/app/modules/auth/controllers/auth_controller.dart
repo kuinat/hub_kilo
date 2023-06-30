@@ -118,7 +118,7 @@ class AuthController extends GetxController {
           {
             var id = await _userRepository.login(currentUser.value);
             //currentUser.value = await _userRepository.get(id);
-            loading.value = false;
+            //loading.value = false;
             if(id == null)
             {
               loading.value = false;

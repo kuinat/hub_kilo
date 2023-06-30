@@ -28,8 +28,9 @@ class UserTravelsController extends GetxController {
 
   @override
   void onInit() {
-    super.onInit();
     initValues();
+    super.onInit();
+
   }
 
   @override
@@ -40,6 +41,7 @@ class UserTravelsController extends GetxController {
   }
 
   initValues()async{
+    Get.lazyPut(()=>UserTravelsController());
     Get.lazyPut<MyAuthService>(
           () => MyAuthService(),
     );
