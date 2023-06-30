@@ -91,11 +91,11 @@ class BookingsController extends GetxController {
   initValues()async{
     isLoading.value = true;
     await getUser(Get.find<MyAuthService>().myUser.value.id);
-    List listUsers = await getAllUsers();
     list = await getMyShipping();
-    List models = await getAllLuggageModel();
-    luggageModels.value = models;
     items.value = list;
+    List models = await getAllLuggageModel();
+    List listUsers = await getAllUsers();
+    luggageModels.value = models;
     users.value = listUsers;
     isLoading.value = false;
     //await getAllUsers();
@@ -221,8 +221,6 @@ class BookingsController extends GetxController {
   }
 
   Future getAllUsers()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
     var headers = {
       'Accept': 'application/json',
@@ -246,10 +244,6 @@ class BookingsController extends GetxController {
 
   Future getMyShipping() async {
 
-    final box = GetStorage();
-    var id = box.read('session_id');
-    print("shipping ids are: $shippingList");
-
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
@@ -265,7 +259,6 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       //isLoading.value = false;
-      print(data);
       return json.decode(data);
     }
     else {
@@ -378,10 +371,10 @@ class BookingsController extends GetxController {
       final data = await response.stream.bytesToString();
       print(data);
       await getUser(Get.find<MyAuthService>().myUser.value.id);
-      list = await getMyShipping();
-      items.value = list;
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping Canceled"));
       Navigator.pop(Get.context);
+      list = await getMyShipping();
+      items.value = list;
 
     }
     else {

@@ -12,10 +12,13 @@ import '../../../../main.dart';
 import '../../../models/chat_model.dart';
 import '../../../models/message_model.dart';
 import '../../../models/user_model.dart';
+import '../../../providers/odoo_provider.dart';
 import '../../../repositories/chat_repository.dart';
 import '../../../repositories/notification_repository.dart';
 import '../../../services/auth_service.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../services/my_auth_service.dart';
 
 class MessagesController extends GetxController {
 
@@ -38,6 +41,8 @@ class MessagesController extends GetxController {
   final departureCountry = "".obs;
   final arrivalTown = "".obs;
   final arrivalCountry = "".obs;
+  final receiver_id = 0.obs;
+  final receiver_Name = "".obs;
   ScrollController scrollController = ScrollController();
   TextEditingController chatTextController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -51,10 +56,25 @@ class MessagesController extends GetxController {
 
   @override
   void onInit() async {
+    priceController.text = "0.0";
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<OdooApiClient>(
+          () => OdooApiClient(),
+    );
     var arguments = Get.arguments as Map<String, dynamic>;
     card.value = arguments['shippingCard'];
     var data = await getTravelInfo(card['travelbooking_id'][0]);
     travel.value = data;
+    print("travel: $travel");
+    if(Get.find<MyAuthService>().myUser.value.id != card['partner_id'][0]){
+      receiver_id.value = card['partner_id'][0];
+      receiver_Name.value = card['partner_id'][1];
+    }else{
+      receiver_id.value = travel['partner_id'][0];
+      receiver_Name.value = travel['partner_id'][1];
+    }
     if(travel != null){
       String departureCity = travel['departure_city_id'][1].split('(').first;
       String a = travel['departure_city_id'][1].split('(').last;
@@ -64,12 +84,12 @@ class MessagesController extends GetxController {
       String arrivalCity = travel['arrival_city_id'][1].split('(').first;
       String b = travel['arrival_city_id'][1].split('(').last;
       String country2 = b.split(')').first;
-      arrivalTown.value = departureCity;
+      arrivalTown.value = arrivalCity;
       arrivalCountry.value = country2;
     }
-    print("book details: $card");
-    list = await getMessages(card['travelmessage_ids']);
-    messages.value = list;
+    var result = await getShipping(card['id']);
+    messages.value = result;
+
     print("messages are: $messages");
     super.onInit();
   }
@@ -79,10 +99,6 @@ class MessagesController extends GetxController {
     //chatTextController.dispose();
     //timer.cancel();
   }
-
-  // stopTimer(){
-  //           timer.cancel();
-  // }
 
   checkValue(String value){
     if(value.isNotEmpty){
@@ -110,58 +126,59 @@ class MessagesController extends GetxController {
   }
 
   Future refreshMessages() async {
-    messagesList.clear();
-    lastDocument = new Rx<DocumentSnapshot>(null);
-    await listenForMessages();
+    var result = await getShipping(card['id']);
+    messages.value = result;
+    /*lastDocument = new Rx<DocumentSnapshot>(null);
+    await listenForMessages();*/
   }
 
-  sendMessage(int receiverId)async{
-    timer = Timer.periodic(Duration(seconds: 3), (Timer t) async{
-      list = await getMessages(card['travelmessage_ids']);
-      messages.value = list;
-      print("Reloaded");
-    } );
-    print(chatTextController.text);
-    final box = GetStorage();
-    var session_id = box.read("session_id");
+  sendMessage(int id)async{
+
+    print("fields are: ${chatTextController.text}, $id, ${travel['partner_id'][0]}, ${card['id']}, ${double.parse(priceController.text)}");
 
     var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; $session_id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
     };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelmessage?values={'
+    '"name": "${chatTextController.text}",'
+    '"sender_partner_id": $id,'
+    '"receiver_partner_id": ${receiver_id.value},'
+    '"shipping_id": ${card['id']},'
+    '"price": ${double.parse(priceController.text)}'
+    '}'
+    ));
 
-      var request = http.Request('POST', Uri.parse(
-          card['travel']['travel_type'] == 'air'
-          ? '${Domain.serverPort}/air/send_message' :
-      card['travel']['travel_type'] == 'road' ?
-      '${Domain.serverPort}/road/send_message' : ''
-      ));
+    /*var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelmessage?values={'
+        '"name": "${chatTextController.text}",'
+        '"sender_partner_id": $id,'
+        '"receiver_partner_id": ${receiver_id.value},'
+        '"shipping_id": ${card['id']},'
+        '"price": ${double.parse(priceController.text)}'
+    ));*/
 
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "travel_booking_id": card['id'],
-        "receiver_id": receiverId,
-        "message": chatTextController.text
-      }
-    });
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      onInit();
+      var result = await getShipping(card['id']);
+      messages.value = result;
       print(data);
-
+      timer = Timer.periodic(Duration(seconds: 15), (Timer t) async{
+        refreshMessages();
+        print("Reloaded");
+      } );
     }
     else {
-      print(response.reasonPhrase);
+      var data = await response.stream.bytesToString();
+      print(json.decode(data)['message']);
     }
-
   }
 
   Future getTravelInfo(int id)async{
+
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
@@ -179,7 +196,6 @@ class MessagesController extends GetxController {
     }
     else {
       var data = await response.stream.bytesToString();
-      isLoading.value = false;
       print(data);
     }
   }
@@ -203,7 +219,8 @@ class MessagesController extends GetxController {
       return json.decode(data);
     }
     else {
-    print(response.reasonPhrase);
+      var data = await response.stream.bytesToString();
+      print(data);
     }
   }
 
@@ -403,6 +420,30 @@ class MessagesController extends GetxController {
       }
     } else {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "Please select an image file".tr));
+    }
+  }
+
+  getShipping(int id) async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      List list = json.decode(data)[0]['travelmessage_ids'];
+      print('shipping detail: ${json.decode(data)[0]}');
+      var result = await getMessages(list);
+      return result;
+    }
+    else {
+      print(response.reasonPhrase);
     }
   }
 }

@@ -39,20 +39,21 @@ class ChatsView extends GetView<MessagesController> {
               primary: true,
               itemBuilder: (context, index) {
                 List receivedMessages = [];
-                /*if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id']){
+                if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_partner_id'][0]){
                   receivedMessages.add(controller.messages[index]);
-                }*/
+                }
                 Future.delayed(Duration.zero, (){
-                  controller.messages.sort((a, b) => b["date"].compareTo(a["date"]));
+                  controller.messages.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                 });
                 //Chat _chat = controller.chats.elementAt(index);
                 //_chat.user = controller.message.value.users.firstWhere((_user) => _user.id == _chat.userId, orElse: () => new User(name: "-", avatar: new Media()));
                 return Column(
                   children: [
-                    if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['sender_id'])
+                    if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['sender_partner_id'][0])...[
                       getSentMessageTextLayout(context, controller.messages[index]),
-                    if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_id'])
+                    ]else...[
                       getReceivedMessageTextLayout(context, controller.messages[index], index, receivedMessages)
+                    ]
                   ],
                 );
               }
@@ -102,7 +103,7 @@ class ChatsView extends GetView<MessagesController> {
                 child: FadeInImage(
                   width: 40,
                   height: 40,
-                  image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.card['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                  image: NetworkImage('${Domain.serverPort}/image/res.partner/${controller.receiver_id.value}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
                   placeholder: AssetImage(
                       "assets/img/loading.gif"),
                   imageErrorBuilder:
@@ -118,9 +119,9 @@ class ChatsView extends GetView<MessagesController> {
           ],
         ),
         automaticallyImplyLeading: false,
-        leadingWidth: 90,
+        leadingWidth: 110,
         title: Obx(() {
-          return Text( controller.card['partner_id'][1],
+          return Text( controller.receiver_Name.value,
             //controller.message.value.name,
             overflow: TextOverflow.fade,
             maxLines: 1,
@@ -131,7 +132,7 @@ class ChatsView extends GetView<MessagesController> {
 
       body: RefreshIndicator(
         onRefresh: ()async{
-          controller.onInit();
+          controller.refreshMessages();
         },
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -228,13 +229,8 @@ class ChatsView extends GetView<MessagesController> {
                             padding: EdgeInsetsDirectional.only(end: 20, start: 10),
                             onPressed: () {
                               if(controller.enableSend.value){
-                                controller.messages.add("${controller.chatTextController.text}, ${controller.priceController.text}");
-                                /*if(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id']){
-                                    controller.sendMessage( controller.card['travel']['traveler']['user_id'] );
-                                  }
-                                  if(Get.find<MyAuthService>().myUser.value.id == controller.card['travel']['traveler']['user_id']){
-                                    controller.sendMessage( controller.card['sender']['sender_id'] );
-                                  }*/
+                                //controller.messages.add("${controller.chatTextController.text}, ${controller.priceController.text}");
+                                controller.sendMessage(Get.find<MyAuthService>().myUser.value.id);
                               }
 
                               //controller.addMessage(controller.message.value, controller.chatTextController.text);
@@ -286,11 +282,12 @@ class ChatsView extends GetView<MessagesController> {
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      new Text(Get.find<MyAuthService>().myUser.value.name, style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, fontSize: 18))),
                       new Container(
                         margin: const EdgeInsets.only(top: 5.0),
-                        child: new Text(message['message'].toString(), style: Get.textTheme.bodyText1.merge(TextStyle( fontSize: 18))),
+                        child: new Text(message['name'], style: Get.textTheme.bodyText1.merge(TextStyle( fontSize: 18))),
                       ),
+                      Text( "${message['price']} EUR",
+                          style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: interfaceColor, fontSize: 18))),
                     ],
                   ),
                 ),
@@ -298,19 +295,22 @@ class ChatsView extends GetView<MessagesController> {
                   margin: const EdgeInsets.only(left: 8.0),
                   width: 42,
                   height: 42,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(42)),
-                    child: CachedNetworkImage(
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      imageUrl: '${Domain.serverPort}/web/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920',
-                      placeholder: (context, url) => Image.asset(
-                        'assets/img/loading.gif',
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
-                      errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                    ),
+                  child: ClipOval(
+                    child: FadeInImage(
+                      width: 65,
+                      height: 65,
+                      image: NetworkImage('${Domain.serverPort}/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                      placeholder: AssetImage(
+                          "assets/img/loading.gif"),
+                      imageErrorBuilder:
+                          (context, error, stackTrace) {
+                        return Image.asset(
+                            'assets/img/téléchargement (3).png',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.fitWidth);
+                      },
+                    )
                   ),
                 ),
               ],
@@ -319,7 +319,7 @@ class ChatsView extends GetView<MessagesController> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.parse(message['date'])),
+              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
               overflow: TextOverflow.fade,
               softWrap: false, style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
             ),
@@ -330,9 +330,9 @@ class ChatsView extends GetView<MessagesController> {
   }
 
   Widget getReceivedMessageTextLayout(context, var message, int index, List receivedMessages) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.start,
+      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,36 +352,39 @@ class ChatsView extends GetView<MessagesController> {
                     margin: const EdgeInsets.only(right: 10),
                     width: 42,
                     height: 42,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(42)),
-                      child: CachedNetworkImage(
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        imageUrl: Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id'] ?
-                        '${Domain.serverPort}/web/image/res.partner/${controller.card['sender']['sender_id']}/image_1920' : '${Domain.serverPort}/web/image/res.partner/${controller.card['travel']['traveler']['user_id']}/image_1920',
-                        placeholder: (context, url) => Image.asset(
-                          'assets/img/loading.gif',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                        errorWidget: (context, url, error) => Icon(Icons.error_outline),
-                      ),
+                    child: ClipOval(
+                        child: FadeInImage(
+                          width: 65,
+                          height: 65,
+                          image: Get.find<MyAuthService>().myUser.value.id != controller.card['partner_id'][0] ?
+                          NetworkImage('${Domain.serverPort}/image/res.partner/${controller.card['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders())
+                              : NetworkImage('${Domain.serverPort}/image/res.partner/${controller.receiver_id.value}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                          placeholder: AssetImage(
+                              "assets/img/loading.gif"),
+                          imageErrorBuilder:
+                              (context, error, stackTrace) {
+                            return Image.asset(
+                                'assets/img/téléchargement (3).png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.fitWidth);
+                          },
+                        )
                     ),
                   ),
                   new Flexible(
                     child: new Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(Get.find<MyAuthService>().myUser.value.id != controller.card['travel']['traveler']['user_id'] ?
-                        message['travel_booking']['travel']['traveler']['user_name'] : controller.card['sender']['sender_name'],
-                            style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
-                        new Container(
+                        Container(
                           margin: const EdgeInsets.only(top: 5.0),
                           child: new Text(
-                            message['message'].toString(),
+                            message['name'].toString(),
                             style: Get.textTheme.bodyText1.merge(TextStyle(color: Get.theme.primaryColor, fontSize: 18)),
                           ),
                         ),
+                        Text( "${message['price']} EUR",
+                            style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
                       ],
                     ),
                   ),
@@ -391,7 +394,7 @@ class ChatsView extends GetView<MessagesController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                  DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.parse(message['date'])),
+                  DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
                   overflow: TextOverflow.fade,
                   softWrap: false,
                   style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))

@@ -52,14 +52,11 @@ class AccountView extends GetView<AccountController> {
                     children: [
                       CircleAvatar(
                         radius: 75,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: Colors.white,
                         child: CircleAvatar(
                             radius: 70,
                             backgroundImage: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.currentUser.value.id}/image_1920?unique=true&file_response=true',
                                 headers: Domain.getTokenHeaders()) : AssetImage("assets/img/téléchargement (2).png"),
-                            onBackgroundImageError: (Object, StackBack){
-                              return Image.asset('assets/img/user.png', width: 70, height: 70);
-                            },
                             child: Align(
                               alignment: Alignment.bottomRight,
                               child: InkWell(
@@ -72,7 +69,7 @@ class AccountView extends GetView<AccountController> {
                                     decoration: BoxDecoration(
                                         border: Border.all(
                                           width: 3,
-                                          color: Colors.white,
+                                          color: Colors.grey.shade300,
                                         ),
                                         borderRadius: BorderRadius.all(
                                           Radius.circular(
@@ -279,7 +276,7 @@ class AccountView extends GetView<AccountController> {
                 InkWell(
                     onTap: ()=> controller.editNumber.value == true,
                     child: Container(
-                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 20),
                       margin: EdgeInsets.only(left: 5, right: 5),
                       decoration: BoxDecoration(
                           color: Get.theme.primaryColor,
@@ -348,7 +345,7 @@ class AccountView extends GetView<AccountController> {
                       controller.birthDateSet.value = true;
                     },
                     child: Container(
-                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 20),
                       margin: EdgeInsets.only(left: 5, right: 5),
                       decoration: BoxDecoration(
                           color: Get.theme.primaryColor,
