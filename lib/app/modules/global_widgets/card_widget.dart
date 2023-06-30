@@ -140,10 +140,10 @@ class CardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                        Expanded(
-                          child: button,
-                        ),
+                      button,
+                      if(bookingState == 'pending')
                       SizedBox(width: 10),
+                      if(bookingState == 'pending')
                       negotiation
                     ]
                   ),

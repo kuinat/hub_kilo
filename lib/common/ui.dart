@@ -19,7 +19,7 @@ class Ui {
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       borderRadius: 8,
       dismissDirection: DismissDirection.horizontal,
-      duration: Duration(seconds: 5),
+      duration: Duration(seconds: 2),
     );
   }
 
@@ -32,6 +32,36 @@ class Ui {
       margin: EdgeInsets.all(20),
       backgroundColor: Colors.redAccent,
       icon: Icon(Icons.remove_circle_outline, size: 32, color: Get.theme.primaryColor),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      borderRadius: 8,
+      duration: Duration(seconds: 5),
+    );
+  }
+
+  static GetSnackBar InfoSnackBar({String title = 'Info', String message}) {
+    Get.log("[$title] $message", isError: true);
+    return GetSnackBar(
+      titleText: Text(title.tr, style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor))),
+      messageText: Text(message.substring(0, min(message.length, 200)), style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.all(20),
+      backgroundColor: Colors.blue,
+      icon: Icon(Icons.info_outline_rounded, size: 32, color: Get.theme.primaryColor),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      borderRadius: 8,
+      duration: Duration(seconds: 5),
+    );
+  }
+
+  static GetSnackBar warningSnackBar({String title = 'Warning', String message}) {
+    Get.log("[$title] $message", isError: true);
+    return GetSnackBar(
+      titleText: Text(title.tr, style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor))),
+      messageText: Text(message.substring(0, min(message.length, 200)), style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.all(20),
+      backgroundColor: Colors.orangeAccent,
+      icon: Icon(Icons.warning_amber_rounded, size: 32, color: Get.theme.primaryColor),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       borderRadius: 8,
       duration: Duration(seconds: 5),

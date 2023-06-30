@@ -77,6 +77,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                   ),
 
                   Container(
+
                       height: MediaQuery.of(context).size.height/1.2,
                       padding: EdgeInsets.all(10),
                       decoration: Ui.getBoxDecoration(color: backgroundColor),
@@ -94,7 +95,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                       crossAxisCount: 1,
                                       crossAxisSpacing: 10.0,
                                       mainAxisSpacing: 10.0,
-                                      mainAxisExtent: 210.0,
+                                      mainAxisExtent: 220.0,
                                     ),
                                     shrinkWrap: true,
                                     primary: false,

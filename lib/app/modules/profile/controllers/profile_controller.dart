@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../common/ui.dart';
@@ -37,6 +38,24 @@ class ProfileController extends GetxController {
     "MALE".tr,
     "FEMALE".tr
   ].obs;
+
+  var departureId = 0.obs;
+  var arrivalId = 0.obs;
+
+
+  var predict1 = false.obs;
+  var predict2 = false.obs;
+  //File passport;
+  var countries = [].obs;
+  var list = [];
+
+  ScrollController scrollController = ScrollController();
+  final formStep = 0.obs;
+  TextEditingController depTown = TextEditingController();
+  TextEditingController arrTown = TextEditingController();
+
+
+
   GlobalKey<FormState> profileForm;
   UserRepository _userRepository;
 
@@ -46,18 +65,20 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
+    final box = GetStorage();
+    list = box.read("allCountries");
+    countries.value = list;
+
+    print('List is sssssss:   '+countries.value.toString());
+    profileForm = new GlobalKey<FormState>();
+
+
+
     user.value = Get.find<MyAuthService>().myUser.value;
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
     //user.value.phone = user.value.phone;
     birthDate.value = user.value.birthday;
-    // user.value.image.toString()=='null'?
-    // url.value= null:
-    // url.value = Domain.serverPort+"/web/image/res.partner/"+user.value.id.toString()+"/image_1920";
-
-    //print("url: "+url.value);
-    //user.value = Get.find<AuthService>().user.value;
-    //avatar.value = new Media(thumb: user.value.avatar.thumb);
     super.onInit();
   }
 
@@ -73,25 +94,6 @@ class ProfileController extends GetxController {
     if (profileForm.currentState.validate()) {
       //try {
       profileForm.currentState.save();
-      /*user.value.deviceToken = null;
-        user.value.password = newPassword.value == confirmPassword.value ? newPassword.value : null;
-        user.value.avatar = avatar.value;*/
-      // if (Get.find<SettingsService>().setting.value.enableOtp) {
-      //   await _userRepository.sendCodeToPhone();
-      //   Get.bottomSheet(
-      //     PhoneVerificationBottomSheetWidget(),
-      //     isScrollControlled: false,
-      //   );
-      // }
-      //else {
-      print(user.value.name);
-      print(user.value.email);
-      print(user.value.birthplace);
-      print(user.value.street);
-      print(user.value.birthday);
-      print(user.value.sex);
-      print(user.value.isTraveller);
-      print(user.value.phone);
 
        await _userRepository.update(user.value);
       user.value = await _userRepository.get(user.value.id);
@@ -107,6 +109,24 @@ class ProfileController extends GetxController {
       Get.showSnackbar(Ui.ErrorSnackBar(message: "There are errors in some fields please correct them!".tr));
     }
   }
+
+  void filterSearchResults(String query) {
+    List dummySearchList = [];
+    dummySearchList = list;
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      dummyListData = dummySearchList.where((element) => element['display_name']
+          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
+      countries.value = dummyListData;
+      for(var i in countries){
+        print(i['display_name']);
+      }
+      return;
+    } else {
+      countries.value = list;
+    }
+  }
+
 
   chooseBirthDate() async {
     DateTime pickedDate = await showRoundedDatePicker(
@@ -138,33 +158,6 @@ class ProfileController extends GetxController {
     }
     return true;
   }
-
-
-  // imagePicker() async {
-  //   FilePickerResult? result = await FilePicker.platform.pickFiles();
-  //
-  //   if (result != null) {
-  //     setState(() {
-  //       image = File(result.files.single.path.toString());
-  //       uploadImage(partnerId);
-  //     });
-  //   } else {
-  //     print("No file selected");
-  //   }
-  // }
-
-
-  // Future<void> verifyPhone() async {
-  //   try {
-  //     await _userRepository.verifyPhone(smsSent.value);
-  //     /*user.value = await _userRepository.update(user.value);
-  //     Get.find<AuthService>().user.value = user.value;*/
-  //     Get.back();
-  //     Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
-  //   } catch (e) {
-  //     Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-  //   }
-  // }
 
   void resetProfileForm() {
     //avatar.value = new Media(thumb: user.value.avatar.thumb);

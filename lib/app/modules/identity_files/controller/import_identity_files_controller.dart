@@ -19,12 +19,12 @@ import '../../../services/my_auth_service.dart';
 import '../../root/controllers/root_controller.dart';
 import 'package:http/http.dart' as http;
 
-class AddTravelController extends GetxController{
+class ImportIdentityFilesController extends GetxController{
 
   var avatar = new Media().obs;
   final isDone = false.obs;
-  var departureDate = DateTime.now().add(Duration(days: 2)).toString().toString().split(".").first.obs;
-  var arrivalDate = DateTime.now().add(Duration(days: 3)).toString().toString().split(".").first.toString().obs;
+  var departureDate = DateTime.now().add(Duration(days: 2)).toString().obs;
+  var arrivalDate = DateTime.now().add(Duration(days: 3)).toString().obs;
   var departureId = 0.obs;
   var arrivalId = 0.obs;
   var restriction = ''.obs;
@@ -36,7 +36,6 @@ class AddTravelController extends GetxController{
   var townEdit = false.obs;
   var town2Edit = false.obs;
   var travelType = "".obs;
-  var errorCity1 = false.obs;
   File passport;
   var countries = [].obs;
   var list = [];
@@ -83,22 +82,6 @@ class AddTravelController extends GetxController{
     super.onInit();
   }
 
-  void filterSearchResults(String query) {
-    List dummySearchList = [];
-    dummySearchList = list;
-    if(query.isNotEmpty) {
-      List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['display_name']
-          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
-      countries.value = dummyListData;
-      for(var i in countries){
-        print(i['display_name']);
-      }
-      return;
-    } else {
-      countries.value = list;
-    }
-  }
 
   final _picker = ImagePicker();
 
@@ -144,64 +127,47 @@ class AddTravelController extends GetxController{
 
   }
 
-  backToHome()async{
-    await Get.find<RootController>().changePage(0);
-  }
+
 
   chooseDepartureDate() async {
     DateTime pickedDate = await showRoundedDatePicker(
-      context: Get.context,
-      imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
-      initialDate: DateTime.now().add(Duration(days: 2)),
-      firstDate: DateTime(DateTime.now().year - 1),
-      lastDate: DateTime(DateTime.now().year + 10),
-      styleDatePicker: MaterialRoundedDatePickerStyle(
-        textStyleYearButton: TextStyle(
-          fontSize: 52,
-          color: Colors.white,
-        )
-      ),
-      borderRadius: 16,
-      selectableDayPredicate: disableDate
-    );
-    String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
-    if (formattedDate.isNotEmpty) {
-      departureDate.value = pickedDate.toString();
-      TimeOfDay selectedTime = await showTimePicker(
         context: Get.context,
-        initialTime: TimeOfDay.now(),
-      );
-      departureDate.value = "$formattedDate ${selectedTime.hour.toString().padLeft(2, "0")}:${selectedTime.minute.toString().padLeft(2, "0")}:00";
-
-    }
-    print(departureDate.value);
-  }
-
-  chooseArrivalDate() async {
-    DateTime pickedDate = await showRoundedDatePicker(
-      context: Get.context,
-      imageHeader: AssetImage("assets/img/pexels-julius-silver-753331.jpg"),
-      initialDate: DateTime.now().add(Duration(days: 2)),
-      firstDate: DateTime(DateTime.now().year - 1),
-      lastDate: DateTime(DateTime.now().year + 10),
+        imageHeader: AssetImage("assets/img/istockphoto-1421193265-612x612.jpg"),
+        initialDate: DateTime.now().add(Duration(days: 2)),
+        firstDate: DateTime(DateTime.now().year - 1),
+        lastDate: DateTime(DateTime.now().year + 10),
         styleDatePicker: MaterialRoundedDatePickerStyle(
             textStyleYearButton: TextStyle(
               fontSize: 52,
               color: Colors.white,
             )
         ),
-      borderRadius: 16,
-      selectableDayPredicate: disableDate
+        borderRadius: 16,
+        selectableDayPredicate: disableDate
     );
-    String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
-    if (formattedDate.isNotEmpty) {
-      arrivalDate.value = pickedDate.toString();
-      TimeOfDay selectedTime = await showTimePicker(
+    if (pickedDate != null && pickedDate != departureDate.value) {
+      departureDate.value = pickedDate.toString();
+    }
+  }
+
+  chooseArrivalDate() async {
+    DateTime pickedDate = await showRoundedDatePicker(
         context: Get.context,
-        initialTime: TimeOfDay.now(),
-      );
-      arrivalDate.value = "$formattedDate ${selectedTime.hour.toString().padLeft(2, "0")}:${selectedTime.minute.toString().padLeft(2, "0")}:00";
-      print(arrivalDate.value);
+        imageHeader: AssetImage("assets/img/pexels-julius-silver-753331.jpg"),
+        initialDate: DateTime.now().add(Duration(days: 2)),
+        firstDate: DateTime(DateTime.now().year - 1),
+        lastDate: DateTime(DateTime.now().year + 10),
+        styleDatePicker: MaterialRoundedDatePickerStyle(
+            textStyleYearButton: TextStyle(
+              fontSize: 52,
+              color: Colors.white,
+            )
+        ),
+        borderRadius: 16,
+        selectableDayPredicate: disableDate
+    );
+    if (pickedDate != null && pickedDate != arrivalDate.value) {
+      arrivalDate.value = pickedDate.toString();
     }
   }
 
@@ -223,88 +189,8 @@ class AddTravelController extends GetxController{
     return false;
   }
 
-  createRoadTravel()async{
 
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
-    };
-    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelbooking?values='
-        '{"name": "New_Travel/${DateFormat("yyyy/MM/dd").format(DateTime.now())}",'
-        '"booking_type": "${travelType.value}",'
-        '"departure_city_id": "${departureId.value}",'
-        '"arrival_city_id": "${arrivalId.value}",'
-        '"arrival_date": "${arrivalDate.value}",'
-        '"departure_date": "${departureDate.value}",'
-        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-        '}'
-    ));
-
-  request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      print("travel response: $data");
-
-      buttonPressed.value = false;
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been created successfully ".tr));
-      await Get.find<RootController>().changePage(2);
-
-    }
-    else {
-      var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
-      buttonPressed.value = false;
-      print("Error response: ${json.decode(data)['message']}");
-      throw new Exception(response.reasonPhrase);
-    }
-  }
-
-  updateRoadTravel()async{
-
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7884fbe019046ffc1379f17c73f57a9e344a6d8a'
-    };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.travelbooking?values={'
-        '"name": "Update_Travel/${DateFormat("yyyy/MM/dd").format(DateTime.now())}",'
-        '"booking_type": "${travelType.value}",'
-        '"departure_city_id": "${departureId.value}",'
-        '"arrival_city_id": "${arrivalId.value}",'
-        '"arrival_date": "${arrivalDate.value}",'
-        '"departure_date": "${departureDate.value}"'
-        '}&ids=${travelCard['id']}'
-    ));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-
-      var data = await response.stream.bytesToString();
-      print("travel response: $data");
-      buttonPressed.value = false;
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Your travel has been updated successfully ".tr));
-      Navigator.pop(Get.context);
-
-    }
-    else {
-      var data = await response.stream.bytesToString();
-      print(data);
-      buttonPressed.value = false;
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
-      throw new Exception(response.reasonPhrase);
-    }
-  }
-
-  /*selectCameraOrGallery()async{
+  selectCameraOrGallery()async{
     showDialog(
         context: Get.context,
         builder: (_){
@@ -338,7 +224,7 @@ class AddTravelController extends GetxController{
             ),
           );
         });
-  }*/
+  }
 
   @override
   void onClose() {

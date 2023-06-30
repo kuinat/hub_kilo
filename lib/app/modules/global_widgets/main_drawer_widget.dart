@@ -195,13 +195,6 @@ class MainDrawerWidget extends StatelessWidget {
                 Get.offAndToNamed(Routes.NOTIFICATIONS);
               },
             ),
-            DrawerLinkWidget(
-              icon: Icons.chat_outlined,
-              text: "Messages",
-              onTap: (e) async {
-                //await Get.find<RootController>().changePage(2);
-              },
-            )
           ],
           ListTile(
             dense: true,

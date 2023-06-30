@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../../color_constants.dart';
 import '../../../../main.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/image_field_widget.dart';
@@ -23,7 +24,7 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.profileForm = new GlobalKey<FormState>();
+    //controller.profileForm = new GlobalKey<FormState>();
     return Scaffold(
         appBar: hideAppBar
             ? null
@@ -50,30 +51,28 @@ class ProfileView extends GetView<ProfileController> {
               BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, -5)),
             ],
           ),
-          child: Obx(() => Expanded(
-            child: MaterialButton(
-              onPressed: () {
-                if(!controller.birthDateSet.value){
-                  controller.user.value?.birthday = DateFormat('yyyy-MM-dd').format(DateTime.parse(controller.user.value.birthday)).toString();
-                  //controller.birthDateSet.value = true;
-                }
-                if(controller.birthDate.value.toString().contains('-')){
-                  controller.user.value.birthday = controller.birthDate.value;
-                }
-                controller.saveProfileForm();
-                controller.buttonPressed.value = !controller.buttonPressed.value;
-              },
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              color: Get.theme.colorScheme.secondary,
-              child: !controller.buttonPressed.value ? Text("Update".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
-                  : SizedBox(height: 10,
-                  child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-              elevation: 0,
-              highlightElevation: 0,
-              hoverElevation: 0,
-              focusElevation: 0,
-            ),
+          child: Obx(() => MaterialButton(
+            onPressed: () {
+              if(!controller.birthDateSet.value){
+                controller.user.value?.birthday = DateFormat('yyyy-MM-dd').format(DateTime.parse(controller.user.value.birthday)).toString();
+                //controller.birthDateSet.value = true;
+              }
+              if(controller.birthDate.value.toString().contains('-')){
+                controller.user.value.birthday = controller.birthDate.value;
+              }
+              controller.saveProfileForm();
+              controller.buttonPressed.value = !controller.buttonPressed.value;
+            },
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            color: Get.theme.colorScheme.secondary,
+            child: !controller.buttonPressed.value ? Text("Update".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
+                : SizedBox(height: 10,
+                child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+            elevation: 0,
+            highlightElevation: 0,
+            hoverElevation: 0,
+            focusElevation: 0,
           )).paddingSymmetric(vertical: 10, horizontal: 20),
         ),
         body: Form(
@@ -203,25 +202,179 @@ class ProfileView extends GetView<ProfileController> {
                     // }
                     //
                     // ),
-                    TextFieldWidget(
-                      onChanged: (input) => controller.user.value.birthplace = input,
-                      onSaved: (input) => controller.user.value.birthplace = input,
-                      validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
-                      hintText: "123 Street, City 136, State, Country".tr,
-                      labelText: "Place of birth".tr,
-                      iconData: Icons.location_on_rounded,
-                      initialValue: controller.user.value.birthplace,
-                    ),
+                    // TextFieldWidget(
+                    //   onChanged: (input) => controller.user.value.birthplace = input,
+                    //   onSaved: (input) => controller.user.value.birthplace = input,
+                    //   validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
+                    //   hintText: "123 Street, City 136, State, Country".tr,
+                    //   labelText: "Place of birth".tr,
+                    //   iconData: Icons.location_on_rounded,
+                    //   initialValue: controller.user.value.birthplace,
+                    // ),
+                    //
+                    // TextFieldWidget(
+                    //   onChanged: (input) => controller.user.value.street = input,
+                    //   onSaved: (input) => controller.user.value.street = input,
+                    //   validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
+                    //   hintText: "123 Street, City 136, State, Country".tr,
+                    //   labelText: "Address".tr,
+                    //   iconData: Icons.location_on_rounded,
+                    //   initialValue: controller.user.value.street,
+                    // ),
+                    //
 
-                    TextFieldWidget(
-                      onChanged: (input) => controller.user.value.street = input,
-                      onSaved: (input) => controller.user.value.street = input,
-                      validator: (input) => input.length < 3 ? "Should be more than 3 letters".tr : null,
-                      hintText: "123 Street, City 136, State, Country".tr,
-                      labelText: "Address".tr,
-                      iconData: Icons.location_on_rounded,
-                      initialValue: controller.user.value.street,
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
+                      decoration: BoxDecoration(
+                          color: Get.theme.primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text("Place of Birth",
+                              style: Get.textTheme.bodyText1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                                children: [
+                                  Icon(Icons.location_pin),
+                                  SizedBox(width: 10),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width/2,
+                                    child: TextFormField(
+                                      controller: controller.depTown,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        contentPadding:
+                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                      ),
+                                      //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                                      style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                      onChanged: (value)=>{
+                                        if(value.length > 2){
+                                          controller.predict1.value = true,
+                                          controller.filterSearchResults(value)
+                                        }else{
+                                          controller.predict1.value = false,
+                                        }
+                                      },
+                                      cursorColor: Get.theme.focusColor,
+                                    ),
+                                  ),
+                                ]
+                            )
+                          ]
+                      ),
                     ),
+                    if(controller.predict1.value)
+                      Obx(() => Container(
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                          color: Get.theme.primaryColor,
+                          height: 200,
+                          child: ListView(
+                              children: [
+                                for(var i =0; i < controller.countries.length; i++)...[
+                                  TextButton(
+                                      onPressed: (){
+                                        controller.depTown.text = '${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})';
+                                        controller.predict1.value = false;
+                                        controller.departureId.value = controller.countries[i]['id'];
+                                        controller.user.value.birthplace = controller.countries[i]['id'].toString();
+                                      },
+                                      child: Text('${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})\n', style: TextStyle(color: appColor))
+                                  )
+                                ]
+                              ]
+                          )
+                      )),
+
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
+                      decoration: BoxDecoration(
+                          color: Get.theme.primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text("Residential Address",
+                              style: Get.textTheme.bodyText1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                                children: [
+                                  Icon(Icons.location_pin),
+                                  SizedBox(width: 10),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width/2,
+                                    child: TextFormField(
+                                      controller: controller.arrTown,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        contentPadding:
+                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                      ),
+                                      //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                                      style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                      onChanged: (value)=>{
+                                        if(value.length > 2){
+                                          controller.predict2.value = true,
+                                          controller.filterSearchResults(value)
+                                        }else{
+                                          controller.predict2.value = false,
+                                        }
+                                      },
+                                      cursorColor: Get.theme.focusColor,
+                                    ),
+                                  ),
+                                ]
+                            )
+                          ]
+                      ),
+                    ),
+                    if(controller.predict2.value)
+                      Obx(() => Container(
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                          color: Get.theme.primaryColor,
+                          height: 200,
+                          child: ListView(
+
+                              children: [
+                                for(var i =0; i < controller.countries.length; i++)...[
+                                  TextButton(
+                                      onPressed: (){
+                                        controller.arrTown.text = '${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})';
+                                        controller.predict2.value = false;
+                                        controller.arrivalId.value = controller.countries[i]['id'];
+                                        controller.user.value.street = controller.countries[i]['id'].toString();
+                                      },
+                                      child: Text('${controller.countries[i]['display_name']}, (${controller.countries[i]['country_id'][1]})\n', style: TextStyle(color: appColor))
+                                  )
+                                ]
+                              ]
+                          )
+                      )),
 
                     Container(
                         decoration: BoxDecoration(

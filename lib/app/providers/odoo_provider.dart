@@ -103,7 +103,7 @@ class OdooApiClient extends GetxService with ApiClient {
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.users?ids=$id'));
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
 
     request.headers.addAll(headers);
 
@@ -113,19 +113,19 @@ class OdooApiClient extends GetxService with ApiClient {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
       var myuser = MyUser(
-          email: data['login'].toString(),
-          birthday: data['birthday'].toString(),
+          email: data['email'].toString(),
+          birthday: data['birthdate'].toString(),
           isTraveller: data['is_traveler'],
           phone: data['phone'].toString(),
-          street: data['street'].toString(),
-          sex: data['sex'].toString(),
+          street: data['residence_city_id']==false?'--':data['residence_city_id'][1],
+          sex: data['gender'].toString(),
           name: data['name'],
-          birthplace: data['place_of_birth'].toString(),
-          id: data['partner_id'][0],
-          userId: data['id'],
+          birthplace: data['birth_city_id']==false?'--':data['birth_city_id'][1],
+          id: data['id'],
+          userId: data['related_user_id'][0],
           image: data['image_1920'].toString()
       );
-      print('user  '+myuser.toString());
+      print('user:  '+myuser.toString());
 
       return myuser;
 
@@ -158,9 +158,9 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)['result'];
       print(data);
       if(data != null){
-        var userId = data['uid'];
+        var partnerId = data['partner_id'];
 
-        return userId;
+        return partnerId;
       }
       else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
@@ -190,9 +190,9 @@ class OdooApiClient extends GetxService with ApiClient {
     var request = http.Request('POST',Uri.parse('https://preprod.hubkilo.com/api/v1/create/res.users?values={ '
         '"name": "${myUser.name}",'
         '"login": "${myUser.email}",'
+        '"email": "${myUser.email}",'
         '"password": "${myUser.password}",'
         '"phone": "${myUser.phone}",'
-        '"sex": "${myUser.sex}",'
         '"sel_groups_1_9_10": 10}'
 
     ));
@@ -204,7 +204,11 @@ class OdooApiClient extends GetxService with ApiClient {
   if (response.statusCode == 200)  {
     var result = await response.stream.bytesToString();
     var data = json.decode(result);
-  await updateToPortalUser(data[0]);
+    //await updatePartnerEmail(data[0], myUser.email);
+    //await updatePartnerGender(data[0], myUser.sex);
+    await updateToPortalUser(data[0]);
+
+
     return true;
   }
   else {
@@ -236,18 +240,14 @@ class OdooApiClient extends GetxService with ApiClient {
    updateUser(MyUser myUser) async {
      var headers = {
        'Accept': 'application/json',
-       'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+       'Authorization': Domain.authorization,
        'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
      };
 
-     var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.users?ids=${myUser.userId}&values={'
+     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=${myUser.userId}&values={'
          '"name": "${myUser.name}",'
-         '"phone": "${myUser.phone}",'
          '"login": "${myUser.email}",'
-         '"sex": "${myUser.sex}",'
-         '"place_of_birth": "${myUser.birthday}",'
-         '"street": "${myUser.street}",'
-         '"birthday": "${myUser.birthday}"}'
+         '"email": "${myUser.email}"}'
      ));
 
   request.headers.addAll(headers);
@@ -256,6 +256,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      await updatePartner(myUser);
 
 
     }
@@ -265,27 +266,28 @@ class OdooApiClient extends GetxService with ApiClient {
 
   }
 
-
-
-
   updatePartner(MyUser myUser) async {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=fb684dfb6b5282f2f26a5696dae345076e431019'
+      'Cookie': 'session_id=c2f0577a02cbfee7322f6f0e233e301745a03c03'
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=${myUser.id}&values={'
-        '"name": "${myUser.name}",'
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=121&values={'
+        '"birthdate": "${myUser.birthday}",'
         '"phone": "${myUser.phone}",'
-        '"gender": "${myUser.sex}",'
-        '"email": "${myUser.email}"}'));
+        '"birth_city_id": "${myUser.birthplace}",'
+        '"residence_city_id": "${myUser.street}",'
+        '"gender": "${myUser.sex}"'));
 
-  request.headers.addAll(headers);
+    request.headers.addAll(headers);
 
-  http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await request.send();
+
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      print(myUser.birthplace);
+      print(myUser.street);
 
       // await updateToPortalUser(myUser);
 
@@ -298,6 +300,88 @@ class OdooApiClient extends GetxService with ApiClient {
     }
 
   }
+
+  // updatePartnerEmail(int id, String email) async {
+  //   var headers = {
+  //     'Accept': 'application/json',
+  //     'Authorization': Domain.authorization,
+  //     'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+  //   };
+  //
+  //   var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=$id&values={'
+  //       '"email": "$email"}'
+  //   ));
+  //
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //   if (response.statusCode == 200) {
+  //     print(await response.stream.bytesToString());
+  //
+  //
+  //   }
+  //   else {
+  //     print(response.reasonPhrase);
+  //   }
+  //
+  // }
+
+
+  updateToTraveler(bool value, MyUser myser) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=${myser.userId}&values={'
+        '"is_traveler": "$value"}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
+  updateToShipper(bool value, MyUser myUser) async {
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=${myUser.userId}&values={'
+        '"is_shipper": "$value"}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+
+
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
+
+
 
   updateToPortalUser(int id) async {
     var headers = {
