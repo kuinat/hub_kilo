@@ -224,107 +224,31 @@ class MessagesController extends GetxController {
     }
   }
 
-  acceptAndPriceRoadBooking(var message)async{
+  acceptAndPriceShipping(var price)async{
     print(card['id']);
-    final box = GetStorage();
-    var session_id = box.read("session_id");
 
     var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; $session_id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/road/travel/booking_price/${card['id']}'));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "booking_price": message
-      }
-    });
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"state": "accepted",'
+        '"shipping_price": $price,'
+        '}&ids=${card['id']}'
+    ));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-
-      if(json.decode(data)['result'] != null){
-        print(data);
-        acceptRoadBooking(card['id']);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping price set".tr));
+      Navigator.pop(Get.context);
     }
     else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  acceptRoadBooking(int id)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/road/accept/booking/'+id.toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      if(json.decode(data)['result'] != null){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking confirmed ".tr));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data).tr));
     }
-    else {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-    }
-
-  }
-
-  acceptAndPriceAirBooking(var message)async{
-    print(card['id']);
-    final box = GetStorage();
-    var session_id = box.read("session_id");
-
-
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': session_id.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/travel/booking/new_price/'+card['id'].toString()));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "new_price": message
-      }
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-
-      if(json.decode(data)['result'] != null){
-        print(data);
-        acceptAirBooking(card['id']);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-
   }
 
   acceptAirBooking(int id)async{

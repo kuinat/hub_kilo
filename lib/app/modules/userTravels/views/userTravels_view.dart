@@ -21,10 +21,23 @@ class MyTravelsView extends GetView<UserTravelsController> {
         floatingActionButton: FloatingActionButton(
           //backgroundColor: pink,
             onPressed: ()=>{
-              Get.toNamed(Routes.ADD_TRAVEL_FORM)
+
+              for(var i=0; i < controller.items.length; i++){
+                if(controller.items[i]['state'].contains("negotiating")){
+                  controller.inNegotiation.value = true
+                }else{
+                  controller.inNegotiation.value = false
+                }
+              },
+              if(!controller.inNegotiation.value){
+                Get.toNamed(Routes.ADD_TRAVEL_FORM)
+              }else{
+                Get.showSnackbar(Ui.notificationSnackBar(message: "You cannot have simultaneous in the system two travels in negotiation! please update and try again"))
+              }
+
             },
             child: Center(
-              child: Icon(FontAwesomeIcons.planeDeparture, size: 18),
+              child: Icon(Icons.airplanemode_on_sharp, size: 25),
             )
         ),
         appBar: AppBar(
@@ -119,7 +132,42 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                           text: Text(""),
                                           imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                                           homePage: false,
-                                          action: ()=> controller.publishTravel(controller.items[index]['id']),
+                                          action: ()=> {
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              content: Text("Verification and publishing of travel announcement..."),
+                                              duration: Duration(seconds: 2),
+                                            )),
+                                            if(controller.isConform.value){
+                                              controller.publishTravel(controller.items[index]['id'])
+                                            }else{
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (_){
+                                                    return AlertDialog(
+                                                      title: Text("Identity files not conform!"),
+                                                      content: Text('Your identity could not be verified, please make sure to register your personal identity information and try again', style: Get.textTheme.headline4),
+                                                      actions: [
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.end,
+                                                          children: [
+                                                            TextButton(
+                                                                onPressed: () => Navigator.pop(context),
+                                                                child: Text("Cancel", style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
+                                                                )
+                                                            ),
+                                                            SizedBox(width: 10),
+                                                            TextButton(
+                                                                onPressed: () => Get.toNamed(Routes.IDENTITY_FILES),
+                                                                child: Text("Upload files", style: Get.textTheme.headline4
+                                                                )
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    );
+                                                  })
+                                            }
+                                          },
                                           travelType: controller.items[index]['booking_type'] != "road" ? true : false,
                                           travelBy: controller.items[index]['booking_type'],
 

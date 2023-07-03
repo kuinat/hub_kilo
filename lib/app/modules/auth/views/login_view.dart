@@ -88,6 +88,7 @@ class LoginView extends GetView<AuthController> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         TextFieldWidget(
+                          readOnly: false,
                           labelText: "Email Address".tr,
                           hintText: "johndoe@gmail.com".tr,
                           initialValue: controller.currentUser?.value?.email,
@@ -99,6 +100,7 @@ class LoginView extends GetView<AuthController> {
                           return TextFieldWidget(
                             labelText: "Password".tr,
                             hintText: "••••••••••••".tr,
+                            readOnly: false,
                             initialValue: controller.currentUser?.value?.password,
                             onSaved: (input) => controller.currentUser?.value?.password = input,
                             validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,

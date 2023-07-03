@@ -310,40 +310,9 @@ class TravelInspectController extends GetxController {
     }
     else{
 
-      var receiver_partner_id = await createBeneficiary(name.value, email.value, phone.value);
-      var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
-          '"travelbooking_id": ${travelCard['id']},'
-          '"receiver_partner_id": $receiver_partner_id,'
-          '"shipping_price": 0.0,'
-          '"luggage_ids": $luggageId,'
-          '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-          '}'
-      ));
-
-
-      request.headers.addAll(headers);
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-
-        var data = await response.stream.bytesToString();
-        print(data);
-        buttonPressed.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-        await Get.find<RootController>().changePage(1);
-
-      }
-      else {
-        var data = await response.stream.bytesToString();
-        print(data);
-        buttonPressed.value = false;
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
-      }
-
+      await createBeneficiary(name.value, email.value, phone.value);
 
     }
-
   }
 
    createBeneficiary(String name, String email, String phone ) async {
@@ -366,54 +335,63 @@ class TravelInspectController extends GetxController {
 
     ));
 
-
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200)  {
-      print('Hollolalallalllallallllalla');
       var result = await response.stream.bytesToString();
       print(result);
       var data = json.decode(result);
       var portalId = await updateBeneficiaryToPortalUser(data[0]);
-      var partnerId = await getCreatedBeneficiary(portalId[0]);
+      var partnerId = await getCreatedBeneficiary(portalId);
       //await updateBeneficiaryPartnerEmail(partnerId, email);
-      return partnerId;
+      createShipping(partnerId);
     }
     else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured, Please try again"));
+      var data = await response.stream.bytesToString();
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
-
   }
 
-  // updateBeneficiaryPartnerEmail(int id, String email) async {
-  //   var headers = {
-  //     'Accept': 'application/json',
-  //     'Authorization': Domain.authorization,
-  //     'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
-  //   };
-  //
-  //   var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
-  //       '"email": "$email"}'
-  //   ));
-  //
-  //   request.headers.addAll(headers);
-  //
-  //   http.StreamedResponse response = await request.send();
-  //
-  //   if (response.statusCode == 200) {
-  //     print(await response.stream.bytesToString());
-  //
-  //
-  //   }
-  //   else {
-  //     print(response.reasonPhrase);
-  //   }
-  //
-  // }
+  createShipping(var partnerId)async{
 
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
+        '"travelbooking_id": ${travelCard['id']},'
+        '"receiver_partner_id": $partnerId,'
+        '"shipping_price": 0.0,'
+        '"luggage_ids": $luggageId,'
+        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
+        '}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      var data = await response.stream.bytesToString();
+      print(data);
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
+      await Get.find<RootController>().changePage(1);
+
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+    }
+  }
 
   updateBeneficiaryToPortalUser(int id) async {
     var headers = {
@@ -434,22 +412,12 @@ class TravelInspectController extends GetxController {
 
       print('Updated to portal user');
       print(data);
-
-      // buttonPressed.value = false;
-      // Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      // await Get.find<RootController>().changePage(1);
-      // return json.decode(data);
-
-
-
-
-
+      return json.decode(data)[0];
     }
     else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
-
   }
 
   getCreatedBeneficiary(int id) async {

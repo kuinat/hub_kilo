@@ -333,6 +333,8 @@ class ChatsView extends GetView<MessagesController> {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.start,
       //crossAxisAlignment: CrossAxisAlignment.start,
+      alignment: WrapAlignment.start,
+      runAlignment:WrapAlignment.start,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,11 +410,12 @@ class ChatsView extends GetView<MessagesController> {
               backgroundColor: validateColor,
             ),
             onPressed: (){
-              controller.card['travel']['travel_type'] == 'air'?
+              controller.acceptAndPriceShipping(message['price']);
+              /*controller.card['travel']['travel_type'] == 'air'?
               controller.acceptAndPriceAirBooking(message['message']) :
               controller.card['travel']['travel_type'] == 'road'?
               controller.acceptAndPriceRoadBooking(message['message']):
-              (){};
+              (){};*/
             },
             child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
         )

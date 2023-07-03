@@ -204,10 +204,19 @@ class BookingsView extends GetView<BookingsController> {
                       text: controller.items[index]['travelbooking_id'][1],
                       luggageView: ElevatedButton(
                           onPressed: ()async{
+                            controller.shippingLoading.value = true;
+
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Loading data..."),
+                              duration: Duration(seconds: 2),
+                            ));
+
+                            await controller.getLuggageInfo(controller.items[index]['luggage_ids']);
+
+                            if(!controller.shippingLoading.value)
                             showDialog(
                                 context: context,
                                 builder: (_){
-                                  controller.getLuggageInfo(controller.items[index]['luggage_ids']);
                                   return Dialog(
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
@@ -222,183 +231,187 @@ class BookingsView extends GetView<BookingsController> {
                                           merge(TextStyle(color: appColor, fontSize: 17))),
                                           SizedBox(height: 15),
                                           for(var a=0; a<controller.shippingLuggage.length; a++)...[
-                                            SizedBox(
-                                              width: double.infinity,
-                                              height: 170,
-                                              child:  Obx(() => Expanded(
-                                                child:controller.editPhotos.value?ListView.builder(
-                                                    scrollDirection: Axis.horizontal,
-                                                    itemCount: 3,
-                                                    itemBuilder: (context, index){
-                                                      return Card(
-                                                          margin: EdgeInsets.symmetric(horizontal: 10),
-                                                          child: ClipRRect(
-                                                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                              child: FadeInImage(
-                                                                width: 120,
-                                                                height: 100,
-                                                                image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                                    headers: Domain.getTokenHeaders()),
-                                                                placeholder: AssetImage(
-                                                                    "assets/img/loading.gif"),
-                                                                imageErrorBuilder:
-                                                                    (context, error, stackTrace) {
-                                                                  return Image.asset(
-                                                                      'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                                      width: 50,
-                                                                      height: 50,
-                                                                      fit: BoxFit.fitWidth);
-                                                                },
-                                                              )
-                                                          )
-                                                      );
-                                                    })
-                                                    : Container(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                    color: Colors.white,
-                                                  ),
-                                                  padding: EdgeInsets.all(10),
-                                                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                                                  child: Column(
-                                                    children: [
-                                                      Align(
-                                                        child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
-                                                        alignment: Alignment.topLeft,
-                                                      ),
-                                                      Spacer(),
-                                                      controller.imageFiles.length<=0?GestureDetector(
-                                                          onTap: () {
-                                                            showDialog(
-                                                                context: Get.context,
-                                                                builder: (_){
-                                                                  return AlertDialog(
-                                                                    content: Container(
-                                                                        height: 170,
-                                                                        padding: EdgeInsets.all(10),
-                                                                        child: Column(
-                                                                          children: [
-                                                                            ListTile(
-                                                                              onTap: ()async{
-                                                                                await controller.pickImage(ImageSource.camera);
-                                                                                Navigator.pop(Get.context);
-                                                                              },
-                                                                              leading: Icon(FontAwesomeIcons.camera),
-                                                                              title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                            ),
-                                                                            ListTile(
-                                                                              onTap: ()async{
-                                                                                await controller.pickImage(ImageSource.gallery);
-                                                                                Navigator.pop(Get.context);
-                                                                              },
-                                                                              leading: Icon(FontAwesomeIcons.image),
-                                                                              title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                            )
-                                                                          ],
-                                                                        )
-                                                                    ),
-                                                                  );
-                                                                });
-                                                          },
-                                                          child: Container(
-                                                            width: 100,
-                                                            height: 100,
-                                                            padding: EdgeInsets.all(20),
-                                                            alignment: Alignment.center,
-                                                            decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                                                            child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                                                          )
-                                                      )
-                                                          :Column(
-                                                        children: [
-                                                          SizedBox(
-                                                            height:80,
-                                                            child: ListView.separated(
-                                                                scrollDirection: Axis.horizontal,
-                                                                padding: EdgeInsets.all(12),
-                                                                itemBuilder: (context, index){
-                                                                  return Stack(
-                                                                    //mainAxisAlignment: MainAxisAlignment.end,
-                                                                    children: [
-                                                                      ClipRRect(
-                                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                        child: Image.file(
-                                                                          controller.imageFiles[index],
-                                                                          fit: BoxFit.cover,
-                                                                          width: 80,
-                                                                          height: 80,
-                                                                        ),
-                                                                      ),
-                                                                      Positioned(
-                                                                        top:0,
-                                                                        right:0,
-                                                                        child: Align(
-                                                                          //alignment: Alignment.centerRight,
-                                                                          child: IconButton(
-                                                                              onPressed: (){
-                                                                                controller.imageFiles.removeAt(index);
-                                                                              },
-                                                                              icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                                separatorBuilder: (context, index){
-                                                                  return SizedBox(width: 8);
-                                                                },
-                                                                itemCount: controller.imageFiles.length),
-                                                          ),
-                                                          Align(
-                                                            alignment: Alignment.centerRight,
-                                                            child: Visibility(
-                                                                child: InkWell(
-                                                                  onTap: (){
-                                                                    showDialog(
-                                                                        context: Get.context,
-                                                                        builder: (_){
-                                                                          return AlertDialog(
-                                                                            content: Container(
-                                                                                height: 170,
-                                                                                padding: EdgeInsets.all(10),
-                                                                                child: Column(
-                                                                                  children: [
-                                                                                    ListTile(
-                                                                                      onTap: ()async{
-                                                                                        await controller.pickImage(ImageSource.camera);
-                                                                                        Navigator.pop(Get.context);
-                                                                                      },
-                                                                                      leading: Icon(FontAwesomeIcons.camera),
-                                                                                      title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                    ),
-                                                                                    ListTile(
-                                                                                      onTap: ()async{
-                                                                                        await controller.pickImage(ImageSource.gallery);
-                                                                                        Navigator.pop(Get.context);
-                                                                                      },
-                                                                                      leading: Icon(FontAwesomeIcons.image),
-                                                                                      title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                    )
-                                                                                  ],
-                                                                                )
-                                                                            ),
-                                                                          );
-                                                                        });
-                                                                  },
-                                                                  child: Icon(FontAwesomeIcons.circlePlus),
+                                            Obx(() => SizedBox(
+                                                width: double.infinity,
+                                                height: 170,
+                                                child:  Column(
+                                                  children: [
+                                                    Expanded(
+                                                      child:controller.editPhotos.value?ListView.builder(
+                                                          scrollDirection: Axis.horizontal,
+                                                          itemCount: 3,
+                                                          itemBuilder: (context, index){
+                                                            return Card(
+                                                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                                                child: ClipRRect(
+                                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                    child: FadeInImage(
+                                                                      width: 120,
+                                                                      height: 100,
+                                                                      image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                                          headers: Domain.getTokenHeaders()),
+                                                                      placeholder: AssetImage(
+                                                                          "assets/img/loading.gif"),
+                                                                      imageErrorBuilder:
+                                                                          (context, error, stackTrace) {
+                                                                        return Image.asset(
+                                                                            'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                                            width: 50,
+                                                                            height: 50,
+                                                                            fit: BoxFit.fitWidth);
+                                                                      },
+                                                                    )
                                                                 )
+                                                            );
+                                                          })
+                                                          : Container(
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                          color: Colors.white,
+                                                        ),
+                                                        padding: EdgeInsets.all(10),
+                                                        margin: EdgeInsets.only(top: 10, bottom: 10),
+                                                        child: Column(
+                                                          children: [
+                                                            Align(
+                                                              child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
+                                                              alignment: Alignment.topLeft,
                                                             ),
-                                                          )
-                                                        ],
+                                                            Spacer(),
+                                                            controller.imageFiles.length<=0?GestureDetector(
+                                                                onTap: () {
+                                                                  showDialog(
+                                                                      context: Get.context,
+                                                                      builder: (_){
+                                                                        return AlertDialog(
+                                                                          content: Container(
+                                                                              height: 170,
+                                                                              padding: EdgeInsets.all(10),
+                                                                              child: Column(
+                                                                                children: [
+                                                                                  ListTile(
+                                                                                    onTap: ()async{
+                                                                                      await controller.pickImage(ImageSource.camera);
+                                                                                      Navigator.pop(Get.context);
+                                                                                    },
+                                                                                    leading: Icon(FontAwesomeIcons.camera),
+                                                                                    title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                  ),
+                                                                                  ListTile(
+                                                                                    onTap: ()async{
+                                                                                      await controller.pickImage(ImageSource.gallery);
+                                                                                      Navigator.pop(Get.context);
+                                                                                    },
+                                                                                    leading: Icon(FontAwesomeIcons.image),
+                                                                                    title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                  )
+                                                                                ],
+                                                                              )
+                                                                          ),
+                                                                        );
+                                                                      });
+                                                                },
+                                                                child: Container(
+                                                                  width: 100,
+                                                                  height: 100,
+                                                                  padding: EdgeInsets.all(20),
+                                                                  alignment: Alignment.center,
+                                                                  decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                                                                  child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                                                                )
+                                                            )
+                                                                :Column(
+                                                              children: [
+                                                                SizedBox(
+                                                                  height:80,
+                                                                  child: ListView.separated(
+                                                                      scrollDirection: Axis.horizontal,
+                                                                      padding: EdgeInsets.all(12),
+                                                                      itemBuilder: (context, index){
+                                                                        return Stack(
+                                                                          //mainAxisAlignment: MainAxisAlignment.end,
+                                                                          children: [
+                                                                            ClipRRect(
+                                                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                              child: Image.file(
+                                                                                controller.imageFiles[index],
+                                                                                fit: BoxFit.cover,
+                                                                                width: 80,
+                                                                                height: 80,
+                                                                              ),
+                                                                            ),
+                                                                            Positioned(
+                                                                              top:0,
+                                                                              right:0,
+                                                                              child: Align(
+                                                                                //alignment: Alignment.centerRight,
+                                                                                child: IconButton(
+                                                                                    onPressed: (){
+                                                                                      controller.imageFiles.removeAt(index);
+                                                                                    },
+                                                                                    icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                      separatorBuilder: (context, index){
+                                                                        return SizedBox(width: 8);
+                                                                      },
+                                                                      itemCount: controller.imageFiles.length),
+                                                                ),
+                                                                Align(
+                                                                  alignment: Alignment.centerRight,
+                                                                  child: Visibility(
+                                                                      child: InkWell(
+                                                                        onTap: (){
+                                                                          showDialog(
+                                                                              context: Get.context,
+                                                                              builder: (_){
+                                                                                return AlertDialog(
+                                                                                  content: Container(
+                                                                                      height: 170,
+                                                                                      padding: EdgeInsets.all(10),
+                                                                                      child: Column(
+                                                                                        children: [
+                                                                                          ListTile(
+                                                                                            onTap: ()async{
+                                                                                              await controller.pickImage(ImageSource.camera);
+                                                                                              Navigator.pop(Get.context);
+                                                                                            },
+                                                                                            leading: Icon(FontAwesomeIcons.camera),
+                                                                                            title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                          ),
+                                                                                          ListTile(
+                                                                                            onTap: ()async{
+                                                                                              await controller.pickImage(ImageSource.gallery);
+                                                                                              Navigator.pop(Get.context);
+                                                                                            },
+                                                                                            leading: Icon(FontAwesomeIcons.image),
+                                                                                            title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                          )
+                                                                                        ],
+                                                                                      )
+                                                                                  ),
+                                                                                );
+                                                                              });
+                                                                        },
+                                                                        child: Icon(FontAwesomeIcons.circlePlus),
+                                                                      )
+                                                                  ),
+                                                                )
+                                                              ],
 
+                                                            ),
+
+                                                          ],
+                                                        ),
                                                       ),
-
-                                                    ],
-                                                  ),
-                                                ),
-                                              ))
-                                            ),
+                                                    )
+                                                  ],
+                                                )
+                                            )),
                                             SizedBox(height: 15),
                                             Obx(() => Align(
                                                 alignment: Alignment.bottomRight,
@@ -420,8 +433,8 @@ class BookingsView extends GetView<BookingsController> {
                                                   TextButton(
                                                       onPressed: ()async{
                                                     // controller.editPhotos.value = !controller.editPhotos.value;
-                                                    for(var a=1; a<4; a++){
-                                                      await controller.sendImages(a, controller.imageFiles[a-1]);
+                                                    for(var i=1; i<4; i++){
+                                                      await controller.sendImages(i, controller.imageFiles[i-1], controller.shippingLuggage[a]['id']);
                                                     }
                                                     controller.buttonPressed.value = !controller.buttonPressed.value;
                                                     //controller.assignLuggageToShipping(controller.items[index]);
@@ -442,7 +455,7 @@ class BookingsView extends GetView<BookingsController> {
                                               value: controller.shippingLuggage[a]['name'],
                                             ),
                                             AccountWidget(
-                                              icon: FontAwesomeIcons.shoppingBag,
+                                              icon: FontAwesomeIcons.rulerHorizontal,
                                               text: Text('Dimensions'),
                                               value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
                                             ),
@@ -502,10 +515,10 @@ class BookingsView extends GetView<BookingsController> {
                               TextStyle(fontSize: 18, decoration: TextDecoration.underline)))),
                       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
 
-                      recName: controller.items[index]['receiver_partner_id'][1],
-                      recAddress: controller.items[index]['receiver_address'],
+                      recName: controller.items[index]['receiver_partner_id'] != false ? controller.items[index]['receiver_partner_id'][1].toString() : "___",
+                      recAddress: controller.items[index]['receiver_address'].toString(),
                       recEmail: controller.items[index]['receiver_email'].toString(),
-                      recPhone: controller.items[index]['receiver_phone'],
+                      recPhone: controller.items[index]['receiver_phone'].toString(),
                       edit: () {
 
                         return Get.bottomSheet(
