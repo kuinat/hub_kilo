@@ -423,7 +423,7 @@ class BookingsController extends GetxController {
     }
   }
 
-  sendImages(int a, var imageFil)async{
+  sendImages(int a, var imageFil, var idLuggage)async{
     // var headers = {
     //   'Accept': 'application/json',
     //   'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
@@ -459,35 +459,6 @@ class BookingsController extends GetxController {
     //}
   }
 
-  assignLuggageToShipping(var shipping)async{
-
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
-    };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"luggage_ids": $luggageId,'
-        '}&ids=${shipping['id']}'
-    ));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      print('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: '+data.toString());
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
-        Navigator.pop(Get.context);
-        imageFiles.clear();
-
-    }
-    else {
-      var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
-    }
-  }
 
 
   @override
@@ -497,7 +468,7 @@ class BookingsController extends GetxController {
 
   Future getLuggageInfo(var ids) async{
 
-    idLuggage = ids;
+    //idLuggage.value = ids;
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,

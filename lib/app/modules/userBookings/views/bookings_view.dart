@@ -421,7 +421,7 @@ class BookingsView extends GetView<BookingsController> {
                                                       onPressed: ()async{
                                                     // controller.editPhotos.value = !controller.editPhotos.value;
                                                     for(var a=1; a<4; a++){
-                                                      await controller.sendImages(a, controller.imageFiles[a-1]);
+                                                      await controller.sendImages(a, controller.imageFiles[a-1],controller.items[index]['luggage_ids'][0]);
                                                     }
                                                     controller.buttonPressed.value = !controller.buttonPressed.value;
                                                     //controller.assignLuggageToShipping(controller.items[index]);

@@ -116,7 +116,7 @@ class RootController extends GetxController {
         {
           if(Get.find<MyAuthService>().myUser.value.email != null){
             Get.lazyPut(()=>AccountController());
-            await Get.find<AccountController>().refresh();
+            await Get.find<AccountController>().onRefresh();
           }
           break;
         }

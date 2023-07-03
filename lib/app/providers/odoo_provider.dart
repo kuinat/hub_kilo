@@ -214,7 +214,7 @@ class OdooApiClient extends GetxService with ApiClient {
   else {
   print(response.reasonPhrase);
 
-  Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured, Please try again"));
+  Get.showSnackbar(Ui.ErrorSnackBar(message: "This acccount already exist in the system, Please try again"));
   return false;
   }
 
@@ -1575,29 +1575,18 @@ class OdooApiClient extends GetxService with ApiClient {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
 
-
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=997d9e6103047cb1ee7fadebe4c84e77d4d78733'
+      'Content-Type': 'multipart/form-data',
+      'Cookie': 'session_id=a5b5f221b0eca50ae954ad4923fead1063097951'
     };
-    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/${myUser.id}'));
-    request.files.add(await http.MultipartFile.fromPath('', file.path));
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/${myUser.id}/image_1920'));
+    request.files.add(await http.MultipartFile.fromPath('ufile', file.path));
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
-    //
-    // final box = GetStorage();
-    // var sessionId = box.read('session_id');
-    // var headers = {
-    //   'Cookie': 'frontend_lang=en_US; '+sessionId.toString()
-    // };
-    // var request = http.MultipartRequest('POST', Uri.parse(Domain.serverPort+'/image_1920/update'));
-    // request.files.add(await http.MultipartFile.fromPath('image_1920_doc', file.path));
-    // request.headers.addAll(headers);
-    //
-    // http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       print("Yrreee: "+await response.stream.bytesToString());
