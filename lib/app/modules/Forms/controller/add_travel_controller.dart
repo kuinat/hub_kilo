@@ -2,19 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../models/media_model.dart';
-import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../root/controllers/root_controller.dart';
 import 'package:http/http.dart' as http;
@@ -204,17 +200,6 @@ class AddTravelController extends GetxController{
       print(arrivalDate.value);
     }
   }
-
-  /*searchPlace()async{
-    Prediction prediction = await PlacesAutocomplete.show(
-        context: Get.context,
-        apiKey: "AIzaSyDdyth2EiAjU9m9eE_obC5fnTY1yeVNTJU",
-        mode: Mode.fullscreen, // Mode.overlay
-        language: "en",
-        components: [Component(Component.country, "pk")]);
-    print(prediction.description);
-    //displayPrediction(prediction);
-  }*/
 
   bool disableDate(DateTime day) {
     if ((day.isAfter(DateTime.now().add(Duration(days: 1))))) {

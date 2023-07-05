@@ -13,6 +13,7 @@ class UpdatePasswordWidget extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    Get.lazyPut(()=>ProfileController());
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

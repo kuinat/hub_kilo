@@ -21,7 +21,9 @@ class UserTravelsController extends GetxController {
   var roadTravels = [];
   var list = [];
   var travelList = [];
+  var inNegotiation = false.obs;
   var listForProfile = [].obs;
+  var isConform = false.obs;
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();
@@ -78,7 +80,6 @@ class UserTravelsController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
 
@@ -89,23 +90,23 @@ class UserTravelsController extends GetxController {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
-
+      if(data['partner_attachment_ids'].isNotEmpty){
+        isConform.value = true;
+      }
       travelList = data['travelbooking_ids'];
 
     } else {
       print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
     }
   }
 
   Future myTravels()async{
-    final box = GetStorage();
-    var id = box.read("session_id");
+
     print("travel ids are: $travelList");
+
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$travelList'));
 

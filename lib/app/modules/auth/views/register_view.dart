@@ -116,6 +116,7 @@ class RegisterView extends GetView<AuthController> {
                         TextFieldWidget(
                           labelText: "Full Name".tr,
                           hintText: "John Doe".tr,
+                          readOnly: false,
                           initialValue: controller.currentUser?.value?.name,
                           onSaved: (input) => controller.currentUser?.value?.name = input,
                           validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
@@ -124,6 +125,7 @@ class RegisterView extends GetView<AuthController> {
                         TextFieldWidget(
                           labelText: "Email Address".tr,
                           hintText: "johndoe@gmail.com".tr,
+                          readOnly: false,
                           initialValue: controller.currentUser?.value?.email,
                           onSaved: (input) => controller.currentUser?.value?.email = input,
                           validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
@@ -213,6 +215,7 @@ class RegisterView extends GetView<AuthController> {
                             },
                             labelText: "Password".tr,
                             hintText: "••••••••••••".tr,
+                            readOnly: false,
                             initialValue: controller.currentUser?.value?.password,
                             onSaved: (input) => controller.currentUser?.value?.password = input,
                             validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
@@ -243,9 +246,7 @@ class RegisterView extends GetView<AuthController> {
                             labelText: "Confirm Password".tr,
                             errorText: controller.confirmPassword.value == 'password not matching'?'password not matching':null,
                             hintText: "••••••••••••".tr,
-                            //initialValue: controller.currentUser?.value?.password,
-                            //onSaved: (input) => controller.currentUser.value.password = input,
-                            //validator: (input) => controller.confirmPassword.value,
+                            readOnly: false,
                             obscureText: controller.hidePassword.value,
                             iconData: Icons.lock_outline,
                             keyboardType: TextInputType.visiblePassword,
@@ -279,9 +280,6 @@ class RegisterView extends GetView<AuthController> {
                   width: Get.width,
                   child: BlockButtonWidget(
                     onPressed: () {
-                      // if(!controller.birthDateSet.value){
-                      //   controller.currentUser?.value?.birthday = DateFormat('yyyy-MM-dd').format(controller.birthDate.value).toString();
-                      // }
 
                       if(controller.password.value==controller.confirmPassword.value)
                       {

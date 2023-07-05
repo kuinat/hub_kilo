@@ -46,19 +46,26 @@ class ValidationController extends GetxController {
 
   initValues()async{
     List data = await getAllShipping();
-    items = await getReceiverBookings();
+    //items = await getReceiverBookings();
     List receiverShipping = [];
     for(var a=0; a<data.length; a++){
-      if(Get.find<MyAuthService>().myUser.value.id == data[a]['receiver_partner_id'][0]){
-        receiverShipping.add(data[a]);
-        var luggage = await getLuggageInfo(data[a]['luggage_ids'][0]);
-        var travel = await geTravelInfo(data[a]['travelbooking_id'][0]);
-        luggageInfo.value = luggage;
-        travelInfo.value = travel;
+      if(data[a]['receiver_partner_id'] != false){
+        if( Get.find<MyAuthService>().myUser.value.id == data[a]['receiver_partner_id'][0]){
+          receiverShipping.add(data[a]);
+          var luggage = await getLuggageInfo(data[a]['luggage_ids'][0]);
+          var travel = await geTravelInfo(data[a]['travelbooking_id'][0]);
+          luggageInfo.value = luggage;
+          travelInfo.value = travel;
+        }
       }
     }
 
     shipping.value = receiverShipping;
+    print(shipping);
+  }
+
+  refreshPage()async{
+    initValues();
   }
 
   Future scan() async {
@@ -84,20 +91,16 @@ class ValidationController extends GetxController {
   }
 
   completeTransaction(var code)async{
-    final box = GetStorage();
-    var id = box.read("session_id");
-    print(id);
+
     var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; $id'
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
     };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/all/booking/completed'));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": {
-        "booking_code": code
-      }
-    });
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"state": "received",}&ids=2'
+    ));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -105,11 +108,12 @@ class ValidationController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       print(data);
-      Get.showSnackbar(Ui.SuccessSnackBar(message: json.decode(data)['result'].tr));
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Transaction completed with success"));
     }
     else {
+      var data = await response.stream.bytesToString();
       print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
     }
   }
 

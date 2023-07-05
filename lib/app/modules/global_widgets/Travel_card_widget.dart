@@ -220,7 +220,7 @@ class TravelCardWidget extends StatelessWidget {
                                   )),
                             ]
                         ),
-                      Spacer(),
+
                     ]
                 )
               ],
