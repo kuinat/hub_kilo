@@ -46,6 +46,7 @@ class RootController extends GetxController {
   Widget get currentPage => pages[currentIndex.value];
 
   Future<void> changePageInRoot(int _index) async {
+    Get.lazyPut<AccountController>(()=>AccountController());
     Get.lazyPut<MyAuthService>(
           () => MyAuthService(),
     );

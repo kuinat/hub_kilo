@@ -328,7 +328,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                         },
                         title: Text('road')
                     )),
-                    /*Obx(() => SwitchListTile( //switch at right side of label
+                    Obx(() => SwitchListTile( //switch at right side of label
                         value: controller.travelType.value == 'air' ? true : false,
                         onChanged: (bool value){
                           controller.travelType.value = 'air';
@@ -343,12 +343,12 @@ class AddTravelsView extends GetView<AddTravelController> {
                           print(controller.travelType.value);
                         },
                         title: Text('sea')
-                    )),*/
+                    )),
                   ],
-                  initiallyExpanded: controller.travelCard.isEmpty ? false : true,
+                  initiallyExpanded: true,
                 )
             ),
-            if(controller.travelType.value != "road")...[
+            /*if(controller.travelType.value != "road")...[
               TextFieldWidget(
                 initialValue: controller.travelCard.isNotEmpty ? controller.travelCard['kilo_qty'].toString() : "",
                 keyboardType: TextInputType.number,
@@ -366,17 +366,7 @@ class AddTravelsView extends GetView<AddTravelController> {
                 labelText: "Price /kg".tr,
                 iconData: Icons.attach_money,
               )
-            ]else...[
-              SizedBox(height: 30),
-              SwitchListTile( //switch at right side of label
-                  value: controller.canBargain.value,
-                  onChanged: (bool value){
-                    controller.canBargain.value = value;
-                  },
-                  title: Text("Bargain?")
-              ),
-              //Text("The price will depend on the luggage", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 18)))
-            ]
+            ]*/
           ],
         )
     );

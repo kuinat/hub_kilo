@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:app/app/modules/global_widgets/user_widget.dart';
+import 'package:app/color_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,12 +58,19 @@ class TravelInspectController extends GetxController {
   var areBookingsLoading = false.obs;
   final errorField = false.obs;
   var shippingLuggage =[].obs;
+  final _picker = ImagePicker();
+  File profileImage;
+  final loadProfileImage = false.obs;
+  List<String> existingPartner = ['testName','https://stock.adobe.com/search?k=admin' ];
+  var existingPartnerVisible = false.obs;
 
 
   var visible = true.obs;
   UserRepository _userRepository;
 
   UploadRepository _uploadRepository;
+
+
   TravelInspectController() {
     _uploadRepository = new UploadRepository();
     Get.lazyPut<BookingsController>(
@@ -310,40 +320,9 @@ class TravelInspectController extends GetxController {
     }
     else{
 
-      var receiver_partner_id = await createBeneficiary(name.value, email.value, phone.value);
-      var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
-          '"travelbooking_id": ${travelCard['id']},'
-          '"receiver_partner_id": $receiver_partner_id,'
-          '"shipping_price": 0.0,'
-          '"luggage_ids": $luggageId,'
-          '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
-          '}'
-      ));
-
-
-      request.headers.addAll(headers);
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-
-        var data = await response.stream.bytesToString();
-        print(data);
-        buttonPressed.value = false;
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-        await Get.find<RootController>().changePage(1);
-
-      }
-      else {
-        var data = await response.stream.bytesToString();
-        print(data);
-        buttonPressed.value = false;
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
-      }
-
+      await createBeneficiary(name.value, email.value, phone.value);
 
     }
-
   }
 
    createBeneficiary(String name, String email, String phone ) async {
@@ -366,54 +345,99 @@ class TravelInspectController extends GetxController {
 
     ));
 
-
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200)  {
-      print('Hollolalallalllallallllalla');
       var result = await response.stream.bytesToString();
       print(result);
       var data = json.decode(result);
       var portalId = await updateBeneficiaryToPortalUser(data[0]);
-      var partnerId = await getCreatedBeneficiary(portalId[0]);
+      var partnerId = await getCreatedBeneficiary(portalId);
+      await uploadProfileImage(profileImage, partnerId);
       //await updateBeneficiaryPartnerEmail(partnerId, email);
-      return partnerId;
+      createShipping(partnerId);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
+      existingPartner = ['testname','https://stock.adobe.com/search?k=admin'];
+      //existingPartnerVisible.value = true;
+      setExistingPartnerToBeneficiary();
+    }
+  }
+
+  createShipping(var partnerId)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.shipping?values={'
+        '"travelbooking_id": ${travelCard['id']},'
+        '"receiver_partner_id": $partnerId,'
+        '"shipping_price": 0.0,'
+        '"luggage_ids": $luggageId,'
+        '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
+        '}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      var data = await response.stream.bytesToString();
+      print(data);
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
+      await Get.find<RootController>().changePage(1);
+
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+      buttonPressed.value = false;
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+    }
+  }
+
+  uploadProfileImage(File file, int id) async {
+    if (Get.find<MyAuthService>().myUser.value.email==null) {
+      throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
+    }
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Content-Type': 'multipart/form-data',
+      'Cookie': 'session_id=a5b5f221b0eca50ae954ad4923fead1063097951'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/res.partner/$id/image_1920'));
+    request.files.add(await http.MultipartFile.fromPath('ufile', file.path));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+
+    if (response.statusCode == 200) {
+      print("Yrreee: "+await response.stream.bytesToString());
+      //var user = await getUser();
+      //var uuid =user.image ;
+
+      //return uuid;
     }
     else {
       print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured, Please try again"));
     }
 
+
   }
-
-  // updateBeneficiaryPartnerEmail(int id, String email) async {
-  //   var headers = {
-  //     'Accept': 'application/json',
-  //     'Authorization': Domain.authorization,
-  //     'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
-  //   };
-  //
-  //   var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
-  //       '"email": "$email"}'
-  //   ));
-  //
-  //   request.headers.addAll(headers);
-  //
-  //   http.StreamedResponse response = await request.send();
-  //
-  //   if (response.statusCode == 200) {
-  //     print(await response.stream.bytesToString());
-  //
-  //
-  //   }
-  //   else {
-  //     print(response.reasonPhrase);
-  //   }
-  //
-  // }
-
 
   updateBeneficiaryToPortalUser(int id) async {
     var headers = {
@@ -434,22 +458,12 @@ class TravelInspectController extends GetxController {
 
       print('Updated to portal user');
       print(data);
-
-      // buttonPressed.value = false;
-      // Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
-      // await Get.find<RootController>().changePage(1);
-      // return json.decode(data);
-
-
-
-
-
+      return json.decode(data)[0];
     }
     else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
-
   }
 
   getCreatedBeneficiary(int id) async {
@@ -761,28 +775,132 @@ class TravelInspectController extends GetxController {
 
   }
 
+  setExistingPartnerToBeneficiary()async{
+    showDialog(
+        context: Get.context,
+        builder: (_){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Container(
+                height: MediaQuery.of(Get.context).size.height*0.25,
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Expanded(child: Text('The following user with email: ${email.value} already exist in our system would you like to designate him as receiver?', style: TextStyle(color: Colors.black),)),
+                    UserWidget(
+                      user: existingPartner[0],
+                      selected: false,
+                      imageUrl: existingPartner[1],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                      MaterialButton(
+                        onPressed: () async{
+                          Navigator.pop(Get.context);
+                        },
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        color: specialColor,
+                        child: Text("No".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
+                        elevation: 0,
+                        highlightElevation: 0,
+                        hoverElevation: 0,
+                        focusElevation: 0,
+                      ),
+                      SizedBox(width: 20,),
+                      MaterialButton(
+                        onPressed: () async{
 
-  Future getAllUsers()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
 
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/res.partner'));
+                        },
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        color: Get.theme.colorScheme.secondary,
+                        child: Text("yes".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
+                        elevation: 0,
+                        highlightElevation: 0,
+                        hoverElevation: 0,
+                        focusElevation: 0,
+                      ),
 
-    request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
+                    ],)
 
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      return json.decode(data);
-    }
-    else {
-      print(response.reasonPhrase);
-    }
+                  ],
+                )
+            ),
+          );
+        });
+
   }
+
+  selectCameraOrGalleryProfileImage()async{
+    showDialog(
+        context: Get.context,
+        builder: (_){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Container(
+                height: 170,
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    ListTile(
+                      onTap: ()async{
+                        await profileImagePicker('camera');
+                        //Navigator.pop(Get.context);
+                        loadProfileImage.value = !loadProfileImage.value;
+
+                      },
+                      leading: Icon(FontAwesomeIcons.camera),
+                      title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    ),
+                    ListTile(
+                      onTap: ()async{
+                        await profileImagePicker('gallery');
+                        //Navigator.pop(Get.context);
+                        loadProfileImage.value = !loadProfileImage.value;
+                      },
+                      leading: Icon(FontAwesomeIcons.image),
+                      title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    )
+                  ],
+                )
+            ),
+          );
+        });
+  }
+
+  profileImagePicker(String source) async {
+    if(source=='camera'){
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.camera);
+      if (pickedImage != null) {
+        profileImage = File(pickedImage.path);
+        Navigator.of(Get.context).pop();
+        //Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
+        //loadIdentityFile.value = !loadIdentityFile.value;//Navigator.of(Get.context).pop();
+      }
+    }
+    else{
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        profileImage = File(pickedImage.path);
+        Navigator.of(Get.context).pop();
+        //await sendImages(id, identificationFile );
+        //Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
+        //loadIdentityFile.value = !loadIdentityFile.value;
+        //Navigator.of(Get.context).pop();
+      }
+
+    }
+
+  }
+
+
+
 }

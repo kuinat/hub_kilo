@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
@@ -27,6 +28,8 @@ import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
 
 class TravelInspectView extends GetView<TravelInspectController> {
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -775,14 +778,18 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 MaterialButton(
                   onPressed: () =>{
                     print(controller.imageFiles.length),
-                    if(controller.luggageSelected.isNotEmpty){
-                      controller.errorField.value = false,
-                      controller.bookingStep.value++,
-                      controller.luggageId.value = [],
-                      for(var i = 0; i <
-                          controller.luggageSelected.length; i++)
-                        controller.createShippingLuggage(
-                            controller.luggageSelected[i])
+                    if(controller.luggageSelected.length < 3){
+                      if(controller.imageFiles.isNotEmpty){
+                        controller.errorField.value = false,
+                        controller.bookingStep.value++,
+                        controller.luggageId.value = [],
+                        for(var i = 0; i <
+                            controller.luggageSelected.length; i++)
+                          controller.createShippingLuggage(
+                              controller.luggageSelected[i])
+                      }else{
+                        Get.showSnackbar(Ui.InfoSnackBar(message: "You need to enter at least 3 images to continue!"))
+                      }
                     } else
                       {
                         controller.errorField.value = true
@@ -806,13 +813,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       ),
                       color: Get.theme.colorScheme.secondary,
                       onPressed: ()async{
-
-                        for(var a=1; a<4; a++){
-                          await controller.sendImages(a, controller.imageFiles[a-1]);
-                        }
-                        controller.buttonPressed.value = !controller.buttonPressed.value;
-                        controller.shipNow();
-
+                          controller.buttonPressed.value = true;
+                          for(var a=1; a<4; a++){
+                            await controller.sendImages(a, controller.imageFiles[a-1]);
+                          }
+                          controller.shipNow();
                       })
                 ),
               ],
@@ -1118,6 +1123,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
             Column(
               children: [
                 TextFieldWidget(
+                  readOnly: false,
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.name.value = input,
@@ -1125,32 +1131,107 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   iconData: FontAwesomeIcons.person,
                 ),
                 TextFieldWidget(
+                  readOnly: false,
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.email.value = input,
                   labelText: "Email".tr,
                   iconData: Icons.alternate_email,
                 ),
-                PhoneFieldWidget(
-                  labelText: "Phone Number".tr,
-                  hintText: "223 665 7896".tr,
-                  initialCountryCode: "CM",
-                  //initialValue: controller.currentUser?.value?.getPhoneNumber()?.number,
-                  onChanged: (phone){
-                    controller.phone.value = "${phone.countryCode}${phone.number}";
-                  },
+                Container(
+                  padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                  margin: EdgeInsets.only(left: 5, right: 5),
+                  decoration: BoxDecoration(
+                      color: Get.theme.primaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      boxShadow: [
+                        BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                      ],
+                      border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                  child: IntlPhoneField(
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(5),
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: '032655333333',
+                      labelText: 'Phone Number',
+                      suffixIcon: Icon(Icons.phone_android_outlined),
+                    ),
+                    initialCountryCode: 'BE',
+                    onSaved: (phone) {
+                      return controller.phone.value = phone.completeNumber;
+                    },
+                    onChanged: (phone) {
+                      String phoneNumber = phone.completeNumber;
+                      controller.phone.value = phoneNumber;
+                    },
+                  ),
                 ),
-                TextFieldWidget(
-                  keyboardType: TextInputType.text,
-                  validator: (input) => input.isEmpty ? "field required!".tr : null,
-                  onChanged: (input) => controller.address.value = input,
-                  labelText: "Address".tr,
-                  iconData: FontAwesomeIcons.addressCard,
+
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text("Profile Image".tr,
+                        style: Get.textTheme.bodyText1,
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Obx(() {
+                            if(!controller.loadProfileImage.value)
+                              return buildLoader();
+                            else return ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              child: Image.file(
+                                controller.profileImage,
+                                fit: BoxFit.cover,
+                                width: 100,
+                                height: 100,
+                              ),
+                            );
+                          }
+                          ),
+                          SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () async {
+
+                              await controller.selectCameraOrGalleryProfileImage();
+                              controller.loadProfileImage.value = false;
+
+                            },
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                              child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
+
+
+                // TextFieldWidget(
+                //   readOnly: false,
+                //   keyboardType: TextInputType.text,
+                //   validator: (input) => input.isEmpty ? "field required!".tr : null,
+                //   onChanged: (input) => controller.address.value = input,
+                //   labelText: "Address".tr,
+                //   iconData: FontAwesomeIcons.addressCard,
+                // ),
+
               ],
             ) :
             controller.visible.value ?
             TextFieldWidget(
+              readOnly: false,
               keyboardType: TextInputType.text,
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
@@ -1220,6 +1301,21 @@ class TravelInspectView extends GetView<TravelInspectController> {
         ),
       ],
     );
+  }
+
+  Widget buildLoader() {
+    return Container(
+        width: 100,
+        height: 100,
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          child: Image.asset(
+            'assets/img/loading.gif',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: 100,
+          ),
+        ));
   }
 
 }

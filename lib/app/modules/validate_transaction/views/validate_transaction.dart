@@ -7,10 +7,12 @@ import '../../../../../common/ui.dart';
 import '../../../../../color_constants.dart';
 import '../../../../common/animation_controllers/animation.dart';
 import '../../../routes/app_routes.dart';
+import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/loading_cards.dart';
 import '../controller/validation_controller.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../main.dart';
 
 class ValidationView extends GetView<ValidationController> {
 
@@ -33,7 +35,7 @@ class ValidationView extends GetView<ValidationController> {
           automaticallyImplyLeading: false,
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back_ios, color: Colors.white),
-            onPressed: () => {Get.offNamed(Routes.ROOT)},
+            onPressed: () => {Navigator.pop(context)},
           ),
 
         ),
@@ -192,7 +194,7 @@ class ValidationView extends GetView<ValidationController> {
             DelayedAnimation(delay: 250,
                 child: BlockButtonWidget(
                   onPressed: () {
-                    controller.completeTransaction(controller.codeController);
+                    controller.completeTransaction(controller.codeController.text);
                     Timer(Duration(milliseconds: 100), () {
                       controller.codeController.clear();
                     });
@@ -211,6 +213,7 @@ class ValidationView extends GetView<ValidationController> {
   }
 
   Widget buildBookingList(BuildContext context){
+
     return Container(
       height: MediaQuery.of(context).size.height,
       child: Column(
@@ -258,6 +261,15 @@ class ValidationView extends GetView<ValidationController> {
               ListView.builder(
                   itemCount: controller.shipping.length,
                   itemBuilder: (context, index){
+
+                    String departureCity = controller.travelInfo['departure_city_id'][1].split('(').first;
+                    String a = controller.travelInfo['departure_city_id'][1].split('(').last;
+                    String departureCountry = a.split(')').first;
+
+                    String arrivalCity = controller.travelInfo['arrival_city_id'][1].split('(').first;
+                    String b = controller.travelInfo['arrival_city_id'][1].split('(').last;
+                    String arrivalCountry = b.split(')').first;
+
                     Future.delayed(Duration.zero, (){
                       controller.shipping.sort((a, b) => a['__last_update'].compareTo(b['__last_update']));
                     });
@@ -304,13 +316,25 @@ class ValidationView extends GetView<ValidationController> {
                                           Container(
                                             alignment: Alignment.topCenter,
                                             width: 100,
-                                            child: Text(controller.travelInfo['departure_city_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                            child: RichText(
+                                                text: TextSpan(
+                                                    children: [
+                                                      TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                                      TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                                    ]
+                                                ))
                                           ),
                                           FaIcon(FontAwesomeIcons.arrowRight),
                                           Container(
                                               alignment: Alignment.topCenter,
                                               width: 100,
-                                              child: Text(controller.travelInfo['arrival_city_id'][1].toString(), style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18)))
+                                              child: RichText(
+                                                  text: TextSpan(
+                                                      children: [
+                                                        TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                                        TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                                      ]
+                                                  ))
                                           ),
                                         ],
                                       ),
@@ -340,68 +364,68 @@ class ValidationView extends GetView<ValidationController> {
                                             height: 24,
                                             color: Get.theme.focusColor.withOpacity(0.3),
                                           ),
-                                          Text("${controller.travelInfo['departure_date']} - ${controller.travelInfo['arrival_date']}", style: Get.textTheme.headline1.
+                                          Text("${controller.travelInfo['departure_date']} \n- ${controller.travelInfo['arrival_date']}", style: Get.textTheme.headline1.
                                           merge(TextStyle(color: interfaceColor, fontSize: 16)),
                                           ),
                                         ],
                                       ),
                                       SizedBox(height: 10),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 30,
-                                            child: Icon( FontAwesomeIcons.briefcase, size: 18),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 12),
-                                            width: 1,
-                                            height: 24,
-                                            color: Get.theme.focusColor.withOpacity(0.3),
-                                          ),
-                                          Text(controller.luggageInfo['name'], style: Get.textTheme.headline1.
-                                          merge(TextStyle(color: interfaceColor, fontSize: 16)),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          SizedBox(
-                                            child: Row(
-                                              children: [
-                                                SizedBox(
-                                                  width: 30,
-                                                  child: Icon( Icons.attach_money_outlined, size: 18),
-                                                ),
-                                                Container(
-                                                  margin: EdgeInsets.symmetric(horizontal: 12),
-                                                  width: 1,
-                                                  height: 24,
-                                                  color: Get.theme.focusColor.withOpacity(0.3),
-                                                ),
-                                                Text(controller.shipping[index]['shipping_price'].toString()+ " "+ "EUR", style: Get.textTheme.headline6.
-                                                merge(TextStyle(color: specialColor, fontSize: 16)))
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            child: Row(
-                                              children: [
-                                                Icon(FontAwesomeIcons.shoppingBag, size: 18),
-                                                Container(
-                                                  margin: EdgeInsets.symmetric(horizontal: 12),
-                                                  width: 1,
-                                                  height: 24,
-                                                  color: Get.theme.focusColor.withOpacity(0.3),
-                                                ),
-                                                Text(controller.shipping[index]['total_weight'].toString() + " Kg", style: Get.textTheme.headline1.
-                                                merge(TextStyle(color: appColor, fontSize: 16)))
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      ExpansionTile(
+                                        leading: Icon(FontAwesomeIcons.briefcase, size: 20),
+                                        title: Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                                        merge(TextStyle(color: appColor, fontSize: 17))),
+                                      initiallyExpanded: false,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        AccountWidget(
+                                            icon: FontAwesomeIcons.briefcase,
+                                            text: Text('Name'),
+                                            value: controller.luggageInfo['name']
+                                        ),
+                                        SizedBox(height: 10),
+                                        SizedBox(
+                                          height: 100,
+                                          child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: 3,
+                                              itemBuilder: (context, index){
+                                                return Card(
+                                                    margin: EdgeInsets.symmetric(horizontal: 10),
+                                                    child: ClipRRect(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                        child: FadeInImage(
+                                                          width: 120,
+                                                          height: 100,
+                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.luggageInfo['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                              headers: Domain.getTokenHeaders()),
+                                                          placeholder: AssetImage(
+                                                              "assets/img/loading.gif"),
+                                                          imageErrorBuilder:
+                                                              (context, error, stackTrace) {
+                                                            return Image.asset(
+                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                                width: 50,
+                                                                height: 50,
+                                                                fit: BoxFit.fitWidth);
+                                                          },
+                                                        )
+                                                    )
+                                                );
+                                              })
+                                        ),
+                                        SizedBox(height: 10),
+                                        AccountWidget(
+                                            icon: FontAwesomeIcons.ruler,
+                                            text: Text('Dimensions'),
+                                            value: "${controller.luggageInfo['average_height']} X ${controller.luggageInfo['average_width']}"
+                                        ),
+                                        AccountWidget(
+                                            icon: FontAwesomeIcons.shoppingBag,
+                                            text: Text('Weight'),
+                                            value: controller.luggageInfo['total_weight'].toString() + " Kg"
+                                        ),
+                                      ],
+                                      )
                                     ],
                                   ),
                                 ),
@@ -423,6 +447,7 @@ class ValidationView extends GetView<ValidationController> {
   }
 
   Widget buildBookingSheet(BuildContext context, var bookingCode){
+
     return Container(
       height: Get.height/1.2,
       decoration: BoxDecoration(

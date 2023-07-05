@@ -39,6 +39,7 @@ class BookingsController extends GetxController {
   var luggageSelected = [].obs;
   var users =[].obs;
   var shippingLuggage =[].obs;
+  var shippingLoading = false.obs;
   final luggageLoading = true.obs;
   final shippingPrice = 0.0.obs;
   var selectedIndex = 0.obs;
@@ -60,15 +61,11 @@ class BookingsController extends GetxController {
 
   UploadRepository _uploadRepository;
 
-  var idLuggage = 0.obs;
-
   BookingsController() {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
     _uploadRepository = new UploadRepository();
-
-
   }
 
   @override
@@ -91,10 +88,8 @@ class BookingsController extends GetxController {
   }
 
   initValues()async{
-    isLoading.value = true;
-    await getUser(Get.find<MyAuthService>().myUser.value.id);
-    list = await getMyShipping();
-    items.value = list;
+    getUser(Get.find<MyAuthService>().myUser.value.id);
+
     List models = await getAllLuggageModel();
     List listUsers = await getAllUsers();
     luggageModels.value = models;
@@ -123,7 +118,7 @@ class BookingsController extends GetxController {
     }
   }
 
-  Future getUser(int id) async {
+  getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
@@ -140,6 +135,8 @@ class BookingsController extends GetxController {
       var data = json.decode(result)[0];
 
       shippingList = data['shipping_ids'];
+      list = await getMyShipping();
+      items.value = list;
 
     } else {
       print(response.reasonPhrase);
@@ -249,7 +246,6 @@ class BookingsController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
     };
 
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shippingList'));
@@ -423,23 +419,16 @@ class BookingsController extends GetxController {
     }
   }
 
-  sendImages(int a, var imageFil, var idLuggage)async{
-    // var headers = {
-    //   'Accept': 'application/json',
-    //   'Authorization': 'Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=',
-    //   'Content-Type': 'multipart/form-data',
-    //   'Cookie': 'session_id=a5b5f221b0eca50ae954ad4923fead1063097951'
-    // };
-    // var request = http.MultipartRequest('POST', Uri.parse('https://preprod.hubkilo.com/api/v1/upload/m1st_hk_roadshipping.luggage/1/luggage_image2'));
+
+  sendImages(int a, var imageFil, int id)async{
 
     //for(var b=0; b<luggageId.length;b++){
       var headers = {
         'Accept': 'application/json',
         'Authorization': Domain.authorization,
         'Content-Type': 'multipart/form-data',
-        'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
       };
-      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/${idLuggage}/luggage_image$a'));
+      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/$id/luggage_image$a'));
       request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
       request.headers.addAll(headers);
 
@@ -468,7 +457,6 @@ class BookingsController extends GetxController {
 
   Future getLuggageInfo(var ids) async{
 
-    //idLuggage.value = ids;
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
@@ -482,6 +470,7 @@ class BookingsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      shippingLoading.value = false;
       shippingLuggage.value = json.decode(data);
     }
     else {

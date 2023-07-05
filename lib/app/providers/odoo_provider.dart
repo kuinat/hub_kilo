@@ -213,8 +213,8 @@ class OdooApiClient extends GetxService with ApiClient {
   }
   else {
   print(response.reasonPhrase);
-
-  Get.showSnackbar(Ui.ErrorSnackBar(message: "This acccount already exist in the system, Please try again"));
+  var data = await response.stream.bytesToString();
+  Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
   return false;
   }
 
