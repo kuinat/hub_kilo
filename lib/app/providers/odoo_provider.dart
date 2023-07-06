@@ -1571,6 +1571,7 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   Future<String> uploadImage(File file, MyUser myUser) async {
+    print('Test image againnnnnnnnnnnnnnnnnnnn: '+file.path);
     if (Get.find<MyAuthService>().myUser.value.email==null) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
     }
