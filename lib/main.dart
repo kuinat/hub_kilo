@@ -56,7 +56,7 @@ class Domain{
 
   static var serverPort = "https://preprod.hubkilo.com/api/v1";
 
-  static var authorization = "Basic ZnJpZWRyaWNoQGdtYWlsLmNvbTpBemVydHkxMjM0NSU=";
+  static var authorization = "Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl";
   static var AppName = "Hub Kilo";
   static Map<String, String> getTokenHeaders() {
     Map<String, String> headers = new Map();

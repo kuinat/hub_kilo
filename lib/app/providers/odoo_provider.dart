@@ -101,13 +101,14 @@ class OdooApiClient extends GetxService with ApiClient {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+      'Cookie': 'session_id=df049345298adb6bd819fec22deab9a63cffc38e'
     };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/res.partner?ids=$id'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
@@ -184,7 +185,7 @@ class OdooApiClient extends GetxService with ApiClient {
     print(myUser.street.toString());
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
     };
     var request = http.Request('POST',Uri.parse('https://preprod.hubkilo.com/api/v1/create/res.users?values={ '
@@ -386,7 +387,7 @@ class OdooApiClient extends GetxService with ApiClient {
   updateToPortalUser(int id) async {
     var headers = {
       'Accept': 'application/json',
-      'Authorization': 'Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl',
+      'Authorization': Domain.authorization,
       'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=$id&values={'
