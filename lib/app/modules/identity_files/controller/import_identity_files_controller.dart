@@ -257,6 +257,7 @@ class ImportIdentityFilesController extends GetxController{
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/ir.attachment?values={'
         '"attach_custom_type": "$identityPieceSelected",'
         '"name": "Name",'
+        '"partner_id": "${currentUser.value.id}",'
         '"date_start": "$dateOfDelivery",'
         '"date_end": "$dateOfExpiration"}'));
 
