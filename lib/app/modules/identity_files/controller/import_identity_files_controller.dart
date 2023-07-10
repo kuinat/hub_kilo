@@ -9,13 +9,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
-import '../../../models/media_model.dart';
 import 'package:http/http.dart' as http;
-
-import '../../../repositories/upload_repository.dart';
-import '../../../repositories/user_repository.dart';
 import '../../../services/my_auth_service.dart';
 
 class ImportIdentityFilesController extends GetxController{
@@ -25,25 +22,14 @@ class ImportIdentityFilesController extends GetxController{
   //File identificationFilePhoto;
   File identificationFile;
 
-
   final loadIdentityFile = false.obs;
   final identityPieceSelected = ''.obs;
-  UserRepository _userRepository;
   var currentState = 0.obs;
   var loadImage = false.obs;
   var currentUser = Get.find<MyAuthService>().myUser;
-
+  var buttonPressed = false.obs;
   var birthCityId = 0.obs;
   var residentialAddressId = 0.obs;
-
-
-  var predict1 = false.obs;
-  var predict2 = false.obs;
-  var errorCity1 = false.obs;
-  //File passport;
-  var countries = [].obs;
-  var list = [];
-
   ScrollController scrollController = ScrollController();
   final formStep = 0.obs;
   TextEditingController depTown = TextEditingController();
@@ -64,31 +50,9 @@ class ImportIdentityFilesController extends GetxController{
   @override
   void onInit() async {
     final box = GetStorage();
-    list = box.read("allCountries");
-    countries.value = list;
-    print("first country is ${countries[0]}");
 
     super.onInit();
   }
-
-  void filterSearchResults(String query) {
-    List dummySearchList = [];
-    dummySearchList = list;
-    if(query.isNotEmpty) {
-      List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['display_name']
-          .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
-      countries.value = dummyListData;
-      for(var i in countries){
-        print(i['display_name']);
-      }
-      return;
-
-    } else {
-      countries.value = list;
-    }
-  }
-
 
   bool disableDate(DateTime day) {
     if ((day.isAfter(DateTime.now().subtract(Duration(days: 1))))) {
@@ -189,9 +153,6 @@ class ImportIdentityFilesController extends GetxController{
         });
   }
 
-
-
-
   sendImages(int id, File identityFile)async{
     var headers = {
       'Accept': 'application/json',
@@ -206,15 +167,19 @@ class ImportIdentityFilesController extends GetxController{
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200){
+      buttonPressed.value = false;
       var data = await response.stream.bytesToString();
       print("Hello"+data.toString());
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Identity File succesfully updated ".tr));
-      //Navigator.pop(Get.context);
-
+      Navigator.pop(Get.context);
     }
     else {
+      buttonPressed.value = false;
       var data = await response.stream.bytesToString();
-      print(data);
+      ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
+          content: Text(json.decode(data)['message']),
+          backgroundColor: specialColor.withOpacity(0.4),
+          duration: Duration(seconds: 2)));
     }
     //}
   }
@@ -266,16 +231,20 @@ class ImportIdentityFilesController extends GetxController{
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+      buttonPressed.value = false;
       var data = await response.stream.bytesToString();
       print('data'+data);
       var result = json.decode(data);
-      return result[0];
+      await sendImages(result[0], identificationFile );
     }
     else {
-      print(response.reasonPhrase);
+      buttonPressed.value = false;
+      var data = await response.stream.bytesToString();
+      ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
+          content: Text(json.decode(data)['message']),
+          backgroundColor: specialColor.withOpacity(0.4),
+          duration: Duration(seconds: 2)));
     }
-
-
   }
 
 

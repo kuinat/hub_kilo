@@ -79,24 +79,6 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future getHomeSlider()async{
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; session_id=d047bf791be8a6350c110a221bbbd5afcdeff9ec'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      return json.decode(data)['publicity'];
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',

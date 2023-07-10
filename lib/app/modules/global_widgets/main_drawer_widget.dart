@@ -125,8 +125,7 @@ class MainDrawerWidget extends StatelessWidget {
                       SizedBox(
                         width: 80,
                         height: 80,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: ClipOval(
                             child: FadeInImage(
                               width: 65,
                               height: 65,
