@@ -56,24 +56,6 @@ class AuthController extends GetxController {
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
 
-
-
-    // googleAccount = await googleAuth.signIn();
-    //
-    // print(googleAccount.toString());
-    //
-    //
-    // if (googleAccount != null) {
-    //   print('Helle Nathalie');
-    //   final GoogleSignInAuthentication googleSignInAuthentication =
-    //   await googleAccount.authentication;
-    //   final AuthCredential authCredential = GoogleAuthProvider.credential(
-    //       idToken: googleSignInAuthentication.idToken,
-    //       accessToken: googleSignInAuthentication.accessToken);
-    //
-    //   await auth.signInWithCredential(authCredential);
-    //
-    // }
   }
 
   googleSignOut() async {

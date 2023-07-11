@@ -330,7 +330,8 @@ class BookingsController extends GetxController {
         Navigator.pop(Get.context);
         imageFiles.clear();
       }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+        var data = await response.stream.bytesToString();
+        Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
       }
     }
     else {
@@ -477,4 +478,5 @@ class BookingsController extends GetxController {
     print(response.reasonPhrase);
     }
   }
+
 }

@@ -55,41 +55,4 @@ class CategoryController extends GetxController {
 
   }
 
-  /*Future loadEServicesOfCategory(String categoryId, {CategoryFilter filter}) async {
-    try {
-      isLoading.value = true;
-      isDone.value = false;
-      this.page.value++;
-      List<EService> _eServices = [];
-      switch (filter) {
-        case CategoryFilter.ALL:
-          _eServices = await _eServiceRepository.getAllWithPagination(categoryId, page: this.page.value);
-          break;
-        case CategoryFilter.FEATURED:
-          _eServices = await _eServiceRepository.getFeatured(categoryId, page: this.page.value);
-          break;
-        case CategoryFilter.POPULAR:
-          _eServices = await _eServiceRepository.getPopular(categoryId, page: this.page.value);
-          break;
-        case CategoryFilter.RATING:
-          _eServices = await _eServiceRepository.getMostRated(categoryId, page: this.page.value);
-          break;
-        case CategoryFilter.AVAILABILITY:
-          _eServices = await _eServiceRepository.getAvailable(categoryId, page: this.page.value);
-          break;
-        default:
-          _eServices = await _eServiceRepository.getAllWithPagination(categoryId, page: this.page.value);
-      }
-      if (_eServices.isNotEmpty) {
-        //this.eServices.addAll(_eServices);
-      } else {
-        isDone.value = true;
-      }
-    } catch (e) {
-      this.isDone.value = true;
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-    } finally {
-      isLoading.value = false;
-    }
-  }*/
 }

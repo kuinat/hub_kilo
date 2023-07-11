@@ -61,8 +61,9 @@ class TravelInspectController extends GetxController {
   final _picker = ImagePicker();
   File profileImage;
   final loadProfileImage = false.obs;
-  List<String> existingPartner = ['testName','https://stock.adobe.com/search?k=admin' ];
-  var existingPartnerVisible = false.obs;
+  var existingPartner;
+  var allUsers= [].obs;
+
 
 
   var visible = true.obs;
@@ -363,9 +364,27 @@ class TravelInspectController extends GetxController {
       var data = await response.stream.bytesToString();
       buttonPressed.value = false;
       Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
-      existingPartner = ['testname','https://stock.adobe.com/search?k=admin'];
+      //existingPartner = ['testname','https://stock.adobe.com/search?k=admin'];
       //existingPartnerVisible.value = true;
+
+      allUsers.isEmpty?
+      showDialog(
+          context: Get.context,
+          builder: (_){
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              content: Container(
+                  height: MediaQuery.of(Get.context).size.height*0.25,
+                  padding: EdgeInsets.all(10),
+                  child: CircularProgressIndicator(color: Colors.grey, )
+              ),
+            );
+          }):
       setExistingPartnerToBeneficiary();
+
+      allUsers.value = await getAllUsers();
+
     }
   }
 
@@ -776,6 +795,12 @@ class TravelInspectController extends GetxController {
   }
 
   setExistingPartnerToBeneficiary()async{
+    for(int i = 0; i<allUsers.length; i++){
+      if(allUsers[i]['email']==email.value){
+        existingPartner = allUsers[i];
+        receiverId.value = existingPartner['id'];
+      }
+    }
     showDialog(
         context: Get.context,
         builder: (_){
@@ -788,11 +813,15 @@ class TravelInspectController extends GetxController {
                 child: Column(
                   children: [
                     Expanded(child: Text('The following user with email: ${email.value} already exist in our system would you like to designate him as receiver?', style: TextStyle(color: Colors.black),)),
+                    existingPartner['image_1920'] != 'false' ?
                     UserWidget(
-                      user: existingPartner[0],
+                      user: existingPartner['name'],
                       selected: false,
-                      imageUrl: existingPartner[1],
+                      imageUrl:'${Domain.serverPort}/image/res.partner/${existingPartner['id']}/image_1920?unique=true&file_response=true',
+                    ): CircleAvatar(
+                        backgroundImage: AssetImage("assets/img/téléchargement (2).png"),
                     ),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -812,8 +841,9 @@ class TravelInspectController extends GetxController {
                       SizedBox(width: 20,),
                       MaterialButton(
                         onPressed: () async{
-
-
+                          selectUser.value = false;
+                          await shipNow();
+                          selectUser.value = true;
                         },
                         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -901,6 +931,32 @@ class TravelInspectController extends GetxController {
 
   }
 
+
+
+  getAllUsers()async{
+    final box = GetStorage();
+    var session_id = box.read('session_id');
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/res.partner'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
 
 
 }
