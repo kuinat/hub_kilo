@@ -103,9 +103,7 @@ class CategoryView extends GetView<CategoryController> {
 
                                   ),
                               ),
-                              onTap: ()=>{
-                                Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),
-                              }
+                              onTap: ()=> Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),
                             //Get.toNamed(Routes.E_SERVICE, arguments: {'eService': travel, 'heroTag': 'services_carousel'})
                           );
                         }),

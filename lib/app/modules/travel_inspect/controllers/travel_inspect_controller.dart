@@ -15,7 +15,6 @@ import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
 import '../../../repositories/user_repository.dart';
-import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../root/controllers/root_controller.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
@@ -43,6 +42,8 @@ class TravelInspectController extends GetxController {
   var accept = false.obs;
   var reject = false.obs;
   var selected = false.obs;
+  var userExist = false.obs;
+  var typing = false.obs;
   var selectedLuggage = false.obs;
   var users =[].obs;
   var travelBookings = [].obs;
@@ -54,6 +55,8 @@ class TravelInspectController extends GetxController {
   var imageFiles = [].obs;
   var luggageModels = [].obs;
   var luggageId = [].obs;
+  var listUsers = [].obs;
+  var viewUsers = [].obs;
   var luggageSelected = [].obs;
   var areBookingsLoading = false.obs;
   final errorField = false.obs;
@@ -90,6 +93,8 @@ class TravelInspectController extends GetxController {
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
     print('travelCard Value '+travelCard.toString());
+    List allUsers = await getAllUsers();
+    listUsers.value = allUsers;
 
     areBookingsLoading.value = true;
     //listAir = await getAirBookingsOnTravel(travelCard['id']);
@@ -103,7 +108,6 @@ class TravelInspectController extends GetxController {
      if(Get.find<MyAuthService>().myUser.value.id != travelCard['partner_id'][0]){
        print(currentUser.value.id);
        listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
-       //listBeneficiaries = await getAllUsers();
        List models = await getAllLuggageModel();
        luggageModels.value = models;
       users.value = listBeneficiaries;
@@ -131,6 +135,27 @@ class TravelInspectController extends GetxController {
       return;
     } else {
       users.value = listBeneficiaries;
+    }
+  }
+
+  searchUser(String query){
+    if(query.isNotEmpty) {
+      typing.value = true;
+      List dummyListData = [];
+      dummyListData = listUsers.where((element) => element['login']
+          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      if(dummyListData.isNotEmpty){
+        userExist.value = true;
+        viewUsers.value = dummyListData;
+        print(userExist);
+      }else{
+        userExist.value = false;
+        email.value = query;
+        print(userExist);
+      }
+      return;
+    }else{
+      typing.value = false;
     }
   }
 
@@ -435,8 +460,6 @@ class TravelInspectController extends GetxController {
     else {
       print(response.reasonPhrase);
     }
-
-
   }
 
   updateBeneficiaryToPortalUser(int id) async {
@@ -487,13 +510,10 @@ class TravelInspectController extends GetxController {
       return id;
 
     } else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var result = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(result)['message']));
     }
   }
-
-
-
 
   transferTravelShipping()async{
 
@@ -722,6 +742,28 @@ class TravelInspectController extends GetxController {
     }
   }
 
+  Future getAllUsers()async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/search_read/res.users'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("Users Loaded");
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
   Future getAllBeneficiaries(int id)async{
 
     var headers = {
@@ -742,8 +784,6 @@ class TravelInspectController extends GetxController {
         var listUser = await getUsersInAddressBook(list);
         print('Partner list'+listUser.toString());
         return listUser==null?[]:listUser;
-
-
 
     }
     else {
@@ -896,11 +936,6 @@ class TravelInspectController extends GetxController {
         //loadIdentityFile.value = !loadIdentityFile.value;
         //Navigator.of(Get.context).pop();
       }
-
     }
-
   }
-
-
-
 }

@@ -19,13 +19,13 @@ class UserWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
       //mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ClipOval(
             child: FadeInImage(
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
               placeholder: AssetImage(
                   "assets/img/loading.gif"),
@@ -40,7 +40,7 @@ class UserWidget extends StatelessWidget {
             )
         ),
         SizedBox(width: 20),
-        Text(user)
+        Text(user, style: Get.textTheme.headline4)
       ],
     );
   }
