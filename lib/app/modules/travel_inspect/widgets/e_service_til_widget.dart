@@ -24,13 +24,13 @@ class EServiceTilWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          title,
-          /*Row(
+          Row(
             children: [
-
+              title,
+              Spacer(),
               title2
             ],
-          ),*/
+          ),
           Divider(
             height: 26,
             thickness: 1.2,

@@ -1,9 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../../color_constants.dart';
@@ -13,10 +11,7 @@ import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../profile/widgets/delete_account_widget.dart';
-import '../../profile/widgets/update_password_widget.dart';
 import '../../root/controllers/root_controller.dart';
-import '../../userTravels/controllers/user_travels_controller.dart';
 import '../controllers/account_controller.dart';
 import '../widgets/account_link_widget.dart';
 
@@ -203,7 +198,6 @@ class AccountView extends GetView<AccountController> {
                           if(controller.birthDate.value.toString().contains('-')){
                             controller.user.value.birthday = controller.birthDate.value;
                             controller.updateProfile();
-                            //controller.updateProfile();
                           }
                           //controller.saveProfileForm();
                           controller.buttonPressed.value = !controller.buttonPressed.value;
@@ -698,40 +692,6 @@ class AccountView extends GetView<AccountController> {
               ],
             ),
           ),
-
-          // Container(
-          //   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          //   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //   decoration: Ui.getBoxDecoration(),
-          //   child: Row(
-          //     children: [
-          //       Expanded(
-          //         child: Column(
-          //           crossAxisAlignment: CrossAxisAlignment.start,
-          //           children: [
-          //             Text("Delete your account!", style: Get.textTheme.bodyText2.merge(TextStyle(color: Colors.redAccent))),
-          //             Text("Once you delete this account, there is no going back. Please be certain.", style: Get.textTheme.caption.merge(TextStyle(color: Colors.redAccent))),
-          //           ],
-          //         ),
-          //       ),
-          //       SizedBox(width: 10),
-          //       MaterialButton(
-          //           onPressed: () {
-          //             _showDeleteDialog(context);
-          //           },
-          //           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-          //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          //           color: Colors.redAccent,
-          //           child: Text("Delete".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
-          //           elevation: 0,
-          //           highlightElevation: 0,
-          //           hoverElevation: 0,
-          //           focusElevation: 0,
-          //         ),
-          //     ],
-          //   ),
-          // ),
-
         ],
       ),
     );
@@ -815,48 +775,6 @@ class AccountView extends GetView<AccountController> {
       ],
     );
   }
-
-  // void _showDeleteDialog(BuildContext context) {
-  //   showDialog<void>(
-  //     context: context,
-  //     barrierDismissible: false, // user must tap button!
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(
-  //           "Delete your account!".tr,
-  //           style: TextStyle(color: Colors.redAccent),
-  //         ),
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             children: <Widget>[
-  //               Text("Once you delete this account, there is no going back. Please be certain.".tr, style: Get.textTheme.bodyText1),
-  //             ],
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text("Cancel".tr, style: Get.textTheme.bodyText1),
-  //             onPressed: () {
-  //               Get.back();
-  //             },
-  //           ),
-  //           TextButton(
-  //             child: Text(
-  //               "Confirm".tr,
-  //               style: TextStyle(color: Colors.redAccent),
-  //             ),
-  //             onPressed: () async {
-  //               Get.back();
-  //               await controller.deleteUser();
-  //               await Get.find<RootController>().changePage(0);
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
 
   Widget buildEditingSheet(BuildContext context) {
     return Container(
@@ -966,34 +884,137 @@ class AccountView extends GetView<AccountController> {
     );
   }
 
-
   Widget buildAttachments(BuildContext context){
     return Column(
       children: [
         Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: Ui.getBoxDecoration(),
+          child: AccountLinkWidget(
+            icon: Icon(FontAwesomeIcons.fileUpload, color: Get.theme.colorScheme.secondary),
+            text: Text("Upload identity files".tr),
+            onTap: (e) {
+              Get.toNamed(Routes.IDENTITY_FILES);
+              //Get.offNamed(Routes.IDENTITY_FILES);
+              //Get.find<RootController>().changePage(2);
+            },
+          )
+        ),
+        Container(
+          height: Get.height/2,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: Ui.getBoxDecoration(),
           child: Column(
             children: [
-              AccountLinkWidget(
-                icon: Icon(FontAwesomeIcons.fileUpload, color: Get.theme.colorScheme.secondary),
-                text: Text("Upload identity files".tr),
-                onTap: (e) {
-                  Get.toNamed(Routes.IDENTITY_FILES);
-                  //Get.offNamed(Routes.IDENTITY_FILES);
-                  //Get.find<RootController>().changePage(2);
-                },
+              Expanded(
+                  child: ListView.builder(
+                    itemCount: controller.attachmentFiles.length,
+                      itemBuilder: (context, item){
+                    return controller.attachmentFiles.isNotEmpty ?
+                    Card(
+                      child: Row(
+                        children: [
+                          Obx(() => InkWell(
+                              onTap: ()=>{
+                                showDialog(context: context, builder: (_){
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Material(
+                                        child: IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(Icons.close, size: 20))
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        child: FadeInImage(
+                                          width: Get.width,
+                                          height: Get.height/2,
+                                          image: NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.attachmentFiles[item]['id']}/datas?unique=true&file_response=true',
+                                              headers: Domain.getTokenHeaders()),
+                                          placeholder: AssetImage(
+                                              "assets/img/loading.gif"),
+                                          imageErrorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Icon(FontAwesomeIcons.camera, size: 50);
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                })
+                              },
+                              child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    child: FadeInImage(
+                                      width: 80,
+                                      height: 80,
+                                      image: NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.attachmentFiles[item]['id']}/datas?unique=true&file_response=true',
+                                          headers: Domain.getTokenHeaders()),
+                                      placeholder: AssetImage(
+                                          "assets/img/loading.gif"),
+                                      imageErrorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Icon(FontAwesomeIcons.camera, size: 50);
+                                      },
+                                    )
+                                )
+                              )
+                          )),
+                          Expanded(
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 20),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text("Type", style: Get.textTheme.bodyText2.merge(TextStyle(color: appColor))),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(horizontal: 12),
+                                          width: 1,
+                                          height: 24,
+                                          color: Get.theme.focusColor.withOpacity(0.3),
+                                        ),
+                                        Text(controller.attachmentFiles[item]['attach_custom_type'], style: Get.textTheme.bodyText2),
+                                      ],
+                                    ),
+                                  ),
+                                  SwitchListTile( //switch at right side of label
+                                      value: controller.attachmentFiles[item]['conformity'],
+                                      onChanged: (bool value){
+
+                                      },
+                                      title: Text("Conformity", style: Get.textTheme.bodyText2.merge(TextStyle(color: appColor)))
+                                  )
+                                ]
+                              )
+                          )
+                        ]
+                      )
+                    ) : SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 100),
+                          FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                          Text('No Attachment found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
+                        ],
+                      ),
+                    );
+                  })
               )
             ],
           ),
         ),
-
-
       ],
     );
   }
-
 }
 
 

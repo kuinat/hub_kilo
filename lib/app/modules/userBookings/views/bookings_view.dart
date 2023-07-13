@@ -194,6 +194,7 @@ class BookingsView extends GetView<BookingsController> {
                       controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                     });
                     return CardWidget(
+                      owner: true,
                       shippingDate: controller.items[index]['create_date'],
                       code: controller.items[index]['display_name'],
                       travelType: controller.items[index]['booking_type'],

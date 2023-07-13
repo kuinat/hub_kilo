@@ -25,7 +25,9 @@ class UserTravelsController extends GetxController {
   var travelList = [];
   var inNegotiation = false.obs;
   var listForProfile = [].obs;
+  var listInvoice = [];
   var isConform = false.obs;
+  var buttonPressed = false.obs;
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();
@@ -94,7 +96,7 @@ class UserTravelsController extends GetxController {
       var data = json.decode(result)[0];
       travelList = data['travelbooking_ids'];
       listAttachment = data['partner_attachment_ids'];
-
+      listInvoice = data['invoice_ids'];
     } else {
       print(response.reasonPhrase);
     }
@@ -137,7 +139,10 @@ class UserTravelsController extends GetxController {
                       ),
                       SizedBox(width: 10),
                       TextButton(
-                          onPressed: () => Get.toNamed(Routes.IDENTITY_FILES),
+                          onPressed: () => {
+                            Navigator.pop(Get.context),
+                            Get.toNamed(Routes.IDENTITY_FILES),
+                          },
                           child: Text("Upload files", style: Get.textTheme.headline4
                           )
                       ),
@@ -157,6 +162,10 @@ class UserTravelsController extends GetxController {
       ));
       print(response.reasonPhrase);
     }
+  }
+
+  getInvoice() async{
+
   }
 
   Future myTravels()async{
@@ -228,4 +237,5 @@ class UserTravelsController extends GetxController {
   void onClose() {
     //chatTextController.dispose();
   }
+
 }
