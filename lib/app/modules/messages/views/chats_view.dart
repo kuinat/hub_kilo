@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../services/my_auth_service.dart';
@@ -91,11 +89,11 @@ class ChatsView extends GetView<MessagesController> {
           children: [
             IconButton(
                 icon: new Icon(Icons.arrow_back_ios, color: Get.theme.hintColor),
-                onPressed: () async {
+                onPressed: () {
                   /*controller.message.value = new Message([]);
               controller.chats.clear();
               await controller.refreshMessages();*/
-                  //controller.stopTimer();
+                  controller.dispose();
                   Get.back();
                 }
             ),
@@ -151,19 +149,19 @@ class ChatsView extends GetView<MessagesController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          alignment: Alignment.topCenter,
-                          width: 100,
-                          child: RichText(
-                              text: TextSpan(
-                                  children: [
-                                    TextSpan(text: controller.departureTown.value, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                    TextSpan(text: "\n${controller.departureCountry.value}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
-                                  ]
-                              ))
-                        ),
+                        Obx(() => Container(
+                            alignment: Alignment.topCenter,
+                            width: 100,
+                            child: RichText(
+                                text: TextSpan(
+                                    children: [
+                                      TextSpan(text: controller.departureTown.value, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                      TextSpan(text: "\n${controller.departureCountry.value}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                    ]
+                                ))
+                        )),
                         FaIcon(FontAwesomeIcons.arrowRight),
-                        Container(
+                        Obx(() => Container(
                             alignment: Alignment.topCenter,
                             width: 100,
                             child: RichText(
@@ -174,7 +172,7 @@ class ChatsView extends GetView<MessagesController> {
                                     ]
                                 )
                             )
-                        ),
+                        )),
                       ],
                     ),
                   ],

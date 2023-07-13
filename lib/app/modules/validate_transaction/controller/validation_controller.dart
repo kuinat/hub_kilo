@@ -1,16 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../services/my_auth_service.dart';
+import '../../global_widgets/pop_up_widget.dart';
 
 class ValidationController extends GetxController {
 
@@ -74,7 +77,8 @@ class ValidationController extends GetxController {
       String qrResult = qrCode.rawContent;
       //setState(() => barcode = qrResult);
       print(qrResult);
-      completeTransaction(qrResult);
+      verifyCode(qrResult.split('>').first, qrResult.split('>').last);
+
       return qrResult;
 
     } on PlatformException catch (e) {
@@ -90,7 +94,45 @@ class ValidationController extends GetxController {
     }
   }
 
-  completeTransaction(var code)async{
+  verifyCode(var code, var id)async{
+
+    var shippingInfo = {};
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      shippingInfo = json.decode(data)[0];
+      if(code == json.decode(data)[0]['travel_code']){
+        showDialog(
+            context: Get.context,
+            builder: (_)=>  PopUpWidget(
+              title: "Confirm the delivery of Shipping with reference: ${shippingInfo['name']}, travel from ${shippingInfo['travel_arrival_city_name']} to ${shippingInfo['travel_departure_city_name']}, to M/Mrs ${shippingInfo['receiver_partner_id'][1]}",
+              cancel: 'Cancel',
+              confirm: 'Confirm',
+              onTap: ()=> setToReceive(id),
+              icon: Icon(Icons.help_outline, size: 40,color: validateColor),
+            ));
+      }else{
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "Code not matching! Please verify and try again later".tr));
+      }
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+      print(data);
+    }
+  }
+
+  setToReceive(var id)async{
 
     var headers = {
       'Accept': 'application/json',
@@ -98,7 +140,7 @@ class ValidationController extends GetxController {
       'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"state": "received",}&ids=2'
+        '"state": "received",}&ids=$id'
     ));
 
     request.headers.addAll(headers);
@@ -109,6 +151,7 @@ class ValidationController extends GetxController {
       var data = await response.stream.bytesToString();
       print(data);
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Transaction completed with success"));
+      Navigator.pop(Get.context);
     }
     else {
       var data = await response.stream.bytesToString();

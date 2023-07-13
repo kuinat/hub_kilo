@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
+import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 
 class UserTravelsController extends GetxController {
@@ -19,11 +21,13 @@ class UserTravelsController extends GetxController {
   var state = "".obs;
   var myTravelsList = [];
   var roadTravels = [];
-  var list = [];
+  var listAttachment = [];
   var travelList = [];
   var inNegotiation = false.obs;
   var listForProfile = [].obs;
+  var listInvoice = [];
   var isConform = false.obs;
+  var buttonPressed = false.obs;
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();
@@ -90,14 +94,78 @@ class UserTravelsController extends GetxController {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
-      if(data['partner_attachment_ids'].isNotEmpty){
-        isConform.value = true;
-      }
       travelList = data['travelbooking_ids'];
-
+      listAttachment = data['partner_attachment_ids'];
+      listInvoice = data['invoice_ids'];
     } else {
       print(response.reasonPhrase);
     }
+  }
+
+  getAttachmentFiles(int travelId)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/ir.attachment?ids=$listAttachment&fields=%5B%22conformity%22%5D&with_context=%7B%7D&with_company=1'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      List list = [];
+      List data = json.decode(result);
+      print(data);
+      list = data.where((element) => element['conformity'].toString().contains("true")).toList();
+      if(list.isNotEmpty){
+        publishTravel(travelId);
+      }else{
+        showDialog(
+            context: Get.context,
+            builder: (_){
+              return AlertDialog(
+                title: Text("Identity files not conform!"),
+                content: Text('Your identity could not be verified, please make sure to register your personal identity information and try again', style: Get.textTheme.headline4),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(Get.context),
+                          child: Text("Cancel", style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
+                          )
+                      ),
+                      SizedBox(width: 10),
+                      TextButton(
+                          onPressed: () => {
+                            Navigator.pop(Get.context),
+                            Get.toNamed(Routes.IDENTITY_FILES),
+                          },
+                          child: Text("Upload files", style: Get.textTheme.headline4
+                          )
+                      ),
+                    ],
+                  )
+                ],
+              );
+            });
+      }
+    }
+    else {
+      var result = await response.stream.bytesToString();
+      ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
+        content: Text(json.decode(result)['message']),
+        backgroundColor: specialColor.withOpacity(0.4),
+        duration: Duration(seconds: 2),
+      ));
+      print(response.reasonPhrase);
+    }
+  }
+
+  getInvoice() async{
+
   }
 
   Future myTravels()async{
@@ -153,7 +221,6 @@ class UserTravelsController extends GetxController {
 
   void filterSearchResults(String query) {
     List dummySearchList = [];
-    dummySearchList = list;
     if(query.isNotEmpty) {
       List dummyListData = [];
       dummyListData = dummySearchList.where((element) => element['departure_city_id'][1]
@@ -162,7 +229,7 @@ class UserTravelsController extends GetxController {
       items.value = dummyListData;
       return;
     } else {
-      items.value = list;
+      items.value = dummySearchList;
     }
   }
 
@@ -170,4 +237,5 @@ class UserTravelsController extends GetxController {
   void onClose() {
     //chatTextController.dispose();
   }
+
 }

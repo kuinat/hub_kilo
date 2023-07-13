@@ -96,27 +96,5 @@ class HomeController extends GetxController {
     return Get.find<SettingsService>().address.value;
   }
 
-  Future getCategories() async {
-    try {
-      categories.assignAll(await _categoryRepository.getAllParents());
-    } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-    }
-  }
 
-  Future getFeatured() async {
-    try {
-      featured.assignAll(await _categoryRepository.getFeatured());
-    } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-    }
-  }
-
-  Future getRecommendedEServices() async {
-    try {
-      eServices.assignAll(await _eServiceRepository.getRecommended());
-    } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-    }
-  }
 }

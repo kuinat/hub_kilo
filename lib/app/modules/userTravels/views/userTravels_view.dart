@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../../common/animation_controllers/animation.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../routes/app_routes.dart';
@@ -18,7 +19,113 @@ class MyTravelsView extends GetView<UserTravelsController> {
     return Scaffold(
         backgroundColor: Get.theme.colorScheme.secondary,
         resizeToAvoidBottomInset: true,
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: Obx(() => Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if(controller.buttonPressed.value)...[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+
+                  DelayedAnimation(
+                      delay: 30,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                              onPressed: ()=>{
+
+                                for(var i=0; i < controller.items.length; i++){
+                                  if(controller.items[i]['state'].contains("negotiating")){
+                                    controller.inNegotiation.value = true
+                                  }else{
+                                    controller.inNegotiation.value = false
+                                  }
+                                },
+                                if(!controller.inNegotiation.value){
+                                  Get.toNamed(Routes.ADD_TRAVEL_FORM)
+                                }else{
+                                  Get.showSnackbar(Ui.notificationSnackBar(message: "You cannot have simultaneous in the system two travels in negotiation! please update and try again"))
+                                }
+
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white
+                              ),
+                              child: Text("New Travel", style: Get.textTheme.headline4.merge(TextStyle(color: appColor)))
+                          ),
+                          SizedBox(width: 10),
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: interfaceColor.withOpacity(0.7),
+                            child: Center(
+                              child: Icon(Icons.airplanemode_on, size: 30, color: Colors.white),
+                            ),
+                          )
+                        ],
+                      )
+                  ),
+                  SizedBox(height: 10),
+                  DelayedAnimation(
+                      delay: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                              onPressed: ()async{
+                                List data = [];
+                                //data = await controller.getInvoice();
+                                if(data.isNotEmpty) {
+                                  Get.bottomSheet(
+                                    buildInvoice(context, data),
+                                    isScrollControlled: true,
+                                  );
+                                }else{
+                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No invoice has been made yet".tr));
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white
+                              ),
+                              child: Text("View Invoice", style: Get.textTheme.headline4.merge(TextStyle(color: appColor)))
+                          ),
+                          SizedBox(width: 10),
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: interfaceColor.withOpacity(0.7),
+                            child: Center(
+                              child: Icon(Icons.file_open_rounded, size: 30, color: Colors.white),
+                            ),
+                          )
+                        ],
+                      )
+                  ),
+                  SizedBox(height: 10),
+                  FloatingActionButton(
+                      heroTag: null,
+                      backgroundColor: pink,
+                      onPressed: (){
+                        controller.buttonPressed.value = !controller.buttonPressed.value;
+                      },
+                      child: Icon(Icons.close, color: Palette.background)
+                  )
+                ],
+              )
+            ]else...[
+              FloatingActionButton.extended(
+                  heroTag: null,
+                  //backgroundColor: interfaceColor,
+                  onPressed: (){
+                    controller.buttonPressed.value = !controller.buttonPressed.value;
+                  },
+                  label: Text('More'),
+                  icon: Icon(Icons.add, color: Palette.background)
+              )
+            ]
+          ],
+        )),
+        /*FloatingActionButton(
           //backgroundColor: pink,
             onPressed: ()=>{
 
@@ -39,7 +146,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
             child: Center(
               child: Icon(Icons.airplanemode_on_sharp, size: 25),
             )
-        ),
+        )*/
         appBar: AppBar(
           title: Text(
             "My Travels".tr,
@@ -98,7 +205,7 @@ class MyTravelsView extends GetView<UserTravelsController> {
 
                           children: [
                             controller.isLoading.value ?
-                            LoadingCardWidget() :
+                            Expanded(child: LoadingCardWidget()) :
                             controller.items.isNotEmpty ?
                             Expanded(
                                 child: GridView.builder(
@@ -132,42 +239,9 @@ class MyTravelsView extends GetView<UserTravelsController> {
                                           text: Text(""),
                                           imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
                                           homePage: false,
-                                          action: ()=> {
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                              content: Text("Verification and publishing of travel announcement..."),
-                                              duration: Duration(seconds: 2),
-                                            )),
-                                            if(controller.isConform.value){
-                                              controller.publishTravel(controller.items[index]['id'])
-                                            }else{
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (_){
-                                                    return AlertDialog(
-                                                      title: Text("Identity files not conform!"),
-                                                      content: Text('Your identity could not be verified, please make sure to register your personal identity information and try again', style: Get.textTheme.headline4),
-                                                      actions: [
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.end,
-                                                          children: [
-                                                            TextButton(
-                                                                onPressed: () => Navigator.pop(context),
-                                                                child: Text("Cancel", style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
-                                                                )
-                                                            ),
-                                                            SizedBox(width: 10),
-                                                            TextButton(
-                                                                onPressed: () => Get.toNamed(Routes.IDENTITY_FILES),
-                                                                child: Text("Upload files", style: Get.textTheme.headline4
-                                                                )
-                                                            ),
-                                                          ],
-                                                        )
-                                                      ],
-                                                    );
-                                                  })
-                                            }
-                                          },
+
+                                          action: ()=> controller.getAttachmentFiles(controller.items[index]['id']),
+
                                           travelType: controller.items[index]['booking_type'] != "road" ? true : false,
                                           travelBy: controller.items[index]['booking_type'],
 
@@ -190,13 +264,18 @@ class MyTravelsView extends GetView<UserTravelsController> {
                             )
                           ]
                       )
-                      )
+                    )
                   )
                 ],
               )
-
             )
         )
+    );
+  }
+
+  Widget buildInvoice(BuildContext context, List data) {
+    return Column(
+
     );
   }
 }

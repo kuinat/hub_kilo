@@ -19,6 +19,7 @@ class MyUser {
   String sex;
   bool isTraveller ;
   String image;
+  var partnerAttachmentIds;
 
 
   MyUser({
@@ -34,6 +35,7 @@ class MyUser {
      this.sex,
      this.isTraveller,
     this.image,
+    this.partnerAttachmentIds,
 
   });
 

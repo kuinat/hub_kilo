@@ -194,6 +194,7 @@ class BookingsView extends GetView<BookingsController> {
                       controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                     });
                     return CardWidget(
+                      owner: true,
                       shippingDate: controller.items[index]['create_date'],
                       code: controller.items[index]['display_name'],
                       travelType: controller.items[index]['booking_type'],
@@ -201,7 +202,7 @@ class BookingsView extends GetView<BookingsController> {
                       transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       bookingState: controller.items[index]['state'],
                       price: controller.items[index]['shipping_price'],
-                      text: controller.items[index]['travelbooking_id'][1],
+                      text: controller.items[index]['travel_partner_name'],
                       luggageView: ElevatedButton(
                           onPressed: ()async{
                             controller.shippingLoading.value = true;
@@ -690,6 +691,7 @@ class BookingsView extends GetView<BookingsController> {
               onChanged: (input) => controller.shippingPrice.value = double.parse(input),
               labelText: "Shipping Price".tr,
               iconData: Icons.monetization_on_rounded,
+              readOnly: true,
             ),
             Obx(() => Container(
               height: 200,
@@ -804,6 +806,7 @@ class BookingsView extends GetView<BookingsController> {
             Column(
               children: [
                 TextFieldWidget(
+                  readOnly: true,
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.name.value = input,
@@ -812,6 +815,7 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
+                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.email.value = input,
                   labelText: "Email".tr,
@@ -828,6 +832,7 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
+                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.address.value = input,
                   labelText: "Address".tr,
@@ -840,6 +845,7 @@ class BookingsView extends GetView<BookingsController> {
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
+              readOnly: true,
               iconData: FontAwesomeIcons.userGroup,
               onChanged: (value)=>{
                 controller.filterSearchResults(value)

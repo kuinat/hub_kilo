@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../color_constants.dart';
@@ -37,13 +38,19 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
           child: Center(
             child: MaterialButton(
               onPressed: () async{
-                var id = await controller.createAttachment();
-                await controller.sendImages(id, controller.identificationFile );
+
+                controller.buttonPressed.value = true;
+                await controller.createAttachment();
+
               },
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               color: interfaceColor,
-              child: Text("Submit form".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
+              child: Obx(() =>  !controller.buttonPressed.value ?
+              Text("Submit form".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
+              : SizedBox(height: 20,
+                  child: SpinKitThreeBounce(color: Colors.white, size: 20))
+              ),
               elevation: 0,
               highlightElevation: 0,
               hoverElevation: 0,
