@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
@@ -89,7 +90,7 @@ class CategoryView extends GetView<CategoryController> {
                                       homePage: false,
                                       travelBy: controller.travelList[index]['booking_type'],
                                       travelType: controller.travelList[index]['booking_type'] != "road" ? true : false,
-                                      depDate: controller.travelList[index]['departure_date'],
+                                      depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.travelList[index]['departure_date'])).toString(),
                                       arrTown: controller.travelList[index]['arrival_city_id'][1],
                                       depTown: controller.travelList[index]['departure_city_id'][1],
                                       qty: controller.travelList[index]['kilo_qty'],
@@ -98,13 +99,11 @@ class CategoryView extends GetView<CategoryController> {
                                       text: Text(""),
                                       user: controller.travelList[index]['partner_id'][1],
                                       rating: 3.5,
-                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.travelList[index]['partner_id']}/image_1920?unique=true&file_response=true'
+                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.travelList[index]['partner_id'][0]}/image_1920?unique=true&file_response=true'
 
                                   ),
                               ),
-                              onTap: ()=>{
-                                Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),
-                              }
+                              onTap: ()=> Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.travelList[index], 'heroTag': 'services_carousel'}),
                             //Get.toNamed(Routes.E_SERVICE, arguments: {'eService': travel, 'heroTag': 'services_carousel'})
                           );
                         }),

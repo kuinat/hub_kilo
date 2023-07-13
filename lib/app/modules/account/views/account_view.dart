@@ -984,10 +984,35 @@ class AccountView extends GetView<AccountController> {
                   //Get.offNamed(Routes.IDENTITY_FILES);
                   //Get.find<RootController>().changePage(2);
                 },
-              )
+              ),
+
+              // CircleAvatar(
+              //     backgroundColor: background,
+              //     radius: 50,
+              //     backgroundImage: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.id}/datas?unique=true&file_response=true',
+              //
+              //         headers: Domain.getTokenHeaders()) : AssetImage("assets/img/téléchargement (2).png"),
+              //
+              // )
+
             ],
           ),
         ),
+
+        Container(
+            width: MediaQuery.of(context).size.width*0.75,
+            height: MediaQuery.of(context).size.height*0.4,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                fit: BoxFit.fill,
+                onError: (exception, stackTrace) =>AssetImage("assets/img/téléchargement (2).png"),
+                image: NetworkImage(
+                  '${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.partnerAttachmentIds[0]}/datas?unique=true&file_response=true',headers: Domain.getTokenHeaders(),
+                )
+              //image: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.id}/datas?unique=true&file_response=true'): AssetImage("assets/img/téléchargement (2).png"),
+
+
+            )))
 
 
       ],

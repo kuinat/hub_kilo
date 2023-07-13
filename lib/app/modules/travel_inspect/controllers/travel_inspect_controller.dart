@@ -15,7 +15,6 @@ import 'package:http/http.dart' as http;
 
 import '../../../repositories/upload_repository.dart';
 import '../../../repositories/user_repository.dart';
-import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../../root/controllers/root_controller.dart';
 import '../../userBookings/controllers/bookings_controller.dart';
@@ -43,6 +42,8 @@ class TravelInspectController extends GetxController {
   var accept = false.obs;
   var reject = false.obs;
   var selected = false.obs;
+  var userExist = false.obs;
+  var typing = false.obs;
   var selectedLuggage = false.obs;
   var users =[].obs;
   var travelBookings = [].obs;
@@ -54,6 +55,8 @@ class TravelInspectController extends GetxController {
   var imageFiles = [].obs;
   var luggageModels = [].obs;
   var luggageId = [].obs;
+  var listUsers = [].obs;
+  var viewUsers = [].obs;
   var luggageSelected = [].obs;
   var areBookingsLoading = false.obs;
   final errorField = false.obs;
@@ -62,7 +65,7 @@ class TravelInspectController extends GetxController {
   File profileImage;
   final loadProfileImage = false.obs;
   var existingPartner;
-  var allUsers= [].obs;
+
 
 
 
@@ -91,6 +94,8 @@ class TravelInspectController extends GetxController {
     var arguments = Get.arguments as Map<String, dynamic>;
     travelCard.value = arguments['travelCard'];
     print('travelCard Value '+travelCard.toString());
+    List allUsers = await getAllUsers();
+    listUsers.value = allUsers;
 
     areBookingsLoading.value = true;
     //listAir = await getAirBookingsOnTravel(travelCard['id']);
@@ -104,7 +109,6 @@ class TravelInspectController extends GetxController {
      if(Get.find<MyAuthService>().myUser.value.id != travelCard['partner_id'][0]){
        print(currentUser.value.id);
        listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
-       //listBeneficiaries = await getAllUsers();
        List models = await getAllLuggageModel();
        luggageModels.value = models;
       users.value = listBeneficiaries;
@@ -132,6 +136,27 @@ class TravelInspectController extends GetxController {
       return;
     } else {
       users.value = listBeneficiaries;
+    }
+  }
+
+  searchUser(String query){
+    if(query.isNotEmpty) {
+      typing.value = true;
+      List dummyListData = [];
+      dummyListData = listUsers.where((element) => element['login']
+          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      if(dummyListData.isNotEmpty){
+        userExist.value = true;
+        viewUsers.value = dummyListData;
+        print(userExist);
+      }else{
+        userExist.value = false;
+        email.value = query;
+        print(userExist);
+      }
+      return;
+    }else{
+      typing.value = false;
     }
   }
 
@@ -367,23 +392,6 @@ class TravelInspectController extends GetxController {
       //existingPartner = ['testname','https://stock.adobe.com/search?k=admin'];
       //existingPartnerVisible.value = true;
 
-      allUsers.isEmpty?
-      showDialog(
-          context: Get.context,
-          builder: (_){
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
-              content: Container(
-                  height: MediaQuery.of(Get.context).size.height*0.25,
-                  padding: EdgeInsets.all(10),
-                  child: CircularProgressIndicator(color: Colors.grey, )
-              ),
-            );
-          }):
-      setExistingPartnerToBeneficiary();
-
-      allUsers.value = await getAllUsers();
 
     }
   }
@@ -454,8 +462,6 @@ class TravelInspectController extends GetxController {
     else {
       print(response.reasonPhrase);
     }
-
-
   }
 
   updateBeneficiaryToPortalUser(int id) async {
@@ -506,13 +512,10 @@ class TravelInspectController extends GetxController {
       return id;
 
     } else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var result = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(result)['message']));
     }
   }
-
-
-
 
   transferTravelShipping()async{
 
@@ -741,6 +744,28 @@ class TravelInspectController extends GetxController {
     }
   }
 
+  Future getAllUsers()async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/search_read/res.users'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("Users Loaded");
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
   Future getAllBeneficiaries(int id)async{
 
     var headers = {
@@ -761,8 +786,6 @@ class TravelInspectController extends GetxController {
         var listUser = await getUsersInAddressBook(list);
         print('Partner list'+listUser.toString());
         return listUser==null?[]:listUser;
-
-
 
     }
     else {
@@ -794,77 +817,6 @@ class TravelInspectController extends GetxController {
 
   }
 
-  setExistingPartnerToBeneficiary()async{
-    for(int i = 0; i<allUsers.length; i++){
-      if(allUsers[i]['email']==email.value){
-        existingPartner = allUsers[i];
-        receiverId.value = existingPartner['id'];
-      }
-    }
-    showDialog(
-        context: Get.context,
-        builder: (_){
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20.0))),
-            content: Container(
-                height: MediaQuery.of(Get.context).size.height*0.25,
-                padding: EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Expanded(child: Text('The following user with email: ${email.value} already exist in our system would you like to designate him as receiver?', style: TextStyle(color: Colors.black),)),
-                    existingPartner['image_1920'] != 'false' ?
-                    UserWidget(
-                      user: existingPartner['name'],
-                      selected: false,
-                      imageUrl:'${Domain.serverPort}/image/res.partner/${existingPartner['id']}/image_1920?unique=true&file_response=true',
-                    ): CircleAvatar(
-                        backgroundImage: AssetImage("assets/img/téléchargement (2).png"),
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                      MaterialButton(
-                        onPressed: () async{
-                          Navigator.pop(Get.context);
-                        },
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        color: specialColor,
-                        child: Text("No".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
-                        elevation: 0,
-                        highlightElevation: 0,
-                        hoverElevation: 0,
-                        focusElevation: 0,
-                      ),
-                      SizedBox(width: 20,),
-                      MaterialButton(
-                        onPressed: () async{
-                          selectUser.value = false;
-                          await shipNow();
-                          selectUser.value = true;
-                        },
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        color: Get.theme.colorScheme.secondary,
-                        child: Text("yes".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
-                        elevation: 0,
-                        highlightElevation: 0,
-                        hoverElevation: 0,
-                        focusElevation: 0,
-                      ),
-
-
-                    ],)
-
-                  ],
-                )
-            ),
-          );
-        });
-
-  }
 
   selectCameraOrGalleryProfileImage()async{
     showDialog(
@@ -926,35 +878,6 @@ class TravelInspectController extends GetxController {
         //loadIdentityFile.value = !loadIdentityFile.value;
         //Navigator.of(Get.context).pop();
       }
-
-    }
-
-  }
-
-
-
-  getAllUsers()async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=a3ffbeb70a9e310852261c236548fc5735e96419'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/res.partner'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      print(data);
-      return json.decode(data);
-    }
-    else {
-      print(response.reasonPhrase);
     }
   }
 

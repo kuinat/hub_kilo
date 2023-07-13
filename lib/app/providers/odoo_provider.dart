@@ -12,31 +12,8 @@ import 'package:get/get.dart';
 
 import '../../common/ui.dart';
 import '../../main.dart';
-import '../models/address_model.dart';
-import '../models/award_model.dart';
-import '../models/booking_model.dart';
-import '../models/category_model.dart';
-import '../models/coupon_model.dart';
-import '../models/custom_page_model.dart';
-import '../models/e_provider_model.dart';
-import '../models/e_service_model.dart';
-import '../models/experience_model.dart';
-import '../models/faq_category_model.dart';
-import '../models/faq_model.dart';
-import '../models/favorite_model.dart';
-import '../models/gallery_model.dart';
 import '../models/my_user_model.dart';
-import '../models/notification_model.dart';
-import '../models/option_group_model.dart';
-import '../models/payment_method_model.dart';
-import '../models/payment_model.dart';
-import '../models/review_model.dart';
-import '../models/setting_model.dart';
-import '../models/wallet_model.dart';
-import '../models/wallet_transaction_model.dart';
-import '../routes/app_routes.dart';
 import '../services/my_auth_service.dart';
-import '../services/settings_service.dart';
 import 'api_provider.dart';
 import 'dio_client.dart';
 
@@ -79,24 +56,6 @@ class OdooApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future getHomeSlider()async{
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; session_id=d047bf791be8a6350c110a221bbbd5afcdeff9ec'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/all/publicity/hubkilo'));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      return json.decode(data)['publicity'];
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
@@ -115,7 +74,7 @@ class OdooApiClient extends GetxService with ApiClient {
       var data = json.decode(result)[0];
       var myuser = MyUser(
           email: data['email'].toString(),
-          birthday: data['birthdate'].toString(),
+          birthday: data['birthdate']==false?'--/--/--':data['birthdate'],
           isTraveller: data['is_traveler'],
           phone: data['phone'].toString(),
           street: data['residence_city_id']==false?'--':data['residence_city_id'][1],
@@ -124,7 +83,8 @@ class OdooApiClient extends GetxService with ApiClient {
           birthplace: data['birth_city_id']==false?'--':data['birth_city_id'][1],
           id: data['id'],
           userId: data['related_user_id'][0],
-          image: data['image_1920'].toString()
+          image: data['image_1920'].toString(),
+          partnerAttachmentIds: data['partner_attachment_ids']
       );
       print('user:  '+myuser.toString());
 

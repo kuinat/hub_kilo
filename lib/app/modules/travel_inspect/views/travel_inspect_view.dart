@@ -15,9 +15,6 @@ import '../../account/widgets/account_link_widget.dart';
 
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
-import '../../global_widgets/packet_image_field_widget.dart';
-import '../../global_widgets/phone_field_widget.dart';
-import '../../global_widgets/pop_up_photo_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../global_widgets/user_widget.dart';
@@ -28,7 +25,6 @@ import '../widgets/e_service_til_widget.dart';
 import '../widgets/e_service_title_bar_widget.dart';
 
 class TravelInspectView extends GetView<TravelInspectController> {
-
 
 
   @override
@@ -1130,13 +1126,69 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   labelText: "Full Name".tr,
                   iconData: FontAwesomeIcons.person,
                 ),
-                TextFieldWidget(
-                  readOnly: false,
-                  keyboardType: TextInputType.text,
-                  validator: (input) => input.isEmpty ? "field required!".tr : null,
-                  onChanged: (input) => controller.email.value = input,
-                  labelText: "Email".tr,
-                  iconData: Icons.alternate_email,
+                Obx(() =>
+                Column(
+                  children: [
+                    TextFieldWidget(
+                      readOnly: false,
+                      keyboardType: TextInputType.text,
+                      validator: (input) => input.isEmpty ? "field required!".tr : null,
+                      onChanged: (input) =>{
+                        if(input.length > 4){
+                          controller.searchUser(input)
+                        }
+                      },
+                      labelText: "Email".tr,
+                      iconData: Icons.alternate_email,
+                    ),
+                    controller.typing.value ?
+                     !controller.userExist.value ?
+                    Text("Email Available", style: TextStyle(color: validateColor)) :
+                     Row(
+                       children: [
+                         SizedBox(width: 10),
+                         Text("Email exist", style: TextStyle(color: specialColor)),
+                         TextButton(onPressed: ()=> {
+                           showDialog(context: context,
+                               builder: (_){
+                             return AlertDialog(
+                               title: Text("Related User"),
+                               content: SizedBox(
+                                 height: Get.height/3 - 100,
+                                 child: Column(
+                                   children: [
+                                     for(var a=0; a< controller.viewUsers.length; a++)...[
+                                       InkWell(
+                                         onTap: ()=>{
+                                           controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
+                                           controller.selectUser.value = false,
+                                           controller.shipNow(),
+                                           //add method here...
+                                         },
+                                         child: UserWidget(
+                                           user: controller.viewUsers[a]['name'],
+                                           selected: false,
+                                           imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
+                                         )
+                                       )
+                                     ]
+                                   ]
+                                 )
+                               ),
+                               actions: [
+                                 Align(
+                                   alignment: Alignment.bottomRight,
+                                   child: TextButton(onPressed: ()=> Navigator.pop(context), child: Text("OK", style: Get.textTheme.headline4))
+                                 )
+                               ],
+                             );
+                               })
+                         },
+                             child: Text("View", style: TextStyle(decoration: TextDecoration.underline, color: interfaceColor)))
+                       ],
+                     ) : SizedBox(height: 10)
+                  ],
+                )
                 ),
                 Container(
                   padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),

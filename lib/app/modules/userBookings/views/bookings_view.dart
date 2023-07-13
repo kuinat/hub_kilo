@@ -690,6 +690,7 @@ class BookingsView extends GetView<BookingsController> {
               onChanged: (input) => controller.shippingPrice.value = double.parse(input),
               labelText: "Shipping Price".tr,
               iconData: Icons.monetization_on_rounded,
+              readOnly: true,
             ),
             Obx(() => Container(
               height: 200,
@@ -804,6 +805,7 @@ class BookingsView extends GetView<BookingsController> {
             Column(
               children: [
                 TextFieldWidget(
+                  readOnly: true,
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.name.value = input,
@@ -812,6 +814,7 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
+                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.email.value = input,
                   labelText: "Email".tr,
@@ -828,6 +831,7 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
+                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.address.value = input,
                   labelText: "Address".tr,
@@ -840,6 +844,7 @@ class BookingsView extends GetView<BookingsController> {
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
+              readOnly: true,
               iconData: FontAwesomeIcons.userGroup,
               onChanged: (value)=>{
                 controller.filterSearchResults(value)
