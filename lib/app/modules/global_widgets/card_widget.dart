@@ -117,7 +117,7 @@ class CardWidget extends StatelessWidget {
                           height: 24,
                           color: Get.theme.focusColor.withOpacity(0.3),
                         ),
-                        Expanded(child: Text("From: $text", style: Get.textTheme.headline1.
+                        Expanded(child: Text("From: $text", overflow: TextOverflow.ellipsis,style: Get.textTheme.headline1.
                         merge(TextStyle(color: appColor, fontSize: 17)))),
                         SizedBox(width: 40),
                         Container(

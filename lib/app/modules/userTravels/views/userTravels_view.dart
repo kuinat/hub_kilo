@@ -74,14 +74,15 @@ class MyTravelsView extends GetView<UserTravelsController> {
                         children: [
                           ElevatedButton(
                               onPressed: ()async{
-                                List data = await controller.getInvoice();
+                                List data = [];
+                                //data = await controller.getInvoice();
                                 if(data.isNotEmpty) {
                                   Get.bottomSheet(
                                     buildInvoice(context, data),
                                     isScrollControlled: true,
                                   );
                                 }else{
-                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No shipping has been made on this travel yet".tr));
+                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No invoice has been made yet".tr));
                                 }
                               },
                               style: ElevatedButton.styleFrom(

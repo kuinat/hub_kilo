@@ -202,7 +202,7 @@ class BookingsView extends GetView<BookingsController> {
                       transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       bookingState: controller.items[index]['state'],
                       price: controller.items[index]['shipping_price'],
-                      text: controller.items[index]['travelbooking_id'][1],
+                      text: controller.items[index]['travel_partner_name'],
                       luggageView: ElevatedButton(
                           onPressed: ()async{
                             controller.shippingLoading.value = true;

@@ -115,7 +115,7 @@ class ValidationView extends GetView<ValidationController> {
                             SizedBox(height: 10),
                             Container(
                                 padding: EdgeInsets.all(10),
-                                child: Text('Scanner le Code'.tr, style: TextStyle(color: Get.theme.primaryColor)
+                                child: Text('Scan Code'.tr, style: TextStyle(color: Get.theme.primaryColor)
                                 )
                             )
                           ],
@@ -194,7 +194,7 @@ class ValidationView extends GetView<ValidationController> {
             DelayedAnimation(delay: 250,
                 child: BlockButtonWidget(
                   onPressed: () {
-                    controller.completeTransaction(controller.codeController.text);
+                    controller.verifyCode(controller.codeController.text.split('-').first, controller.codeController.text.split('-').last);
                     Timer(Duration(milliseconds: 100), () {
                       controller.codeController.clear();
                     });
@@ -262,12 +262,12 @@ class ValidationView extends GetView<ValidationController> {
                   itemCount: controller.shipping.length,
                   itemBuilder: (context, index){
 
-                    String departureCity = controller.travelInfo['departure_city_id'][1].split('(').first;
-                    String a = controller.travelInfo['departure_city_id'][1].split('(').last;
+                    String departureCity = controller.shipping[index]['travel_departure_city_name'].split('(').first;
+                    String a = controller.shipping[index]['travel_departure_city_name'].split('(').last;
                     String departureCountry = a.split(')').first;
 
-                    String arrivalCity = controller.travelInfo['arrival_city_id'][1].split('(').first;
-                    String b = controller.travelInfo['arrival_city_id'][1].split('(').last;
+                    String arrivalCity = controller.shipping[index]['travel_arrival_city_name'].split('(').first;
+                    String b = controller.shipping[index]['travel_arrival_city_name'].split('(').last;
                     String arrivalCountry = b.split(')').first;
 
                     Future.delayed(Duration.zero, (){
@@ -276,7 +276,7 @@ class ValidationView extends GetView<ValidationController> {
                     return InkWell(
                         onTap: ()=>{
                           Get.bottomSheet(
-                            buildBookingSheet(context, controller.travelInfo['code']),
+                            buildBookingSheet(context, controller.shipping[index]['travel_code'], controller.shipping[index]['id']),
                             isScrollControlled: true,
                           )
                         },
@@ -446,7 +446,7 @@ class ValidationView extends GetView<ValidationController> {
     );
   }
 
-  Widget buildBookingSheet(BuildContext context, var bookingCode){
+  Widget buildBookingSheet(BuildContext context, var bookingCode, int travelId){
 
     return Container(
       height: Get.height/1.2,
@@ -485,7 +485,7 @@ class ValidationView extends GetView<ValidationController> {
                 child: Container(
                   padding: EdgeInsets.only(top: 00,bottom: 20, left: 60, right: 60),
                   child: QrImage(
-                    data: "$bookingCode",
+                    data: "$bookingCode>$travelId",
                     version: QrVersions.auto,
                     size: 200,
                     gapless: false,
@@ -515,7 +515,7 @@ class ValidationView extends GetView<ValidationController> {
                           textAlign: TextAlign.start,
                         ),
                         TextFormField(
-                          initialValue: bookingCode.toString(),
+                          initialValue: "$bookingCode-$travelId",
                           //controller: codeController,
                           onTap: ()=>{
                             //controller.validationType.value = 2
@@ -525,6 +525,7 @@ class ValidationView extends GetView<ValidationController> {
                           obscureText: false,
                           textAlign: TextAlign.start,
                         ),
+                        //IconButton(onPressed: ()=>{}, icon: Icon(Icons.file_copy))
                       ],
                     )
                 )),
