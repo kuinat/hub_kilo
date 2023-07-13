@@ -231,7 +231,6 @@ class ImportIdentityFilesController extends GetxController{
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      buttonPressed.value = false;
       var data = await response.stream.bytesToString();
       print('data'+data);
       var result = json.decode(data);

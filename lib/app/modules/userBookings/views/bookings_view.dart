@@ -194,6 +194,7 @@ class BookingsView extends GetView<BookingsController> {
                       controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                     });
                     return CardWidget(
+                      owner: true,
                       shippingDate: controller.items[index]['create_date'],
                       code: controller.items[index]['display_name'],
                       travelType: controller.items[index]['booking_type'],
@@ -201,7 +202,7 @@ class BookingsView extends GetView<BookingsController> {
                       transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       bookingState: controller.items[index]['state'],
                       price: controller.items[index]['shipping_price'],
-                      text: controller.items[index]['travelbooking_id'][1],
+                      text: controller.items[index]['travel_partner_name'],
                       luggageView: ElevatedButton(
                           onPressed: ()async{
                             controller.shippingLoading.value = true;

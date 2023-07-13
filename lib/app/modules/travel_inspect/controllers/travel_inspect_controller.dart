@@ -33,6 +33,7 @@ class TravelInspectController extends GetxController {
   final address = "".obs;
   final selectUser = false.obs;
   var receiverId = 0.obs;
+  var paymentMethodId = 0.obs;
   final buttonPressed = false.obs;
   final luggageLoading = true.obs;
   var url = ''.obs;
@@ -45,9 +46,9 @@ class TravelInspectController extends GetxController {
   var userExist = false.obs;
   var typing = false.obs;
   var selectedLuggage = false.obs;
+  var list = [];
   var users =[].obs;
   var travelBookings = [].obs;
-  var list = [];
   var listBeneficiaries =[];
   var transferBooking = false.obs;
   var transferBookingId = ''.obs;
@@ -58,7 +59,7 @@ class TravelInspectController extends GetxController {
   var listUsers = [].obs;
   var viewUsers = [].obs;
   var luggageSelected = [].obs;
-  var areBookingsLoading = false.obs;
+  var listPaymentMethod = [].obs;
   final errorField = false.obs;
   var shippingLuggage =[].obs;
   final _picker = ImagePicker();
@@ -96,8 +97,6 @@ class TravelInspectController extends GetxController {
     print('travelCard Value '+travelCard.toString());
     List allUsers = await getAllUsers();
     listUsers.value = allUsers;
-
-    areBookingsLoading.value = true;
     //listAir = await getAirBookingsOnTravel(travelCard['id']);
     //listRoad = await getRoadBookingsOnTravel(travelCard['id']);
 
@@ -105,7 +104,6 @@ class TravelInspectController extends GetxController {
     list = listAir
         :travelCard['travel_type'] == "road"?*/
 
-     list = await getThisTravelShipping(travelCard['shipping_ids']);
      if(Get.find<MyAuthService>().myUser.value.id != travelCard['partner_id'][0]){
        print(currentUser.value.id);
        listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
@@ -113,8 +111,7 @@ class TravelInspectController extends GetxController {
        luggageModels.value = models;
       users.value = listBeneficiaries;
      }
-    travelBookings.value = list;
-    areBookingsLoading.value = false;
+
     if(travelCard['booking_type'].toLowerCase() == "air"){
       imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
     }else if(travelCard['booking_type'].toLowerCase() == "sea"){
@@ -160,12 +157,37 @@ class TravelInspectController extends GetxController {
     }
   }
 
+  getPaymentMethod()async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/account.payment.method.line'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      for(var a in json.decode(data)){
+        if(a['payment_acquirer_state'].toString() == "enabled"){
+          listPaymentMethod.add(a);
+        }
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
   Future getThisTravelShipping(var shipping)async{
 
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7884fbe019046ffc1379f17c73f57a9e344a6d8a'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shipping'));
 
@@ -318,6 +340,7 @@ class TravelInspectController extends GetxController {
           '"receiver_partner_id": ${receiverId.value},'
           '"shipping_price": 0.0,'
           '"luggage_ids": $luggageId,'
+          '"payment_method_line_id": $paymentMethodId,'
           '"partner_id": ${Get.find<MyAuthService>().myUser.value.id}'
           '}'
       ));

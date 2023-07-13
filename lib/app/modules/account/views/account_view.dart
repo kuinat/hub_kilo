@@ -57,7 +57,7 @@ class AccountView extends GetView<AccountController> {
                         radius: 60,
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
-                          backgroundColor: background,
+                            backgroundColor: background,
                             radius: 50,
                             backgroundImage: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/res.partner/${controller.currentUser.value.id}/image_1920?unique=true&file_response=true',
 
@@ -100,18 +100,18 @@ class AccountView extends GetView<AccountController> {
                     ],
                   ),
                   Padding(
-                      padding: EdgeInsets.only(left: 15),
-                  child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: Get.find<MyAuthService>().myUser.value.name, style: Get.textTheme.headline6.merge(TextStyle(fontSize: 18, color: appColor))
-                          ),
-                          TextSpan(
-                              text: "\n${Get.find<MyAuthService>().myUser.value.email}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 14, color: appColor))
-                          )
-                        ]
-                      )),
+                    padding: EdgeInsets.only(left: 15),
+                    child: RichText(
+                        text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: Get.find<MyAuthService>().myUser.value.name, style: Get.textTheme.headline6.merge(TextStyle(fontSize: 18, color: appColor))
+                              ),
+                              TextSpan(
+                                  text: "\n${Get.find<MyAuthService>().myUser.value.email}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 14, color: appColor))
+                              )
+                            ]
+                        )),
                   )
                 ],
               ),
@@ -125,12 +125,12 @@ class AccountView extends GetView<AccountController> {
                     SizedBox(width: 10),
                     InkWell(
                       onTap: (){
-                          controller.currentState.value = 0;
+                        controller.currentState.value = 0;
                       },
                       child: Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            //color: controller.currentState == 0 ? background : null,
+                          //color: controller.currentState == 0 ? background : null,
                             border: controller.currentState == 0 ? Border(
                                 bottom: BorderSide(width: 4, color: interfaceColor)
                             ): null
@@ -160,7 +160,7 @@ class AccountView extends GetView<AccountController> {
                       child: Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            //color: controller.currentState == 2 ? background : null,
+                          //color: controller.currentState == 2 ? background : null,
                             border: controller.currentState == 2 ? Border(
                                 bottom: BorderSide(width: 4, color: interfaceColor)
                             ): null
@@ -284,52 +284,52 @@ class AccountView extends GetView<AccountController> {
                             title: Text(controller.user.value.phone,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
                             ),
                             trailing: controller.edit.value ?TextButton(
-                              onPressed: ((){
-                                controller.editNumber.value = true;
-                              }),
-                              child: Text('Edit...',style: Get.textTheme.bodyText1)) : null,
+                                onPressed: ((){
+                                  controller.editNumber.value = true;
+                                }),
+                                child: Text('Edit...',style: Get.textTheme.bodyText1)) : null,
                           )
                       ),
                     )
                 ) :
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                          margin: EdgeInsets.only(left: 5, right: 5),
-                          decoration: BoxDecoration(
-                              color: Get.theme.primaryColor,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                              ],
-                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                          child: IntlPhoneField(
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5),
-                              labelStyle: TextStyle(
-                                color: Colors.grey,
-                              ),
-                              hintText: '032655333333',
-                              labelText: 'Phone Number',
-                              suffixIcon: Icon(Icons.phone_android_outlined),
-                            ),
-                            initialCountryCode: 'BE',
-                            onSaved: (phone) {
-                              return controller.user.value?.phone = phone.completeNumber;
-                            },
-                            onChanged: (phone) {
-                              String phoneNumber = phone.completeNumber;
-                              controller.user.value?.phone = phoneNumber;
-                            },
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                      margin: EdgeInsets.only(left: 5, right: 5),
+                      decoration: BoxDecoration(
+                          color: Get.theme.primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                      child: IntlPhoneField(
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(5),
+                          labelStyle: TextStyle(
+                            color: Colors.grey,
                           ),
+                          hintText: '032655333333',
+                          labelText: 'Phone Number',
+                          suffixIcon: Icon(Icons.phone_android_outlined),
                         ),
-                        TextButton(
-                            onPressed: ()=> controller.editNumber.value = false,
-                            child: Text('Cancel', style: TextStyle(color: specialColor)))
-                      ],
+                        initialCountryCode: 'BE',
+                        onSaved: (phone) {
+                          return controller.user.value?.phone = phone.completeNumber;
+                        },
+                        onChanged: (phone) {
+                          String phoneNumber = phone.completeNumber;
+                          controller.user.value?.phone = phoneNumber;
+                        },
+                      ),
                     ),
+                    TextButton(
+                        onPressed: ()=> controller.editNumber.value = false,
+                        child: Text('Cancel', style: TextStyle(color: specialColor)))
+                  ],
+                ),
 
                 InkWell(
                     onTap: (){
@@ -367,75 +367,75 @@ class AccountView extends GetView<AccountController> {
                     )
                 ),
                 Obx(() {
-                     return controller.editPlaceOfBirth.value?
-                         Column(
-                           children: [
-                             Container(
-                               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                               margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
-                               decoration: BoxDecoration(
-                                   color: Get.theme.primaryColor,
-                                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                                   boxShadow: [
-                                     BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                                   ],
-                                   border: Border.all(color: controller.errorCity1.value ? specialColor : Get.theme.focusColor.withOpacity(0.05))),
-                               child: Column(
-                                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                                   children: [
-                                     Text("City of Birth",
-                                       style: Get.textTheme.bodyText1,
-                                       textAlign: TextAlign.start,
-                                     ),
-                                     SizedBox(height: 10),
-                                     Row(
-                                         children: [
-                                           Icon(Icons.location_pin),
-                                           SizedBox(width: 10),
-                                           SizedBox(
-                                             width: MediaQuery.of(context).size.width/2,
-                                             child: TextFormField(
-                                               controller: controller.depTown,
-                                               decoration: InputDecoration(
-                                                 border: InputBorder.none,
-                                                 focusedBorder: InputBorder.none,
-                                                 enabledBorder: InputBorder.none,
-                                                 errorBorder: InputBorder.none,
-                                                 disabledBorder: InputBorder.none,
-                                                 contentPadding:
-                                                 EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-                                               ),
-                                               //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
-                                               style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
-                                               onChanged: (value)=>{
-                                                 if(value.isNotEmpty){
-                                                   controller.errorCity1.value = false
-                                                 },
-                                                 if(value.length > 2){
-                                                   controller.predict1.value = true,
-                                                   controller.filterSearchResults(value)
-                                                 }else{
-                                                   controller.predict1.value = false,
-                                                 }
-                                               },
-                                               cursorColor: Get.theme.focusColor,
-                                             ),
-                                           ),
-                                         ]
-                                     )
-                                   ]
-                               ),
-                             ),
+                  return controller.editPlaceOfBirth.value?
+                  Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
+                        decoration: BoxDecoration(
+                            color: Get.theme.primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            boxShadow: [
+                              BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                            ],
+                            border: Border.all(color: controller.errorCity1.value ? specialColor : Get.theme.focusColor.withOpacity(0.05))),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text("City of Birth",
+                                style: Get.textTheme.bodyText1,
+                                textAlign: TextAlign.start,
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                  children: [
+                                    Icon(Icons.location_pin),
+                                    SizedBox(width: 10),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width/2,
+                                      child: TextFormField(
+                                        controller: controller.depTown,
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          errorBorder: InputBorder.none,
+                                          disabledBorder: InputBorder.none,
+                                          contentPadding:
+                                          EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                        ),
+                                        //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                                        style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                        onChanged: (value)=>{
+                                          if(value.isNotEmpty){
+                                            controller.errorCity1.value = false
+                                          },
+                                          if(value.length > 2){
+                                            controller.predict1.value = true,
+                                            controller.filterSearchResults(value)
+                                          }else{
+                                            controller.predict1.value = false,
+                                          }
+                                        },
+                                        cursorColor: Get.theme.focusColor,
+                                      ),
+                                    ),
+                                  ]
+                              )
+                            ]
+                        ),
+                      ),
 
-                             Align(
-                               alignment: Alignment.centerRight,
-                               child: TextButton(
-                                   onPressed: ()=> controller.editPlaceOfBirth.value = false,
-                                   child: Text('Cancel', style: TextStyle(color: specialColor))),
-                             )
-                           ],
-                         )
-                     :
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                            onPressed: ()=> controller.editPlaceOfBirth.value = false,
+                            child: Text('Cancel', style: TextStyle(color: specialColor))),
+                      )
+                    ],
+                  )
+                      :
                   InkWell(
                       onTap: ()=> controller.editPlaceOfBirth.value == true,
                       child: Container(
@@ -486,77 +486,77 @@ class AccountView extends GetView<AccountController> {
                       )
                   )),
                 controller.editResidentialAddress.value?
-                    Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                          margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
-                          decoration: BoxDecoration(
-                              color: Get.theme.primaryColor,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                              ],
-                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text("Residential Address",
-                                  style: Get.textTheme.bodyText1,
-                                  textAlign: TextAlign.start,
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                    children: [
-                                      Icon(Icons.location_pin),
-                                      SizedBox(width: 10),
-                                      SizedBox(
-                                        width: MediaQuery.of(context).size.width/2,
-                                        child: TextFormField(
-                                          controller: controller.arrTown,
-                                          readOnly: controller.birthCityId.value != 0 ? false : true,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            disabledBorder: InputBorder.none,
-                                            contentPadding:
-                                            EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-                                          ),
-                                          onTap: (){
-                                            if(controller.birthCityId.value == 0){
-                                              controller.errorCity1.value = true;
-                                              Get.showSnackbar(Ui.warningSnackBar(message: "Please, first select a departure city!!! ".tr));
-                                            }
-                                          },
-                                          //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
-                                          style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
-                                          onChanged: (value)=>{
-                                            if(value.length > 2){
-                                              controller.predict2.value = true,
-                                              controller.filterSearchResults(value)
-                                            }else{
-                                              controller.predict2.value = false,
-                                            }
-                                          },
-                                          cursorColor: Get.theme.focusColor,
-                                        ),
+                Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      margin: EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
+                      decoration: BoxDecoration(
+                          color: Get.theme.primaryColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                          border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text("Residential Address",
+                              style: Get.textTheme.bodyText1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                                children: [
+                                  Icon(Icons.location_pin),
+                                  SizedBox(width: 10),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width/2,
+                                    child: TextFormField(
+                                      controller: controller.arrTown,
+                                      readOnly: controller.birthCityId.value != 0 ? false : true,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        contentPadding:
+                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
                                       ),
-                                    ]
-                                )
-                              ]
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                              onPressed: ()=> controller.editResidentialAddress.value = false,
-                              child: Text('Cancel', style: TextStyle(color: specialColor))),
-                        )
-                      ],
+                                      onTap: (){
+                                        if(controller.birthCityId.value == 0){
+                                          controller.errorCity1.value = true;
+                                          Get.showSnackbar(Ui.warningSnackBar(message: "Please, first select a departure city!!! ".tr));
+                                        }
+                                      },
+                                      //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
+                                      style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                      onChanged: (value)=>{
+                                        if(value.length > 2){
+                                          controller.predict2.value = true,
+                                          controller.filterSearchResults(value)
+                                        }else{
+                                          controller.predict2.value = false,
+                                        }
+                                      },
+                                      cursorColor: Get.theme.focusColor,
+                                    ),
+                                  ),
+                                ]
+                            )
+                          ]
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                          onPressed: ()=> controller.editResidentialAddress.value = false,
+                          child: Text('Cancel', style: TextStyle(color: specialColor))),
                     )
-                :
+                  ],
+                )
+                    :
                 InkWell(
                     onTap: ()=> controller.editResidentialAddress.value == true,
                     child: Container(
@@ -680,20 +680,20 @@ class AccountView extends GetView<AccountController> {
                 SizedBox(width: 10),
 
                 MaterialButton(
-                    onPressed: () {
-                      return Get.bottomSheet(
-                        buildEditingSheet(context),
-                        isScrollControlled: true,);
-                    },
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    color: Get.theme.colorScheme.secondary,
-                    child: Text("Change".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
-                    elevation: 0,
-                    highlightElevation: 0,
-                    hoverElevation: 0,
-                    focusElevation: 0,
-                  ),
+                  onPressed: () {
+                    return Get.bottomSheet(
+                      buildEditingSheet(context),
+                      isScrollControlled: true,);
+                  },
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  color: Get.theme.colorScheme.secondary,
+                  child: Text("Change".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor))),
+                  elevation: 0,
+                  highlightElevation: 0,
+                  hoverElevation: 0,
+                  focusElevation: 0,
+                ),
 
               ],
             ),
@@ -971,6 +971,7 @@ class AccountView extends GetView<AccountController> {
     return Column(
       children: [
         Container(
+          height: Get.height/2,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: Ui.getBoxDecoration(),
@@ -985,34 +986,113 @@ class AccountView extends GetView<AccountController> {
                   //Get.find<RootController>().changePage(2);
                 },
               ),
+              Expanded(
+                  child: ListView.builder(
+                      itemCount: controller.attachmentFiles.length,
+                      itemBuilder: (context, item){
+                        return controller.attachmentFiles.isNotEmpty ?
+                        Card(
+                            child: Row(
+                                children: [
+                                  Obx(() => InkWell(
+                                      onTap: ()=>{
+                                        showDialog(context: context, builder: (_){
+                                          return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Material(
+                                                  child: IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(Icons.close, size: 20))
+                                              ),
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                child: FadeInImage(
+                                                  width: Get.width,
+                                                  height: Get.height/2,
+                                                  image: NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.attachmentFiles[item]['id']}/datas?unique=true&file_response=true',
+                                                      headers: Domain.getTokenHeaders()),
+                                                  placeholder: AssetImage(
+                                                      "assets/img/loading.gif"),
+                                                  imageErrorBuilder:
+                                                      (context, error, stackTrace) {
+                                                    return Icon(FontAwesomeIcons.camera, size: 50);
+                                                  },
+                                                ),
+                                              )
+                                            ],
+                                          );
+                                        })
+                                      },
+                                      child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: ClipRRect(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              child: FadeInImage(
+                                                width: 80,
+                                                height: 80,
+                                                image: NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.attachmentFiles[item]['id']}/datas?unique=true&file_response=true',
+                                                    headers: Domain.getTokenHeaders()),
+                                                placeholder: AssetImage(
+                                                    "assets/img/loading.gif"),
+                                                imageErrorBuilder:
+                                                    (context, error, stackTrace) {
+                                                  return Icon(FontAwesomeIcons.camera, size: 50);
+                                                },
+                                              )
+                                          )
+                                      )
+                                  )),
+                                  Expanded(
+                                      child: Column(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 20),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text("Type", style: Get.textTheme.bodyText2.merge(TextStyle(color: appColor))),
+                                                  ),
+                                                  Container(
+                                                    margin: EdgeInsets.symmetric(horizontal: 12),
+                                                    width: 1,
+                                                    height: 24,
+                                                    color: Get.theme.focusColor.withOpacity(0.3),
+                                                  ),
+                                                  Text(controller.attachmentFiles[item]['attach_custom_type'], style: Get.textTheme.bodyText2),
+                                                ],
+                                              ),
+                                            ),
+                                            SwitchListTile( //switch at right side of label
+                                                value: controller.attachmentFiles[item]['conformity'],
+                                                onChanged: (bool value){
 
-              // CircleAvatar(
-              //     backgroundColor: background,
-              //     radius: 50,
-              //     backgroundImage: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.id}/datas?unique=true&file_response=true',
-              //
-              //         headers: Domain.getTokenHeaders()) : AssetImage("assets/img/téléchargement (2).png"),
-              //
-              // )
+                                                },
+                                                title: Text("Conformity", style: Get.textTheme.bodyText2.merge(TextStyle(color: appColor)))
+                                            )
+                                          ]
+                                      )
+                                  )
+                                ]
+                            )
+                        ) : SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(height: 100),
+                              FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                              Text('No Attachment found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
+                            ],
+                          ),
+                        );
+                      })
+              ),
 
             ],
+
+
           ),
         ),
-
-        Container(
-            width: MediaQuery.of(context).size.width*0.75,
-            height: MediaQuery.of(context).size.height*0.4,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                fit: BoxFit.fill,
-                onError: (exception, stackTrace) =>AssetImage("assets/img/téléchargement (2).png"),
-                image: NetworkImage(
-                  '${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.partnerAttachmentIds[0]}/datas?unique=true&file_response=true',headers: Domain.getTokenHeaders(),
-                )
-              //image: controller.currentUser.value.image != 'false' ? NetworkImage('${Domain.serverPort}/image/ir.attachment/${controller.currentUser.value.id}/datas?unique=true&file_response=true'): AssetImage("assets/img/téléchargement (2).png"),
-
-
-            )))
 
 
       ],

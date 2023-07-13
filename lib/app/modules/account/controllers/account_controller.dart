@@ -72,7 +72,8 @@ class AccountController extends GetxController {
 
   var birthCityId = 0.obs;
   var residentialAddressId = 0.obs;
-
+  var listAttachment = [];
+  var attachmentFiles = [].obs;
 
   var predict1 = false.obs;
   var predict2 = false.obs;
@@ -103,7 +104,7 @@ class AccountController extends GetxController {
     list = box.read("allCountries");
     countries.value = list;
     print("first country is ${countries[0]}");
-
+    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     user.value = Get.find<MyAuthService>().myUser.value;
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
@@ -126,9 +127,9 @@ class AccountController extends GetxController {
     // user.value?.birthday = user.value.birthday;
     //user.value.phone = user.value.phone;
     // birthDate.value = user.value.birthday;
+    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     await getUser();
   }
-
 
   void updateProfile() async {
 
@@ -273,6 +274,7 @@ class AccountController extends GetxController {
     profileForm.currentState.reset();
   }
 
+
   getAttachment()async{
     var headers = {
       'Accept': 'application/json',
@@ -295,13 +297,51 @@ class AccountController extends GetxController {
   }
 
 
+  getUserInfo(int id) async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
 
-  // Future<void> deleteUser() async {
-  //   try {
-  //     //await _userRepository.deleteCurrentUser();
-  //   } catch (e) {
-  //     Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
-  //   }
-  // }
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var data = json.decode(result)[0];
+      listAttachment = data['partner_attachment_ids'];
+      await getAttachmentFiles();
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  getAttachmentFiles()async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/ir.attachment?ids=$listAttachment&fields=%5B%22attach_custom_type%22%2C%22conformity%22%5D&with_context=%7B%7D&with_company=1'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      List data = json.decode(result);
+      attachmentFiles.value = data;
+      print(data);
+
+    }
+    else {
+      var result = await response.stream.bytesToString();
+      print(result);
+    }
+  }
+
 }
 

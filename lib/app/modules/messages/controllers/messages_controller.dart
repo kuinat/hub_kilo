@@ -75,18 +75,16 @@ class MessagesController extends GetxController {
       receiver_id.value = travel['partner_id'][0];
       receiver_Name.value = travel['partner_id'][1];
     }
-    if(travel != null){
-      String departureCity = travel['departure_city_id'][1].split('(').first;
-      String a = travel['departure_city_id'][1].split('(').last;
-      String country1 = a.split(')').first;
-      departureTown.value = departureCity;
-      departureCountry.value = country1;
-      String arrivalCity = travel['arrival_city_id'][1].split('(').first;
-      String b = travel['arrival_city_id'][1].split('(').last;
-      String country2 = b.split(')').first;
-      arrivalTown.value = arrivalCity;
-      arrivalCountry.value = country2;
-    }
+    String departureCity = card['travel_departure_city_name'].split('(').first;
+    String a = card['travel_departure_city_name'].split('(').last;
+    String country1 = a.split(')').first;
+    departureTown.value = departureCity;
+    departureCountry.value = country1;
+    String arrivalCity = card['travel_arrival_city_name'].split('(').first;
+    String b = card['travel_arrival_city_name'].split('(').last;
+    String country2 = b.split(')').first;
+    arrivalTown.value = arrivalCity;
+    arrivalCountry.value = country2;
     var result = await getShipping(card['id']);
     messages.value = result;
 
@@ -95,9 +93,11 @@ class MessagesController extends GetxController {
   }
 
   @override
-  void onClose() {
+  dispose() {
+    timer.cancel();
     //chatTextController.dispose();
     //timer.cancel();
+    super.dispose();
   }
 
   checkValue(String value){

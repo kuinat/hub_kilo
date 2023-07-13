@@ -21,6 +21,7 @@ class CardWidget extends StatelessWidget {
     this.reject,
     this.packetImageUrl,
     this.negotiation,
+    @required this.owner,
     @required this.luggageView,
     @required this.shippingDate,
     @required this.code,
@@ -40,6 +41,7 @@ class CardWidget extends StatelessWidget {
 
   final Widget negotiation;
   final String text;
+  final bool owner;
   final String departureTown;
   final String arrivalTown;
   final String code;
@@ -115,7 +117,7 @@ class CardWidget extends StatelessWidget {
                           height: 24,
                           color: Get.theme.focusColor.withOpacity(0.3),
                         ),
-                        Expanded(child: Text("From: $text", style: Get.textTheme.headline1.
+                        Expanded(child: Text("From: $text", overflow: TextOverflow.ellipsis,style: Get.textTheme.headline1.
                         merge(TextStyle(color: appColor, fontSize: 17)))),
                         SizedBox(width: 40),
                         Container(
@@ -179,7 +181,7 @@ class CardWidget extends StatelessWidget {
                     ],
                     initiallyExpanded: false,
                   ),
-
+                  if(owner)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
