@@ -992,54 +992,54 @@ class BookingsView extends GetView<BookingsController> {
               },
             ),
 
-            // controller.users.isNotEmpty ?
-            // Container(
-            //     margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
-            //     // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.all(Radius.circular(10)),
-            //       color: Colors.white,
-            //       boxShadow: [
-            //         BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-            //       ],
-            //     ),
-            //
-            //     child: ListView.separated(
-            //       //physics: AlwaysScrollableScrollPhysics(),
-            //         itemCount: controller.users.length,
-            //         separatorBuilder: (context, index) {
-            //           return SizedBox(height: 5);
-            //         },
-            //         shrinkWrap: true,
-            //         primary: false,
-            //         itemBuilder: (context, index) {
-            //           return GestureDetector(
-            //             onTap: (){
-            //               controller.receiverId.value = controller.users[index]['id'];
-            //               print(controller.receiverId.value.toString());
-            //               controller.selectedIndex.value = index;
-            //               controller.selected.value = true;
-            //             },
-            //             child: Container(
-            //               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            //               decoration: BoxDecoration(
-            //                 borderRadius: BorderRadius.all(Radius.circular(10)),
-            //                 border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
-            //                 color: Get.theme.primaryColor,
-            //
-            //               ),
-            //               child: UserWidget(
-            //                   user: controller.users[index]['display_name'],
-            //                   selected: false,
-            //                   imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
-            //                 //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
-            //               ),
-            //             ),
-            //           );
-            //         })
-            // ) : Container(
-            //     child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
-            //         .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
+            controller.users.isNotEmpty ?
+            Container(
+                margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
+                // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                ),
+
+                child: ListView.separated(
+                  //physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: controller.users.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    shrinkWrap: true,
+                    primary: false,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: (){
+                          controller.receiverId.value = controller.users[index]['id'];
+                          print(controller.receiverId.value.toString());
+                          controller.selectedIndex.value = index;
+                          controller.selected.value = true;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
+                            color: Get.theme.primaryColor,
+
+                          ),
+                          child: UserWidget(
+                              user: controller.users[index]['display_name'],
+                              selected: false,
+                              imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                            //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
+                          ),
+                        ),
+                      );
+                    })
+            ) : Container(
+                child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
+                    .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
           ],
         ),
       ],

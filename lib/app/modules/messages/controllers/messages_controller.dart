@@ -65,15 +65,15 @@ class MessagesController extends GetxController {
     );
     var arguments = Get.arguments as Map<String, dynamic>;
     card.value = arguments['shippingCard'];
-    var data = await getTravelInfo(card['travelbooking_id'][0]);
+    var data = await getTravelInfo(card['travelbooking_id'][0]['id']);
     travel.value = data;
     print("travel: $travel");
-    if(Get.find<MyAuthService>().myUser.value.id != card['partner_id'][0]){
-      receiver_id.value = card['partner_id'][0];
-      receiver_Name.value = card['partner_id'][1];
+    if(Get.find<MyAuthService>().myUser.value.id != card['partner_id'][0]['id']){
+      receiver_id.value = card['partner_id'][0]['id'];
+      receiver_Name.value = card['partner_id'][0]['name'];
     }else{
-      receiver_id.value = travel['partner_id'][0];
-      receiver_Name.value = travel['partner_id'][1];
+      receiver_id.value = travel['partner_id'][0]['id'];
+      receiver_Name.value = travel['partner_id'][0]['name'];
     }
     String departureCity = card['travel_departure_city_name'].split('(').first;
     String a = card['travel_departure_city_name'].split('(').last;
@@ -94,7 +94,9 @@ class MessagesController extends GetxController {
 
   @override
   dispose() {
-    timer.cancel();
+    if(timer != null){
+      timer.cancel();
+    }
     //chatTextController.dispose();
     //timer.cancel();
     super.dispose();
@@ -224,6 +226,30 @@ class MessagesController extends GetxController {
     }
   }
 
+  acceptPrice()async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"state": "accepted",'
+        '}&ids=${card['id']}'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping price set".tr));
+      Navigator.pop(Get.context);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data).tr));
+    }
+  }
+
   acceptAndPriceShipping(var price)async{
     print(card['id']);
 
@@ -251,35 +277,6 @@ class MessagesController extends GetxController {
     }
   }
 
-  acceptAirBooking(int id)async{
-    final box = GetStorage();
-    var session_id = box.read('session_id');
-    var headers = {
-      'Content-Type': 'application/json',
-      'Cookie': 'frontend_lang=en_US; '+session_id.toString()
-    };
-    var request = http.Request('PUT', Uri.parse(Domain.serverPort+'/air/accept/booking/$id'));
-    request.body = json.encode({
-      "jsonrpc": "2.0"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      if(json.decode(data)['result'] != null){
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking comfirmed ".tr));
-        Navigator.pop(Get.context);
-      }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-      }
-    }
-    else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
-    }
-  }
   Future listenForMessages() async {
     isLoading.value = true;
     isDone.value = false;
