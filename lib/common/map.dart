@@ -107,7 +107,7 @@ class MapsUtil {
         },
       );
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 }

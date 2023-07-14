@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
@@ -17,7 +17,7 @@ import '../../../services/my_auth_service.dart';
 
 class BookingsController extends GetxController {
 
-  final Rx<MyUser> currentUser = Get.find<MyAuthService>().myUser;
+  //final Rx<MyUser> currentUser = Get.find<MyAuthService>().myUser;
   final currentSlide = 0.obs;
   final quantity = 1.0.obs;
   final luggageWidth = 1.0.obs;
@@ -62,22 +62,26 @@ class BookingsController extends GetxController {
   var viewPressed = false.obs;
   var listBeneficiaries =[];
   var listUsers = [].obs;
-
-  UploadRepository _uploadRepository;
+  var userExist = false.obs;
+  var typing = false.obs;
+  var viewUsers = [].obs;
+  var selectedUser = false.obs;
+  var selectedUserIndex = 0.obs;
+  final loadProfileImage = false.obs;
+  final _picker = ImagePicker();
+  File profileImage;
 
   BookingsController() {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
-    _uploadRepository = new UploadRepository();
+
   }
 
   @override
   void onInit() {
     super.onInit();
-    Get.lazyPut<MyAuthService>(
-          () => MyAuthService(),
-    );
+
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
@@ -92,7 +96,10 @@ class BookingsController extends GetxController {
   }
 
   initValues()async{
-     getUser(Get.find<MyAuthService>().myUser.value.id);
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+     var currentUser = getUser(Get.find<MyAuthService>().myUser.value.id);
 
     List models = await getAllLuggageModel();
     listUsers.value = await getAllUsers();
@@ -101,7 +108,7 @@ class BookingsController extends GetxController {
     isLoading.value = false;
     //await getAllUsers();
 
-    listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
+    listBeneficiaries = await getAllBeneficiaries(currentUser.id);
     users.value = listBeneficiaries;
 
   }
@@ -142,12 +149,18 @@ class BookingsController extends GetxController {
       var data = json.decode(result)[0];
 
       shippingList = data['shipping_ids'];
+      List shipping = [];
       list = await getMyShipping();
-      items.value = list;
+      for(var a=0; a<list.length; a++){
+        if(shippingList.contains(list[a]['id']) && !shipping.contains(list[a])){
+          shipping.add(list[a]);
+        }
+      }
+      items.value = shipping;
 
     } else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var data = await response.stream.bytesToString();
+      print("error finding user from shipping");
     }
   }
 
@@ -178,6 +191,7 @@ class BookingsController extends GetxController {
     else {
       var data = await response.stream.bytesToString();
       print(data);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
   }
 
@@ -251,11 +265,12 @@ class BookingsController extends GetxController {
   Future getMyShipping() async {
 
     var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
+      'api-key': Domain.apiKey,
+      /*'Accept': 'application/json',
+      'Authorization': Domain.authorization,*/
     };
 
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shippingList'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort2}/m1st_hk_roadshipping.shipping/search'));
 
     request.headers.addAll(headers);
 
@@ -264,7 +279,13 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       //isLoading.value = false;
-      return json.decode(data);
+      if(json.decode(data)['success']){
+        return json.decode(data)['data'];
+      }else{
+        print("An issue");
+        return [];
+      }
+
     }
     else {
       print(response.reasonPhrase);
@@ -300,9 +321,9 @@ class BookingsController extends GetxController {
       bookings.add(airBooking);
     }
     for(var roadBooking in myRoadBookings )
-      {
-        bookings.add(roadBooking);
-      }
+    {
+      bookings.add(roadBooking);
+    }
 
     bookings.sort((a, b) => a['travel']['departure_date'].compareTo(b['travel']['departure_date']));
 
@@ -332,12 +353,10 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       if(json.decode(data)['result'] != null){
-
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
         Navigator.pop(Get.context);
         imageFiles.clear();
       }else{
-        var data = await response.stream.bytesToString();
         Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
       }
     }
@@ -367,9 +386,9 @@ class BookingsController extends GetxController {
         '"state": "rejected",}&ids=$shipping_id'
     ));
 
-  request.headers.addAll(headers);
+    request.headers.addAll(headers);
 
-  http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await request.send();
 
 
     if (response.statusCode == 200) {
@@ -431,28 +450,28 @@ class BookingsController extends GetxController {
   sendImages(int a, var imageFil, int id)async{
 
     //for(var b=0; b<luggageId.length;b++){
-      var headers = {
-        'Accept': 'application/json',
-        'Authorization': Domain.authorization,
-        'Content-Type': 'multipart/form-data',
-      };
-      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/$id/luggage_image$a'));
-      request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
-      request.headers.addAll(headers);
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Content-Type': 'multipart/form-data',
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/$id/luggage_image$a'));
+    request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
+    request.headers.addAll(headers);
 
-      http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await request.send();
 
-      if (response.statusCode == 200) {
-        var data = await response.stream.bytesToString();
-        print("Hello"+data.toString());
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
-        Navigator.pop(Get.context);
-        imageFiles.clear();
-      }
-      else {
-        var data = await response.stream.bytesToString();
-        print(data);
-      }
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("Hello"+data.toString());
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
+      Navigator.pop(Get.context);
+      imageFiles.clear();
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+    }
     //}
   }
 
@@ -468,7 +487,6 @@ class BookingsController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
 
@@ -482,10 +500,9 @@ class BookingsController extends GetxController {
       shippingLuggage.value = json.decode(data);
     }
     else {
-    print(response.reasonPhrase);
+      print(response.reasonPhrase);
     }
   }
-
 
 
   Future getAllBeneficiaries(int id)async{
@@ -538,5 +555,88 @@ class BookingsController extends GetxController {
 
   }
 
+  searchUser(String query){
+    if(query.isNotEmpty) {
+      typing.value = true;
+      List dummyListData = [];
+      dummyListData = listUsers.where((element) => element['login']
+          .toString().toLowerCase().contains(query.toLowerCase())).toList();
+      if(dummyListData.isNotEmpty){
+        userExist.value = true;
+        viewUsers.value = dummyListData;
+        print(userExist);
+      }else{
+        userExist.value = false;
+        email.value = query;
+        print(userExist);
+      }
+      return;
+    }else{
+      typing.value = false;
+    }
+  }
+
+  selectCameraOrGalleryProfileImage()async{
+    showDialog(
+        context: Get.context,
+        builder: (_){
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Container(
+                height: 170,
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    ListTile(
+                      onTap: ()async{
+                        await profileImagePicker('camera');
+                        //Navigator.pop(Get.context);
+                        loadProfileImage.value = !loadProfileImage.value;
+
+                      },
+                      leading: Icon(FontAwesomeIcons.camera),
+                      title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    ),
+                    ListTile(
+                      onTap: ()async{
+                        await profileImagePicker('gallery');
+                        //Navigator.pop(Get.context);
+                        loadProfileImage.value = !loadProfileImage.value;
+                      },
+                      leading: Icon(FontAwesomeIcons.image),
+                      title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                    )
+                  ],
+                )
+            ),
+          );
+        });
+  }
+
+  profileImagePicker(String source) async {
+    if(source=='camera'){
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.camera);
+      if (pickedImage != null) {
+        profileImage = File(pickedImage.path);
+        Navigator.of(Get.context).pop();
+        //Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
+        //loadIdentityFile.value = !loadIdentityFile.value;//Navigator.of(Get.context).pop();
+      }
+    }
+    else{
+      final XFile pickedImage =
+      await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        profileImage = File(pickedImage.path);
+        Navigator.of(Get.context).pop();
+        //await sendImages(id, identificationFile );
+        //Get.showSnackbar(Ui.SuccessSnackBar(message: "Picture saved successfully".tr));
+        //loadIdentityFile.value = !loadIdentityFile.value;
+        //Navigator.of(Get.context).pop();
+      }
+    }
+  }
 
 }

@@ -21,7 +21,7 @@ class NotificationsController extends GetxController {
 
   Future refreshNotifications({bool showMessage}) async {
     await getNotifications();
-    Get.find<RootController>().getNotificationsCount();
+    //Get.find<RootController>().getNotificationsCount();
     if (showMessage == true) {
       Get.showSnackbar(Ui.SuccessSnackBar(message: "List of notifications refreshed successfully".tr));
     }
@@ -31,7 +31,8 @@ class NotificationsController extends GetxController {
     try {
       notifications.assignAll(await _notificationRepository.getAll());
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      print("Notifs: ${e.toString()}");
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 
@@ -43,7 +44,8 @@ class NotificationsController extends GetxController {
       }
       notifications.remove(notification);
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      print("Notifs: ${e.toString()}");
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 
@@ -56,7 +58,8 @@ class NotificationsController extends GetxController {
         notifications.refresh();
       }
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      print("Notifs: ${e.toString()}");
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 }

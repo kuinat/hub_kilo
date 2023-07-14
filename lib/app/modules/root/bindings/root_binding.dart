@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../services/my_auth_service.dart';
 import '../../account/controllers/account_controller.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../search/controllers/search_controller.dart';
@@ -15,7 +16,6 @@ class RootBinding extends Bindings {
     );
     Get.put(HomeController(), permanent: true);
     Get.put(BookingsController(), permanent: true);
-
     Get.lazyPut<BookingsController>(
       () => BookingsController(),
     );

@@ -22,11 +22,11 @@ class RootController extends GetxController {
   final currentIndex = 0.obs;
   final notificationsCount = 0.obs;
   final customPages = <CustomPage>[].obs;
-  NotificationRepository _notificationRepository;
+  //NotificationRepository _notificationRepository;
   CustomPageRepository _customPageRepository;
 
   RootController() {
-    _notificationRepository = new NotificationRepository();
+    //_notificationRepository = new NotificationRepository();
     _customPageRepository = new CustomPageRepository();
   }
 
@@ -124,9 +124,9 @@ class RootController extends GetxController {
     }
   }
 
-  void getNotificationsCount() async {
+  /*void getNotificationsCount() async {
     notificationsCount.value = await _notificationRepository.getCount();
-  }
+  }*/
 
   Future<void> getCustomPages() async {
     customPages.assignAll(await _customPageRepository.all());

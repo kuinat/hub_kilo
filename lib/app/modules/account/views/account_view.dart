@@ -455,7 +455,7 @@ class AccountView extends GetView<AccountController> {
                             ListTile(
                               title: Text('Place of birth',style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black))),
                               leading: FaIcon(FontAwesomeIcons.locationPin, size: 20),
-                              subtitle: Text(controller.user.value.birthplace,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
+                              subtitle: Text(controller.user.value.birthplace==null?'':controller.user.value.birthplace,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
                               ),
                               trailing: TextButton(
                                 onPressed: ((){
@@ -756,7 +756,7 @@ class AccountView extends GetView<AccountController> {
             icon: Icon(Icons.qr_code, color: Get.theme.colorScheme.secondary),
             text: Text("Validate Transaction".tr),
             onTap: (e) {
-              Get.offNamed(Routes.VALIDATE_TRANSACTION);
+              Get.toNamed(Routes.VALIDATE_TRANSACTION);
               //Get.find<RootController>().changePage(2);
             },
           ),
