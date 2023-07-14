@@ -37,7 +37,7 @@ class HelpController extends GetxController {
         faqs.assignAll(await _faqRepository.getFaqs(categoryId));
       }
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 
@@ -45,7 +45,7 @@ class HelpController extends GetxController {
     try {
       faqCategories.assignAll(await _faqRepository.getFaqCategories());
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 }

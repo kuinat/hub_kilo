@@ -50,9 +50,6 @@ import '../modules/travel_inspect/bindings/travel_inspect_binding.dart';
 import '../modules/travel_inspect/views/travel_inspect_view.dart';
 import '../modules/validate_transaction/binding/validation_Biding.dart';
 import '../modules/validate_transaction/views/validate_transaction.dart';
-import '../modules/wallets/bindings/wallets_binding.dart';
-import '../modules/wallets/views/wallet_form_view.dart';
-import '../modules/wallets/views/wallets_view.dart';
 import 'app_routes.dart';
 
 class Theme1AppPages {
@@ -91,7 +88,7 @@ class Theme1AppPages {
     GetPage(name: Routes.E_PROVIDER_E_SERVICES, page: () => EProviderEServicesView(), binding: EProviderBinding()),
     GetPage(name: Routes.CUSTOM_PAGES, page: () => CustomPagesView(), binding: CustomPagesBinding()),
     GetPage(name: Routes.GALLERY, page: () => GalleryView(), binding: GalleryBinding(), transition: Transition.fadeIn),
-    GetPage(name: Routes.WALLETS, page: () => WalletsView(), binding: WalletsBinding(), middlewares: [AuthMiddleware()]),
-    GetPage(name: Routes.WALLET_FORM, page: () => WalletFormView(), binding: WalletsBinding(), middlewares: [AuthMiddleware()]),
+    //GetPage(name: Routes.WALLETS, page: () => WalletsView(), binding: WalletsBinding(), middlewares: [AuthMiddleware()]),
+    //GetPage(name: Routes.WALLET_FORM, page: () => WalletFormView(), binding: WalletsBinding(), middlewares: [AuthMiddleware()]),
   ];
 }

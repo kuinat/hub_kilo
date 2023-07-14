@@ -130,11 +130,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 backgroundColor: Colors.black,
                               ),
                               onPressed: (()async{
+                                List data = [];
                                 ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
                                   content: Text("Loading data..."),
-                                  duration: Duration(seconds: 5),
+                                  duration: Duration(seconds: 3),
                                 ));
-                                List data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
+                                print(controller.travelCard['shipping_ids']);
+                                data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
                                 if(data.isNotEmpty) {
                                   Get.bottomSheet(
                                     buildBookingByTravel(context, data),
@@ -149,10 +151,10 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             ) : SizedBox(),
                             content: Column(
                               children: [
-                                ListTile(
+                                /*ListTile(
                                   title: Text('Reference', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
-                                  trailing: Text(controller.travelCard['display_name'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
-                                ),
+                                  trailing: Text(controller.travelCard['company_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
+                                ),*/
                                 ListTile(
                                   title: Text('State:', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
                                   trailing: Text(controller.travelCard['state'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
@@ -184,7 +186,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     ),
                   ),
                 ],
-              )),
+              )
+          ),
         );
     });
   }
@@ -281,7 +284,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
     return CardWidget(
       owner: false,
       shippingDate: booking['create_date'],
-      code: booking['display_name'],
+      code: booking['name'],
       travelType: booking['booking_type'],
       editable: booking['state'].toLowerCase()=='pending' ? true:false,
       transferable: false,
@@ -289,7 +292,25 @@ class TravelInspectView extends GetView<TravelInspectController> {
       bookingState: booking['state'],
       price: booking['shipping_price'],
       text: booking['travelbooking_id'][1],
-      negotiation: SizedBox(),
+      negotiation: GestureDetector(
+          onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) ,
+          child: Card(
+              elevation: 10,
+              color: interfaceColor,
+              margin: EdgeInsets.symmetric( vertical: 15),
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: Colors.white))),
+                      SizedBox(width: 10),
+                      FaIcon(FontAwesomeIcons.solidMessage, color: Colors.white, size: 15),
+                    ],
+                  )
+              )
+          )
+      ),
       luggageView: ElevatedButton(
           onPressed: ()async{
             showDialog(
@@ -378,86 +399,64 @@ class TravelInspectView extends GetView<TravelInspectController> {
           )
       ),
       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-      button:
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          GestureDetector(
-              onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) ,
-              child: Card(
-                  elevation: 10,
-                  color: interfaceColor,
-                  margin: EdgeInsets.symmetric( vertical: 15),
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: Colors.white))),
-                          SizedBox(width: 10),
-                          FaIcon(FontAwesomeIcons.solidMessage, color: Colors.white, size: 15),
-                        ],
-                      )
-                  )
-              )
-          ),
-          SizedBox(width: 10),
-          if(booking["state"].toLowerCase() == 'pending')
-          GestureDetector(
-              onTap: (){
-                showDialog(
-                    context: context,
-                    builder: (_)=>
-                        PopUpWidget(
-                          title: "Are you sure to accept this shipping? your choice can't be changed later",
-                            cancel: 'Cancel',
-                          confirm: 'Ok',
-                          onTap: () async =>{
-                            controller.acceptShipping(booking['id']),
+      button: booking["state"].toLowerCase() == 'pending' ?
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+                GestureDetector(
+                    onTap: (){
+                      showDialog(
+                          context: context,
+                          builder: (_)=>
+                              PopUpWidget(
+                                title: "Are you sure to accept this shipping? your choice can't be changed later",
+                                cancel: 'Cancel',
+                                confirm: 'Ok',
+                                onTap: () async =>{
+                                  controller.acceptShipping(booking['id']),
 
-                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                        )
-                );
+                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                              )
+                      );
 
-              },
-              child: Card(
-                  elevation: 10,
-                  color: validateColor,
-                  margin: EdgeInsets.symmetric( vertical: 15),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
-              )
-          ),
-          SizedBox(width: 10),
-          if(booking["state"].toLowerCase() == 'pending')
-          GestureDetector(
-              onTap: (){
-                showDialog(
-                    context: context,
-                    builder: (_)=>
-                        PopUpWidget(
-                          title: "Are you sure to reject this shipping? your choice can't be changed later",
-                          cancel: 'Cancel',
-                          confirm: 'Ok',
-                          onTap: () async =>{
-                            await controller.rejectShipping(booking['id']),
+                    },
+                    child: Card(
+                        elevation: 10,
+                        color: validateColor,
+                        margin: EdgeInsets.symmetric( vertical: 15),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+                    )
+                ),
+              SizedBox(width: 10),
+                GestureDetector(
+                    onTap: (){
+                      showDialog(
+                          context: context,
+                          builder: (_)=>
+                              PopUpWidget(
+                                title: "Are you sure to reject this shipping? your choice can't be changed later",
+                                cancel: 'Cancel',
+                                confirm: 'Ok',
+                                onTap: () async =>{
+                                  await controller.rejectShipping(booking['id']),
 
-                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                        )
-                );
-              },
-              child: Card(
-                  elevation: 10,
-                  color: specialColor,
-                  margin: EdgeInsets.symmetric( vertical: 15),
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
-              )
-          ),
-        ],
-      ),
+                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                              )
+                      );
+                    },
+                    child: Card(
+                        elevation: 10,
+                        color: specialColor,
+                        margin: EdgeInsets.symmetric( vertical: 15),
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+                    )
+                ),
+            ],
+          ) : SizedBox(),
       recName: booking['receiver_partner_id'][1],
       recAddress: booking['receiver_address'],
       recEmail: booking['receiver_email'].toString(),
@@ -957,6 +956,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 content: Container(
                                     height: 170,
                                     padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(10))
+                                    ),
                                     child: Column(
                                       children: [
                                         ListTile(
@@ -1042,6 +1044,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                       return AlertDialog(
                                         content: Container(
                                             height: 170,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(Radius.circular(10))
+                                            ),
                                             padding: EdgeInsets.all(10),
                                             child: Column(
                                               children: [
@@ -1147,7 +1152,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                       keyboardType: TextInputType.text,
                       validator: (input) => input.isEmpty ? "field required!".tr : null,
                       onChanged: (input) =>{
-                        if(input.length > 4){
+                        if(input.length > 3){
                           controller.searchUser(input)
                         }
                       },
@@ -1166,32 +1171,44 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                builder: (_){
                              return AlertDialog(
                                title: Text("Related User"),
-                               content: SizedBox(
-                                 height: Get.height/3 - 100,
-                                 child: Column(
-                                   children: [
-                                     for(var a=0; a< controller.viewUsers.length; a++)...[
-                                       InkWell(
-                                         onTap: ()=>{
-                                           controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
-                                           controller.selectUser.value = false,
-                                           controller.shipNow(),
-                                           //add method here...
-                                         },
-                                         child: UserWidget(
-                                           user: controller.viewUsers[a]['name'],
-                                           selected: false,
-                                           imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
-                                         )
-                                       )
-                                     ]
-                                   ]
-                                 )
-                               ),
+                               content: Obx(() => SizedBox(
+                                   height: Get.height/3 - 100,
+                                   child: Column(
+                                       children: [
+                                         for(var a=0; a< controller.viewUsers.length; a++)...[
+                                           InkWell(
+                                               onTap: ()=>{
+                                                 controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
+                                                 controller.selectUser.value = false,
+                                                 controller.selectedUser.value = true,
+                                                 controller.selectedUserIndex.value = a,
+
+                                                 //add method here...
+                                               },
+                                               child: Container(
+                                                 decoration: BoxDecoration(
+                                                     border: controller.selectedUser.value && controller.selectedUserIndex.value == a ? Border.all(color: interfaceColor,width: 2) : null,
+                                                     borderRadius: BorderRadius.all(Radius.circular(10))
+                                                 ),
+                                                 child: UserWidget(
+                                                   user: controller.viewUsers[a]['name'],
+                                                   selected: false,
+                                                   imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
+                                                 ),
+                                               )
+                                           )
+                                         ]
+                                       ]
+                                   )
+                               )),
                                actions: [
-                                 Align(
-                                   alignment: Alignment.bottomRight,
-                                   child: TextButton(onPressed: ()=> Navigator.pop(context), child: Text("OK", style: Get.textTheme.headline4))
+                                 Row(
+                                   mainAxisAlignment: MainAxisAlignment.end,
+                                   children: [
+                                     TextButton(onPressed: ()=> Navigator.pop(context), child: Text("Back", style: Get.textTheme.headline4.merge(TextStyle(color: inactive)))),
+                                     SizedBox(width: 10),
+                                     TextButton(onPressed: ()=> controller.shipNow(), child: Text("Ship now", style: Get.textTheme.headline4))
+                                   ],
                                  )
                                ],
                              );

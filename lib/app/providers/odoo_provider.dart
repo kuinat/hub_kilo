@@ -37,25 +37,6 @@ class OdooApiClient extends GetxService with ApiClient {
     return _httpClient.isLoading(task: task, tasks: tasks);
   }
 
-  void setLocale(String locale) {
-    _optionsNetwork.headers['Accept-Language'] = locale;
-    _optionsCache.headers['Accept-Language'] = locale;
-  }
-
-  void forceRefresh() {
-    if (!foundation.kIsWeb && !foundation.kDebugMode) {
-      _optionsCache = dio.Options(headers: _optionsCache.headers);
-      _optionsNetwork = dio.Options(headers: _optionsNetwork.headers);
-    }
-  }
-
-  void unForceRefresh() {
-    if (!foundation.kIsWeb && !foundation.kDebugMode) {
-      _optionsNetwork = buildCacheOptions(Duration(days: 3), forceRefresh: true, options: _optionsNetwork);
-      _optionsCache = buildCacheOptions(Duration(minutes: 10), forceRefresh: false, options: _optionsCache);
-    }
-  }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
@@ -218,8 +199,6 @@ class OdooApiClient extends GetxService with ApiClient {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       await updatePartner(myUser);
-
-
     }
     else {
       print(response.reasonPhrase);
@@ -228,17 +207,19 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   updatePartner(MyUser myUser) async {
+
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=c2f0577a02cbfee7322f6f0e233e301745a03c03'
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=121&values={'
-        '"birthdate": "${myUser.birthday}",'
+
+    var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.partner?ids=25&values={'
         '"phone": "${myUser.phone}",'
         '"birth_city_id": "${myUser.birthplace}",'
         '"residence_city_id": "${myUser.street}",'
-        '"gender": "${myUser.sex}"'));
+        '"gender": "${myUser.sex}",'
+        '"birthdate":"${myUser.birthday}"}'));
 
     request.headers.addAll(headers);
 
@@ -249,10 +230,7 @@ class OdooApiClient extends GetxService with ApiClient {
       print(await response.stream.bytesToString());
       print(myUser.birthplace);
       print(myUser.street);
-
       // await updateToPortalUser(myUser);
-
-
 
     }
     else {

@@ -23,7 +23,7 @@ class FireBaseMessagingService extends GetxService {
   Future fcmOnMessageListeners() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (Get.isRegistered<RootController>()) {
-        Get.find<RootController>().getNotificationsCount();
+        //Get.find<RootController>().getNotificationsCount();
       }
       if (message.data['id'] == "App\\Notifications\\NewMessage") {
         _newMessageNotification(message);

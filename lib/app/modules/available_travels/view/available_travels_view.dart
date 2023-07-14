@@ -94,7 +94,7 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                 controller.items.isNotEmpty ?
                             GridView.builder(
                                 physics: AlwaysScrollableScrollPhysics(),
-                                itemCount: controller.items.length,
+                                itemCount: controller.items.length+1,
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 1,
                                   crossAxisSpacing: 10.0,
@@ -107,29 +107,51 @@ class AvailableTravelsView extends GetView<AvailableTravelsController> {
                                   Future.delayed(Duration.zero, (){
                                     controller.items.sort((a, b) => a["departure_date"].compareTo(b["departure_date"]));
                                   });
+                                  if (index == controller.items.length) {
+                                    return SizedBox(height: 50);
+                                  }else {
+                                    return GestureDetector(
+                                      onTap: () =>
+                                          Get.toNamed(Routes.TRAVEL_INSPECT,
+                                              arguments: {
+                                                'travelCard': controller
+                                                    .items[index],
+                                                'heroTag': 'services_carousel'
+                                              }),
+                                      child: TravelCardWidget(
+                                          isUser: false,
+                                          homePage: false,
+                                          travelBy: controller
+                                              .items[index]['booking_type'],
+                                          travelType: controller
+                                              .items[index]['booking_type'] !=
+                                              "road" ? true : false,
+                                          depDate: DateFormat(
+                                              "dd MMMM yyyy", 'fr_CA')
+                                              .format(DateTime.parse(controller
+                                              .items[index]['departure_date']))
+                                              .toString(),
+                                          arrTown: controller
+                                              .items[index]['arrival_city_id'][1],
+                                          depTown: controller
+                                              .items[index]['departure_city_id'][1],
+                                          qty: controller
+                                              .items[index]['kilo_qty'],
+                                          price: controller
+                                              .items[index]['price_per_kilo'],
+                                          color: background,
+                                          text: Text(""),
+                                          user: controller
+                                              .items[index]['partner_id'][1],
+                                          rating: 3.6,
+                                          imageUrl: '${Domain
+                                              .serverPort}/image/res.partner/${controller
+                                              .items[index]['partner_id'][0]}/image_1920?unique=true&file_response=true'
+                                        //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
 
-                                  return GestureDetector(
-                                    onTap: ()=>
-                                        Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': controller.items[index], 'heroTag': 'services_carousel'}),
-                                    child: TravelCardWidget(
-                                      isUser: false,
-                                      homePage: false,
-                                      travelBy: controller.items[index]['booking_type'],
-                                      travelType: controller.items[index]['booking_type'] != "road" ? true : false,
-                                      depDate: DateFormat("dd MMMM yyyy", 'fr_CA').format(DateTime.parse(controller.items[index]['departure_date'])).toString(),
-                                      arrTown: controller.items[index]['arrival_city_id'][1],
-                                      depTown: controller.items[index]['departure_city_id'][1],
-                                      qty: controller.items[index]['kilo_qty'],
-                                      price: controller.items[index]['price_per_kilo'],
-                                      color: background,
-                                      text: Text(""),
-                                      user: controller.items[index]['partner_id'][1],
-                                      rating: 3.6,
-                                      imageUrl: '${Domain.serverPort}/image/res.partner/${controller.items[index]['partner_id'][0]}/image_1920?unique=true&file_response=true'
-                                          //: "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png"
-
-                                    ),
-                                  );
+                                      ),
+                                    );
+                                  }
                                 }) : Column(
                                   children: [
                                     SizedBox(height: MediaQuery.of(context).size.height /4),

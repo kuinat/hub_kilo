@@ -38,7 +38,8 @@ class CustomPagesController extends GetxController {
     try {
       customPage.value = await _customPageRepository.get(customPage.value.id);
     } catch (e) {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+      print(e.toString());
+      //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
   }
 }

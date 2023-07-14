@@ -1218,7 +1218,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'api_token': authService.apiToken,
     };
     Uri _uri = getApiBaseUri("notifications/count").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
       return response.data['data'];
@@ -1233,7 +1233,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'sortedBy': 'asc',
     };
     Uri _uri = getApiBaseUri("faq_categories").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return response.data['data'].map<FaqCategory>((obj) => FaqCategory.fromJson(obj)).toList();
@@ -1251,7 +1251,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'sortedBy': 'desc',
     };
     Uri _uri = getApiBaseUri("faqs").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return response.data['data'].map<Faq>((obj) => Faq.fromJson(obj)).toList();
@@ -1262,7 +1262,7 @@ class LaravelApiClient extends GetxService with ApiClient {
 
   Future<Setting> getSettings() async {
     Uri _uri = getApiBaseUri("settings");
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
       return Setting.fromJson(response.data['data']);
@@ -1273,7 +1273,7 @@ class LaravelApiClient extends GetxService with ApiClient {
 
   Future<List> getModules() async {
     Uri _uri = getApiBaseUri("modules");
-    printUri(StackTrace.current, _uri);
+
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
       return response.data['data'];
@@ -1287,7 +1287,7 @@ class LaravelApiClient extends GetxService with ApiClient {
       'locale': locale,
     };
     Uri _uri = getApiBaseUri("translations").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return Map<String, String>.from(response.data['data']);
@@ -1298,7 +1298,6 @@ class LaravelApiClient extends GetxService with ApiClient {
 
   Future<List<String>> getSupportedLocales() async {
     Uri _uri = getApiBaseUri("supported_locales");
-    Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return List.from(response.data['data']);
@@ -1315,27 +1314,27 @@ class LaravelApiClient extends GetxService with ApiClient {
       'sortedBy': 'asc',
     };
     Uri _uri = getApiBaseUri("custom_pages").replace(queryParameters: _queryParameters);
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return response.data['data'].map<CustomPage>((obj) => CustomPage.fromJson(obj)).toList();
     } else {
-      throw new Exception(response.data['message']);
+      throw new Exception("laravel prov: 1 ${response.data['message']}");
     }
   }
 
   Future<CustomPage> getCustomPageById(String id) async {
     Uri _uri = getApiBaseUri("custom_pages/$id");
-    Get.log(_uri.toString());
+
     var response = await _httpClient.getUri(_uri, options: _optionsCache);
     if (response.data['success'] == true) {
       return CustomPage.fromJson(response.data['data']);
     } else {
-      throw new Exception(response.data['message']);
+      throw new Exception("laravel prov: 2 ${response.data['message']}");
     }
   }
 
-  Future<String> uploadImage(File file, String field) async {
+  /*Future<String> uploadImage(File file, String field) async {
 
     if (!authService.isAuth) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ uploadImage() ]");
@@ -1356,7 +1355,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     if (response.data['data'] != false) {
       return response.data['data'];
     } else {
-      throw new Exception(response.data['message']);
+      throw new Exception("laravel prov: 3 images ${response.data['message']}");
     }
   }
 
@@ -1394,5 +1393,5 @@ class LaravelApiClient extends GetxService with ApiClient {
     } else {
       throw new Exception(response.data['message']);
     }
-  }
+  }*/
 }

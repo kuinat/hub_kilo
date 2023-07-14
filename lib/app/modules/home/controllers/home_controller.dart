@@ -14,9 +14,9 @@ import '../../../services/settings_service.dart';
 import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
-  SliderRepository _sliderRepo;
-  CategoryRepository _categoryRepository;
-  EServiceRepository _eServiceRepository;
+  //SliderRepository _sliderRepo;
+  //CategoryRepository _categoryRepository;
+  //EServiceRepository _eServiceRepository;
   var landTravelList = [].obs;
   var airTravelList = [].obs;
   var travelItem = [];
@@ -33,9 +33,9 @@ class HomeController extends GetxController {
   final featured = <Category>[].obs;
 
   HomeController() {
-    _sliderRepo = new SliderRepository();
-    _categoryRepository = new CategoryRepository();
-    _eServiceRepository = new EServiceRepository();
+    //_sliderRepo = new SliderRepository();
+    //_categoryRepository = new CategoryRepository();
+    //_eServiceRepository = new EServiceRepository();
   }
 
   @override
@@ -95,6 +95,4 @@ class HomeController extends GetxController {
   Address get currentAddress {
     return Get.find<SettingsService>().address.value;
   }
-
-
 }
