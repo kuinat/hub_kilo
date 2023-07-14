@@ -94,7 +94,7 @@ class ChatsView extends GetView<MessagesController> {
               controller.chats.clear();
               await controller.refreshMessages();*/
                   controller.dispose();
-                  Get.back();
+                  Navigator.pop(context);
                 }
             ),
             ClipOval(
@@ -259,7 +259,7 @@ class ChatsView extends GetView<MessagesController> {
 
   Widget getSentMessageTextLayout(context, var message) {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.bottomRight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -328,96 +328,92 @@ class ChatsView extends GetView<MessagesController> {
   }
 
   Widget getReceivedMessageTextLayout(context, var message, int index, List receivedMessages) {
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.start,
-      //crossAxisAlignment: CrossAxisAlignment.start,
-      alignment: WrapAlignment.start,
-      runAlignment:WrapAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: Get.theme.colorScheme.secondary,
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(15), bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-              margin: EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  new Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    width: 42,
-                    height: 42,
-                    child: ClipOval(
-                        child: FadeInImage(
-                          width: 65,
-                          height: 65,
-                          image: Get.find<MyAuthService>().myUser.value.id != controller.card['partner_id'][0] ?
-                          NetworkImage('${Domain.serverPort}/image/res.partner/${controller.card['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders())
-                              : NetworkImage('${Domain.serverPort}/image/res.partner/${controller.receiver_id.value}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
-                          placeholder: AssetImage(
-                              "assets/img/loading.gif"),
-                          imageErrorBuilder:
-                              (context, error, stackTrace) {
-                            return Image.asset(
-                                'assets/img/téléchargement (3).png',
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.fitWidth);
-                          },
-                        )
-                    ),
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: Get.theme.colorScheme.secondary,
+                borderRadius: BorderRadius.only(topRight: Radius.circular(15), bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+            margin: EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                new Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  width: 42,
+                  height: 42,
+                  child: ClipOval(
+                      child: FadeInImage(
+                        width: 65,
+                        height: 65,
+                        image: Get.find<MyAuthService>().myUser.value.id != controller.card['partner_id'][0] ?
+                        NetworkImage('${Domain.serverPort}/image/res.partner/${controller.card['partner_id'][0]}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders())
+                            : NetworkImage('${Domain.serverPort}/image/res.partner/${controller.receiver_id.value}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                        placeholder: AssetImage(
+                            "assets/img/loading.gif"),
+                        imageErrorBuilder:
+                            (context, error, stackTrace) {
+                          return Image.asset(
+                              'assets/img/téléchargement (3).png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.fitWidth);
+                        },
+                      )
                   ),
-                  new Flexible(
-                    child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.only(top: 5.0),
-                          child: new Text(
-                            message['name'].toString(),
-                            style: Get.textTheme.bodyText1.merge(TextStyle(color: Get.theme.primaryColor, fontSize: 18)),
-                          ),
+                ),
+                new Flexible(
+                  child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(top: 5.0),
+                        child: new Text(
+                          message['name'].toString(),
+                          style: Get.textTheme.bodyText1.merge(TextStyle(color: Get.theme.primaryColor, fontSize: 18)),
                         ),
-                        Text( "${message['price']} EUR",
-                            style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
-                      ],
-                    ),
+                      ),
+                      Text( "${message['price']} EUR",
+                          style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: Get.theme.primaryColor, fontSize: 18))),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                  DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+                DateFormat('HH:mm | d, MMMM y', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
+            ),
+          ),
+          if(index == receivedMessages.length -1)
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: validateColor,
+                ),
+                onPressed: (){
+                  controller.acceptPrice();
+                  controller.acceptAndPriceShipping(message['price']);
+                  /*controller.card['travel']['travel_type'] == 'air'?
+            controller.acceptAndPriceAirBooking(message['message']) :
+            controller.card['travel']['travel_type'] == 'road'?
+            controller.acceptAndPriceRoadBooking(message['message']):
+            (){};*/
+                },
+                child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
             )
-          ],
-        ),
-        if(index == receivedMessages.length -1)
-        ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: validateColor,
-            ),
-            onPressed: (){
-              controller.acceptAndPriceShipping(message['price']);
-              /*controller.card['travel']['travel_type'] == 'air'?
-              controller.acceptAndPriceAirBooking(message['message']) :
-              controller.card['travel']['travel_type'] == 'road'?
-              controller.acceptAndPriceRoadBooking(message['message']):
-              (){};*/
-            },
-            child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
-        )
-      ],
+        ],
+      ),
     );
   }
 

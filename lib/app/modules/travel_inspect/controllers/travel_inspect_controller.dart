@@ -186,10 +186,11 @@ class TravelInspectController extends GetxController {
   Future getThisTravelShipping(var shipping)async{
 
     var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
+      'api-key': Domain.apiKey,
+      // 'Accept': 'application/json',
+      // 'Authorization': Domain.authorization,
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shipping'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort2}/m1st_hk_roadshipping.shipping/search'));
 
     request.headers.addAll(headers);
 
@@ -198,7 +199,18 @@ class TravelInspectController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       print('data is'+data.toString());
-      return json.decode(data);
+      var shippingList =[];
+      if(json.decode(data)['success']){
+        for(var a=0; a<json.decode(data)['data'].length; a++){
+          if(shipping.contains(json.decode(data)['data'][a]['id']) && !shippingList.contains(json.decode(data)['data'][a])){
+            shippingList.add(json.decode(data)['data'][a]);
+          }
+        }
+        return shippingList;
+      }else{
+        print("An issue");
+        return [];
+      }
     }
     else {
       print(response.reasonPhrase);

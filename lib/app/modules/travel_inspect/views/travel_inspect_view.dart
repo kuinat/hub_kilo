@@ -131,12 +131,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               ),
                               onPressed: (()async{
                                 List data = [];
-                                ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
-                                  content: Text("Loading data..."),
-                                  duration: Duration(seconds: 3),
-                                ));
-                                print(controller.travelCard['shipping_ids']);
+                                // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                //   content: Text("Loading data..."),
+                                //   duration: Duration(seconds: 3),
+                                // ));
                                 data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
+                                print(controller.travelCard['shipping_ids']);
                                 if(data.isNotEmpty) {
                                   Get.bottomSheet(
                                     buildBookingByTravel(context, data),
@@ -291,7 +291,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       //booking['state'].toLowerCase()=='rejected' || booking['state'].toLowerCase()=='pending' ? true:
       bookingState: booking['state'],
       price: booking['shipping_price'],
-      text: booking['travelbooking_id'][1],
+      text: booking['travelbooking_id'][0]['name'],
       negotiation: GestureDetector(
           onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) ,
           child: Card(
@@ -394,8 +394,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Text('View luggage info'),
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Text('luggage info'),
           )
       ),
       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
@@ -457,7 +457,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 ),
             ],
           ) : SizedBox(),
-      recName: booking['receiver_partner_id'][1],
+      recName: booking['receiver_partner_id'][0]['name'],
       recAddress: booking['receiver_address'],
       recEmail: booking['receiver_email'].toString(),
       recPhone: booking['receiver_phone'],

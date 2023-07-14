@@ -108,7 +108,7 @@ class BookingsController extends GetxController {
     isLoading.value = false;
     //await getAllUsers();
 
-    listBeneficiaries = await getAllBeneficiaries(currentUser.id);
+    listBeneficiaries = await getAllBeneficiaries(Get.find<MyAuthService>().myUser.value.id);
     users.value = listBeneficiaries;
 
   }

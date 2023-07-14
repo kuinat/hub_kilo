@@ -150,7 +150,7 @@ class CardWidget extends StatelessWidget {
                       if(bookingState == 'pending')
                       negotiation,
                       SizedBox(width: 10),
-                      SizedBox(width: 200,
+                      SizedBox(width: 150,
                           child: luggageView),
                     ],
                   ),
