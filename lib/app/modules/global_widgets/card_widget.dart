@@ -192,7 +192,7 @@ class CardWidget extends StatelessWidget {
                                 context: context,
                                 builder: (_)=>
                                     PopUpWidget(
-                                      title: "You cannot edit a shpping accepted or confirmed",
+                                      title: "You cannot edit a shipping accepted, confirmed or cancelled",
                                       cancel: 'Cancel',
                                       confirm: 'Ok',
                                       onTap: ()=>{
@@ -243,7 +243,7 @@ class CardWidget extends StatelessWidget {
                               context: context,
                               builder: (_)=>
                                   PopUpWidget(
-                                    title: "You cannot delete a Shipping accepted or confirmed",
+                                    title: "You cannot cancel a Shipping accepted or confirmed or that has already been cancelled",
                                     cancel: 'Cancel',
                                     confirm: 'Ok',
                                     onTap: ()=>{

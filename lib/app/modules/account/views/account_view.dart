@@ -200,11 +200,14 @@ class AccountView extends GetView<AccountController> {
                     MaterialButton(
                       onPressed: () {
                         if(controller.edit.value){
+
                           if(controller.birthDate.value.toString().contains('-')){
                             controller.user.value.birthday = controller.birthDate.value;
-                            controller.updateProfile();
+
+
                             //controller.updateProfile();
                           }
+                          controller.updateProfile();
                           //controller.saveProfileForm();
                           controller.buttonPressed.value = !controller.buttonPressed.value;
                         }else{
@@ -281,7 +284,7 @@ class AccountView extends GetView<AccountController> {
                       child: Obx(() =>
                           ListTile(
                             leading: FaIcon(FontAwesomeIcons.phone, size: 20),
-                            title: Text(controller.user.value.phone,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
+                            title: Text(controller.user.value.phone == null?'':controller.user.value.phone,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
                             ),
                             trailing: controller.edit.value ?TextButton(
                                 onPressed: ((){
@@ -317,11 +320,11 @@ class AccountView extends GetView<AccountController> {
                         ),
                         initialCountryCode: 'BE',
                         onSaved: (phone) {
-                          return controller.user.value?.phone = phone.completeNumber;
+                          return controller.user.value.phone = phone.completeNumber;
                         },
                         onChanged: (phone) {
                           String phoneNumber = phone.completeNumber;
-                          controller.user.value?.phone = phoneNumber;
+                          controller.user.value.phone = phoneNumber;
                         },
                       ),
                     ),
@@ -478,6 +481,8 @@ class AccountView extends GetView<AccountController> {
                                     controller.depTown.text = controller.countries[i]['display_name'];
                                     controller.predict1.value = false;
                                     controller.birthCityId.value = controller.countries[i]['id'];
+                                    // controller.user.value.birthplace = controller.countries[i]['id'].toString();
+                                    // print('heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy: '+controller.user.value.birthplace);
                                   },
                                   child: Text(controller.countries[i]['display_name'], style: TextStyle(color: appColor))
                               )
@@ -527,7 +532,7 @@ class AccountView extends GetView<AccountController> {
                                       onTap: (){
                                         if(controller.birthCityId.value == 0){
                                           controller.errorCity1.value = true;
-                                          Get.showSnackbar(Ui.warningSnackBar(message: "Please, first select a departure city!!! ".tr));
+                                          Get.showSnackbar(Ui.warningSnackBar(message: "Please, first select a residential address!! ".tr));
                                         }
                                       },
                                       //initialValue: controller.travelCard.isEmpty || controller.townEdit.value ? controller.departureTown.value : controller.travelCard['departure_town'],
@@ -573,7 +578,7 @@ class AccountView extends GetView<AccountController> {
                           ListTile(
                             title: Text('Residential address',style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black))),
                             leading: FaIcon(FontAwesomeIcons.locationPin, size: 20),
-                            subtitle: Text(controller.user.value.street,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
+                            subtitle: Text(controller.user.value.street==null?'':controller.user.value.street,style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)),
                             ),
                             trailing: TextButton(
                               onPressed: ((){
@@ -599,6 +604,8 @@ class AccountView extends GetView<AccountController> {
                                     controller.arrTown.text = controller.countries[i]['display_name'];
                                     controller.predict2.value = false;
                                     controller.residentialAddressId.value = controller.countries[i]['id'];
+                                    // controller.user.value.street == controller.countries[i]['id'].toString();
+                                    // print('heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy: '+controller.user.value.street);
                                   },
                                   child: Text(controller.countries[i]['display_name'], style: TextStyle(color: appColor))
                               )
@@ -622,7 +629,7 @@ class AccountView extends GetView<AccountController> {
                             hintText: ''
 
                         ),
-                        onSaved: (input) => controller.selectedGender.value == "Male"?controller.user?.value?.sex = "M":controller.user?.value?.sex = "F",
+                        onSaved: (input) => controller.selectedGender.value == "Male"?controller.user?.value?.sex = "male":controller.user?.value?.sex = "female",
                         isExpanded: true,
                         alignment: Alignment.bottomCenter,
 
@@ -642,16 +649,16 @@ class AccountView extends GetView<AccountController> {
                         // change button value to selected value
                         onChanged: (String newValue) {
                           controller.selectedGender.value = newValue;
-                          if(controller.selectedGender.value == "Male"){
-                            controller.user?.value?.sex = "M";
+                          if(controller.selectedGender.value == "MALE"){
+                            controller.user.value.sex = "male";
                           }
                           else{
-                            controller.user?.value?.sex = "F";
+                            controller.user.value.sex = "female";
                           }
 
                         },).marginOnly(left: 20, right: 20).paddingOnly( top: 20, bottom: 14),
                     )
-                ).paddingOnly(left: 20, right: 20, top: 20, bottom: 14,
+                ).paddingOnly( top: 20, bottom: 14,
                 ),
 
 

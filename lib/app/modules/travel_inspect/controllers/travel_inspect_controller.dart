@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:app/app/modules/global_widgets/user_widget.dart';
-import 'package:app/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -197,6 +195,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
+      print('data is'+data.toString());
       return json.decode(data);
     }
     else {

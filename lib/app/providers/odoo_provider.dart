@@ -228,17 +228,19 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   updatePartner(MyUser myUser) async {
+
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=c2f0577a02cbfee7322f6f0e233e301745a03c03'
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=121&values={'
-        '"birthdate": "${myUser.birthday}",'
+
+    var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.partner?ids=25&values={'
         '"phone": "${myUser.phone}",'
         '"birth_city_id": "${myUser.birthplace}",'
         '"residence_city_id": "${myUser.street}",'
-        '"gender": "${myUser.sex}"'));
+        '"gender": "${myUser.sex}",'
+        '"birthdate":"${myUser.birthday}"}'));
 
     request.headers.addAll(headers);
 
@@ -249,10 +251,7 @@ class OdooApiClient extends GetxService with ApiClient {
       print(await response.stream.bytesToString());
       print(myUser.birthplace);
       print(myUser.street);
-
       // await updateToPortalUser(myUser);
-
-
 
     }
     else {

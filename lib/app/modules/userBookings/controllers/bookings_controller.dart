@@ -9,6 +9,7 @@ import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
@@ -16,6 +17,7 @@ import '../../../services/my_auth_service.dart';
 
 class BookingsController extends GetxController {
 
+  final Rx<MyUser> currentUser = Get.find<MyAuthService>().myUser;
   final currentSlide = 0.obs;
   final quantity = 1.0.obs;
   final luggageWidth = 1.0.obs;
@@ -58,6 +60,8 @@ class BookingsController extends GetxController {
   var list = [];
   var shippingList = [];
   var viewPressed = false.obs;
+  var listBeneficiaries =[];
+  var listUsers = [].obs;
 
   UploadRepository _uploadRepository;
 
@@ -88,14 +92,17 @@ class BookingsController extends GetxController {
   }
 
   initValues()async{
-    getUser(Get.find<MyAuthService>().myUser.value.id);
+     getUser(Get.find<MyAuthService>().myUser.value.id);
 
     List models = await getAllLuggageModel();
-    List listUsers = await getAllUsers();
+    listUsers.value = await getAllUsers();
     luggageModels.value = models;
-    users.value = listUsers;
+    //users.value = listUsers;
     isLoading.value = false;
     //await getAllUsers();
+
+    listBeneficiaries = await getAllBeneficiaries(currentUser.value.id);
+    users.value = listBeneficiaries;
 
   }
 
@@ -478,5 +485,58 @@ class BookingsController extends GetxController {
     print(response.reasonPhrase);
     }
   }
+
+
+
+  Future getAllBeneficiaries(int id)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+    };
+    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      var result = json.decode(data);
+      var list= result[0]['receiver_partner_ids'];
+      var listUser = await getUsersInAddressBook(list);
+      print('Partner list'+listUser.toString());
+      return listUser==null?[]:listUser;
+
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  getUsersInAddressBook(List list)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=fb684dfb6b5282f2f26a5696dae345076e431019'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/res.partner?ids=$list'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      var result = json.decode(data);
+      return result;
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
+  }
+
 
 }

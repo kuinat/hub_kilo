@@ -104,8 +104,8 @@ class AccountController extends GetxController {
     list = box.read("allCountries");
     countries.value = list;
     print("first country is ${countries[0]}");
-    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     user.value = Get.find<MyAuthService>().myUser.value;
+    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
     //user.value.phone = user.value.phone;
@@ -132,7 +132,9 @@ class AccountController extends GetxController {
   }
 
   void updateProfile() async {
-
+     buttonPressed.value = true;
+     user.value.street = residentialAddressId.value.toString();
+     user.value.birthplace = birthCityId.value.toString();
       await _userRepository.update(user.value);
       user.value = await _userRepository.get(user.value.id);
       Get.find<MyAuthService>().myUser.value = user.value;
@@ -275,26 +277,26 @@ class AccountController extends GetxController {
   }
 
 
-  getAttachment()async{
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
-      'Cookie': 'session_id=df049345298adb6bd819fec22deab9a63cffc38e'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/ir.attachment?ids=140'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-
-  }
+  // getAttachment()async{
+  //   var headers = {
+  //     'Accept': 'application/json',
+  //     'Authorization': 'Basic ZnJpZWRyaWNoOkF6ZXJ0eTEyMzQ1JQ==',
+  //     'Cookie': 'session_id=df049345298adb6bd819fec22deab9a63cffc38e'
+  //   };
+  //   var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/ir.attachment?ids=${user.value.partnerAttachmentIds}'));
+  //
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //   if (response.statusCode == 200) {
+  //     print(await response.stream.bytesToString());
+  //   }
+  //   else {
+  //     print(response.reasonPhrase);
+  //   }
+  //
+  // }
 
 
   getUserInfo(int id) async{
