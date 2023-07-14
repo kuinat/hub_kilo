@@ -88,9 +88,16 @@ class CardWidget extends StatelessWidget {
             SizedBox(height: 10),
             Row(
               children: [
-                Text(shippingDate, style: TextStyle(color: appColor, fontSize: 17)),
+                RichText(
+                    text: TextSpan(
+                        children: [
+                          TextSpan(text: shippingDate.split(" ").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                          TextSpan(text: "\n${shippingDate.split(" ").last}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                        ]
+                    )
+                ),
                 Spacer(),
-                Text(code, style: TextStyle(color: appColor, fontSize: 17)),
+                Text(code, style: TextStyle(color: appColor, fontSize: 15)),
               ],
             ),
             Container(
@@ -142,16 +149,17 @@ class CardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      button,
                       if(bookingState == 'pending')
+                      negotiation,
                       SizedBox(width: 10),
-                      if(bookingState == 'pending')
-                      negotiation
-                    ]
+                      SizedBox(width: 200,
+                          child: luggageView),
+                    ],
                   ),
-                  Align(alignment: Alignment.bottomRight,
-                  child: SizedBox(width: 200,
-                  child: luggageView),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: button,
                   ),
                   ExpansionTile(
                     leading: Icon(FontAwesomeIcons.userCheck, size: 20),

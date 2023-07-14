@@ -35,63 +35,63 @@ class BookingsView extends GetView<BookingsController> {
           automaticallyImplyLeading: false,
         ),
         body: RefreshIndicator(
-          onRefresh: () async {
-            controller.initValues();
-          },
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: Get.theme.primaryColor,
-                      border: Border.all(
-                        color: Get.theme.focusColor.withOpacity(0.2),
-                      ),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12, left: 0),
-                        child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width /1.8,
-                        child: TextField(
-                          //controller: controller.textEditingController,
-                          style: Get.textTheme.bodyText2,
-                          onChanged: (value)=>{ controller.filterSearchResults(value) },
-                          autofocus: controller.heroTag.value == "search" ? true : false,
-                          cursorColor: Get.theme.focusColor,
-                          decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
+            onRefresh: () async {
+              controller.initValues();
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: Get.theme.primaryColor,
+                        border: Border.all(
+                          color: Get.theme.focusColor.withOpacity(0.2),
                         ),
-                      ),
-                    ],
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12, left: 0),
+                          child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width /1.8,
+                          child: TextField(
+                            //controller: controller.textEditingController,
+                            style: Get.textTheme.bodyText2,
+                            onChanged: (value)=>{ controller.filterSearchResults(value) },
+                            autofocus: controller.heroTag.value == "search" ? true : false,
+                            cursorColor: Get.theme.focusColor,
+                            decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Obx(() => Container(
-                    height: MediaQuery.of(context).size.height/1.2,
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                    decoration: Ui.getBoxDecoration(color: backgroundColor),
-                    child:  controller.isLoading.value ? BookingsListLoaderWidget() :
-                    controller.items.isNotEmpty ? MyBookings(context)
-                        : SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: MediaQuery.of(context).size.height/4),
-                          FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                          Text('No Shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
-                        ],
-                      ),
-                    )
-                ),)
+                  Obx(() => Container(
+                      height: MediaQuery.of(context).size.height/1.2,
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                      decoration: Ui.getBoxDecoration(color: backgroundColor),
+                      child:  controller.isLoading.value ? BookingsListLoaderWidget() :
+                      controller.items.isNotEmpty ? MyBookings(context)
+                          : SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: MediaQuery.of(context).size.height/4),
+                            FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                            Text('No Shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
+                          ],
+                        ),
+                      )
+                  ),)
 
-              ],
-            ),
-          )
+                ],
+              ),
+            )
 
         ));
   }
@@ -215,273 +215,273 @@ class BookingsView extends GetView<BookingsController> {
                             await controller.getLuggageInfo(controller.items[index]['luggage_ids']);
 
                             if(!controller.shippingLoading.value)
-                            showDialog(
-                                context: context,
-                                builder: (_){
-                                  return Dialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(15.0),
-                                        )),
-                                    child: SizedBox(
-                                      height: MediaQuery.of(context).size.height/1.5,
-                                      child: Column(
-                                        children: [
-                                          SizedBox(height: 15),
-                                          Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
-                                          merge(TextStyle(color: appColor, fontSize: 17))),
-                                          SizedBox(height: 15),
-                                          for(var a=0; a<controller.shippingLuggage.length; a++)...[
-                                            Obx(() => SizedBox(
-                                                width: double.infinity,
-                                                height: 170,
-                                                child:  Column(
-                                                  children: [
-                                                    Expanded(
-                                                      child:controller.editPhotos.value?ListView.builder(
-                                                          scrollDirection: Axis.horizontal,
-                                                          itemCount: 3,
-                                                          itemBuilder: (context, index){
-                                                            return Card(
-                                                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                                                child: ClipRRect(
-                                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                    child: FadeInImage(
-                                                                      width: 120,
+                              showDialog(
+                                  context: context,
+                                  builder: (_){
+                                    return Dialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0),
+                                          )),
+                                      child: SizedBox(
+                                          height: MediaQuery.of(context).size.height/1.5,
+                                          child: Column(
+                                            children: [
+                                              SizedBox(height: 15),
+                                              Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                                              merge(TextStyle(color: appColor, fontSize: 17))),
+                                              SizedBox(height: 15),
+                                              for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                                                Obx(() => SizedBox(
+                                                    width: double.infinity,
+                                                    height: 170,
+                                                    child:  Column(
+                                                      children: [
+                                                        Expanded(
+                                                          child:controller.editPhotos.value?ListView.builder(
+                                                              scrollDirection: Axis.horizontal,
+                                                              itemCount: 3,
+                                                              itemBuilder: (context, index){
+                                                                return Card(
+                                                                    margin: EdgeInsets.symmetric(horizontal: 10),
+                                                                    child: ClipRRect(
+                                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                        child: FadeInImage(
+                                                                          width: 120,
+                                                                          height: 100,
+                                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                                              headers: Domain.getTokenHeaders()),
+                                                                          placeholder: AssetImage(
+                                                                              "assets/img/loading.gif"),
+                                                                          imageErrorBuilder:
+                                                                              (context, error, stackTrace) {
+                                                                            return Image.asset(
+                                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                                                width: 50,
+                                                                                height: 50,
+                                                                                fit: BoxFit.fitWidth);
+                                                                          },
+                                                                        )
+                                                                    )
+                                                                );
+                                                              })
+                                                              : Container(
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                              color: Colors.white,
+                                                            ),
+                                                            padding: EdgeInsets.all(10),
+                                                            margin: EdgeInsets.only(top: 10, bottom: 10),
+                                                            child: Column(
+                                                              children: [
+                                                                Align(
+                                                                  child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
+                                                                  alignment: Alignment.topLeft,
+                                                                ),
+                                                                Spacer(),
+                                                                controller.imageFiles.length<=0?GestureDetector(
+                                                                    onTap: () {
+                                                                      showDialog(
+                                                                          context: Get.context,
+                                                                          builder: (_){
+                                                                            return AlertDialog(
+                                                                              content: Container(
+                                                                                  height: 170,
+                                                                                  padding: EdgeInsets.all(10),
+                                                                                  child: Column(
+                                                                                    children: [
+                                                                                      ListTile(
+                                                                                        onTap: ()async{
+                                                                                          await controller.pickImage(ImageSource.camera);
+                                                                                          Navigator.pop(Get.context);
+                                                                                        },
+                                                                                        leading: Icon(FontAwesomeIcons.camera),
+                                                                                        title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                      ),
+                                                                                      ListTile(
+                                                                                        onTap: ()async{
+                                                                                          await controller.pickImage(ImageSource.gallery);
+                                                                                          Navigator.pop(Get.context);
+                                                                                        },
+                                                                                        leading: Icon(FontAwesomeIcons.image),
+                                                                                        title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                      )
+                                                                                    ],
+                                                                                  )
+                                                                              ),
+                                                                            );
+                                                                          });
+                                                                    },
+                                                                    child: Container(
+                                                                      width: 100,
                                                                       height: 100,
-                                                                      image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                                          headers: Domain.getTokenHeaders()),
-                                                                      placeholder: AssetImage(
-                                                                          "assets/img/loading.gif"),
-                                                                      imageErrorBuilder:
-                                                                          (context, error, stackTrace) {
-                                                                        return Image.asset(
-                                                                            'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                                            width: 50,
-                                                                            height: 50,
-                                                                            fit: BoxFit.fitWidth);
-                                                                      },
+                                                                      padding: EdgeInsets.all(20),
+                                                                      alignment: Alignment.center,
+                                                                      decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                                                                      child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
                                                                     )
                                                                 )
-                                                            );
-                                                          })
-                                                          : Container(
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                          color: Colors.white,
-                                                        ),
-                                                        padding: EdgeInsets.all(10),
-                                                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                                                        child: Column(
-                                                          children: [
-                                                            Align(
-                                                              child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
-                                                              alignment: Alignment.topLeft,
-                                                            ),
-                                                            Spacer(),
-                                                            controller.imageFiles.length<=0?GestureDetector(
-                                                                onTap: () {
-                                                                  showDialog(
-                                                                      context: Get.context,
-                                                                      builder: (_){
-                                                                        return AlertDialog(
-                                                                          content: Container(
-                                                                              height: 170,
-                                                                              padding: EdgeInsets.all(10),
-                                                                              child: Column(
-                                                                                children: [
-                                                                                  ListTile(
-                                                                                    onTap: ()async{
-                                                                                      await controller.pickImage(ImageSource.camera);
-                                                                                      Navigator.pop(Get.context);
-                                                                                    },
-                                                                                    leading: Icon(FontAwesomeIcons.camera),
-                                                                                    title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                    :Column(
+                                                                  children: [
+                                                                    SizedBox(
+                                                                      height:80,
+                                                                      child: ListView.separated(
+                                                                          scrollDirection: Axis.horizontal,
+                                                                          padding: EdgeInsets.all(12),
+                                                                          itemBuilder: (context, index){
+                                                                            return Stack(
+                                                                              //mainAxisAlignment: MainAxisAlignment.end,
+                                                                              children: [
+                                                                                ClipRRect(
+                                                                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                                  child: Image.file(
+                                                                                    controller.imageFiles[index],
+                                                                                    fit: BoxFit.cover,
+                                                                                    width: 80,
+                                                                                    height: 80,
                                                                                   ),
-                                                                                  ListTile(
-                                                                                    onTap: ()async{
-                                                                                      await controller.pickImage(ImageSource.gallery);
-                                                                                      Navigator.pop(Get.context);
-                                                                                    },
-                                                                                    leading: Icon(FontAwesomeIcons.image),
-                                                                                    title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                  )
-                                                                                ],
-                                                                              )
-                                                                          ),
-                                                                        );
-                                                                      });
-                                                                },
-                                                                child: Container(
-                                                                  width: 100,
-                                                                  height: 100,
-                                                                  padding: EdgeInsets.all(20),
-                                                                  alignment: Alignment.center,
-                                                                  decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                                                                  child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                                                                )
-                                                            )
-                                                                :Column(
-                                                              children: [
-                                                                SizedBox(
-                                                                  height:80,
-                                                                  child: ListView.separated(
-                                                                      scrollDirection: Axis.horizontal,
-                                                                      padding: EdgeInsets.all(12),
-                                                                      itemBuilder: (context, index){
-                                                                        return Stack(
-                                                                          //mainAxisAlignment: MainAxisAlignment.end,
-                                                                          children: [
-                                                                            ClipRRect(
-                                                                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                              child: Image.file(
-                                                                                controller.imageFiles[index],
-                                                                                fit: BoxFit.cover,
-                                                                                width: 80,
-                                                                                height: 80,
-                                                                              ),
-                                                                            ),
-                                                                            Positioned(
-                                                                              top:0,
-                                                                              right:0,
-                                                                              child: Align(
-                                                                                //alignment: Alignment.centerRight,
-                                                                                child: IconButton(
-                                                                                    onPressed: (){
-                                                                                      controller.imageFiles.removeAt(index);
-                                                                                    },
-                                                                                    icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
                                                                                 ),
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        );
-                                                                      },
-                                                                      separatorBuilder: (context, index){
-                                                                        return SizedBox(width: 8);
-                                                                      },
-                                                                      itemCount: controller.imageFiles.length),
-                                                                ),
-                                                                Align(
-                                                                  alignment: Alignment.centerRight,
-                                                                  child: Visibility(
-                                                                      child: InkWell(
-                                                                        onTap: (){
-                                                                          showDialog(
-                                                                              context: Get.context,
-                                                                              builder: (_){
-                                                                                return AlertDialog(
-                                                                                  content: Container(
-                                                                                      height: 170,
-                                                                                      padding: EdgeInsets.all(10),
-                                                                                      child: Column(
-                                                                                        children: [
-                                                                                          ListTile(
-                                                                                            onTap: ()async{
-                                                                                              await controller.pickImage(ImageSource.camera);
-                                                                                              Navigator.pop(Get.context);
-                                                                                            },
-                                                                                            leading: Icon(FontAwesomeIcons.camera),
-                                                                                            title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                          ),
-                                                                                          ListTile(
-                                                                                            onTap: ()async{
-                                                                                              await controller.pickImage(ImageSource.gallery);
-                                                                                              Navigator.pop(Get.context);
-                                                                                            },
-                                                                                            leading: Icon(FontAwesomeIcons.image),
-                                                                                            title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                          )
-                                                                                        ],
-                                                                                      )
+                                                                                Positioned(
+                                                                                  top:0,
+                                                                                  right:0,
+                                                                                  child: Align(
+                                                                                    //alignment: Alignment.centerRight,
+                                                                                    child: IconButton(
+                                                                                        onPressed: (){
+                                                                                          controller.imageFiles.removeAt(index);
+                                                                                        },
+                                                                                        icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
+                                                                                    ),
                                                                                   ),
-                                                                                );
-                                                                              });
-                                                                        },
-                                                                        child: Icon(FontAwesomeIcons.circlePlus),
-                                                                      )
-                                                                  ),
-                                                                )
+                                                                                ),
+                                                                              ],
+                                                                            );
+                                                                          },
+                                                                          separatorBuilder: (context, index){
+                                                                            return SizedBox(width: 8);
+                                                                          },
+                                                                          itemCount: controller.imageFiles.length),
+                                                                    ),
+                                                                    Align(
+                                                                      alignment: Alignment.centerRight,
+                                                                      child: Visibility(
+                                                                          child: InkWell(
+                                                                            onTap: (){
+                                                                              showDialog(
+                                                                                  context: Get.context,
+                                                                                  builder: (_){
+                                                                                    return AlertDialog(
+                                                                                      content: Container(
+                                                                                          height: 170,
+                                                                                          padding: EdgeInsets.all(10),
+                                                                                          child: Column(
+                                                                                            children: [
+                                                                                              ListTile(
+                                                                                                onTap: ()async{
+                                                                                                  await controller.pickImage(ImageSource.camera);
+                                                                                                  Navigator.pop(Get.context);
+                                                                                                },
+                                                                                                leading: Icon(FontAwesomeIcons.camera),
+                                                                                                title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                              ),
+                                                                                              ListTile(
+                                                                                                onTap: ()async{
+                                                                                                  await controller.pickImage(ImageSource.gallery);
+                                                                                                  Navigator.pop(Get.context);
+                                                                                                },
+                                                                                                leading: Icon(FontAwesomeIcons.image),
+                                                                                                title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                                                                                              )
+                                                                                            ],
+                                                                                          )
+                                                                                      ),
+                                                                                    );
+                                                                                  });
+                                                                            },
+                                                                            child: Icon(FontAwesomeIcons.circlePlus),
+                                                                          )
+                                                                      ),
+                                                                    )
+                                                                  ],
+
+                                                                ),
+
                                                               ],
-
                                                             ),
-
-                                                          ],
-                                                        ),
-                                                      ),
+                                                          ),
+                                                        )
+                                                      ],
                                                     )
-                                                  ],
+                                                )),
+                                                SizedBox(height: 15),
+                                                Obx(() => Align(
+                                                    alignment: Alignment.bottomRight,
+                                                    child: controller.editPhotos.value==true?TextButton(onPressed: (){
+                                                      controller.editPhotos.value = !controller.editPhotos.value;
+
+                                                    },
+
+                                                        child: Text('Edit Photos')
+
+                                                    ): Row(
+                                                      children: [
+                                                        TextButton(onPressed: (){
+                                                          controller.editPhotos.value = !controller.editPhotos.value;
+
+                                                        },
+                                                            child: Text('cancel')
+                                                        ),
+                                                        TextButton(
+                                                            onPressed: ()async{
+                                                              // controller.editPhotos.value = !controller.editPhotos.value;
+
+                                                              for(var i=1; i<4; i++){
+                                                                await controller.sendImages(i, controller.imageFiles[i-1], controller.shippingLuggage[a]['id']);
+                                                              }
+                                                              controller.buttonPressed.value = !controller.buttonPressed.value;
+                                                              //controller.assignLuggageToShipping(controller.items[index]);
+
+                                                            },
+
+                                                            child: Text('Edit')
+
+                                                        )
+                                                      ],
+                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                    )
+                                                ),),
+
+                                                AccountWidget(
+                                                  icon: FontAwesomeIcons.shoppingBag,
+                                                  text: Text('Name'),
+                                                  value: controller.shippingLuggage[a]['name'],
+                                                ),
+                                                AccountWidget(
+                                                  icon: FontAwesomeIcons.rulerHorizontal,
+                                                  text: Text('Dimensions'),
+                                                  value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                                                ),
+                                                AccountWidget(
+                                                  icon: FontAwesomeIcons.weightScale,
+                                                  text: Text('Average weight'),
+                                                  value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
+                                                ),
+                                                Spacer(),
+                                                Align(
+                                                    alignment: Alignment.bottomRight,
+                                                    child: TextButton(onPressed: (){
+                                                      controller.editPhotos.value = true;
+                                                      Navigator.of(context).pop();
+
+                                                    },
+                                                        child: Text('Back'))
                                                 )
-                                            )),
-                                            SizedBox(height: 15),
-                                            Obx(() => Align(
-                                                alignment: Alignment.bottomRight,
-                                                child: controller.editPhotos.value==true?TextButton(onPressed: (){
-                                                  controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                },
-
-                                                    child: Text('Edit Photos')
-
-                                                ): Row(
-                                                  children: [
-                                                  TextButton(onPressed: (){
-                                                    controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                  },
-                                                      child: Text('cancel')
-                                                  ),
-                                                  TextButton(
-                                                      onPressed: ()async{
-                                                    // controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                    for(var i=1; i<4; i++){
-                                                      await controller.sendImages(i, controller.imageFiles[i-1], controller.shippingLuggage[a]['id']);
-                                                    }
-                                                    controller.buttonPressed.value = !controller.buttonPressed.value;
-                                                    //controller.assignLuggageToShipping(controller.items[index]);
-
-                                                  },
-
-                                                      child: Text('Edit')
-
-                                                  )
-                                                ],
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                )
-                                            ),),
-
-                                            AccountWidget(
-                                              icon: FontAwesomeIcons.shoppingBag,
-                                              text: Text('Name'),
-                                              value: controller.shippingLuggage[a]['name'],
-                                            ),
-                                            AccountWidget(
-                                              icon: FontAwesomeIcons.rulerHorizontal,
-                                              text: Text('Dimensions'),
-                                              value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
-                                            ),
-                                            AccountWidget(
-                                              icon: FontAwesomeIcons.weightScale,
-                                              text: Text('Average weight'),
-                                              value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
-                                            ),
-                                            Spacer(),
-                                            Align(
-                                              alignment: Alignment.bottomRight,
-                                              child: TextButton(onPressed: (){
-                                                controller.editPhotos.value = true;
-                                                Navigator.of(context).pop();
-
-                                                },
-                                                  child: Text('Back'))
-                                            )
-                                          ],
-                                        ],
-                                      )
-                                    ),
-                                  );
-                                });
+                                              ],
+                                            ],
+                                          )
+                                      ),
+                                    );
+                                  });
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                           child: Padding(
@@ -489,22 +489,24 @@ class BookingsView extends GetView<BookingsController> {
                             child: Text('View luggage info'),
                           )
                       ),
-                      negotiation:  Visibility(
-                        visible:  true,
-                        child: InkWell(
-                          onTap: ()=>{
-                            //print(controller.items[index]),
-                            Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]})
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, decoration: TextDecoration.underline))),
-                              SizedBox(width: 10),
-                              FaIcon(FontAwesomeIcons.solidMessage, color: interfaceColor),
-                            ],
-                          ),
-                        ),
+                      negotiation:  GestureDetector(
+                          onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]}) ,
+                          child: Card(
+                              elevation: 10,
+                              color: interfaceColor,
+                              margin: EdgeInsets.symmetric( vertical: 15),
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: Colors.white))),
+                                      SizedBox(width: 10),
+                                      FaIcon(FontAwesomeIcons.solidMessage, color: Colors.white, size: 15),
+                                    ],
+                                  )
+                              )
+                          )
                       ),
                       button: TextButton(
                           onPressed: ()async{
@@ -587,7 +589,7 @@ class BookingsView extends GetView<BookingsController> {
                 MaterialButton(
                   onPressed: () =>{
                     for(var i=0; i<controller.luggageId.length; i++)
-                    controller.deleteShippingLuggage(controller.luggageId[i])
+                      controller.deleteShippingLuggage(controller.luggageId[i])
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   color: Get.theme.colorScheme.secondary.withOpacity(0.15),
@@ -691,7 +693,6 @@ class BookingsView extends GetView<BookingsController> {
               onChanged: (input) => controller.shippingPrice.value = double.parse(input),
               labelText: "Shipping Price".tr,
               iconData: Icons.monetization_on_rounded,
-              readOnly: true,
             ),
             Obx(() => Container(
               height: 200,
@@ -806,7 +807,6 @@ class BookingsView extends GetView<BookingsController> {
             Column(
               children: [
                 TextFieldWidget(
-                  readOnly: true,
                   keyboardType: TextInputType.text,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.name.value = input,
@@ -815,7 +815,6 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
-                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.email.value = input,
                   labelText: "Email".tr,
@@ -832,7 +831,6 @@ class BookingsView extends GetView<BookingsController> {
                 ),
                 TextFieldWidget(
                   keyboardType: TextInputType.text,
-                  readOnly: true,
                   validator: (input) => input.isEmpty ? "field required!".tr : null,
                   onChanged: (input) => controller.address.value = input,
                   labelText: "Address".tr,
@@ -845,61 +843,60 @@ class BookingsView extends GetView<BookingsController> {
               validator: (input) => input.isEmpty ? "field required!".tr : null,
               //onChanged: (input) => controller.selectUser.value = input,
               labelText: "Select User".tr,
-              readOnly: true,
               iconData: FontAwesomeIcons.userGroup,
               onChanged: (value)=>{
                 controller.filterSearchResults(value)
               },
             ),
 
-              controller.users.isNotEmpty ?
-              Container(
-                  margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
-                  // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                    ],
-                  ),
+            controller.users.isNotEmpty ?
+            Container(
+                margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
+                // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                ),
 
-                  child: ListView.separated(
-                    //physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: controller.users.length,
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 5);
-                      },
-                      shrinkWrap: true,
-                      primary: false,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: (){
-                            controller.receiverId.value = controller.users[index]['id'];
-                            print(controller.receiverId.value.toString());
-                            controller.selectedIndex.value = index;
-                            controller.selected.value = true;
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
-                              color: Get.theme.primaryColor,
+                child: ListView.separated(
+                  //physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: controller.users.length,
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 5);
+                    },
+                    shrinkWrap: true,
+                    primary: false,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: (){
+                          controller.receiverId.value = controller.users[index]['id'];
+                          print(controller.receiverId.value.toString());
+                          controller.selectedIndex.value = index;
+                          controller.selected.value = true;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
+                            color: Get.theme.primaryColor,
 
-                            ),
-                            child: UserWidget(
-                                user: controller.users[index]['display_name'],
-                                selected: false,
-                                imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
-                              //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
-                            ),
                           ),
-                        );
-                      })
-              ) : Container(
-                  child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
-                      .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
+                          child: UserWidget(
+                              user: controller.users[index]['display_name'],
+                              selected: false,
+                              imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
+                            //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
+                          ),
+                        ),
+                      );
+                    })
+            ) : Container(
+                child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
+                    .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
           ],
         ),
       ],

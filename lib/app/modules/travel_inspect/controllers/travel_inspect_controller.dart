@@ -66,9 +66,8 @@ class TravelInspectController extends GetxController {
   File profileImage;
   final loadProfileImage = false.obs;
   var existingPartner;
-
-
-
+  var selectedUser = false.obs;
+  var selectedUserIndex = 0.obs;
 
   var visible = true.obs;
   UserRepository _userRepository;
@@ -113,11 +112,14 @@ class TravelInspectController extends GetxController {
      }
 
     if(travelCard['booking_type'].toLowerCase() == "air"){
-      imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
+      imageUrl.value = "assets/img/istockphoto-1421193265-612x612.jpg";
+      //"https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60";
     }else if(travelCard['booking_type'].toLowerCase() == "sea"){
-      imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
+      imageUrl.value = "assets/img/pexels-julius-silver-753331.jpg";
+      //"https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8=";
     }else{
-      imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
+      imageUrl.value = "assets/img/istockphoto-859916128-612x612.jpg";
+      //"https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc=";
     }
     super.onInit();
   }
@@ -357,7 +359,6 @@ class TravelInspectController extends GetxController {
         buttonPressed.value = false;
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping created successfully ".tr));
         await Get.find<RootController>().changePage(1);
-
 
       }
       else {

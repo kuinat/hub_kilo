@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
@@ -293,9 +292,9 @@ class BookingsController extends GetxController {
       bookings.add(airBooking);
     }
     for(var roadBooking in myRoadBookings )
-      {
-        bookings.add(roadBooking);
-      }
+    {
+      bookings.add(roadBooking);
+    }
 
     bookings.sort((a, b) => a['travel']['departure_date'].compareTo(b['travel']['departure_date']));
 
@@ -330,8 +329,7 @@ class BookingsController extends GetxController {
         Navigator.pop(Get.context);
         imageFiles.clear();
       }else{
-        var data = await response.stream.bytesToString();
-        Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
       }
     }
     else {
@@ -360,9 +358,9 @@ class BookingsController extends GetxController {
         '"state": "rejected",}&ids=$shipping_id'
     ));
 
-  request.headers.addAll(headers);
+    request.headers.addAll(headers);
 
-  http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await request.send();
 
 
     if (response.statusCode == 200) {
@@ -424,28 +422,28 @@ class BookingsController extends GetxController {
   sendImages(int a, var imageFil, int id)async{
 
     //for(var b=0; b<luggageId.length;b++){
-      var headers = {
-        'Accept': 'application/json',
-        'Authorization': Domain.authorization,
-        'Content-Type': 'multipart/form-data',
-      };
-      var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/$id/luggage_image$a'));
-      request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
-      request.headers.addAll(headers);
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Content-Type': 'multipart/form-data',
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('${Domain.serverPort}/upload/m1st_hk_roadshipping.luggage/$id/luggage_image$a'));
+    request.files.add(await http.MultipartFile.fromPath('ufile', imageFil.path));
+    request.headers.addAll(headers);
 
-      http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await request.send();
 
-      if (response.statusCode == 200) {
-        var data = await response.stream.bytesToString();
-        print("Hello"+data.toString());
-        Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
-        Navigator.pop(Get.context);
-        imageFiles.clear();
-      }
-      else {
-        var data = await response.stream.bytesToString();
-        print(data);
-      }
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print("Hello"+data.toString());
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Luggages  succesfully updated ".tr));
+      Navigator.pop(Get.context);
+      imageFiles.clear();
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print(data);
+    }
     //}
   }
 
@@ -475,8 +473,7 @@ class BookingsController extends GetxController {
       shippingLuggage.value = json.decode(data);
     }
     else {
-    print(response.reasonPhrase);
+      print(response.reasonPhrase);
     }
   }
-
 }
