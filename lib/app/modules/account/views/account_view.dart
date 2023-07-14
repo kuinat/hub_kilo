@@ -653,9 +653,6 @@ class AccountView extends GetView<AccountController> {
                     )
                 ).paddingOnly(left: 20, right: 20, top: 20, bottom: 14,
                 ),
-
-
-
               ],
             );
           }),
@@ -749,7 +746,7 @@ class AccountView extends GetView<AccountController> {
             icon: Icon(Icons.qr_code, color: Get.theme.colorScheme.secondary),
             text: Text("Validate Transaction".tr),
             onTap: (e) {
-              Get.offNamed(Routes.VALIDATE_TRANSACTION);
+              Get.toNamed(Routes.VALIDATE_TRANSACTION);
               //Get.find<RootController>().changePage(2);
             },
           ),

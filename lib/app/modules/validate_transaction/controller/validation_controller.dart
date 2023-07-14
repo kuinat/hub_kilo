@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../color_constants.dart';
@@ -22,7 +20,9 @@ class ValidationController extends GetxController {
   final currentState = 0.obs;
   final validationType = 0.obs;
   var shipping = [].obs;
-  var items =[];
+  var copyPressed = false.obs;
+  var items = [];
+  var shippingLuggage =[].obs;
   var luggageInfo = {}.obs;
   var travelInfo = {}.obs;
   ScrollController scrollController = ScrollController();
@@ -51,19 +51,27 @@ class ValidationController extends GetxController {
     List data = await getAllShipping();
     //items = await getReceiverBookings();
     List receiverShipping = [];
+    var luggage = {};
     for(var a=0; a<data.length; a++){
-      if(data[a]['receiver_partner_id'] != false){
-        if( Get.find<MyAuthService>().myUser.value.id == data[a]['receiver_partner_id'][0]){
+      if(data.contains(data[a]['id']) && !receiverShipping.contains(data[a])){
+        receiverShipping.add(data[a]);
+      }
+    }
+    for(var a=0; a<data.length; a++){
+      if(data[a]['receiver_partner_id'] != []){
+        // && data[a]['state'] == "paid"
+        //var id = data[a]['receiver_partner_id'][0]["id"];
+        if( Get.find<MyAuthService>().myUser.value.email == data[a]['receiver_email'] && !receiverShipping.contains(data[a])){
           receiverShipping.add(data[a]);
-          var luggage = await getLuggageInfo(data[a]['luggage_ids'][0]);
-          var travel = await geTravelInfo(data[a]['travelbooking_id'][0]);
+          var travel = await geTravelInfo(data[a]['travelbooking_id'][0]['id']);
           luggageInfo.value = luggage;
           travelInfo.value = travel;
         }
       }
     }
-
+    items = receiverShipping;
     shipping.value = receiverShipping;
+    isLoading.value = false;
     print(shipping);
   }
 
@@ -115,11 +123,11 @@ class ValidationController extends GetxController {
         showDialog(
             context: Get.context,
             builder: (_)=>  PopUpWidget(
-              title: "Confirm the delivery of Shipping with reference: ${shippingInfo['name']}, travel from ${shippingInfo['travel_arrival_city_name']} to ${shippingInfo['travel_departure_city_name']}, to M/Mrs ${shippingInfo['receiver_partner_id'][1]}",
+              title: "Confirm the delivery of Shipping with reference: ${shippingInfo['name']}, travel from ${shippingInfo['travel_departure_city_name']} to ${shippingInfo['travel_arrival_city_name']}, to M/Mrs ${shippingInfo['receiver_partner_id'][1]}",
               cancel: 'Cancel',
               confirm: 'Confirm',
               onTap: ()=> setToReceive(id),
-              icon: Icon(Icons.help_outline, size: 40,color: validateColor),
+              icon: Icon(Icons.help_outline, size: 70,color: inactive),
             ));
       }else{
         Get.showSnackbar(Ui.ErrorSnackBar(message: "Code not matching! Please verify and try again later".tr));
@@ -162,11 +170,11 @@ class ValidationController extends GetxController {
 
   Future getAllShipping() async {
     var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
+      'api-key': Domain.apiKey,
+      /*'Accept': 'application/json',
+      'Authorization': Domain.authorization,*/
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.shipping'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort2}/m1st_hk_roadshipping.shipping/search'));
 
     request.headers.addAll(headers);
 
@@ -174,36 +182,15 @@ class ValidationController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
-      isLoading.value = false;
-      return json.decode(data);
+      if(json.decode(data)['success']){
+        return json.decode(data)['data'];
+      }else{
+        print("An issue here");
+        return [];
+      }
     }
     else {
       print(response.reasonPhrase);
-    }
-  }
-
-  getReceiverBookings()async{
-    final box = GetStorage();
-    var id = box.read("session_id");
-    print(id);
-    var headers = {
-      'Cookie': 'frontend_lang=en_US; $id'
-    };
-    var request = http.Request('GET', Uri.parse(Domain.serverPort+'/air/receiver/bookings'));
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      print("my userBookings: $data");
-      isLoading.value = false;
-      return json.decode(data);
-    }
-    else {
-      var data = await response.stream.bytesToString();
-      isLoading.value = false;
-      print(data);
     }
   }
 
@@ -212,8 +199,8 @@ class ValidationController extends GetxController {
     dummySearchList = items;
     if(query.isNotEmpty) {
       List dummyListData = [];
-      dummyListData = dummySearchList.where((element) => element['departure_town']
-          .toString().toLowerCase().contains(query.toLowerCase()) || element['arrival_town']
+      dummyListData = dummySearchList.where((element) => element['travel_departure_city_name']
+          .toString().toLowerCase().contains(query.toLowerCase()) || element['travel_arrival_city_name']
           .toString().toLowerCase().contains(query.toLowerCase()) ).toList();
       shipping.value = dummyListData;
       return;
@@ -227,21 +214,23 @@ class ValidationController extends GetxController {
     //chatTextController.dispose();
   }
 
-  Future getLuggageInfo(int id) async{
+  Future getLuggageInfo(var ids) async{
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
       'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$id'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+
       var data = await response.stream.bytesToString();
-      return json.decode(data)[0];
+      shippingLuggage.value = json.decode(data);
+
     }
     else {
       print(response.reasonPhrase);

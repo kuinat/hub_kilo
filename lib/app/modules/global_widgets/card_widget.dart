@@ -91,8 +91,8 @@ class CardWidget extends StatelessWidget {
                 RichText(
                     text: TextSpan(
                         children: [
-                          TextSpan(text: shippingDate.split(" ").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                          TextSpan(text: "\n${shippingDate.split(" ").last}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                          TextSpan(text: shippingDate.split("T").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+                          TextSpan(text: "\n${shippingDate.split("T").last.split(".").first}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
                         ]
                     )
                 ),
@@ -144,8 +144,6 @@ class CardWidget extends StatelessWidget {
                       ]
                   ),
 
-                  SizedBox(height: 10),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -156,7 +154,6 @@ class CardWidget extends StatelessWidget {
                           child: luggageView),
                     ],
                   ),
-                  SizedBox(height: 10),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: button,
@@ -200,7 +197,7 @@ class CardWidget extends StatelessWidget {
                                 context: context,
                                 builder: (_)=>
                                     PopUpWidget(
-                                      title: "You cannot edit a shpping accepted or confirmed",
+                                      title: "You cannot edit a shipping accepted or confirmed",
                                       cancel: 'Cancel',
                                       confirm: 'Ok',
                                       onTap: ()=>{
@@ -247,18 +244,19 @@ class CardWidget extends StatelessWidget {
                       SizedBox(width: 10),
                       GestureDetector(
                           onTap: editable ? confirm:(){
-                          showDialog(
-                              context: context,
-                              builder: (_)=>
-                                  PopUpWidget(
-                                    title: "You cannot delete a Shipping accepted or confirmed",
-                                    cancel: 'Cancel',
-                                    confirm: 'Ok',
-                                    onTap: ()=>{
-                                      Navigator.of(Get.context).pop(),
-                                    }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                  )
-                          );},
+                            showDialog(
+                                context: context,
+                                builder: (_)=>
+                                    PopUpWidget(
+                                      title: "You cannot delete a Shipping accepted or confirmed",
+                                      cancel: 'Cancel',
+                                      confirm: 'Ok',
+                                      onTap: ()=>{
+                                        Navigator.of(Get.context).pop(),
+                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                                    )
+                            );
+                          },
                           child: Card(
                               elevation: 10,
                               color: editable?specialColor:inactive,
@@ -268,8 +266,6 @@ class CardWidget extends StatelessWidget {
                                   child: Text("Cancel".tr, style: TextStyle(color: Colors.white)))
                           )
                       ),
-
-
                     ],
                   )
             ])

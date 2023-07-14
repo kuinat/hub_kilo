@@ -55,6 +55,8 @@ Future getCountries()async{
 class Domain{
 
   static var serverPort = "https://preprod.hubkilo.com/api/v1";
+  static var serverPort2 = "https://preprod.hubkilo.com/api";
+  static var apiKey = "CE46G5078WKP336YFAFIDUHFRM3EEYIM";
 
   static var authorization = "Basic bmF0aGFsaWU6QXplcnR5MTIzNDUl";
   static var AppName = "Hub Kilo";

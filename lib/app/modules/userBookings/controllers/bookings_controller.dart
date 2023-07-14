@@ -58,13 +58,10 @@ class BookingsController extends GetxController {
   var shippingList = [];
   var viewPressed = false.obs;
 
-  UploadRepository _uploadRepository;
-
   BookingsController() {
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
-    _uploadRepository = new UploadRepository();
   }
 
   @override
@@ -134,12 +131,18 @@ class BookingsController extends GetxController {
       var data = json.decode(result)[0];
 
       shippingList = data['shipping_ids'];
+      List shipping = [];
       list = await getMyShipping();
-      items.value = list;
+      for(var a=0; a<list.length; a++){
+        if(shippingList.contains(list[a]['id']) && !shipping.contains(list[a])){
+          shipping.add(list[a]);
+        }
+      }
+      items.value = shipping;
 
     } else {
-      print(response.reasonPhrase);
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured"));
+      var data = await response.stream.bytesToString();
+      print("error finding user from shipping");
     }
   }
 
@@ -170,6 +173,7 @@ class BookingsController extends GetxController {
     else {
       var data = await response.stream.bytesToString();
       print(data);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
   }
 
@@ -243,11 +247,12 @@ class BookingsController extends GetxController {
   Future getMyShipping() async {
 
     var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
+      'api-key': Domain.apiKey,
+      /*'Accept': 'application/json',
+      'Authorization': Domain.authorization,*/
     };
 
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$shippingList'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort2}/m1st_hk_roadshipping.shipping/search'));
 
     request.headers.addAll(headers);
 
@@ -256,7 +261,13 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
       //isLoading.value = false;
-      return json.decode(data);
+      if(json.decode(data)['success']){
+        return json.decode(data)['data'];
+      }else{
+        print("An issue");
+        return [];
+      }
+
     }
     else {
       print(response.reasonPhrase);
@@ -324,12 +335,11 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       if(json.decode(data)['result'] != null){
-
         Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  succesfully updated ".tr));
         Navigator.pop(Get.context);
         imageFiles.clear();
       }else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occured!".tr));
+        Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
       }
     }
     else {
@@ -459,7 +469,6 @@ class BookingsController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
 

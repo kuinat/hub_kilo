@@ -108,7 +108,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                    image: AssetImage(controller.imageUrl.value), fit: BoxFit.cover)
+                                    image: NetworkImage(controller.imageUrl.value), fit: BoxFit.cover)
                               ),
                             ),
                             buildCarouselBullets(context)
@@ -130,11 +130,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 backgroundColor: Colors.black,
                               ),
                               onPressed: (()async{
+                                List data = [];
                                 ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
                                   content: Text("Loading data..."),
-                                  duration: Duration(seconds: 5),
+                                  duration: Duration(seconds: 3),
                                 ));
-                                List data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
+                                print(controller.travelCard['shipping_ids']);
+                                data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
                                 if(data.isNotEmpty) {
                                   Get.bottomSheet(
                                     buildBookingByTravel(context, data),
@@ -149,10 +151,10 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             ) : SizedBox(),
                             content: Column(
                               children: [
-                                ListTile(
+                                /*ListTile(
                                   title: Text('Reference', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: appColor))),
-                                  trailing: Text(controller.travelCard['display_name'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
-                                ),
+                                  trailing: Text(controller.travelCard['company_id'][1], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16, color: appColor))),
+                                ),*/
                                 ListTile(
                                   title: Text('State:', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor))),
                                   trailing: Text(controller.travelCard['state'], style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
@@ -184,7 +186,8 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     ),
                   ),
                 ],
-              )),
+              )
+          ),
         );
     });
   }
@@ -281,7 +284,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
     return CardWidget(
       owner: false,
       shippingDate: booking['create_date'],
-      code: booking['display_name'],
+      code: booking['name'],
       travelType: booking['booking_type'],
       editable: booking['state'].toLowerCase()=='pending' ? true:false,
       transferable: false,
@@ -953,6 +956,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                 content: Container(
                                     height: 170,
                                     padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(10))
+                                    ),
                                     child: Column(
                                       children: [
                                         ListTile(
@@ -1038,6 +1044,9 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                       return AlertDialog(
                                         content: Container(
                                             height: 170,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(Radius.circular(10))
+                                            ),
                                             padding: EdgeInsets.all(10),
                                             child: Column(
                                               children: [
@@ -1162,36 +1171,36 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                builder: (_){
                              return AlertDialog(
                                title: Text("Related User"),
-                               content: SizedBox(
-                                 height: Get.height/3 - 100,
-                                 child: Column(
-                                   children: [
-                                     for(var a=0; a< controller.viewUsers.length; a++)...[
-                                       InkWell(
-                                         onTap: ()=>{
-                                           controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
-                                           controller.selectUser.value = false,
-                                           controller.selectedUser.value = true,
-                                           controller.selectedUserIndex.value = a,
+                               content: Obx(() => SizedBox(
+                                   height: Get.height/3 - 100,
+                                   child: Column(
+                                       children: [
+                                         for(var a=0; a< controller.viewUsers.length; a++)...[
+                                           InkWell(
+                                               onTap: ()=>{
+                                                 controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
+                                                 controller.selectUser.value = false,
+                                                 controller.selectedUser.value = true,
+                                                 controller.selectedUserIndex.value = a,
 
-                                           //add method here...
-                                         },
-                                         child: Container(
-                                           decoration: BoxDecoration(
-                                             border: controller.selectedUser.value && controller.selectedUserIndex.value == a ? Border.all(color: interfaceColor,width: 2) : null,
-                                             borderRadius: BorderRadius.all(Radius.circular(10))
-                                           ),
-                                           child: UserWidget(
-                                             user: controller.viewUsers[a]['name'],
-                                             selected: false,
-                                             imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
-                                           ),
-                                         )
-                                       )
-                                     ]
-                                   ]
-                                 )
-                               ),
+                                                 //add method here...
+                                               },
+                                               child: Container(
+                                                 decoration: BoxDecoration(
+                                                     border: controller.selectedUser.value && controller.selectedUserIndex.value == a ? Border.all(color: interfaceColor,width: 2) : null,
+                                                     borderRadius: BorderRadius.all(Radius.circular(10))
+                                                 ),
+                                                 child: UserWidget(
+                                                   user: controller.viewUsers[a]['name'],
+                                                   selected: false,
+                                                   imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
+                                                 ),
+                                               )
+                                           )
+                                         ]
+                                       ]
+                                   )
+                               )),
                                actions: [
                                  Row(
                                    mainAxisAlignment: MainAxisAlignment.end,

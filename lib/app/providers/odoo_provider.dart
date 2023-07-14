@@ -37,25 +37,6 @@ class OdooApiClient extends GetxService with ApiClient {
     return _httpClient.isLoading(task: task, tasks: tasks);
   }
 
-  void setLocale(String locale) {
-    _optionsNetwork.headers['Accept-Language'] = locale;
-    _optionsCache.headers['Accept-Language'] = locale;
-  }
-
-  void forceRefresh() {
-    if (!foundation.kIsWeb && !foundation.kDebugMode) {
-      _optionsCache = dio.Options(headers: _optionsCache.headers);
-      _optionsNetwork = dio.Options(headers: _optionsNetwork.headers);
-    }
-  }
-
-  void unForceRefresh() {
-    if (!foundation.kIsWeb && !foundation.kDebugMode) {
-      _optionsNetwork = buildCacheOptions(Duration(days: 3), forceRefresh: true, options: _optionsNetwork);
-      _optionsCache = buildCacheOptions(Duration(minutes: 10), forceRefresh: false, options: _optionsCache);
-    }
-  }
-
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
@@ -218,8 +199,6 @@ class OdooApiClient extends GetxService with ApiClient {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       await updatePartner(myUser);
-
-
     }
     else {
       print(response.reasonPhrase);

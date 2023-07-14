@@ -25,7 +25,7 @@ class PopUpWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       icon: icon,
-      content: Text(title, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
+      content: Text(title, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15, color: Colors.black))),
       actions: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,

@@ -12,13 +12,10 @@ import 'package:intl/intl.dart';
 
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
-import '../../../models/media_model.dart';
 import '../../../models/my_user_model.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../repositories/user_repository.dart';
 import '../../../services/my_auth_service.dart';
-import '../../root/controllers/root_controller.dart';
-import '../../userTravels/controllers/user_travels_controller.dart';
 
 class AccountController extends GetxController {
 
@@ -100,11 +97,11 @@ class AccountController extends GetxController {
 
   @override
   void onInit() async{
+    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     final box = GetStorage();
     list = box.read("allCountries");
     countries.value = list;
     print("first country is ${countries[0]}");
-    await getUserInfo(Get.find<MyAuthService>().myUser.value.id);
     user.value = Get.find<MyAuthService>().myUser.value;
     selectedGender.value = genderList.elementAt(0);
     user.value?.birthday = user.value.birthday;
@@ -303,7 +300,6 @@ class AccountController extends GetxController {
       'Authorization': Domain.authorization,
     };
     var request = http.Request('GET', Uri.parse(Domain.serverPort+'/read/res.partner?ids=$id'));
-
 
     request.headers.addAll(headers);
 

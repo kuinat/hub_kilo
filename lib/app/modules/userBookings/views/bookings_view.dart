@@ -10,6 +10,7 @@ import '../../../routes/app_routes.dart';
 import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/card_widget.dart';
+import '../../global_widgets/loading_cards.dart';
 import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
@@ -178,6 +179,8 @@ class BookingsView extends GetView<BookingsController> {
   Widget MyBookings(BuildContext context){
     return Obx(() => Column(
       children: [
+        controller.isLoading.value ?
+        Expanded(child: LoadingCardWidget()) :
         Expanded(
             child: ListView.builder(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -191,12 +194,12 @@ class BookingsView extends GetView<BookingsController> {
                   } else {
 
                     Future.delayed(Duration.zero, (){
-                      controller.items.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
+                      controller.items.sort((a, b) => b["create_date"].compareTo(a["create_date"]));
                     });
                     return CardWidget(
                       owner: true,
                       shippingDate: controller.items[index]['create_date'],
-                      code: controller.items[index]['display_name'],
+                      code: controller.items[index]['name'],
                       travelType: controller.items[index]['booking_type'],
                       editable: controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
                       transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
@@ -205,14 +208,20 @@ class BookingsView extends GetView<BookingsController> {
                       text: controller.items[index]['travel_partner_name'],
                       luggageView: ElevatedButton(
                           onPressed: ()async{
+                            List luggageIds = [];
                             controller.shippingLoading.value = true;
-
+                            for(var a in controller.items[index]['luggage_ids']){
+                              if(!luggageIds.contains(a['id'])){
+                                luggageIds.add(a['id']);
+                              }
+                            }
+                            print(luggageIds);
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text("Loading data..."),
                               duration: Duration(seconds: 2),
                             ));
 
-                            await controller.getLuggageInfo(controller.items[index]['luggage_ids']);
+                            await controller.getLuggageInfo(luggageIds);
 
                             if(!controller.shippingLoading.value)
                               showDialog(
@@ -511,7 +520,7 @@ class BookingsView extends GetView<BookingsController> {
                       button: TextButton(
                           onPressed: ()async{
 
-                            var data = await controller.getTravelInfo(controller.items[index]['travelbooking_id'][0]);
+                            var data = await controller.getTravelInfo(controller.items[index]['travelbooking_id'][0]['id']);
                             Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': data, 'heroTag': 'services_carousel'});
 
                           },
@@ -519,7 +528,7 @@ class BookingsView extends GetView<BookingsController> {
                               TextStyle(fontSize: 18, decoration: TextDecoration.underline)))),
                       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
 
-                      recName: controller.items[index]['receiver_partner_id'] != false ? controller.items[index]['receiver_partner_id'][1].toString() : "___",
+                      recName: controller.items[index]['receiver_partner_id'] != false ? controller.items[index]['receiver_partner_id'][0]['name'].toString() : "___",
                       recAddress: controller.items[index]['receiver_address'].toString(),
                       recEmail: controller.items[index]['receiver_email'].toString(),
                       recPhone: controller.items[index]['receiver_phone'].toString(),
@@ -527,7 +536,7 @@ class BookingsView extends GetView<BookingsController> {
 
                         return Get.bottomSheet(
                           buildEditingSheet(context,controller.items[index] ),
-                          isScrollControlled: true,);
+                          isScrollControlled: true);
 
                       },
                       confirm: ()=> showDialog(

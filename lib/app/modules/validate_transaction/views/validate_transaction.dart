@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../../../../../common/ui.dart';
@@ -271,7 +272,7 @@ class ValidationView extends GetView<ValidationController> {
                     String arrivalCountry = b.split(')').first;
 
                     Future.delayed(Duration.zero, (){
-                      controller.shipping.sort((a, b) => a['__last_update'].compareTo(b['__last_update']));
+                      controller.shipping.sort((a, b) => a['create_date'].compareTo(b['create_date']));
                     });
                     return InkWell(
                         onTap: ()=>{
@@ -282,6 +283,7 @@ class ValidationView extends GetView<ValidationController> {
                         },
                         child: Card(
                             elevation: 10,
+                            margin: index == controller.shipping.length - 1 ? EdgeInsets.only(bottom: 50) : null,
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
                               //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
@@ -370,62 +372,113 @@ class ValidationView extends GetView<ValidationController> {
                                         ],
                                       ),
                                       SizedBox(height: 10),
-                                      ExpansionTile(
-                                        leading: Icon(FontAwesomeIcons.briefcase, size: 20),
-                                        title: Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
-                                        merge(TextStyle(color: appColor, fontSize: 17))),
-                                      initiallyExpanded: false,
-                                      children: [
-                                        SizedBox(height: 10),
-                                        AccountWidget(
-                                            icon: FontAwesomeIcons.briefcase,
-                                            text: Text('Name'),
-                                            value: controller.luggageInfo['name']
-                                        ),
-                                        SizedBox(height: 10),
-                                        SizedBox(
-                                          height: 100,
-                                          child: ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: 3,
-                                              itemBuilder: (context, index){
-                                                return Card(
-                                                    margin: EdgeInsets.symmetric(horizontal: 10),
-                                                    child: ClipRRect(
-                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        child: FadeInImage(
-                                                          width: 120,
-                                                          height: 100,
-                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.luggageInfo['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                              headers: Domain.getTokenHeaders()),
-                                                          placeholder: AssetImage(
-                                                              "assets/img/loading.gif"),
-                                                          imageErrorBuilder:
-                                                              (context, error, stackTrace) {
-                                                            return Image.asset(
-                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                                width: 50,
-                                                                height: 50,
-                                                                fit: BoxFit.fitWidth);
-                                                          },
-                                                        )
-                                                    )
-                                                );
-                                              })
-                                        ),
-                                        SizedBox(height: 10),
-                                        AccountWidget(
-                                            icon: FontAwesomeIcons.ruler,
-                                            text: Text('Dimensions'),
-                                            value: "${controller.luggageInfo['average_height']} X ${controller.luggageInfo['average_width']}"
-                                        ),
-                                        AccountWidget(
-                                            icon: FontAwesomeIcons.shoppingBag,
-                                            text: Text('Weight'),
-                                            value: controller.luggageInfo['total_weight'].toString() + " Kg"
-                                        ),
-                                      ],
-                                      )
+                                      ElevatedButton(
+                                          onPressed: ()async{
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              content: Text("Loading data..."),
+                                              duration: Duration(seconds: 4),
+                                            ));
+                                            List luggageIds = [];
+                                            for(var a in controller.shipping[index]['luggage_ids']){
+                                              if(!luggageIds.contains(a['id'])){
+                                                luggageIds.add(a['id']);
+                                              }
+                                            }
+                                            await controller.getLuggageInfo(luggageIds);
+                                            print(luggageIds);
+
+                                            await controller.getLuggageInfo(luggageIds);
+
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (_){
+                                                    return Dialog(
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.all(
+                                                            Radius.circular(15.0),
+                                                          )),
+                                                      child: SizedBox(
+                                                          height: MediaQuery.of(context).size.height/1.5,
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(height: 15),
+                                                              Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                                                              merge(TextStyle(color: appColor, fontSize: 17))),
+                                                              SizedBox(height: 15),
+                                                              for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                                                                SizedBox(
+                                                                    width: double.infinity,
+                                                                    height: 170,
+                                                                    child:  Column(
+                                                                      children: [
+                                                                        Expanded(
+                                                                          child:ListView.builder(
+                                                                              scrollDirection: Axis.horizontal,
+                                                                              itemCount: 3,
+                                                                              itemBuilder: (context, index){
+                                                                                return Card(
+                                                                                    margin: EdgeInsets.symmetric(horizontal: 10),
+                                                                                    child: ClipRRect(
+                                                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                                        child: FadeInImage(
+                                                                                          width: 120,
+                                                                                          height: 100,
+                                                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                                                              headers: Domain.getTokenHeaders()),
+                                                                                          placeholder: AssetImage(
+                                                                                              "assets/img/loading.gif"),
+                                                                                          imageErrorBuilder:
+                                                                                              (context, error, stackTrace) {
+                                                                                            return Image.asset(
+                                                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                                                                width: 50,
+                                                                                                height: 50,
+                                                                                                fit: BoxFit.fitWidth);
+                                                                                          },
+                                                                                        )
+                                                                                    )
+                                                                                );
+                                                                              }),
+                                                                        )
+                                                                      ],
+                                                                    )
+                                                                ),
+                                                                AccountWidget(
+                                                                  icon: FontAwesomeIcons.shoppingBag,
+                                                                  text: Text('Name'),
+                                                                  value: controller.shippingLuggage[a]['name'],
+                                                                ),
+                                                                AccountWidget(
+                                                                  icon: FontAwesomeIcons.rulerHorizontal,
+                                                                  text: Text('Dimensions'),
+                                                                  value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                                                                ),
+                                                                AccountWidget(
+                                                                  icon: FontAwesomeIcons.weightScale,
+                                                                  text: Text('Average weight'),
+                                                                  value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
+                                                                ),
+                                                                Spacer(),
+                                                                Align(
+                                                                    alignment: Alignment.bottomRight,
+                                                                    child: TextButton(onPressed: (){
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                        child: Text('Back'))
+                                                                )
+                                                              ],
+                                                            ],
+                                                          )
+                                                      ),
+                                                    );
+                                                  });
+                                          },
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 10),
+                                            child: Text('View luggage info'),
+                                          )
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -514,17 +567,25 @@ class ValidationView extends GetView<ValidationController> {
                           style: Get.textTheme.bodyText1,
                           textAlign: TextAlign.start,
                         ),
-                        TextFormField(
+                        Obx(() => TextFormField(
                           initialValue: "$bookingCode-$travelId",
                           //controller: codeController,
-                          onTap: ()=>{
-                            //controller.validationType.value = 2
-                          },
+                          decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                  onPressed: ()=> {
+
+                                    controller.copyPressed.value = true,
+                                    Clipboard.setData(ClipboardData(text: "$bookingCode-$travelId"))
+
+                                  },
+                                  icon: Icon(Icons.file_copy, color:controller.copyPressed.value ? validateColor : null)
+                              )
+                          ),
                           style: Get.textTheme.bodyText2,
                           readOnly: true,
                           obscureText: false,
                           textAlign: TextAlign.start,
-                        ),
+                        )),
                         //IconButton(onPressed: ()=>{}, icon: Icon(Icons.file_copy))
                       ],
                     )
