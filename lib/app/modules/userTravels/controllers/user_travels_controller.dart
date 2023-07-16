@@ -27,7 +27,6 @@ class UserTravelsController extends GetxController {
   var listForProfile = [].obs;
   var listInvoice = [];
   var isConform = false.obs;
-  var buttonPressed = false.obs;
   final selectedState = <String>[].obs;
 
   ScrollController scrollController = ScrollController();

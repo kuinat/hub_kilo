@@ -26,6 +26,7 @@ class BookingsView extends GetView<BookingsController> {
     return Scaffold(
         backgroundColor: Get.theme.colorScheme.secondary,
         resizeToAvoidBottomInset: true,
+
         appBar: AppBar(
           title: Text(
             "Shipping".tr,
@@ -198,7 +199,20 @@ class BookingsView extends GetView<BookingsController> {
                       controller.items.sort((a, b) => b["create_date"].compareTo(a["create_date"]));
                     });
                     return CardWidget(
+                      canPay: controller.items[index]['state'] == "accepted",
+                      payNow: ()=> controller.initPayment(controller.items[index]['id']),
+                      viewInvoice: () {
+                        List list = [];
+                        Get.toNamed(Routes.INVOICE);
+                        for(var i in controller.items[index]['move_id']){
+                          if(!list.contains(i['id'])){
+                            list.add(i['id']);
+                          }
+                        }
+                        controller.getShippingInvoice(list);
+                      },
                       owner: true,
+                      viewClicked: false,
                       shippingDate: controller.items[index]['create_date'],
                       code: controller.items[index]['name'],
                       travelType: controller.items[index]['booking_type'],
@@ -496,7 +510,7 @@ class BookingsView extends GetView<BookingsController> {
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text('View luggage info'),
+                            child: Text('View luggage'),
                           )
                       ),
                       negotiation:  GestureDetector(
@@ -529,10 +543,14 @@ class BookingsView extends GetView<BookingsController> {
                               TextStyle(fontSize: 18, decoration: TextDecoration.underline)))),
                       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
 
-                      recName: controller.items[index]['receiver_partner_id'] != false ? controller.items[index]['receiver_partner_id'][0]['name'].toString() : "___",
-                      recAddress: controller.items[index]['receiver_address'].toString(),
-                      recEmail: controller.items[index]['receiver_email'].toString(),
-                      recPhone: controller.items[index]['receiver_phone'].toString(),
+                      recName: controller.items[index]['register_receiver'] == false ?
+                        controller.items[index]['receiver_partner_id'][0]['name'] : controller.items[index]['receiver_name_set'],
+                      recAddress: controller.items[index]['register_receiver'] == false ?
+                        controller.items[index]['receiver_address'] : controller.items[index]['receiver_street_set'],
+                      recEmail: controller.items[index]['register_receiver'] == false ?
+                        controller.items[index]['receiver_email'].toString() : controller.items[index]['receiver_street_set'],
+                      recPhone: controller.items[index]['register_receiver'] == false ?
+                        controller.items[index]['receiver_phone'] : controller.items[index]['receiver_phone_set'],
                       edit: () {
 
                         return Get.bottomSheet(

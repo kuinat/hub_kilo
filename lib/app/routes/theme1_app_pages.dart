@@ -48,6 +48,7 @@ import '../modules/settings/views/settings_view.dart';
 import '../modules/settings/views/theme_mode_view.dart';
 import '../modules/travel_inspect/bindings/travel_inspect_binding.dart';
 import '../modules/travel_inspect/views/travel_inspect_view.dart';
+import '../modules/userBookings/views/invoice_view.dart';
 import '../modules/validate_transaction/binding/validation_Biding.dart';
 import '../modules/validate_transaction/views/validate_transaction.dart';
 import 'app_routes.dart';
@@ -62,17 +63,16 @@ class Theme1AppPages {
     GetPage(name: Routes.SETTINGS, page: () => SettingsView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_ADDRESSES, page: () => AddressesView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_THEME_MODE, page: () => ThemeModeView(), binding: SettingsBinding()),
-    GetPage(name: Routes.ADD_TRAVEL_FORM, page: () => AddTravelsView(), binding: AddTravelBinding()),
+    GetPage(name: Routes.ADD_TRAVEL_FORM, page: () => AddTravelsView(), binding: AddTravelBinding(), transition: Transition.fadeIn),
     GetPage(name: Routes.IDENTITY_FILES, page: () => ImportIdentityFilesView(), binding: ImportIdentityFilesBinding()),
     GetPage(name: Routes.SETTINGS_LANGUAGE, page: () => LanguageView(), binding: SettingsBinding()),
     GetPage(name: Routes.SETTINGS_ADDRESS_PICKER, page: () => AddressPickerView()),
     GetPage(name: Routes.AVAILABLE_TRAVELS, page: ()=> AvailableTravelsView(), binding: AvailableTravelBinding()),
     GetPage(name: Routes.TRAVEL_INSPECT, page: () => TravelInspectView(), binding: TravelInspectBinding()),
-    GetPage(name: Routes.PROFILE, page: () => ProfileView(), binding: ProfileBinding(),
-        //middlewares: [AuthMiddleware()]
-    ),
-    GetPage(name: Routes.CATEGORY, page: () => CategoryView(), binding: CategoryBinding()),
-    GetPage(name: Routes.CATEGORIES, page: () => CategoriesView(), binding: CategoryBinding()),
+    GetPage(name: Routes.INVOICE, page: () => InvoiceView(), transition: Transition.fadeIn),
+    GetPage(name: Routes.PROFILE, page: () => ProfileView(), binding: ProfileBinding(), transition: Transition.fadeIn),
+    GetPage(name: Routes.CATEGORY, page: () => CategoryView(), binding: CategoryBinding(), transition: Transition.fadeIn),
+    GetPage(name: Routes.CATEGORIES, page: () => CategoriesView(), binding: CategoryBinding(), transition: Transition.fadeIn),
     GetPage(name: Routes.VALIDATE_TRANSACTION, page: () => ValidationView(), binding: ValidationBinding()),
     GetPage(name: Routes.LOGIN, page: () => LoginView(), binding: AuthBinding(), transition: Transition.zoom),
     GetPage(name: Routes.REGISTER, page: () => RegisterView(), binding: AuthBinding(), transition: Transition.zoom),

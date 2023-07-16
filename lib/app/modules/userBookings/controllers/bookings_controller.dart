@@ -51,6 +51,7 @@ class BookingsController extends GetxController {
   final heroTag = "".obs;
   Rx<DocumentSnapshot> lastDocument = new Rx<DocumentSnapshot>(null);
   final isLoading = true.obs;
+  final invoiceLoading = true.obs;
   final isDone = false.obs;
   var imageFiles = [].obs;
   var items = [].obs;
@@ -65,6 +66,7 @@ class BookingsController extends GetxController {
   var userExist = false.obs;
   var typing = false.obs;
   var viewUsers = [].obs;
+  var invoiceList = [].obs;
   var selectedUser = false.obs;
   var selectedUserIndex = 0.obs;
   final loadProfileImage = false.obs;
@@ -164,11 +166,33 @@ class BookingsController extends GetxController {
     }
   }
 
-  createShippingLuggage(var item)async{
+  getShippingInvoice(var ids)async{
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/account.move?ids=$ids'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      invoiceLoading.value = false;
+      invoiceList.value = json.decode(data);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print( json.decode(data)['message']);
+      invoiceLoading.value = false;
+    }
+  }
+
+  createShippingLuggage(var item)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
     };
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.luggage?values={'
         '"average_height": ${item["average_height"]},'
@@ -222,7 +246,6 @@ class BookingsController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m0sthk.luggage_model'));
 
@@ -376,20 +399,44 @@ class BookingsController extends GetxController {
 
   }
 
-  cancelShipping(int shipping_id)async{
+  initPayment(int shipping_id)async{
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
+      'Authorization': Domain.authorization
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"state": "rejected",}&ids=$shipping_id'
-    ));
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/call/m1st_hk_roadshipping.shipping/set_to_paid/?ids=$shipping_id'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
+    if (response.statusCode == 200) {
+
+      final data = await response.stream.bytesToString();
+      print(data);
+      await getUser(Get.find<MyAuthService>().myUser.value.id);
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Payment successful on thsi shipping"));
+      list = await getMyShipping();
+      items.value = list;
+
+    }
+    else {
+      final data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      throw new Exception(response.reasonPhrase);
+    }
+  }
+
+  cancelShipping(int shipping_id)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/call/m1st_hk_roadshipping.shipping/set_to_rejected/?ids=$shipping_id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
 

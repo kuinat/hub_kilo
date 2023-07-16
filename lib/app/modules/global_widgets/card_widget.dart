@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
@@ -21,6 +22,11 @@ class CardWidget extends StatelessWidget {
     this.reject,
     this.packetImageUrl,
     this.negotiation,
+    this.edit,
+    this.confirm,
+    this.viewClicked,
+    this.viewInvoice,
+    this.payNow,
     @required this.owner,
     @required this.luggageView,
     @required this.shippingDate,
@@ -30,8 +36,7 @@ class CardWidget extends StatelessWidget {
     @required this.recEmail,
     @required this.recAddress,
     @required this.recPhone,
-    this.edit,
-    this.confirm,
+    @required this.canPay,
     @required this.button,
     @required this.price,
     @required this.travelType,
@@ -50,6 +55,8 @@ class CardWidget extends StatelessWidget {
   final String shippingDate;
   final bool transferable;
   final bool editable;
+  final bool canPay;
+  final bool viewClicked;
   final String recEmail;
   final String recAddress;
   final String recPhone;
@@ -61,9 +68,11 @@ class CardWidget extends StatelessWidget {
   final String packetImageUrl;
   final Function edit;
   final Function confirm;
+  final Function payNow;
   final Function accept;
   final Function reject;
   final Function transfer;
+  final Function viewInvoice;
 
 
   @override
@@ -116,7 +125,7 @@ class CardWidget extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: 30,
-                          child: Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
+                          child: Icon(FontAwesomeIcons.bus, size: 30),
                         ),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 12),
@@ -131,13 +140,13 @@ class CardWidget extends StatelessWidget {
                           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                           alignment: Alignment.center,
                           child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : bookingState == 'rejected' ? specialColor :
-                          bookingState == 'received' ? doneStatus : inactive, fontSize: 12))),
+                          bookingState == 'received' ? doneStatus : bookingState == "paid" ? validateColor : inactive, fontSize: 12))),
                           decoration: BoxDecoration(
                               color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
-                              bookingState == 'received' ? doneStatus.withOpacity(0.3) : inactive.withOpacity(0.3),
+                              bookingState == 'received' ? doneStatus.withOpacity(0.3) : bookingState == "paid" ? validateColor.withOpacity(0.3) : inactive.withOpacity(0.3),
                               border: Border.all(
                                 color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
-                                bookingState == 'received' ? doneStatus.withOpacity(0.2) : inactive.withOpacity(0.2),
+                                bookingState == 'received' ? doneStatus.withOpacity(0.2) : bookingState == "paid" ? validateColor.withOpacity(0.3)  : inactive.withOpacity(0.2),
                               ),
                               borderRadius: BorderRadius.all(Radius.circular(20))),
                         )
@@ -147,13 +156,22 @@ class CardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if(bookingState == 'pending')
-                      negotiation,
+                      bookingState == 'pending' ?
+                      negotiation : owner ? button : SizedBox(),
                       SizedBox(width: 10),
                       SizedBox(width: 150,
-                          child: luggageView),
+                          child: Column(
+                            children: [
+                              luggageView,
+                              if(viewClicked)
+                                SizedBox(height: 10,
+                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
+                            ],
+                          )
+                      ),
                     ],
                   ),
+                  if(owner && bookingState == 'pending')
                   Align(
                     alignment: Alignment.bottomRight,
                     child: button,
@@ -186,52 +204,49 @@ class CardWidget extends StatelessWidget {
                     ],
                     initiallyExpanded: false,
                   ),
+                  if(owner && bookingState == 'paid')
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: pendingStatus,
+                        ),
+                        onPressed: viewInvoice,
+                        icon: Icon(Icons.file_open_rounded),
+                        label: Text('View Invoice')
+                    ),
                   if(owner)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+
+                      if(canPay)
+                        GestureDetector(
+                            onTap: payNow,
+                            child: Card(
+                                elevation: 10,
+                                color: validateColor,
+                                margin: EdgeInsets.symmetric( vertical: 15),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),
+                                  child: Text("Proceed payment ".tr, style: TextStyle(color: Colors.white)))
+                            )
+                        ),
+                      if(editable)
                       GestureDetector(
-                          onTap: editable ? edit :
-                              (){
-                            showDialog(
-                                context: context,
-                                builder: (_)=>
-                                    PopUpWidget(
-                                      title: "You cannot edit a shipping accepted, confirmed or cancelled",
-                                      cancel: 'Cancel',
-                                      confirm: 'Ok',
-                                      onTap: ()=>{
-                                        Navigator.of(Get.context).pop(),
-                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                    )
-                            );
-                          },
+                          onTap: edit,
                           child: Card(
                               elevation: 10,
-                              color: editable?Colors.blue:inactive,
+                              color: Colors.blue,
                               margin: EdgeInsets.symmetric( vertical: 15),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),
                                 child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
                           )
                       ),
+                      if(transferable)
                       SizedBox(width: 10),
+                      if(transferable)
                       GestureDetector(
-                          onTap: transferable ? transfer:
-                              (){
-                            showDialog(
-                                context: context,
-                                builder: (_)=>
-                                    PopUpWidget(
-                                      title: "You can transfer your shipping only if it was rejected or is pending validation",
-                                      cancel: 'Cancel',
-                                      confirm: 'Ok',
-                                      onTap: ()=>{
-                                        Navigator.of(Get.context).pop(),
-                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                    )
-                            );
-                          },
+                          onTap: transfer,
                           child: Card(
                               elevation: 10,
                               color: transferable? validateColor:inactive,
@@ -241,21 +256,11 @@ class CardWidget extends StatelessWidget {
                                   child: Text("Transfer".tr, style: TextStyle(color: Colors.white)))
                           )
                       ),
+                      if(editable)
                       SizedBox(width: 10),
+                      if(editable)
                       GestureDetector(
-                          onTap: editable ? confirm:(){
-                          showDialog(
-                              context: context,
-                              builder: (_)=>
-                                  PopUpWidget(
-                                    title: "You cannot cancel a Shipping accepted or confirmed or that has already been cancelled",
-                                    cancel: 'Cancel',
-                                    confirm: 'Ok',
-                                    onTap: ()=>{
-                                      Navigator.of(Get.context).pop(),
-                                    }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                  )
-                          );},
+                          onTap: confirm,
 
                           child: Card(
                               elevation: 10,

@@ -35,6 +35,7 @@ class MessagesController extends GetxController {
   final enableSend = false.obs;
   var list = [];
   var messages = [].obs;
+  var messagesSent = [].obs;
   final card = {}.obs;
   final travel = {}.obs;
   final departureTown = "".obs;
@@ -56,7 +57,10 @@ class MessagesController extends GetxController {
 
   @override
   void onInit() async {
-    priceController.text = "0.0";
+
+    timer = Timer.periodic(Duration(seconds: 10),
+            (Timer timer) => refreshMessages());
+
     Get.lazyPut<MyAuthService>(
           () => MyAuthService(),
     );
@@ -72,8 +76,8 @@ class MessagesController extends GetxController {
       receiver_id.value = card['partner_id'][0]['id'];
       receiver_Name.value = card['partner_id'][0]['name'];
     }else{
-      receiver_id.value = travel['partner_id'][0]['id'];
-      receiver_Name.value = travel['partner_id'][0]['name'];
+      receiver_id.value = travel['partner_id'][0];
+      receiver_Name.value = travel['partner_id'][1];
     }
     String departureCity = card['travel_departure_city_name'].split('(').first;
     String a = card['travel_departure_city_name'].split('(').last;
@@ -85,20 +89,21 @@ class MessagesController extends GetxController {
     String country2 = b.split(')').first;
     arrivalTown.value = arrivalCity;
     arrivalCountry.value = country2;
+
     var result = await getShipping(card['id']);
-    messages.value = result;
+    for(var i = 0; i<result.length; i++){
+      if(!messages.contains(result[i])){
+        messages.add(result[i]);
+      }
+    }
 
     print("messages are: $messages");
     super.onInit();
   }
 
   @override
-  dispose() {
-    if(timer != null){
-      timer.cancel();
-    }
-    //chatTextController.dispose();
-    //timer.cancel();
+  void dispose() {
+    timer.cancel();
     super.dispose();
   }
 
@@ -127,21 +132,31 @@ class MessagesController extends GetxController {
     await _chatRepository.deleteMessage(_message);
   }
 
-  Future refreshMessages() async {
+  void refreshMessages() async {
     var result = await getShipping(card['id']);
-    messages.value = result;
+    if(result.length > messages.length){
+      for(var i = 0; i<result.length; i++){
+        if(!messages.contains(result[i])){
+          messages.add(result[i]);
+        }
+      }
+    }
     /*lastDocument = new Rx<DocumentSnapshot>(null);
     await listenForMessages();*/
   }
 
   sendMessage(int id)async{
-
+    print(priceController.text);
+    if(priceController.text.isEmpty){
+      priceController.text = '0.0';
+    }
     print("fields are: ${chatTextController.text}, $id, ${travel['partner_id'][0]}, ${card['id']}, ${double.parse(priceController.text)}");
 
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
     };
+
     var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelmessage?values={'
     '"name": "${chatTextController.text}",'
     '"sender_partner_id": $id,'
@@ -151,27 +166,14 @@ class MessagesController extends GetxController {
     '}'
     ));
 
-    /*var request = http.Request('POST', Uri.parse('${Domain.serverPort}/create/m1st_hk_roadshipping.travelmessage?values={'
-        '"name": "${chatTextController.text}",'
-        '"sender_partner_id": $id,'
-        '"receiver_partner_id": ${receiver_id.value},'
-        '"shipping_id": ${card['id']},'
-        '"price": ${double.parse(priceController.text)}'
-    ));*/
-
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
-      var result = await getShipping(card['id']);
-      messages.value = result;
       print(data);
-      timer = Timer.periodic(Duration(seconds: 15), (Timer t) async{
-        refreshMessages();
-        print("Reloaded");
-      } );
+      messagesSent.clear();
     }
     else {
       var data = await response.stream.bytesToString();
@@ -207,7 +209,6 @@ class MessagesController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelmessage?ids=$ids'));
 
@@ -226,14 +227,14 @@ class MessagesController extends GetxController {
     }
   }
 
-  acceptPrice()async{
+  shipperValidate(int id)async{
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
-        '"state": "accepted",'
-        '}&ids=${card['id']}'
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.travelmessage?values={'
+        '"shipper_validate": true,'
+        '}&ids=$id'
     ));
 
     request.headers.addAll(headers);
@@ -242,7 +243,6 @@ class MessagesController extends GetxController {
 
     if (response.statusCode == 200) {
       Get.showSnackbar(Ui.SuccessSnackBar(message: "Shipping price set".tr));
-      Navigator.pop(Get.context);
     }
     else {
       var data = await response.stream.bytesToString();
@@ -250,7 +250,7 @@ class MessagesController extends GetxController {
     }
   }
 
-  acceptAndPriceShipping(var price)async{
+  confirmTransporting(var price)async{
     print(card['id']);
 
     var headers = {
@@ -359,7 +359,7 @@ class MessagesController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       List list = json.decode(data)[0]['travelmessage_ids'];
-      print('shipping detail: ${json.decode(data)[0]}');
+      //print('shipping detail: ${json.decode(data)[0]}');
       var result = await getMessages(list);
       return result;
     }

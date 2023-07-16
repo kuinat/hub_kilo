@@ -15,6 +15,8 @@ class Routes {
   static const SETTINGS_ADDRESSES = '/settings/addresses';
   static const SETTINGS_ADDRESS_PICKER = '/settings/address_picker';
 
+  static const INVOICE = '/invoice';
+
   static const PROFILE = '/profile';
   static const IDENTITY_FILES = '/import_identity_files_form';
   static const ADD_TRAVEL_FORM = '/add_travel_form';

@@ -158,7 +158,7 @@ class AddTravelController extends GetxController{
         )
       ),
       borderRadius: 16,
-      selectableDayPredicate: disableDate
+      selectableDayPredicate: disableDepartureDate
     );
     String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
     if (formattedDate.isNotEmpty) {
@@ -177,7 +177,7 @@ class AddTravelController extends GetxController{
     DateTime pickedDate = await showRoundedDatePicker(
       context: Get.context,
       imageHeader: AssetImage("assets/img/pexels-julius-silver-753331.jpg"),
-      initialDate: DateTime.now().add(Duration(days: 2)),
+      initialDate: DateTime.parse(departureDate.value),
       firstDate: DateTime(DateTime.now().year - 1),
       lastDate: DateTime(DateTime.now().year + 10),
         styleDatePicker: MaterialRoundedDatePickerStyle(
@@ -187,7 +187,7 @@ class AddTravelController extends GetxController{
             )
         ),
       borderRadius: 16,
-      selectableDayPredicate: disableDate
+      selectableDayPredicate: disableArrivalDate
     );
     String formattedDate = DateFormat("yyyy-MM-dd").format(pickedDate);
     if (formattedDate.isNotEmpty) {
@@ -201,8 +201,15 @@ class AddTravelController extends GetxController{
     }
   }
 
-  bool disableDate(DateTime day) {
+  bool disableDepartureDate(DateTime day) {
     if ((day.isAfter(DateTime.now().add(Duration(days: 1))))) {
+      return true;
+    }
+    return false;
+  }
+
+  bool disableArrivalDate(DateTime day) {
+    if ((day.isAfter(DateTime.parse(departureDate.value).subtract(Duration(days: 1))))) {
       return true;
     }
     return false;

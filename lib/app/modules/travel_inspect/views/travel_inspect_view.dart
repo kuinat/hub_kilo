@@ -125,29 +125,38 @@ class TravelInspectView extends GetView<TravelInspectController> {
                         Obx(() => EServiceTilWidget(
                             title: Text("Description".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: interfaceColor))),
                             title2: Get.find<MyAuthService>().myUser.value.id  == controller.travelCard['partner_id'][0] ?
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                              ),
-                              onPressed: (()async{
-                                List data = [];
-                                // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                //   content: Text("Loading data..."),
-                                //   duration: Duration(seconds: 3),
-                                // ));
-                                data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
-                                print(controller.travelCard['shipping_ids']);
-                                if(data.isNotEmpty) {
-                                  Get.bottomSheet(
-                                    buildBookingByTravel(context, data),
-                                    isScrollControlled: true,
-                                  );
-                                }else{
-                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No shipping has been made on this travel yet".tr));
-                                }
 
-                              }),
-                              child: Text("View Shipping".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
+                            Column(
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                  ),
+                                  onPressed: (()async{
+                                    controller.viewShippingClicked.value = true;
+                                    List data = [];
+                                    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    //   content: Text("Loading data..."),
+                                    //   duration: Duration(seconds: 3),
+                                    // ));
+                                    data = await controller.getThisTravelShipping(controller.travelCard['shipping_ids']);
+                                    print(controller.travelCard['shipping_ids']);
+                                    if(data.isNotEmpty) {
+                                      Get.bottomSheet(
+                                        buildBookingByTravel(context, data),
+                                        isScrollControlled: true,
+                                      );
+                                    }else{
+                                      Get.showSnackbar(Ui.notificationSnackBar(message: "No shipping has been made on this travel yet".tr));
+                                    }
+
+                                  }),
+                                  child: Text("View Shipping".tr, style: Get.textTheme.subtitle2.merge(TextStyle(color: Colors.white))),
+                                ),
+                                if(controller.viewShippingClicked.value)
+                                SizedBox(height: 10,
+                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
+                              ],
                             ) : SizedBox(),
                             content: Column(
                               children: [
@@ -270,8 +279,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                 child: ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (context, index){
-                    return buildBookingsView(context, data[index]
-                    );
+                    return buildShippingCard(context, data[index], index);
                   },
                 )
             )
@@ -280,8 +288,13 @@ class TravelInspectView extends GetView<TravelInspectController> {
     );
   }
 
-  Widget buildBookingsView(BuildContext context, var booking){
-    return CardWidget(
+  Widget buildShippingCard(BuildContext context, var booking, int index){
+    return Obx(() => CardWidget(
+      canPay: booking['state'] == "accepted",
+      payNow: ()=>{
+        print('payment made')
+      },
+      viewClicked: controller.viewClicked.value && index == controller.indexClicked.value ? true : false,
       owner: false,
       shippingDate: booking['create_date'],
       code: booking['name'],
@@ -291,7 +304,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       //booking['state'].toLowerCase()=='rejected' || booking['state'].toLowerCase()=='pending' ? true:
       bookingState: booking['state'],
       price: booking['shipping_price'],
-      text: booking['travelbooking_id'][0]['name'],
+      text: booking['partner_id'][0]['name'],
       negotiation: GestureDetector(
           onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': booking}) ,
           child: Card(
@@ -313,16 +326,19 @@ class TravelInspectView extends GetView<TravelInspectController> {
       ),
       luggageView: ElevatedButton(
           onPressed: ()async{
+            controller.viewClicked.value = true;
+            await controller.getLuggageInfo(booking['luggage_ids']);
+
             showDialog(
                 context: context,
                 builder: (_){
-                  controller.getLuggageInfo(booking['luggage_ids']);
+
                   return Dialog(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(15.0),
                         )),
-                    child: SizedBox(
+                    child: Obx(() => SizedBox(
                         height: MediaQuery.of(context).size.height/2,
                         child: Column(
                           children: [
@@ -388,7 +404,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             ],
                           ],
                         )
-                    ),
+                    )),
                   );
                 });
           },
@@ -400,68 +416,72 @@ class TravelInspectView extends GetView<TravelInspectController> {
       ),
       imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
       button: booking["state"].toLowerCase() == 'pending' ?
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-                GestureDetector(
-                    onTap: (){
-                      showDialog(
-                          context: context,
-                          builder: (_)=>
-                              PopUpWidget(
-                                title: "Are you sure to accept this shipping? your choice can't be changed later",
-                                cancel: 'Cancel',
-                                confirm: 'Ok',
-                                onTap: () async =>{
-                                  controller.acceptShipping(booking['id']),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          GestureDetector(
+              onTap: (){
+                showDialog(
+                    context: context,
+                    builder: (_)=>
+                        PopUpWidget(
+                          title: "Are you sure to accept this shipping? your choice can't be changed later",
+                          cancel: 'Cancel',
+                          confirm: 'Ok',
+                          onTap: () async =>{
+                            controller.acceptShipping(booking['id']),
 
-                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                              )
-                      );
+                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                        )
+                );
 
-                    },
-                    child: Card(
-                        elevation: 10,
-                        color: validateColor,
-                        margin: EdgeInsets.symmetric( vertical: 15),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
-                    )
-                ),
-              SizedBox(width: 10),
-                GestureDetector(
-                    onTap: (){
-                      showDialog(
-                          context: context,
-                          builder: (_)=>
-                              PopUpWidget(
-                                title: "Are you sure to reject this shipping? your choice can't be changed later",
-                                cancel: 'Cancel',
-                                confirm: 'Ok',
-                                onTap: () async =>{
-                                  await controller.rejectShipping(booking['id']),
+              },
+              child: Card(
+                  elevation: 10,
+                  color: validateColor,
+                  margin: EdgeInsets.symmetric( vertical: 15),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    child: Text(" Accept ".tr, style: TextStyle(color: Colors.white),),)
+              )
+          ),
+          SizedBox(width: 10),
+          GestureDetector(
+              onTap: (){
+                showDialog(
+                    context: context,
+                    builder: (_)=>
+                        PopUpWidget(
+                          title: "Are you sure to reject this shipping? your choice can't be changed later",
+                          cancel: 'Cancel',
+                          confirm: 'Ok',
+                          onTap: () async =>{
+                            await controller.rejectShipping(booking['id']),
 
-                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                              )
-                      );
-                    },
-                    child: Card(
-                        elevation: 10,
-                        color: specialColor,
-                        margin: EdgeInsets.symmetric( vertical: 15),
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
-                    )
-                ),
-            ],
-          ) : SizedBox(),
-      recName: booking['receiver_partner_id'][0]['name'],
-      recAddress: booking['receiver_address'],
-      recEmail: booking['receiver_email'].toString(),
-      recPhone: booking['receiver_phone'],
-    );
+                          }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
+                        )
+                );
+              },
+              child: Card(
+                  elevation: 10,
+                  color: specialColor,
+                  margin: EdgeInsets.symmetric( vertical: 15),
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      child: Text("Refuse".tr, style: TextStyle(color: Colors.white)))
+              )
+          ),
+        ],
+      ) : SizedBox(),
+      recName: booking['register_receiver'] == false ?
+      booking['receiver_partner_id'][0]['name'] : booking['receiver_name_set'],
+      recAddress: booking['register_receiver'] == false ?
+      booking['receiver_address'] : booking['receiver_street_set'],
+      recEmail: booking['register_receiver'] == false ?
+      booking['receiver_email'].toString() : booking['receiver_email_set'],
+      recPhone: booking['register_receiver'] == false ?
+      booking['receiver_phone'] : booking['receiver_phone_set'],
+    ));
   }
 
   Container buildCarouselBullets(BuildContext context) {
@@ -702,7 +722,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                   onPressed: ()=>{
                     controller.validateTravel(controller.travelCard['id'])
                   } ,
-                  child: Text("Validate"))
+                  child: Text("Close Negotiations"))
           ),
         ) : Padding(
           padding: EdgeInsets.only(left: 40,right: 40),
@@ -953,12 +973,12 @@ class TravelInspectView extends GetView<TravelInspectController> {
                             context: Get.context,
                             builder: (_){
                               return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(20))
+                                ),
                                 content: Container(
-                                    height: 170,
+                                    height: 140,
                                     padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(10))
-                                    ),
                                     child: Column(
                                       children: [
                                         ListTile(
@@ -980,6 +1000,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                       ],
                                     )
                                 ),
+                                actions: [
+                                  TextButton(
+                                      onPressed: ()=> Navigator.pop(context),
+                                      child: Text('Cancel', style: Get.textTheme.headline4.merge(TextStyle(color: inactive)),))
+                                ],
                               );
                             });
                       },
@@ -1042,11 +1067,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                     context: Get.context,
                                     builder: (_){
                                       return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(20))
+                                        ),
                                         content: Container(
-                                            height: 170,
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(10))
-                                            ),
+                                            height: 140,
                                             padding: EdgeInsets.all(10),
                                             child: Column(
                                               children: [
@@ -1069,6 +1094,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                               ],
                                             )
                                         ),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: ()=> Navigator.pop(context),
+                                              child: Text('Cancel', style: Get.textTheme.headline4.merge(TextStyle(color: inactive)),))
+                                        ],
                                       );
                                     });
                               },

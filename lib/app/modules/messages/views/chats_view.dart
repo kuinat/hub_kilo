@@ -36,10 +36,7 @@ class ChatsView extends GetView<MessagesController> {
               shrinkWrap: false,
               primary: true,
               itemBuilder: (context, index) {
-                List receivedMessages = [];
-                if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['receiver_partner_id'][0]){
-                  receivedMessages.add(controller.messages[index]);
-                }
+
                 Future.delayed(Duration.zero, (){
                   controller.messages.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                 });
@@ -49,9 +46,41 @@ class ChatsView extends GetView<MessagesController> {
                   children: [
                     if(Get.find<MyAuthService>().myUser.value.id == controller.messages[index]['sender_partner_id'][0])...[
                       getSentMessageTextLayout(context, controller.messages[index]),
+                      if(index == controller.messages.length - 1)...[
+                        for(var a in controller.messagesSent)...[
+                          getSentMessage(context, a)
+                        ]
+                      ]
                     ]else...[
-                      getReceivedMessageTextLayout(context, controller.messages[index], index, receivedMessages)
-                    ]
+                      getReceivedMessageTextLayout(context, controller.messages[index], index)
+                    ],
+                    if(controller.messages.toString().contains('"shipper_validate": true') && Get.find<MyAuthService>().myUser.value.id == controller.travel['partner_id'][0])
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: validateColor,
+                              ),
+                              onPressed: (){
+
+                                controller.confirmTransporting(controller.messages[index]['price']);
+
+                              },
+                              child: Text('Confirm price', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: specialColor,
+                              ),
+                              onPressed: (){
+
+                              },
+                              child: Text('Stop negotiation', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
+                          )
+                        ],
+                      )
                   ],
                 );
               }
@@ -190,7 +219,7 @@ class ChatsView extends GetView<MessagesController> {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width /1.6,
-                    child: TextField(
+                    child: TextFormField(
                       controller: controller.chatTextController,
                       style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
                       //keyboardType: TextInputType.number,
@@ -214,10 +243,10 @@ class ChatsView extends GetView<MessagesController> {
                   ),
                   Obx(() => SizedBox(
                       width: 140,
-                      child: TextField(
+                      child: TextFormField(
                         controller: controller.priceController,
                         style: Get.textTheme.bodyText1.merge(TextStyle(fontSize: 18)),
-                        keyboardType: TextInputType.number,
+                        //keyboardType: TextInputType.number,
                         onChanged: (value)=> controller.checkValue(value),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.all(20),
@@ -226,6 +255,9 @@ class ChatsView extends GetView<MessagesController> {
                           suffixIcon: IconButton(
                             padding: EdgeInsetsDirectional.only(end: 20, start: 10),
                             onPressed: () {
+                              List message = [];
+                              message.add("${controller.chatTextController.text}*${controller.priceController.text}");
+                              controller.messagesSent.value = message;
                               if(controller.enableSend.value){
                                 //controller.messages.add("${controller.chatTextController.text}, ${controller.priceController.text}");
                                 controller.sendMessage(Get.find<MyAuthService>().myUser.value.id);
@@ -277,7 +309,7 @@ class ChatsView extends GetView<MessagesController> {
 
                 SizedBox(width: 15),
                 new Flexible(
-                  child: new Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       new Container(
@@ -316,8 +348,7 @@ class ChatsView extends GetView<MessagesController> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
+            child: Text( DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.parse(message['__last_update'])),
               overflow: TextOverflow.fade,
               softWrap: false, style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
             ),
@@ -327,7 +358,76 @@ class ChatsView extends GetView<MessagesController> {
     );
   }
 
-  Widget getReceivedMessageTextLayout(context, var message, int index, List receivedMessages) {
+  Widget getSentMessage(context, var message) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: Get.theme.focusColor.withOpacity(0.2),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+            margin: EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                SizedBox(width: 15),
+                new Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      new Container(
+                        margin: const EdgeInsets.only(top: 5.0),
+                        child: new Text(message.split("*").first, style: Get.textTheme.bodyText1.merge(TextStyle( fontSize: 18))),
+                      ),
+                      Text( "${message.split("*").last} EUR",
+                          style: Get.textTheme.bodyText2.merge(TextStyle(fontWeight: FontWeight.w600, color: interfaceColor, fontSize: 18))),
+                    ],
+                  ),
+                ),
+                new Container(
+                  margin: const EdgeInsets.only(left: 8.0),
+                  width: 42,
+                  height: 42,
+                  child: ClipOval(
+                      child: FadeInImage(
+                        width: 65,
+                        height: 65,
+                        image: NetworkImage('${Domain.serverPort}/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                        placeholder: AssetImage(
+                            "assets/img/loading.gif"),
+                        imageErrorBuilder:
+                            (context, error, stackTrace) {
+                          return Image.asset(
+                              'assets/img/téléchargement (3).png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.fitWidth);
+                        },
+                      )
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text( DateFormat('d, MMMM y | HH:mm', Get.locale.toString()).format(DateTime.now()),
+                overflow: TextOverflow.fade,
+                softWrap: false, style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget getReceivedMessageTextLayout(context, var message, int index) {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Column(
@@ -396,19 +496,14 @@ class ChatsView extends GetView<MessagesController> {
                 style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
             ),
           ),
-          if(index == receivedMessages.length -1)
+          if(index == controller.messages.length -1 && Get.find<MyAuthService>().myUser.value.id == controller.card['partner_id'][0]['id'])
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: validateColor,
                 ),
                 onPressed: (){
-                  controller.acceptPrice();
-                  controller.acceptAndPriceShipping(message['price']);
-                  /*controller.card['travel']['travel_type'] == 'air'?
-            controller.acceptAndPriceAirBooking(message['message']) :
-            controller.card['travel']['travel_type'] == 'road'?
-            controller.acceptAndPriceRoadBooking(message['message']):
-            (){};*/
+                  controller.shipperValidate(message['id']);
+
                 },
                 child: Text('Accept', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
             )

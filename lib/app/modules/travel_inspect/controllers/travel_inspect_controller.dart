@@ -65,6 +65,9 @@ class TravelInspectController extends GetxController {
   final loadProfileImage = false.obs;
   var existingPartner;
   var selectedUser = false.obs;
+  var viewClicked = false.obs;
+  var viewShippingClicked = false.obs;
+  var indexClicked = 0.obs;
   var selectedUserIndex = 0.obs;
 
   var visible = true.obs;
@@ -172,7 +175,7 @@ class TravelInspectController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       for(var a in json.decode(data)){
-        if(a['payment_acquirer_state'].toString() == "enabled"){
+        if(a['payment_acquirer_state'].toString() == "enabled" && !listPaymentMethod.contains(a)){
           listPaymentMethod.add(a);
         }
       }
@@ -198,6 +201,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
+      viewShippingClicked.value = false;
       print('data is'+data.toString());
       var shippingList =[];
       if(json.decode(data)['success']){
@@ -765,7 +769,6 @@ class TravelInspectController extends GetxController {
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.luggage?ids=$ids'));
 
@@ -775,6 +778,7 @@ class TravelInspectController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      viewClicked.value = false;
       shippingLuggage.value = json.decode(data);
     }
     else {

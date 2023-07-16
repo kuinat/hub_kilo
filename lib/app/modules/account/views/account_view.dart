@@ -660,9 +660,6 @@ class AccountView extends GetView<AccountController> {
                     )
                 ).paddingOnly( top: 20, bottom: 14,
                 ),
-
-
-
               ],
             );
           }),
@@ -743,7 +740,6 @@ class AccountView extends GetView<AccountController> {
       ),
     );
   }
-
 
   Widget buildSettings(BuildContext context){
     return Column(
@@ -972,7 +968,6 @@ class AccountView extends GetView<AccountController> {
       ),
     );
   }
-
 
   Widget buildAttachments(BuildContext context){
     return Column(

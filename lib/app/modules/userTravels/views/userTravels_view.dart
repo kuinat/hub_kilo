@@ -19,114 +19,9 @@ class MyTravelsView extends GetView<UserTravelsController> {
     return Scaffold(
         backgroundColor: Get.theme.colorScheme.secondary,
         resizeToAvoidBottomInset: true,
-        floatingActionButton: Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if(controller.buttonPressed.value)...[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-
-                  DelayedAnimation(
-                      delay: 30,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                              onPressed: ()=>{
-
-                                for(var i=0; i < controller.items.length; i++){
-                                  if(controller.items[i]['state'].contains("negotiating")){
-                                    controller.inNegotiation.value = true
-                                  }else{
-                                    controller.inNegotiation.value = false
-                                  }
-                                },
-                                if(!controller.inNegotiation.value){
-                                  Get.toNamed(Routes.ADD_TRAVEL_FORM)
-                                }else{
-                                  Get.showSnackbar(Ui.notificationSnackBar(message: "You cannot have simultaneous in the system two travels in negotiation! please update and try again"))
-                                }
-
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white
-                              ),
-                              child: Text("New Travel", style: Get.textTheme.headline4.merge(TextStyle(color: appColor)))
-                          ),
-                          SizedBox(width: 10),
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: interfaceColor.withOpacity(0.7),
-                            child: Center(
-                              child: Icon(Icons.airplanemode_on, size: 30, color: Colors.white),
-                            ),
-                          )
-                        ],
-                      )
-                  ),
-                  SizedBox(height: 10),
-                  DelayedAnimation(
-                      delay: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                              onPressed: ()async{
-                                List data = [];
-                                //data = await controller.getInvoice();
-                                if(data.isNotEmpty) {
-                                  Get.bottomSheet(
-                                    buildInvoice(context, data),
-                                    isScrollControlled: true,
-                                  );
-                                }else{
-                                  Get.showSnackbar(Ui.notificationSnackBar(message: "No invoice has been made yet".tr));
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white
-                              ),
-                              child: Text("View Invoice", style: Get.textTheme.headline4.merge(TextStyle(color: appColor)))
-                          ),
-                          SizedBox(width: 10),
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: interfaceColor.withOpacity(0.7),
-                            child: Center(
-                              child: Icon(Icons.file_open_rounded, size: 30, color: Colors.white),
-                            ),
-                          )
-                        ],
-                      )
-                  ),
-                  SizedBox(height: 10),
-                  FloatingActionButton(
-                      heroTag: null,
-                      backgroundColor: pink,
-                      onPressed: (){
-                        controller.buttonPressed.value = !controller.buttonPressed.value;
-                      },
-                      child: Icon(Icons.close, color: Palette.background)
-                  )
-                ],
-              )
-            ]else...[
-              FloatingActionButton.extended(
-                  heroTag: null,
-                  //backgroundColor: interfaceColor,
-                  onPressed: (){
-                    controller.buttonPressed.value = !controller.buttonPressed.value;
-                  },
-                  label: Text('More'),
-                  icon: Icon(Icons.add, color: Palette.background)
-              )
-            ]
-          ],
-        )),
-        /*FloatingActionButton(
-          //backgroundColor: pink,
+        floatingActionButton: FloatingActionButton.extended(
+            heroTag: null,
+            //backgroundColor: interfaceColor,
             onPressed: ()=>{
 
               for(var i=0; i < controller.items.length; i++){
@@ -143,10 +38,10 @@ class MyTravelsView extends GetView<UserTravelsController> {
               }
 
             },
-            child: Center(
-              child: Icon(Icons.airplanemode_on_sharp, size: 25),
-            )
-        )*/
+            label: Text('Transport'),
+            icon: Icon(Icons.add, color: Palette.background)
+        ),
+
         appBar: AppBar(
           title: Text(
             "My Travels".tr,

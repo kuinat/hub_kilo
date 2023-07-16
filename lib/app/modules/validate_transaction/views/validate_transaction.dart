@@ -7,10 +7,10 @@ import 'package:get/get.dart';
 import '../../../../../common/ui.dart';
 import '../../../../../color_constants.dart';
 import '../../../../common/animation_controllers/animation.dart';
-import '../../../routes/app_routes.dart';
 import '../../account/widgets/account_link_widget.dart';
 import '../../global_widgets/block_button_widget.dart';
 import '../../global_widgets/loading_cards.dart';
+import '../../global_widgets/pop_up_widget.dart';
 import '../controller/validation_controller.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../main.dart';
@@ -125,9 +125,6 @@ class ValidationView extends GetView<ValidationController> {
                   )
               )
           ),
-          SizedBox(height: 20),
-          DelayedAnimation(delay: 150,
-              child: Text('Scan details example', style: TextStyle(color: pink))),
           SizedBox(height:60),
         ],
         if(controller.validationType.value == 0)
@@ -281,216 +278,247 @@ class ValidationView extends GetView<ValidationController> {
                             isScrollControlled: true,
                           )
                         },
-                        child: Card(
-                            elevation: 10,
-                            margin: index == controller.shipping.length - 1 ? EdgeInsets.only(bottom: 50) : null,
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
-                            ),
-                            child: Column(
-                              //alignment: AlignmentDirectional.topStart,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
-                                    color: Colors.white,
-                                  ),
+                        child: ClipRRect(
+                          child: Card(
+                              elevation: 10,
+                              margin: index == controller.shipping.length - 1 ? EdgeInsets.only(bottom: 50) : null,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
+                              child: Banner(
+                                  message: controller.shipping[index]['is_paid'] ? 'Paid' : "Pending",
+                                  location: BannerLocation.topEnd,
+                                  color: controller.shipping[index]['is_paid'] ? validateColor : inactive,
                                   child: Column(
+                                    //alignment: AlignmentDirectional.topStart,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(width: 100,
-                                            child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
-                                          ),
-                                          Container(width: 100,
-                                            child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 100,
-                                            child: RichText(
-                                                text: TextSpan(
-                                                    children: [
-                                                      TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                                      TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
-                                                    ]
-                                                ))
-                                          ),
-                                          FaIcon(FontAwesomeIcons.arrowRight),
-                                          Container(
-                                              alignment: Alignment.topCenter,
-                                              width: 100,
-                                              child: RichText(
-                                                  text: TextSpan(
-                                                      children: [
-                                                        TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
-                                                        TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
-                                                      ]
-                                                  ))
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 30,
-                                            child: Icon( FontAwesomeIcons.calendarDay, size: 18),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 12),
-                                            width: 1,
-                                            height: 24,
-                                            color: Get.theme.focusColor.withOpacity(0.3),
-                                          ),
-                                          Text("${controller.travelInfo['departure_date']} \n- ${controller.travelInfo['arrival_date']}", style: Get.textTheme.headline1.
-                                          merge(TextStyle(color: interfaceColor, fontSize: 16)),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      ElevatedButton(
-                                          onPressed: ()async{
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                              content: Text("Loading data..."),
-                                              duration: Duration(seconds: 4),
-                                            ));
-                                            List luggageIds = [];
-                                            for(var a in controller.shipping[index]['luggage_ids']){
-                                              if(!luggageIds.contains(a['id'])){
-                                                luggageIds.add(a['id']);
-                                              }
-                                            }
-                                            await controller.getLuggageInfo(luggageIds);
-                                            print(luggageIds);
-
-                                            await controller.getLuggageInfo(luggageIds);
-
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (_){
-                                                    return Dialog(
-                                                      shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.all(
-                                                            Radius.circular(15.0),
-                                                          )),
-                                                      child: SizedBox(
-                                                          height: MediaQuery.of(context).size.height/1.5,
-                                                          child: Column(
+                                      Container(
+                                        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
+                                          color: Colors.white,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(width: 100,
+                                                  child: Center(child: FaIcon(FontAwesomeIcons.planeDeparture)),
+                                                ),
+                                                Container(width: 100,
+                                                  child: Center(child: FaIcon(FontAwesomeIcons.planeArrival)),
+                                                )
+                                              ],
+                                            ),
+                                            SizedBox(height: 10),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(
+                                                    alignment: Alignment.topCenter,
+                                                    width: 100,
+                                                    child: RichText(
+                                                        text: TextSpan(
                                                             children: [
-                                                              SizedBox(height: 15),
-                                                              Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
-                                                              merge(TextStyle(color: appColor, fontSize: 17))),
-                                                              SizedBox(height: 15),
-                                                              for(var a=0; a<controller.shippingLuggage.length; a++)...[
-                                                                SizedBox(
-                                                                    width: double.infinity,
-                                                                    height: 170,
-                                                                    child:  Column(
-                                                                      children: [
-                                                                        Expanded(
-                                                                          child:ListView.builder(
-                                                                              scrollDirection: Axis.horizontal,
-                                                                              itemCount: 3,
-                                                                              itemBuilder: (context, index){
-                                                                                return Card(
-                                                                                    margin: EdgeInsets.symmetric(horizontal: 10),
-                                                                                    child: ClipRRect(
-                                                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                                        child: FadeInImage(
-                                                                                          width: 120,
-                                                                                          height: 100,
-                                                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                                                              headers: Domain.getTokenHeaders()),
-                                                                                          placeholder: AssetImage(
-                                                                                              "assets/img/loading.gif"),
-                                                                                          imageErrorBuilder:
-                                                                                              (context, error, stackTrace) {
-                                                                                            return Image.asset(
-                                                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                                                                width: 50,
-                                                                                                height: 50,
-                                                                                                fit: BoxFit.fitWidth);
-                                                                                          },
+                                                              TextSpan(text: departureCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                                              TextSpan(text: "\n$departureCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                                            ]
+                                                        ))
+                                                ),
+                                                FaIcon(FontAwesomeIcons.arrowRight),
+                                                Container(
+                                                    alignment: Alignment.topCenter,
+                                                    width: 100,
+                                                    child: RichText(
+                                                        text: TextSpan(
+                                                            children: [
+                                                              TextSpan(text: arrivalCity, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18))),
+                                                              TextSpan(text: "\n$arrivalCountry", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
+                                                            ]
+                                                        ))
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: 30,
+                                                  child: Icon( FontAwesomeIcons.calendarDay, size: 18),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 12),
+                                                  width: 1,
+                                                  height: 24,
+                                                  color: Get.theme.focusColor.withOpacity(0.3),
+                                                ),
+                                                Text("${controller.travelInfo['departure_date']} \n- ${controller.travelInfo['arrival_date']}", style: Get.textTheme.headline1.
+                                                merge(TextStyle(color: interfaceColor, fontSize: 16)),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 10),
+                                            ElevatedButton(
+                                                onPressed: ()async{
+                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                    content: Text("Loading data..."),
+                                                    duration: Duration(seconds: 4),
+                                                  ));
+                                                  List luggageIds = [];
+                                                  for(var a in controller.shipping[index]['luggage_ids']){
+                                                    if(!luggageIds.contains(a['id'])){
+                                                      luggageIds.add(a['id']);
+                                                    }
+                                                  }
+                                                  await controller.getLuggageInfo(luggageIds);
+                                                  print(luggageIds);
+
+                                                  await controller.getLuggageInfo(luggageIds);
+
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (_){
+                                                        return Dialog(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.all(
+                                                                Radius.circular(15.0),
+                                                              )),
+                                                          child: SizedBox(
+                                                              height: MediaQuery.of(context).size.height/1.5,
+                                                              child: Column(
+                                                                children: [
+                                                                  SizedBox(height: 15),
+                                                                  Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                                                                  merge(TextStyle(color: appColor, fontSize: 17))),
+                                                                  SizedBox(height: 15),
+                                                                  for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                                                                    SizedBox(
+                                                                        width: double.infinity,
+                                                                        height: 170,
+                                                                        child:  Column(
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child:ListView.builder(
+                                                                                  scrollDirection: Axis.horizontal,
+                                                                                  itemCount: 3,
+                                                                                  itemBuilder: (context, index){
+                                                                                    return Card(
+                                                                                        margin: EdgeInsets.symmetric(horizontal: 10),
+                                                                                        child: ClipRRect(
+                                                                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                                                            child: FadeInImage(
+                                                                                              width: 120,
+                                                                                              height: 100,
+                                                                                              image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                                                                  headers: Domain.getTokenHeaders()),
+                                                                                              placeholder: AssetImage(
+                                                                                                  "assets/img/loading.gif"),
+                                                                                              imageErrorBuilder:
+                                                                                                  (context, error, stackTrace) {
+                                                                                                return Image.asset(
+                                                                                                    'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                                                                    width: 50,
+                                                                                                    height: 50,
+                                                                                                    fit: BoxFit.fitWidth);
+                                                                                              },
+                                                                                            )
                                                                                         )
-                                                                                    )
-                                                                                );
-                                                                              }),
+                                                                                    );
+                                                                                  }),
+                                                                            )
+                                                                          ],
                                                                         )
-                                                                      ],
+                                                                    ),
+                                                                    AccountWidget(
+                                                                      icon: FontAwesomeIcons.shoppingBag,
+                                                                      text: Text('Name'),
+                                                                      value: controller.shippingLuggage[a]['name'],
+                                                                    ),
+                                                                    AccountWidget(
+                                                                      icon: FontAwesomeIcons.rulerHorizontal,
+                                                                      text: Text('Dimensions'),
+                                                                      value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                                                                    ),
+                                                                    AccountWidget(
+                                                                      icon: FontAwesomeIcons.weightScale,
+                                                                      text: Text('Average weight'),
+                                                                      value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
+                                                                    ),
+                                                                    Spacer(),
+                                                                    Align(
+                                                                        alignment: Alignment.bottomRight,
+                                                                        child: TextButton(onPressed: (){
+                                                                          Navigator.of(context).pop();
+                                                                        },
+                                                                            child: Text('Back'))
                                                                     )
-                                                                ),
-                                                                AccountWidget(
-                                                                  icon: FontAwesomeIcons.shoppingBag,
-                                                                  text: Text('Name'),
-                                                                  value: controller.shippingLuggage[a]['name'],
-                                                                ),
-                                                                AccountWidget(
-                                                                  icon: FontAwesomeIcons.rulerHorizontal,
-                                                                  text: Text('Dimensions'),
-                                                                  value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
-                                                                ),
-                                                                AccountWidget(
-                                                                  icon: FontAwesomeIcons.weightScale,
-                                                                  text: Text('Average weight'),
-                                                                  value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
-                                                                ),
-                                                                Spacer(),
-                                                                Align(
-                                                                    alignment: Alignment.bottomRight,
-                                                                    child: TextButton(onPressed: (){
-                                                                      Navigator.of(context).pop();
-                                                                    },
-                                                                        child: Text('Back'))
-                                                                )
-                                                              ],
-                                                            ],
-                                                          )
-                                                      ),
-                                                    );
-                                                  });
-                                          },
-                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 10),
-                                            child: Text('View luggage info'),
-                                          )
+                                                                  ],
+                                                                ],
+                                                              )
+                                                          ),
+                                                        );
+                                                      }
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                                  child: Text('View luggage info'),
+                                                )
+                                            ),
+                                            if(controller.shipping[index]['is_paid'])
+                                              ElevatedButton(
+                                                  onPressed: ()async{
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (_){
+                                                          return PopUpWidget(
+                                                            cancel: 'Cancel',
+                                                            confirm: 'Confirm',
+                                                            onTap: ()=>{
+
+                                                            },
+                                                            icon: Icon(Icons.warning_amber_rounded, size: 40, color: inactive),
+                                                            title: 'Do you really want to confirm reception of your luggage?',
+                                                          );
+                                                        });
+                                                  },
+                                                  style: ElevatedButton.styleFrom(backgroundColor: validateColor),
+                                                  child: Padding(
+                                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                                    child: Text('Mark as received'),
+                                                  )
+                                              )
+                                          ],
+                                        ),
                                       ),
                                     ],
-                                  ),
-                                ),
-                              ],
-                            )
+                                  )
+                              )
+                          )
                         )
                     );
                   }) : Column(
                   children: [
                     SizedBox(height: MediaQuery.of(context).size.height /4),
                     FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                    Text('No bookings found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                    Text('No shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
                   ]
               )
           ))
@@ -537,7 +565,7 @@ class ValidationView extends GetView<ValidationController> {
                 delay: 100,
                 child: Container(
                   padding: EdgeInsets.only(top: 00,bottom: 20, left: 60, right: 60),
-                  child: QrImage(
+                  child: QrImageView(
                     data: "$bookingCode>$travelId",
                     version: QrVersions.auto,
                     size: 200,
