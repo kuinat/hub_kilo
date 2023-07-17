@@ -14,6 +14,7 @@ import '../../../providers/odoo_provider.dart';
 import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../views/invoice_view.dart';
 
 class BookingsController extends GetxController {
 
@@ -163,29 +164,6 @@ class BookingsController extends GetxController {
     } else {
       var data = await response.stream.bytesToString();
       print("error finding user from shipping");
-    }
-  }
-
-  getShippingInvoice(var ids)async{
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/account.move?ids=$ids'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      invoiceLoading.value = false;
-      invoiceList.value = json.decode(data);
-    }
-    else {
-      var data = await response.stream.bytesToString();
-      print( json.decode(data)['message']);
-      invoiceLoading.value = false;
     }
   }
 
@@ -414,10 +392,85 @@ class BookingsController extends GetxController {
 
       final data = await response.stream.bytesToString();
       print(data);
-      await getUser(Get.find<MyAuthService>().myUser.value.id);
-      list = await getMyShipping();
-      List list2 = [];
+      getShipping(shipping_id);
 
+    }
+    else {
+      final data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: "${json.decode(data)['message']}".tr));
+      throw new Exception(response.reasonPhrase);
+    }
+  }
+
+  getShipping(int id)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.shipping?ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final data = await response.stream.bytesToString();
+      getShippingInvoice(json.decode(data)['move_id']);
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  getShippingInvoice(var ids)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/account.move?ids=$ids'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      invoiceLoading.value = false;
+      invoiceList.value = json.decode(data);
+      showDialog(
+          context: Get.context,
+          builder: (_){
+            return InvoiceView();
+          });
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      print( json.decode(data)['message']);
+      invoiceLoading.value = false;
+    }
+  }
+
+  confirmPayment(int id)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/account.move?values={"payment_state": "paid",}&ids=$id'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+
+      final data = await response.stream.bytesToString();
+      print(data);
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Payment done successfully".tr));
+      await getUser(Get.find<MyAuthService>().myUser.value.id);
+      Navigator.pop(Get.context);
+      list = await getMyShipping();
       items.value = list;
 
     }

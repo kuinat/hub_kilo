@@ -1235,11 +1235,14 @@ class TravelInspectView extends GetView<TravelInspectController> {
                                                      border: controller.selectedUser.value && controller.selectedUserIndex.value == a ? Border.all(color: interfaceColor,width: 2) : null,
                                                      borderRadius: BorderRadius.all(Radius.circular(10))
                                                  ),
-                                                 child: UserWidget(
-                                                   user: controller.viewUsers[a]['name'],
-                                                   selected: false,
-                                                   imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
-                                                 ),
+                                                 child: Padding(
+                                                     padding: EdgeInsets.all(10),
+                                                   child: UserWidget(
+                                                     user: controller.viewUsers[a]['name'],
+                                                     selected: false,
+                                                     imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
+                                                   )
+                                                 )
                                                )
                                            )
                                          ]

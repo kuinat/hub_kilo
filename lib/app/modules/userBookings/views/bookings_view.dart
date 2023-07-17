@@ -202,14 +202,11 @@ class BookingsView extends GetView<BookingsController> {
                       canPay: controller.items[index]['state'] == "accepted",
                       payNow: ()=> controller.initPayment(controller.items[index]['id']),
                       viewInvoice: () {
-                        List list = [];
-                        Get.toNamed(Routes.INVOICE);
-                        for(var i in controller.items[index]['move_id']){
-                          if(!list.contains(i['id'])){
-                            list.add(i['id']);
-                          }
-                        }
-                        controller.getShippingInvoice(list);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Loading data..."),
+                          duration: Duration(seconds: 2),
+                        ));
+                        controller.getShippingInvoice(controller.items[index]['move_id']);
                       },
                       owner: true,
                       viewClicked: false,

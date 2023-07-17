@@ -57,14 +57,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.10.0"
-  barcode:
-    dependency: transitive
-    description:
-      name: barcode
-      sha256: "789f898eef0bd88312470bdb2cc996f895ad7dd5f89e9adde84b204546a90b45"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.4"
   barcode_scan2:
     dependency: "direct main"
     description:
@@ -974,14 +966,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
-  open_file:
-    dependency: "direct main"
-    description:
-      name: open_file
-      sha256: c85fbdc6ea2f44adcd999a74821a1436e620f9dfc167cda1ad0c9fb243616257
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.1"
   package_config:
     dependency: transitive
     description:
@@ -1078,14 +1062,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.6"
-  pdf:
-    dependency: "direct main"
-    description:
-      name: pdf
-      sha256: "10659b915e65832b106f6d1d213e09b789cc1f24bf282ee911e49db35b96be4d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.8.4"
   pedantic:
     dependency: transitive
     description:
@@ -1126,14 +1102,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.7.3"
-  printing:
-    dependency: "direct main"
-    description:
-      name: printing
-      sha256: "4df9e22bd4cb2ecea67183e5b328711b10276127b8878d9d5cb60ccd4c24a77c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.9.3"
   process:
     dependency: transitive
     description:
