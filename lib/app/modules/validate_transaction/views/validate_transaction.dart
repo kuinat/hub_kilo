@@ -281,7 +281,7 @@ class ValidationView extends GetView<ValidationController> {
                         child: ClipRRect(
                           child: Card(
                               elevation: 10,
-                              margin: index == controller.shipping.length - 1 ? EdgeInsets.only(bottom: 50) : null,
+                              margin: index == controller.shipping.length - 1 ? EdgeInsets.only(bottom: 250) : null,
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
@@ -481,30 +481,7 @@ class ValidationView extends GetView<ValidationController> {
                                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                                   child: Text('View luggage info'),
                                                 )
-                                            ),
-                                            if(controller.shipping[index]['is_paid'])
-                                              ElevatedButton(
-                                                  onPressed: ()async{
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (_){
-                                                          return PopUpWidget(
-                                                            cancel: 'Cancel',
-                                                            confirm: 'Confirm',
-                                                            onTap: ()=>{
-
-                                                            },
-                                                            icon: Icon(Icons.warning_amber_rounded, size: 40, color: inactive),
-                                                            title: 'Do you really want to confirm reception of your luggage?',
-                                                          );
-                                                        });
-                                                  },
-                                                  style: ElevatedButton.styleFrom(backgroundColor: validateColor),
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 10),
-                                                    child: Text('Mark as received'),
-                                                  )
-                                              )
+                                            )
                                           ],
                                         ),
                                       ),

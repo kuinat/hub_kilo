@@ -54,7 +54,8 @@ class ChatsView extends GetView<MessagesController> {
                     ]else...[
                       getReceivedMessageTextLayout(context, controller.messages[index], index)
                     ],
-                    if(controller.messages.toString().contains('"shipper_validate": true') && Get.find<MyAuthService>().myUser.value.id == controller.travel['partner_id'][0])
+                    //controller.messages.toString().contains('"shipper_validate": true') &&
+                    if(Get.find<MyAuthService>().myUser.value.id == controller.travel['partner_id'][0])
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [

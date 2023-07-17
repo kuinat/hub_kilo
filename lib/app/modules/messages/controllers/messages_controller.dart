@@ -259,7 +259,6 @@ class MessagesController extends GetxController {
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
         '"state": "accepted",'
-        '"shipping_price": $price,'
         '}&ids=${card['id']}'
     ));
 

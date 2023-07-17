@@ -140,12 +140,39 @@ class ValidationController extends GetxController {
     }
   }
 
+  receiverConfirmation(int shippingId)async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization,
+      'Cookie': 'session_id=0e707e91908c430d7b388885f9963f7a27060e74'
+    };
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
+        '"travelbooking_id": "",'
+        '}&ids=$shippingId'
+    ));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print(data);
+      Get.showSnackbar(Ui.SuccessSnackBar(message: "Booking  received successfully ".tr));
+      Navigator.pop(Get.context);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+    }
+  }
+
   setToReceive(var id)async{
 
     var headers = {
       'Accept': 'application/json',
       'Authorization': Domain.authorization,
-      'Cookie': 'session_id=d04af03f698078c752b685cba7f34e4cbb3f208b'
     };
     var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.shipping?values={'
         '"state": "received",}&ids=$id'

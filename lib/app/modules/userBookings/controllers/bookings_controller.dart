@@ -415,8 +415,9 @@ class BookingsController extends GetxController {
       final data = await response.stream.bytesToString();
       print(data);
       await getUser(Get.find<MyAuthService>().myUser.value.id);
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Payment successful on thsi shipping"));
       list = await getMyShipping();
+      List list2 = [];
+
       items.value = list;
 
     }

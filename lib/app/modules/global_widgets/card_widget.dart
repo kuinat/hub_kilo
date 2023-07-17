@@ -22,6 +22,7 @@ class CardWidget extends StatelessWidget {
     this.reject,
     this.packetImageUrl,
     this.negotiation,
+    this.markReceived,
     this.edit,
     this.confirm,
     this.viewClicked,
@@ -72,6 +73,7 @@ class CardWidget extends StatelessWidget {
   final Function accept;
   final Function reject;
   final Function transfer;
+  final Function markReceived;
   final Function viewInvoice;
 
 
@@ -156,6 +158,15 @@ class CardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      if(bookingState == "accepted")
+                      ElevatedButton(
+                          onPressed: markReceived,
+                          style: ElevatedButton.styleFrom(backgroundColor: validateColor),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text('Mark as received'),
+                          )
+                      ),
                       bookingState == 'pending' ?
                       negotiation : owner ? button : SizedBox(),
                       SizedBox(width: 10),
@@ -204,15 +215,17 @@ class CardWidget extends StatelessWidget {
                     ],
                     initiallyExpanded: false,
                   ),
-                  if(owner && bookingState == 'paid')
-                    ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: pendingStatus,
-                        ),
-                        onPressed: viewInvoice,
-                        icon: Icon(Icons.file_open_rounded),
-                        label: Text('View Invoice')
-                    ),
+                  if(owner)...[
+                    if(bookingState == 'paid' || bookingState == 'received')
+                      ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: pendingStatus,
+                          ),
+                          onPressed: viewInvoice,
+                          icon: Icon(Icons.file_open_rounded),
+                          label: Text('View Invoice')
+                      )
+                  ],
                   if(owner)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

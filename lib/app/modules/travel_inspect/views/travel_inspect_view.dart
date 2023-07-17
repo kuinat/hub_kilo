@@ -296,6 +296,21 @@ class TravelInspectView extends GetView<TravelInspectController> {
       },
       viewClicked: controller.viewClicked.value && index == controller.indexClicked.value ? true : false,
       owner: false,
+      markReceived: ()=>{
+        showDialog(
+            context: context,
+            builder: (_){
+              return PopUpWidget(
+                cancel: 'Cancel',
+                confirm: 'Confirm',
+                onTap: ()=>{
+
+                },
+                icon: Icon(Icons.warning_amber_rounded, size: 40, color: inactive),
+                title: 'Do you really want to confirm reception of your luggage?',
+              );
+            })
+      },
       shippingDate: booking['create_date'],
       code: booking['name'],
       travelType: booking['booking_type'],
