@@ -36,10 +36,13 @@ class ChatsView extends GetView<MessagesController> {
               shrinkWrap: false,
               primary: true,
               itemBuilder: (context, index) {
-
+                List receivedMessages = [];
                 Future.delayed(Duration.zero, (){
                   controller.messages.sort((a, b) => b["__last_update"].compareTo(a["__last_update"]));
                 });
+                if(Get.find<MyAuthService>().myUser.value.id != controller.messages[index]['sender_partner_id'][0]){
+                  receivedMessages.add(controller.messages[index]);
+                }
                 //Chat _chat = controller.chats.elementAt(index);
                 //_chat.user = controller.message.value.users.firstWhere((_user) => _user.id == _chat.userId, orElse: () => new User(name: "-", avatar: new Media()));
                 return Column(
@@ -52,10 +55,9 @@ class ChatsView extends GetView<MessagesController> {
                         ]
                       ]
                     ]else...[
-                      getReceivedMessageTextLayout(context, controller.messages[index], index)
+                      getReceivedMessageTextLayout(context, controller.messages[index], index, receivedMessages)
                     ],
-                    //controller.messages.toString().contains('"shipper_validate": true') &&
-                    if(Get.find<MyAuthService>().myUser.value.id == controller.travel['partner_id'][0])
+                    if(Get.find<MyAuthService>().myUser.value.id == controller.travel['partner_id'][0] && index == 0)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -63,25 +65,11 @@ class ChatsView extends GetView<MessagesController> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: validateColor,
                               ),
-                              onPressed: (){
-
-                                controller.confirmTransporting(controller.messages[index]['price']);
-
-                              },
+                              onPressed: ()=> controller.confirmTransporting(),
                               child: Text('Confirm price', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
-                          ),
-                          SizedBox(width: 10),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: specialColor,
-                              ),
-                              onPressed: (){
-
-                              },
-                              child: Text('Stop negotiation', style: Get.textTheme.headline2.merge(TextStyle(color: Colors.white, fontSize: 13)))
                           )
                         ],
-                      )
+                      ),
                   ],
                 );
               }
@@ -216,7 +204,7 @@ class ChatsView extends GetView<MessagesController> {
                 color: Get.theme.primaryColor,
                 boxShadow: [BoxShadow(color: Theme.of(context).hintColor.withOpacity(0.10), offset: Offset(0, -4), blurRadius: 10)],
               ),
-              child: Row(
+              child:  Row(
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width /1.6,
@@ -428,7 +416,7 @@ class ChatsView extends GetView<MessagesController> {
     );
   }
 
-  Widget getReceivedMessageTextLayout(context, var message, int index) {
+  Widget getReceivedMessageTextLayout(context, var message, int index, List receivedMessages) {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Column(
@@ -497,7 +485,7 @@ class ChatsView extends GetView<MessagesController> {
                 style: Get.textTheme.headline1.merge(TextStyle(color: appColor,fontSize: 13))
             ),
           ),
-          if(index == controller.messages.length -1 && Get.find<MyAuthService>().myUser.value.id == controller.card['partner_id'][0]['id'])
+          if(index == receivedMessages.length -1 && Get.find<MyAuthService>().myUser.value.id == controller.card['partner_id'][0]['id'])
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: validateColor,

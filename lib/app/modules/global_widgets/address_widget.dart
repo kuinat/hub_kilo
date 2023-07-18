@@ -39,9 +39,9 @@ class AddressWidgetState extends State<AddressWidget> {
                   },
                   child: Obx(() {
                     if (Get.find<SettingsService>().address.value?.isUnknown() ?? true) {
-                      return Text("Please choose your address".tr, style: Get.textTheme.bodyText1);
+                      return Text("Please choose your address".tr, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)));
                     }
-                    return Text(Get.find<SettingsService>().address.value.address, style: Get.textTheme.bodyText1);
+                    return Text(Get.find<SettingsService>().address.value.address, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black)));
                   }),
                 ),
               ),

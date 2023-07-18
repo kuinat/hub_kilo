@@ -21,7 +21,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 child: Row(
                   children: [
-                    Expanded(child: Text("Road".tr.toUpperCase(), style: Get.textTheme.headline5.merge(TextStyle(fontSize: 18)))),
+                    Expanded(child: Text("Road".tr.toUpperCase(), style: Get.textTheme.headline5.merge(TextStyle(fontSize: 18, color: appColor)))),
                     MaterialButton(
                       onPressed: () {
                         if(controller.landTravelList.isNotEmpty){
@@ -30,7 +30,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                       },
                       shape: StadiumBorder(),
                       color: Get.theme.colorScheme.secondary.withOpacity(0.1),
-                      child: Text("View All".tr, style: Get.textTheme.subtitle1),
+                      child: Text("View All".tr, style: Get.textTheme.subtitle1.merge(TextStyle(color: interfaceColor))),
                       elevation: 0,
                     ),
                   ],
@@ -98,7 +98,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 child: Row(
                   children: [
-                    Expanded(child: Text("Air".tr.toUpperCase(), style: Get.textTheme.headline5.merge(TextStyle(fontSize: 18)))),
+                    Expanded(child: Text("Air".tr.toUpperCase(), style: Get.textTheme.headline5.merge(TextStyle(fontSize: 18, color: appColor)))),
                     MaterialButton(
                       onPressed: () {
                         if(controller.airTravelList.isNotEmpty){
@@ -107,7 +107,7 @@ class FeaturedCategoriesWidget extends GetWidget<HomeController> {
                       },
                       shape: StadiumBorder(),
                       color: Get.theme.colorScheme.secondary.withOpacity(0.1),
-                      child: Text("View All".tr, style: Get.textTheme.subtitle1),
+                      child: Text("View All".tr, style: Get.textTheme.subtitle1.merge(TextStyle(color: interfaceColor))),
                       elevation: 0,
                     ),
                   ],

@@ -48,9 +48,9 @@ class MainDrawerWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Welcome".tr, style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.colorScheme.secondary))),
+                      Text("Welcome".tr, style: Get.textTheme.headline5.merge(TextStyle(color: appColor))),
                       SizedBox(height: 5),
-                      Text("Login account or create new one for free".tr, style: Get.textTheme.bodyText1),
+                      Text("Login account or create new one for free".tr, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black))),
                       SizedBox(height: 15),
                       Wrap(
                         spacing: 10,

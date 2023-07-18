@@ -25,7 +25,6 @@ class CardWidget extends StatelessWidget {
     this.markReceived,
     this.edit,
     this.confirm,
-    this.viewClicked,
     this.viewInvoice,
     this.payNow,
     @required this.owner,
@@ -57,7 +56,6 @@ class CardWidget extends StatelessWidget {
   final bool transferable;
   final bool editable;
   final bool canPay;
-  final bool viewClicked;
   final String recEmail;
   final String recAddress;
   final String recPhone;
@@ -158,30 +156,23 @@ class CardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if(bookingState == "accepted")
-                      ElevatedButton(
-                          onPressed: markReceived,
-                          style: ElevatedButton.styleFrom(backgroundColor: validateColor),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text('Mark as received'),
-                          )
-                      ),
-                      bookingState == 'pending' ?
+                      bookingState == 'pending' || bookingState == 'paid' ?
                       negotiation : owner ? button : SizedBox(),
                       SizedBox(width: 10),
-                      SizedBox(width: 150,
-                          child: Column(
-                            children: [
-                              luggageView,
-                              if(viewClicked)
-                                SizedBox(height: 10,
-                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
-                            ],
-                          )
+                      SizedBox(width: 140,
+                          child: luggageView
                       ),
                     ],
                   ),
+                  if(!owner && bookingState == "paid")
+                    ElevatedButton(
+                        onPressed: markReceived,
+                        style: ElevatedButton.styleFrom(backgroundColor: interfaceColor),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text('set to received'),
+                        )
+                    ),
                   if(owner && bookingState == 'pending')
                   Align(
                     alignment: Alignment.bottomRight,
@@ -240,7 +231,7 @@ class CardWidget extends StatelessWidget {
                                 margin: EdgeInsets.symmetric( vertical: 15),
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),
-                                  child: Text("Proceed payment ".tr, style: TextStyle(color: Colors.white)))
+                                  child: Text("Proceed to payment ".tr, style: TextStyle(color: Colors.white)))
                             )
                         ),
                       if(editable)

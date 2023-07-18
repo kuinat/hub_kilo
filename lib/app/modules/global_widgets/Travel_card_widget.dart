@@ -126,7 +126,7 @@ class TravelCardWidget extends StatelessWidget {
                             if(travelBy == "sea")
                               Icon(FontAwesomeIcons.ship, size: 40, color: background) ,
                             SizedBox(width: 20),
-                            Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                            Text(this.depDate, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: appColor))),
                           ]
                       ),
               Spacer(),
@@ -192,6 +192,7 @@ class TravelCardWidget extends StatelessWidget {
                     children: [
                       if(!isUser)
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                             children: [
                               ClipOval(
                                   child: FadeInImage(
@@ -211,19 +212,22 @@ class TravelCardWidget extends StatelessWidget {
                                   )
                               ),
                               SizedBox(width: 10),
-                              RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(text: this.user, style: TextStyle(fontSize: 18, color: appColor)),
-                                      TextSpan(text: "\n⭐️ ${this.rating}", style: TextStyle(fontSize: 15, color: appColor)),
-                                    ]
-                                  )),
+                              SizedBox(
+                                width: 200,
+                                height: 50,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(child: Text(this.user, style: TextStyle(fontSize: 18, color: appColor, overflow: TextOverflow.ellipsis))),
+                                    Text("⭐️ ${this.rating}", style: TextStyle(fontSize: 15, color: appColor))
+                                  ]
+                                )
+                              )
                             ]
-                        ),
-
+                        )
                     ]
                 )
-              ],
+              ]
           )
         )
     );

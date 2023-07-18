@@ -262,7 +262,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
-          ],
+          ]
         ),
         child: Column(
           children: [
@@ -289,12 +289,11 @@ class TravelInspectView extends GetView<TravelInspectController> {
   }
 
   Widget buildShippingCard(BuildContext context, var booking, int index){
-    return Obx(() => CardWidget(
+    return CardWidget(
       canPay: booking['state'] == "accepted",
       payNow: ()=>{
         print('payment made')
       },
-      viewClicked: controller.viewClicked.value && index == controller.indexClicked.value ? true : false,
       owner: false,
       markReceived: ()=>{
         showDialog(
@@ -342,86 +341,98 @@ class TravelInspectView extends GetView<TravelInspectController> {
       luggageView: ElevatedButton(
           onPressed: ()async{
             controller.viewClicked.value = true;
-            await controller.getLuggageInfo(booking['luggage_ids']);
 
-            showDialog(
-                context: context,
-                builder: (_){
+            List list = [];
+            if(booking['luggage_ids'] != null){
+              for(var i in booking['luggage_ids']){
+                list.add(i['id']);
+              }
 
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15.0),
-                        )),
-                    child: Obx(() => SizedBox(
-                        height: MediaQuery.of(context).size.height/2,
-                        child: Column(
-                          children: [
-                            SizedBox(height: 15),
-                            Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
-                            merge(TextStyle(color: appColor, fontSize: 17))),
-                            SizedBox(height: 15),
-                            for(var a=0; a<controller.shippingLuggage.length; a++)...[
-                              SizedBox(
-                                width: double.infinity,
-                                height: 120,
-                                child: Expanded(
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: 3,
-                                      itemBuilder: (context, index){
-                                        return Card(
-                                            margin: EdgeInsets.symmetric(horizontal: 10),
-                                            child: ClipRRect(
-                                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                child: FadeInImage(
-                                                  width: 100,
-                                                  height: 100,
-                                                  image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                      headers: Domain.getTokenHeaders()),
-                                                  placeholder: AssetImage(
-                                                      "assets/img/loading.gif"),
-                                                  imageErrorBuilder:
-                                                      (context, error, stackTrace) {
-                                                    return Image.asset(
-                                                        'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                        width: 50,
-                                                        height: 50,
-                                                        fit: BoxFit.fitWidth);
-                                                  },
+              await controller.getLuggageInfo(list);
+              controller.indexClicked.value = index;
+              showDialog(
+                  context: context,
+                  builder: (_){
+
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(15.0),
+                          )),
+                      child: Obx(() => SizedBox(
+                          height: MediaQuery.of(context).size.height/2,
+                          child: Column(
+                              children: [
+                                SizedBox(height: 15),
+                                Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
+                                merge(TextStyle(color: appColor, fontSize: 17))),
+                                SizedBox(height: 15),
+                                for(var a=0; a<controller.shippingLuggage.length; a++)...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 120,
+                                    child: Expanded(
+                                      child: ListView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: 3,
+                                          itemBuilder: (context, index){
+                                            return Card(
+                                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                                child: ClipRRect(
+                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                    child: FadeInImage(
+                                                      width: 100,
+                                                      height: 100,
+                                                      image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
+                                                          headers: Domain.getTokenHeaders()),
+                                                      placeholder: AssetImage(
+                                                          "assets/img/loading.gif"),
+                                                      imageErrorBuilder:
+                                                          (context, error, stackTrace) {
+                                                        return Image.asset(
+                                                            'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
+                                                            width: 50,
+                                                            height: 50,
+                                                            fit: BoxFit.fitWidth);
+                                                      },
+                                                    )
                                                 )
-                                            )
-                                        );
-                                      }),
-                                ),
-                              ),
-                              SizedBox(height: 15),
-                              AccountWidget(
-                                icon: FontAwesomeIcons.shoppingBag,
-                                text: Text('Name'),
-                                value: controller.shippingLuggage[a]['name'],
-                              ),
-                              AccountWidget(
-                                icon: FontAwesomeIcons.shoppingBag,
-                                text: Text('Dimensions'),
-                                value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
-                              ),
-                              AccountWidget(
-                                icon: FontAwesomeIcons.weightScale,
-                                text: Text('Average weight'),
-                                value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
-                              ),
-                              Spacer(),
-                              Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Back'))
-                              )
-                            ],
-                          ],
-                        )
-                    )),
-                  );
-                });
+                                            );
+                                          }),
+                                    ),
+                                  ),
+                                  SizedBox(height: 15),
+                                  AccountWidget(
+                                    icon: FontAwesomeIcons.shoppingBag,
+                                    text: Text('Name'),
+                                    value: controller.shippingLuggage[a]['name'],
+                                  ),
+                                  AccountWidget(
+                                    icon: FontAwesomeIcons.shoppingBag,
+                                    text: Text('Dimensions'),
+                                    value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
+                                  ),
+                                  AccountWidget(
+                                    icon: FontAwesomeIcons.weightScale,
+                                    text: Text('Average weight'),
+                                    value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
+                                  ),
+                                  Spacer(),
+                                  Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Back'))
+                                  )
+                                ]
+                              ]
+                          )
+                      )),
+                    );
+                  }
+              );
+
+            }else{
+              Get.showSnackbar(Ui.notificationSnackBar(message: "Sorry! You cannot View luggage information"));
+            }
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
           child: Padding(
@@ -496,7 +507,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
       booking['receiver_email'].toString() : booking['receiver_email_set'],
       recPhone: booking['register_receiver'] == false ?
       booking['receiver_phone'] : booking['receiver_phone_set'],
-    ));
+    );
   }
 
   Container buildCarouselBullets(BuildContext context) {
@@ -1137,7 +1148,7 @@ class TravelInspectView extends GetView<TravelInspectController> {
                     ],
                     border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
                 child: ExpansionTile(
-                  title: Text("Travel Type".tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
+                  title: Text("Payment Method".tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
                   children: [
                     Obx(() => DropdownButtonHideUnderline(
                         child: DropdownButtonFormField(

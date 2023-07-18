@@ -9,9 +9,7 @@ import '../../../../common/ui.dart';
 import '../../../../main.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
-import '../../../repositories/upload_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
 import '../views/invoice_view.dart';
@@ -67,7 +65,7 @@ class BookingsController extends GetxController {
   var userExist = false.obs;
   var typing = false.obs;
   var viewUsers = [].obs;
-  var invoiceList = [].obs;
+  var invoice = {}.obs;
   var selectedUser = false.obs;
   var selectedUserIndex = 0.obs;
   final loadProfileImage = false.obs;
@@ -436,11 +434,14 @@ class BookingsController extends GetxController {
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
       invoiceLoading.value = false;
-      invoiceList.value = json.decode(data);
+      print(json.decode(data));
+      invoice.value = json.decode(data)[0];
       showDialog(
           context: Get.context,
           builder: (_){
-            return InvoiceView();
+            return ClipRRect(
+              child: InvoiceView(),
+            );
           });
     }
     else {

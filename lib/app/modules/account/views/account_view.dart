@@ -819,48 +819,6 @@ class AccountView extends GetView<AccountController> {
     );
   }
 
-  // void _showDeleteDialog(BuildContext context) {
-  //   showDialog<void>(
-  //     context: context,
-  //     barrierDismissible: false, // user must tap button!
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(
-  //           "Delete your account!".tr,
-  //           style: TextStyle(color: Colors.redAccent),
-  //         ),
-  //         content: SingleChildScrollView(
-  //           child: Column(
-  //             children: <Widget>[
-  //               Text("Once you delete this account, there is no going back. Please be certain.".tr, style: Get.textTheme.bodyText1),
-  //             ],
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text("Cancel".tr, style: Get.textTheme.bodyText1),
-  //             onPressed: () {
-  //               Get.back();
-  //             },
-  //           ),
-  //           TextButton(
-  //             child: Text(
-  //               "Confirm".tr,
-  //               style: TextStyle(color: Colors.redAccent),
-  //             ),
-  //             onPressed: () async {
-  //               Get.back();
-  //               await controller.deleteUser();
-  //               await Get.find<RootController>().changePage(0);
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-
   Widget buildEditingSheet(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(20),
@@ -973,21 +931,26 @@ class AccountView extends GetView<AccountController> {
     return Column(
       children: [
         Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: Ui.getBoxDecoration(),
+          child: AccountLinkWidget(
+            icon: Icon(FontAwesomeIcons.fileUpload, color: Get.theme.colorScheme.secondary),
+            text: Text("Upload identity files".tr),
+            onTap: (e) {
+              Get.toNamed(Routes.IDENTITY_FILES);
+              //Get.offNamed(Routes.IDENTITY_FILES);
+              //Get.find<RootController>().changePage(2);
+            }
+          )
+        ),
+        Container(
           height: Get.height/2,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: Ui.getBoxDecoration(),
           child: Column(
             children: [
-              AccountLinkWidget(
-                icon: Icon(FontAwesomeIcons.fileUpload, color: Get.theme.colorScheme.secondary),
-                text: Text("Upload identity files".tr),
-                onTap: (e) {
-                  Get.toNamed(Routes.IDENTITY_FILES);
-                  //Get.offNamed(Routes.IDENTITY_FILES);
-                  //Get.find<RootController>().changePage(2);
-                },
-              ),
               Expanded(
                   child: ListView.builder(
                       itemCount: controller.attachmentFiles.length,

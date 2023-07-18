@@ -250,7 +250,7 @@ class MessagesController extends GetxController {
     }
   }
 
-  confirmTransporting(var price)async{
+  confirmTransporting()async{
     print(card['id']);
 
     var headers = {
