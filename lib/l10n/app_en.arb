@@ -1,0 +1,1297 @@
+{
+  "comment": "Login Page, Registration Page, Forgot Password, Double Verification",
+  "helloWorld": "Hello World!",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  },
+  "appName": "HubColis",
+   "@appName": {
+      "description": "Name of the Application"
+    },
+  "login": "Login",
+    "@login": {
+      "description": "Se connecter a l'application"
+    },
+    "register": "Create an account",
+        "@register": {
+          "description": "S' enregistrer dans l'application"
+        },
+    "fullName": "Full Name",
+    "@fullName": {
+    "description": "Full name of a user"
+    },
+    "gender": "Select your gender",
+    "@gender": {
+    "description": "gender of a user"
+    },
+    "male": "Male",
+    "@male": {
+    "description": "masculine gender"
+    },
+    "female": "Female",
+        "@female": {
+        "description": "feminine gender"
+        },
+    "phoneNumber": "Phone Number",
+        "@phoneNumber": {
+        "description": "Phone number of a user"
+        },
+    "confirmPassword": "Confirm Password",
+        "@confirmPassword": {
+        "description": "user re-enter password"
+        },
+    "emailAddress": "Email Address",
+      "@emailAddress": {
+        "description": "electronic address of a user"
+      },
+    "password": "Password",
+      "@password": {
+        "description": "Password of a user"
+      },
+     "rememberMe": "Remember me",
+       "@rememberMe": {
+         "description": "Allows the user details to be pre-filled when he wants to login"
+       },
+      "forgotPassword": "Forgot Password",
+             "@forgotPassword": {
+               "description": "Button that leads to the forgot password flow"
+             },
+      "or": "Or",
+         "@or": {
+           "description": "Allows to make a choice"
+       },
+       "orUpperCase": "OR",
+         "@orUpperCase": {
+           "description": "Allows to write or in capital letter"
+       },
+       "connectGoogle": "Connect with Google",
+           "@connectGoogle": {
+            "description": "Allows to connect user with Google"
+       },
+       "loginPageSmallText": "Welcome to the best Service provider System!",
+        "@loginPageSmallText": {
+        "description": "Allows to connect user with Google"
+        },
+        "loginPageSmallText": "Welcome to the best Service provider System!",
+        "@loginPageSmallText": {
+          "description": "Allows to connect user with Google"
+        },
+        "resetLink": "Send Reset Link",
+        "@resetLink": {
+         "description": "Send reset link to reset password"
+        },
+        "noAccount": "You don''t have an account?",
+        "@noAccount": {
+         "description": "Redirect user to forgot password page"
+        },
+        "rememberPassword": "You remember your password!",
+        "@rememberPassword": {
+        "description": "Redirect user to login page"
+        },
+        "verificationHeadTitle": "Double Verification",
+        "@verificationHeadTitle": {
+        "description": "Title of the verification of code page"
+        },
+        "codeSentTo": "Please enter the code sent to",
+        "@codeSentTo": {
+        "description": "extract of text"
+        },
+        "verificationCodeLabel": "Verification Code",
+        "@verificationCodeLabel": {
+        "description": "Label for verification Code field"
+        },
+        "verifyButton": "Verify",
+        "@verifyButton": {
+        "description": "Button to verify Code"
+        },
+        "resendOtpButton": "Resend the OTP Code Again",
+        "@resendOtpButton": {
+        "description": "allows user to ask for another otp"
+        },
+
+
+
+         "loginSuccessfull": "You logged in successfully ",
+         "@loginSuccessfull": {
+         "description": "Snackbar describing user logged in successfully"
+         },
+         "signinSuccessfull": "You signed in successfully ",
+         "@signinSuccessfull": {
+         "description": "Snackbar describing user signed in successfully "
+         },
+         "firstTextResetPassword": "An email has been sent to",
+         "@firstTextResetPassword": {
+         "description": "First part of the text when email is sent to user"
+         },
+         "secondTextResetPassword": ", please follow the instructions to reset your password",
+         "@secondTextResetPassword": {
+         "description": "First part of the text when email is sent to user "
+         },
+
+         "userNotFound": "User not found!!!",
+         "@userNotFound": {
+         "description": "Snackbar describing that user was not found in the system "
+         },
+
+         "loadingData": "Loading data...",
+         "@loadingData": {
+         "description": "Snackbar describing that data are being loaded "
+         },
+
+         "loadingCities": "Loading cities...",
+         "@loadingCities": {
+         "description": "Snackbar describing that the cities are being loaded "
+         },
+         "citiesLoadedSuccessfully": "Cities loaded successfully",
+         "@citiesLoadedSuccessfully": {
+         "description": "Snackbar describing that the cities have been loaded successfully "
+         },
+         "profilePictureSavedSuccessfully": "Picture saved successfully",
+         "@profilePictureSavedSuccessfully": {
+         "description": "Snackbar describing that the profile picture has been saved successfully "
+         },
+
+        "loginError": "User credentials not matching or existing",
+        "@loginError": {
+        "description": "Error showed when the user credentials are neither matching nor existing"
+        },
+        "passwordError": "Wrong password, try again",
+        "@passwordError": {
+        "description": "Error showed when the user password is wrong"
+        },
+        "passwordUpdatedSuccessfully": "Password Updated Successfully",
+        "@passwordUpdatedSuccessfully": {
+        "description": "Message showed when the user password is updated with success"
+        },
+        "unknown": "An error occurred, please try again",
+        "@unknown": {
+        "description": "Unknown error occuring in the system"
+        },
+        "unknownError": "An error occurred, please try to login again",
+        "@unknownError": {
+        "description": "Unknown error occuring in the system"
+        },
+        "validatorError": "Should be more than 3 characters",
+        "@validatorError": {
+        "description": "Check if at more than 3 characters are entered in the textfield"
+        },
+        "validEmailError": "Should be a valid email",
+                "@validEmailError": {
+                "description": "Check if the email is valid"
+                },
+        "passwordNotMatchingError": "password not matching",
+                "@passwordNotMatchingError": {
+                "description": "Check if password and confirm password fields are matching"
+                },
+        "verificationCodeNotValidError": "Verification code not valid, please try again!",
+        "@verificationCodeNotValidError": {
+        "description": "Error appearing when the verification code is not valid"
+        },
+        "residentialAddressNotSelectedError": "Please, first select a residential address!! ",
+        "@residentialAddressNotSelectedError": {
+        "description": "Error appearing when the residential address is not selected"
+        },
+
+
+        "home": "Home",
+        "@home": {
+        "description": "The home page from where the user can access all the other pages"
+        },
+        "parcels": "My Parcels",
+        "@parcels": {
+        "description": "all shipping where current user is beneficiary"
+        },
+
+
+        "shipping": "Shipping",
+        "@shipping": {
+        "description": "The shipping page from where the user can access his expeditions"
+        },
+        "shippingDetails": "Shipping Details",
+        "@shippingDetails": {
+        "description": ""
+        },
+        "reference": "Reference",
+        "@reference": {
+        "description": "Just the word reference"
+        },
+        "noShippingFound": "No shipping found",
+        "@noShippingFound": {
+        "description": "The message displayed to the user when he has no shippings"
+        },
+        "totalShippingPrice": "Total Shipping Price",
+        "@totalShippingPrice": {
+        "description": "The total price of the shipping"
+        },
+        "shippingValidation": "Shipping Validation",
+        "@shippingValidation": {
+        "description": "The message displayed to validate a shipping"
+        },
+        "luggageInfo": "Luggage Info",
+        "@luggageInfo": {
+        "description": "Button leading to information about the luggages"
+        },
+        "viewLuggageInfo": "View Luggage Info",
+        "@viewLuggageInfo": {
+        "description": "Button leading to information about the luggages"
+        },
+        "moreInfo": "More info >",
+        "@moreInfo": {
+        "description": "View more info about the shipping"
+        },
+        "dimensions": "Dimensions",
+        "@dimensions": {
+        "description": "Dimension of the luggage"
+        },
+        "weight": "Average weight",
+        "@weight": {
+        "description": "Average weight of the luggages"
+        },
+        "description": "Description",
+        "@description": {
+        "description": "Description of the luggages"
+        },
+
+        "pending": "Pending",
+        "@pending": {
+        "description": "Shipping or travel Pending an action"
+        },
+
+        "dispatched": "Dispatched",
+        "@dispatched": {
+        "description": "Shipping is dispatched"
+        },
+
+        "paid": "Paid",
+        "@paid": {
+        "description": "Shipping is paid"
+        },
+
+        "received": "Received",
+        "@received": {
+        "description": "Shipping is received"
+        },
+        "delivered": "Delivered",
+        "@delivered": {
+        "description": "Shipping is delivered"
+        },
+        "cancelled": "Cancelled",
+        "@cancelled": {
+        "description": "Shipping is Cancelled"
+        },
+        "rejected": "Rejected",
+        "@rejected": {
+        "description": "Shipping is rejected by traveler"
+        },
+        "accept": "Accept",
+        "@accept": {
+        "description": "Allows the user to accept"
+        },
+        "reject": "Reject",
+        "@reject": {
+        "description": "Allows the user to accept"
+        },
+        "ship": "Ship",
+        "@ship": {
+        "description": "Button to make a shipping"
+        },
+        "transfer": "Transfer",
+        "@transfer": {
+        "description": "Button to transfer a shipping"
+        },
+        "now": "Now",
+        "@now": {
+        "description": "Text to comple ship and transfer now"
+        },
+        "shippingDate": "Shipping Date",
+        "@shippingDate": {
+        "description": "Date the shipping was created"
+        },
+        "receiverInfo": "Receiver Info",
+        "@receiverInfo": {
+        "description": "Label for receiver Info"
+        },
+        "rateTraveller": "Rate Traveler",
+        "@rateTraveller": {
+        "description": "Button to Rate Traveler"
+        },
+        "setToReceived": "Set To Received",
+        "@setToReceived": {
+        "description": "Button to allow traveler to attest he receive the parcel"
+        },
+        "deliverParcel": "Deliver this parcel",
+        "@deliverParcel": {
+        "description": "Button to allow the traveler to deliver the parcel"
+        },
+
+
+
+
+
+        "shippingForm": "New Shipping Form",
+        "@shippingForm": {
+        "description": "Head text in shipping form"
+        },
+        "updateShipping": "Update shipping",
+        "@updateShipping": {
+        "description": "Update a Shipping"
+        },
+        "step": "You are currently at step",
+        "@step": {
+        "description": "Update a Shipping"
+        },
+        "atLeastLuggageModelError": "You need to select at least one luggage model!",
+        "@atLeastLuggageModelError": {
+        "description": "Message appearing when at least one luggage model not selected"
+        },
+        "selectBeneficiaryError": "Please select a beneficiary...",
+        "@selectBeneficiaryError": {
+        "description": "Message appearing when beneficiary not selected"
+        },
+        "numberImageSelectedError": "You need to enter 12 images to continue",
+        "@numberImageSelectedError": {
+        "description": "Message appearing when the right number of image is not selected"
+        },
+        "selectLuggageModelError": "Please select a luggage model...",
+        "@selectLuggageModelError": {
+        "description": "Message appearing when a luggage model not selected"
+        },
+        "luggageModelImageError": "You need to select at least one luggage model or enter 12 images to continue!",
+        "@luggageModelImageError": {
+        "description": "Message appearing when a luggage model not selected or images not entered"
+        },
+        "editLuggageType": "Edit luggage type?",
+        "@editLuggageType": {
+        "description": "Label to edit luggage type"
+        },
+        "selectLuggageType": "Select Luggage Type",
+        "@selectLuggageType": {
+        "description": "Select a  luggage type"
+        },
+        "luggageType": "Luggage Type",
+        "@luggageType": {
+        "description": "luggage type"
+        },
+        "envelopeType": "envelope",
+        "@envelopeType": {
+        "description": "Enveloppe type"
+        },
+        "briefcaseType": "briefcase",
+        "@briefcaseType": {
+        "description": "briefcase type"
+        },
+        "suitcaseType": "suitcase",
+        "@suitcaseType": {
+        "description": "Suitcase type"
+        },
+        "luggageDetails": "Luggage Details",
+        "@luggageDetails": {
+        "description": "Luggage Details "
+        },
+        "height": "Height",
+        "@height": {
+        "description": "Luggage Height"
+        },
+        "width": "Width",
+        "@Width": {
+        "description": "Luggage Width"
+        },
+        "enterLuggageDescription": "Enter your luggage description here",
+        "@enterLuggageDescription": {
+        "description": "Message to enter Luggage description"
+        },
+        "inputPacketFiles": "Input 12 Packet Files",
+        "@inputPacketFiles": {
+        "description": "Message to input 12 packet files"
+        },
+        "takePicture": "Take a picture",
+        "@takePicture": {
+        "description": "label to take a picture"
+        },
+        "uploadImage": "Upload an image",
+        "@uploadImage": {
+        "description": "label to upload an image"
+        },
+        "notDefined": "not defined",
+        "@notDefined": {
+        "description": "text appearing when gender not defined"
+        },
+        "newReceiver": "Add a new receiver",
+        "@newReceiver": {
+        "description": "text to add a new receiver"
+        },
+        "emailAvailable": "Email Available",
+        "@emailAvailable": {
+        "description": "text to emphasize that a specific email is not existing in the system"
+        },
+        "emailExist": "email exists",
+        "@emailExist": {
+        "description": "text to emphasize email exist in the system"
+        },
+        "selectUser": "Select user",
+        "@selectUser": {
+        "description": "text to tell user to select a beneficiary"
+        },
+        "street": "Street",
+        "@street": {
+        "description": "street"
+        },
+        "profileImage": "Profile Image",
+        "@profileImage": {
+        "description": "Profile Image"
+        },
+        "searchByName": "Search by name here...",
+        "@searchByName": {
+        "description": "Allows a user to look for another user"
+        },
+        "noReceiverFound": "No receiver in your address book",
+        "@noReceiverFound": {
+        "description": "No receiver in address Book"
+        },
+        "cannotViewLuggageInfo": "Sorry! You cannot View luggage information",
+        "@cannotViewLuggageInfo": {
+        "description": "Message Displayed to user when he cannot see his luggage info"
+        },
+        "shippingCancellation": "Do you really want to Cancel this shipping?",
+        "@shippingCancellation": {
+        "description": "Message prompt to the user to warn him about cancelling his shipping"
+        },
+        "shippingTransfer": "Do you really want to transfer this shipping?",
+        "@shippingTransfer": {
+        "description": "Message prompt to the user to warn him about transfering his shipping"
+        },
+        "shippingRejection": "Are you sure to reject this shipping? your choice can''t be changed later",
+        "@shippingRejection": {
+        "description": "Message prompt to the user to warn him about rejecting a shipping"
+        },
+        "noTravelPublishedState": "None of your travel is at the state published",
+        "@noTravelPublishedState": {
+        "description": "Message prompted to the user to warn him that none of his travel is at the state published"
+        },
+        "joinTravelQuestion": "Do you really want to join your travel to this shipping ?",
+        "@joinTravelQuestion": {
+        "description": "Message prompted to the user to ask him if he wants to join his travel to a shipping"
+        },
+        "joinTravel": "Join Travel",
+        "@joinTravel": {
+        "description": "Button to join a travel to a shipping offer"
+        },
+        "createTravel": "Create Travel",
+        "@createTravel": {
+        "description": "Button to create a travel"
+        },
+        "hello": "Hello",
+        "@hello": {
+        "description": "Greeting"
+        },
+        "messageFirstPriceProposition": "I accept to transport your parcel",
+        "@messageFirstPriceProposition": {
+        "description": "Message accompanying the first price proposition"
+        },
+
+
+
+
+        "myShippingOffer": "My Shipping Offers",
+        "@myShippingOffer": {
+        "description": "The shipping button from where the user can access his expeditions offers"
+        },
+
+        "offer": "Offers",
+        "@offer": {
+        "description": "The shipping page from where the user can access his expeditions requests"
+        },
+        "createExpedition": "Create Expedition",
+        "@createExpedition": {
+        "description": "The button allowing to create expeditions offers"
+        },
+        "newExpeditionOffer": "New Expedition Offer",
+        "@newExpeditionOffer": {
+        "description": "The head text of the page for expeditions offers"
+        },
+        "modifyExpeditionOffer": "Modify Expedition Offer",
+        "@modifyExpeditionOffer": {
+        "description": "The head text of the page to modify expeditions offers"
+        },
+        "completeOfferDetails": "Complete Your offer Details",
+        "@completeOfferDetails": {
+        "description": "The instruction text of the page for expeditions offers"
+        },
+        "modifyOfferDetails": "Modify Your offer Details",
+        "@modifyOfferDetails": {
+        "description": "The instruction text of the page to modify expeditions offers"
+        },
+
+
+        "myShippingRequest": "My Shipping Requests",
+        "@myShippingRequest": {
+        "description": "The shipping button from where the user can access his expeditions requests"
+        },
+
+        "request": "Requests",
+        "@request": {
+        "description": "The shipping page from where the user can access his expeditions requests"
+        },
+
+        "joinExpedition": "Join Expedition",
+        "@joinExpedition": {
+        "description": "The Button allowing to join an expedition to a travel"
+        },
+
+
+
+
+
+        "expeditionOffer": "Expedition offers",
+        "@expeditionOffer": {
+        "description": "Text in alert dialog"
+        },
+
+        "addExpeditionOffer": "Add an expedition offer",
+        "@addExpeditionOffer": {
+        "description": "Text in alert dialog"
+        },
+        "commentExpeditionOffer": "Would you like to join your travel to an expedition offer?",
+        "@commentExpeditionOffer": {
+        "description": "Text in alert dialog"
+        },
+        "travelPublished": "Travel opened to the public",
+        "@travelPublished": {
+        "description": "Message to tell user his travel is available to the public"
+        },
+        "identityFilesNonConform": "Identity files not conform!",
+        "@identityFilesNonConform": {
+        "description": "Text in dialog for non conform ientity files"
+        },
+        "wantUploadNewFile": "Do you want to upload a new file?",
+        "@wantUploadNewFile": {
+        "description": "Text in dialog for non conform ientity files"
+        },
+        "photoUploadLimitations": "You can only upload 3 photos!",
+        "@photoUploadLimitations": {
+        "description": "Text in dialog to limit photo import to 3"
+        },
+        "luggageUpdated": "Luggages  succesfully updated ",
+        "@luggageUpdated": {
+        "description": "Text in dialog to imply luggages are updated"
+        },
+        "messageSent": "Message sent",
+        "@messageSent": {
+        "description": "Toast message to imply message is sent"
+        },
+        "redirecting": "Redirecting",
+        "@redirecting": {
+        "description": "Redirecting..."
+        },
+        "camera": "Camera",
+        "@camera": {
+        "description": "Camera..."
+        },
+        "gallery": "Gallery",
+        "@gallery": {
+        "description": "Gallery..."
+        },
+        "takePicture": "Take a picture",
+        "@takePicture": {
+        "description": "text implying to take a picture"
+        },
+        "shippingJoinedTravel": "Shipping  successfully joined to travel ",
+        "@shippingJoinedTravel": {
+        "description": "Dialog implying shipping successfully joined to travel"
+        },
+        "travelCanceled": "Travel Canceled",
+        "@travelCanceled": {
+        "description": "Dialog implying the travel has been cancelled"
+        },
+        "negotiationClosed": "Negotiation closed! you can no longer receive shipments on this travel",
+        "@negotiationClosed": {
+        "description": "Dialog implying the negotiation is closed"
+        },
+        "confirmLuggageReception": "You have confirmed reception of this luggage ",
+        "@confirmLuggageReception": {
+        "description": "Dialog implying the traveller received the luggage"
+        },
+        "transferSuccess": "Transfer Success",
+        "@transferSuccess": {
+        "description": "Dialog implying the shipping was transferred successfully"
+        },
+        "luggageCreationFailed": "Could not create luggage!!!",
+        "@luggageCreationFailed": {
+        "description": "Dialog implying the luggage failed to be created"
+        },
+        "shippingUpdated": "Shipping  successfully updated ",
+        "@shippingUpdated": {
+        "description": "Dialog implying the shipping was successfully updated"
+        },
+        "profileUpdated": "Profile  successfully updated ",
+        "@profileUpdated": {
+        "description": "Dialog implying the profile was successfully updated"
+        },
+        "closeNegotiationMessage": "You will not receive any shipment on this travel any more...Please confirm your choice",
+        "@closeNegotiationMessage": {
+        "description": "Message sent to the user to let him know that by closing negotiation he can no more receive shipment on his travel"
+        },
+        "cancelPost": "Do you really want to Cancel this post?",
+        "@cancelPost": {
+        "description": "Message sent to the user to know if he wants to cancel post"
+        },
+        "travelCompletedOn": "This travel was completed on",
+        "@travelCompletedOn": {
+        "description": "Message "
+        },
+
+
+
+
+
+
+
+
+
+
+
+        "myTravels": "My Travels",
+        "@myTravels": {
+        "description": "The travel page from where the user can access his travels"
+        },
+        "travelFormHeadText": "Create new travel",
+        "@travelFormHeadText": {
+        "description": "Head line of the page to create a new travel"
+        },
+        "departure": "Departure",
+        "@departure": {
+        "description": "Date of Departure"
+        },
+        "arrival": "Arrival",
+        "@arrival": {
+        "description": "Date of Arrival"
+        },
+        "departureDate": "Departure Date",
+        "@departureDate": {
+        "description": "Date of Departure"
+        },
+        "arrivalDate": "Arrival Date",
+        "@arrivalDate": {
+        "description": "Date of Arrival"
+        },
+        "departureTown": "Departure Town",
+        "@departureTown": {
+        "description": "Date of Departure"
+        },
+        "arrivalTown": "Arrival Town",
+        "@arrivalTown": {
+        "description": "Date of Arrival"
+        },
+        "date": "Date",
+        "@date": {
+        "description": "Date "
+        },
+        "town": "Town",
+        "@town": {
+        "description": "Town"
+        },
+        "quantity": "Quantity",
+        "@quantity": {
+        "description": "Number of kg"
+        },
+        "travelType": "Select Travel Type",
+        "@travelType": {
+        "description": "Head Text to select a travel type"
+        },
+        "road": "Road",
+        "@road": {
+        "description": "sample travel type"
+        },
+        "air": "Air",
+        "@air": {
+        "description": "sample travel type"
+        },
+        "userProfileInfoText": "Complete your user profile info",
+        "@userProfileInfoText": {
+        "description": "Head Text to complete user profile Info"
+        },
+        "verifyTravelInfo": "Verify your information",
+        "@verifyTravelInfo": {
+        "description": "Head Text to verify travel Info"
+        },
+        "updateTravel": "Update Travel",
+        "@updateTravel": {
+        "description": "Button to update a travel"
+        },
+        "fieldsRequired": "All fields are required",
+        "@fieldsRequired": {
+        "description": "All fields are required"
+        },
+        "noArrivalCitySelected": "No arrival city selected!!! ",
+        "@noArrivalCitySelected": {
+        "description": "Message to tell the user that Arrival city not selected!!! "
+        },
+        "noDepartureCitySelected": "Please, first select a departure city!!! ",
+        "@noDepartureCitySelected": {
+        "description": "Message to tell the user that Departure city not selected!!! "
+        },
+        "bargain": "Accept bargain?",
+        "@bargain": {
+        "description": "Allows the user to accept bargain or not"
+        },
+        "priceKg": "Price /kg",
+        "@priceKg": {
+        "description": "Price per kg"
+        },
+        "yes": "YES",
+        "@yes": {
+        "description": "Yes"
+        },
+        "no": "No",
+        "@no": {
+        "description": "No"
+        },
+        "my": "My",
+        "@my": {
+        "description": "posessive adjective"
+        },
+        "transport": "Transport",
+        "@transport": {
+        "description": "Button leading to the add travel form"
+        },
+        "publish": "Publish",
+        "@publish": {
+        "description": "Button to publish a travel"
+        },
+        "statePublished": "PUBLISHED",
+        "@statePublished": {
+        "description": "Label of the state published of a travel"
+        },
+        "travelNotFound": "No Travels found",
+        "@travelNotFound": {
+        "description": "Label of the state published of a travel"
+        },
+        "manyTravelsNegotiatingError": "You cannot have simultaneously in the system two travels in negotiation! please update and try again",
+        "@manyTravelsNegotiatingError": {
+        "description": "Error appearing when you try to publish a travel while another is already in negotiating phase"
+        },
+        "searchHere": "Search here...",
+        "@searchHere": {
+        "description": "Placeholder for the search field"
+        },
+
+        "description": "Description",
+        "@description": {
+        "description": "Description of the travel"
+        },
+        "state": "State: ",
+        "@state": {
+        "description": "State of the travel"
+        },
+        "aboutTraveler": "About Traveler ",
+        "@aboutTraveler": {
+        "description": "Details about the traveler"
+        },
+
+        "aboutTravel": "About Travel ",
+        "@aboutTravel": {
+        "description": "Details about the travel"
+        },
+        "viewTravellerRating": "View Rating >",
+        "@viewTravellerRating": {
+        "description": "Ratings of the traveler"
+        },
+        "closeNegotiation": "Close Negotiation",
+        "@closeNegotiation": {
+        "description": "Button to push a travel to the state accepted or running"
+        },
+        "travelCompleted": "Travel Completed",
+        "@travelCompleted": {
+        "description": "Travel has reached the completed state"
+        },
+         "confirmLuggageReceptionDialog": "Do you really want to confirm reception of your luggage?",
+         "@confirmLuggageReceptionDialog": {
+         "description": "Dialog to ensure the traveler has received the package"
+         },
+        "travelCompletionDate": "This travel was completed on",
+        "@travelCompleted": {
+        "description": "Text leading to the date when travel was completed"
+        },
+
+
+
+
+        "dashboard": "Dashboard",
+        "@dashboard": {
+        "description": "The menu allowing the user to access his shippings, travels, and parcels"
+        },
+
+
+
+
+        "myParcels": "My Parcels",
+        "@myParcels": {
+        "description": "Head Text of the page my parcels"
+        },
+
+
+
+
+
+        "account": "Account",
+        "@account": {
+        "description": "Headline of the user profile Account"
+        },
+
+
+        "profile": "Profile",
+        "@profile": {
+        "description": "Button leading to user profile info"
+        },
+        "dateBirth": "Date of birth",
+                "@dateBirth": {
+                "description": "Date of birth of the user"
+                },
+        "placeBirth": "Place of birth",
+                "@placeBirth": {
+                "description": "Place of birth of the user"
+                },
+
+        "cityBirth": "City of birth",
+                "@cityBirth": {
+                "description": "City of birth of the user"
+                },
+        "residentialAddress": "Residential address",
+        "@residentialAddress": {
+         "description": "Residential address of the user"
+         },
+         "updateProfileInstruction": "Change the following details and save them",
+         "@updateProfileInstruction": {
+         "description": "Instructions on how to update user profile info"
+         },
+         "saveChanges": "Save Changes",
+         "@saveChanges": {
+         "description": "Save Changes"
+         },
+         "editProfile": "Edit Profile",
+         "@editProfile": {
+         "description": "Button allowing the user to update his profile"
+         },
+
+         "confirmDelivery": "Confirm Delivery",
+         "@confirmDelivery": {
+         "description": "Button to navigate to the page to scan delivery code "
+         },
+         "validateDelivery": "Validate Delivery",
+         "@validateDelivery": {
+         "description": "process to scan delivery code "
+         },
+         "deliveryCode": "Delivery Code",
+         "@deliveryCode": {
+         "description": "Page to display delivery code "
+         },
+         "validationCode": "Validation code",
+         "@validationCode": {
+         "description": "label of the field to enter the delivery code "
+         },
+
+         "scanCode": "Scan Code",
+         "@scanCode": {
+         "description": "label of QR code "
+         },
+         "parcelCodeError": "Code not matching! Please verify and try again later",
+         "@parcelCodeError": {
+         "description": "Message error displayed when the code is not matching"
+         },
+         "confirmDeliveryReference": "Confirm the delivery of Shipping with reference:",
+         "@confirmDeliveryReference": {
+         "description": "Message text"
+         },
+         "travelFrom": "travel from",
+         "@travelFrom": {
+         "description": "Message text"
+         },
+
+
+         "attachmentFiles": "View Attachment Files",
+         "@attachmentFiles": {
+         "description": "Button to navigate to the page to view and upload attachment files "
+         },
+         "identityFiles": "Identity Files",
+         "@identityFiles": {
+         "description": "Head Text of Identity Page for attachments "
+         },
+         "selectIdentityPiece": "Select Identity Piece",
+         "@selectIdentityPiece": {
+         "description": "Select the type of the identity piece"
+         },
+         "addIdentityFiles": "Add Identity Files",
+         "@addiIdentityFiles": {
+         "description": "Button to add identity files "
+         },
+        "submitForm": "Submit Form",
+         "@submitForm": {
+         "description": "Submit filled form of identity files "
+         },
+        "uploadFile": "Upload File",
+         "@uploadFile": {
+         "description": "Allow the user to upload a file"
+         },
+        "cniPassport": "CNI / Passport number",
+         "@cniPassport": {
+         "description": "CNI / Passport number"
+         },
+
+        "cni": "CNI",
+         "@cni": {
+         "description": "National Identity Card"
+         },
+        "passport": "Passport",
+         "@passport": {
+         "description": "example of identity files used at the international level "
+         },
+        "idNumber": "Id Number",
+         "@idNumber": {
+         "description": "Number allowing to identify user on his identity file"
+         },
+        "type": "Type",
+         "@type": {
+         "description": "Type of identity file"
+         },
+        "validity": "Validity",
+         "@validity": {
+         "description": "Time during which an identity file is valid"
+         },
+        "validState": "Valid",
+         "@validState": {
+         "description": "State where identity file is valid"
+         },
+        "attachmentNotFound": "Attachment Not Found",
+         "@attachmentNotFound": {
+         "description": "State where identity file is valid"
+         },
+        "expiredState": "Expired",
+         "@expiredState": {
+         "description": "State where identity file is expired"
+         },
+        "verifiedState": "Verified",
+         "@verifiedState": {
+         "description": "State where identity file is verified"
+         },
+        "analysisState": "Analysing...",
+         "@analysisState": {
+         "description": "State where identity file is being analyzed"
+         },
+        "conformity": "Conformity",
+         "@conformity": {
+         "description": "Determines if an identity file is conform"
+         },
+
+        "deliveryDate": "Delivery Date",
+         "@deliveryDate": {
+         "description": "Date od delivery of identity file is conform"
+         },
+
+        "expiryDate": "Expiry Date",
+         "@expiryDate": {
+         "description": "Date of expiration identity file is conform"
+         },
+
+        "identityFileImage": "CNI or Passport Image",
+         "@identityFileImage": {
+         "description": "Determines if an identity file is conform"
+         },
+
+
+
+         "language": "Languages",
+         "@language": {
+         "description": "Button to navigate to the page to change app language "
+         },
+
+         "viewRatings": "View My Ratings",
+         "@viewRatings": {
+         "description": "Button to view user's ratings "
+         },
+         "myRatings": "My Ratings",
+         "@myRatings": {
+         "description": "user's ratings "
+         },
+
+
+         "themeMode": "Theme Mode",
+         "@themeMode": {
+         "description": "Button to change theme Mode "
+         },
+         "enableNotifications": "Enable Notifications on this device",
+         "@enableNotifications": {
+         "description": "Allows the device to receive or not the notifications "
+         },
+         "helpFaq": "Help & FAQ",
+         "@helpFaq": {
+         "description": "Allows the user to get help "
+         },
+         "signal": "Signal",
+         "@signal": {
+         "description": "Allows the user to signal an infraction "
+         },
+         "deleteAccount": "Delete Account",
+         "@deleteAccount": {
+         "description": "Delete a user Account from the system"
+         },
+         "delete": "Delete",
+         "@delete": {
+         "description": "Delete a user Account from the system"
+         },
+         "wantToDeleteAccount": "Do you really want to delete your account? Once it'' s done, you can''t undo it and you will no more have access to Hubcolis",
+         "@wantToDeleteAccount": {
+         "description": "Text explaining the Delete of a user Account from the system"
+         },
+
+
+         "welcome": "Welcome",
+         "@welcome": {
+         "description": "Welcoming Text"
+         },
+         "logRegister": "Login account or create new one for free",
+         "@logRegister": {
+         "description": "Text to login or create account on Main drawer"
+         },
+         "availableTravels": "Available Travels",
+         "@availableTravels": {
+         "description": "Button leading to the list of travels available"
+         },
+         "notifications": "Notifications",
+         "@notifications": {
+         "description": "Label Notifications"
+         },
+         "helpPrivacy": "Help & Privacy",
+         "@helpPrivacy": {
+         "description": "Help and Privacy of the main drawer"
+         },
+         "signalIssue": "Signal an issue",
+         "@helpPrivacy": {
+         "description": "Helps to signal an issue, found in the main drawer"
+         },
+         "logOut": "Log out",
+         "@logOut": {
+         "description": "Allows the user to log out of the system"
+         },
+
+
+
+        "chat": "Chat",
+        "@chat": {
+        "description": "Button leading to the chatroom"
+        },
+        "firstPriceProposition": "Please propose a price to confirm your choice",
+        "@firstPriceProposition": {
+        "description": "When the user accepts a shipping he proposes a first price"
+        },
+        "enterPrice": "Please enter a price...",
+        "@enterPrice": {
+        "description": " first price"
+        },
+        "messageStartChat": "Type a message to start chat!",
+        "@messageStartChat": {
+        "description": "Text telling the user to enter a message to start a chat"
+        },
+        "acceptPrice": "Accept Price",
+        "@acceptPrice": {
+        "description": "Text telling the shipper to accept a price"
+        },
+        "confirmPrice": "Confirm Price",
+        "@confirmPrice": {
+        "description": "Text telling the traveler to confirm a price"
+        },
+        "addComment": "Add a comment",
+        "@addComment": {
+        "description": "Text telling the traveler to add a comment"
+        },
+        "sendMessage": "Send message",
+        "@sendMessage": {
+        "description": "Text telling the user to send a Message"
+        },
+        "iPropose": "I propose...",
+        "@iPropose": {
+        "description": "Text used by Default when user does not add a message when sending a price "
+        },
+        "addMessage": "add a message",
+        "@addMessage": {
+        "description": "Text telling the user to add a Message"
+        },
+        "billSimulator": "Bill Simulator",
+        "@billSimulator": {
+        "description": "label for the bill Simulator"
+        },
+        "proposedPrice": "Proposed price:",
+        "@proposedPrice": {
+        "description": "label for the proposed Price"
+        },
+        "totalPaid": "Total Paid:",
+        "@totalPaid": {
+        "description": "label for the total Paid"
+        },
+        "serviceFee": "Service fee:",
+        "@serviceFee": {
+        "description": "label for the Service fee"
+        },
+        "netReceived": "Net to be received:",
+        "@netReceived": {
+        "description": "label for the net amount to be received"
+        },
+        "noMessageFoundError": "Messages List Empty",
+        "@noMessageFoundError": {
+        "description": "label to show that the message list is empty"
+        },
+        "priceConfirmed": "Price confirmed. In order to confirm your shipment, I invite you to pay the invoice attached",
+        "@priceConfirmed": {
+        "description": "Message sent to the user to acknowledge his price was confirmed"
+        },
+        "priceAccepted": "Price accepted. Please confirm the price by clicking on the button confirm price above",
+        "@priceAccepted": {
+        "description": "Message sent to the user to acknowledge his price was accepted"
+        },
+        "selectImageFileError": "Please select an image file",
+        "@selectImageFileError": {
+        "description": "Message sent to the user to tell him to select an image file"
+        },
+
+
+
+        "leaveReview": "Leave a Review",
+        "@leaveReview": {
+        "description": "Head Text of the page to leave a review"
+        },
+        "hi": "Hi,",
+        "@hi": {
+        "description": "Salutation"
+        },
+
+
+
+
+        "invoice": "Invoice",
+        "@invoice": {
+        "description": "invoice label"
+        },
+        "invoiceDate": "Invoice Date:",
+        "@invoiceDate": {
+        "description": "invoice Date"
+        },
+        "dueDate": "Due Date:",
+        "@dueDate": {
+        "description": "invoice due Date"
+        },
+        "invoiceSource": "Source:",
+        "@invoiceSource": {
+        "description": "invoice source"
+        },
+        "viewInvoice": "View Invoice",
+        "@viewInvoice": {
+        "description": "button allowing to see the invoice"
+        },
+        "unitPrice": "Unit Price",
+        "@unitPrice": {
+        "description": "Unit Price per measuring unit"
+        },
+        "taxes": "Taxes:",
+        "@taxes": {
+        "description": "Taxes applied to the luggage"
+        },
+        "amount": "Amount",
+        "@amount": {
+        "description": "price negotiated "
+        },
+        "hubkiloFees": "HUBKILO FEES",
+        "@hubkiloFees": {
+        "description": "Commision to pay to hubkilo"
+        },
+        "untaxedAmount": "Untaxed Amount",
+        "@untaxedAmount": {
+        "description": "Amount without taxes"
+        },
+        "total": "Total",
+        "@total": {
+        "description": "Total Price to be paid by the shipper"
+        },
+        "paymentInstructionText": "Please use the following communication for your payment: ",
+        "@paymentInstructionText": {
+        "description": "Instruction concerning payment"
+        },
+        "paymentTerms": "Payment terms:",
+        "@paymentTerms": {
+        "description": "Payment Terms"
+        },
+
+
+
+
+
+
+         "cancel": "Cancel",
+         "@cancel": {
+         "description": "Allows the user to cancel an action "
+         },
+         "close": "Close",
+         "@close": {
+         "description": "Allows the user to close "
+         },
+
+         "edit": "Edit...",
+         "@edit": {
+         "description": "Allows the user to edit some fields "
+         },
+         "confirm": "Confirm",
+         "@confirm": {
+         "description": "Allows the user to confirm an action "
+         },
+         "back": "Back",
+         "@back": {
+         "description": "Allows the user to go back to the previous page "
+         },
+         "continu": "Continue",
+         "@continue": {
+         "description": "Allows the user to go continue to the next page "
+         },
+         "viewAll": "View All",
+         "@viewAll": {
+         "description": "Allows the user to an extensive view of something "
+         },
+         "payNow": "Pay Now",
+         "@payNow": {
+         "description": "Allows the user to pay for the shipping "
+         },
+         "download": "Download",
+         "@download": {
+         "description": "Allows the user to Download the invoice "
+         },
+         "next": "Next",
+         "@next": {
+         "description": "Allows the user to continue "
+         },
+         "view": "View",
+         "@view": {
+         "description": "Allows the user to view "
+         },
+         "readMore": "read more...",
+         "@readMore": {
+         "description": "Read more about something "
+         },
+         "join": "Join",
+         "@join": {
+         "description": "Button to Join"
+         },
+         "create": "Create",
+         "@create": {
+         "description": "Button allowing to create a travel "
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

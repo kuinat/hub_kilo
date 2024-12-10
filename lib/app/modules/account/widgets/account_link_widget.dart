@@ -54,7 +54,7 @@ class AccountLinkWidget extends StatelessWidget {
 
 class AccountWidget extends StatelessWidget {
   final IconData icon;
-  final Widget text;
+  final String text;
   final String value;
 
   const AccountWidget({
@@ -72,7 +72,7 @@ class AccountWidget extends StatelessWidget {
         children: [
           SizedBox(
             width: 30,
-            child: Icon( icon,color: interfaceColor, size: 18),
+            child: Icon( icon,color: buttonColor, size: 18),
           ),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 12),
@@ -81,13 +81,13 @@ class AccountWidget extends StatelessWidget {
             color: Get.theme.focusColor.withOpacity(0.3),
           ),
           Expanded(
-            child: text,
+            child: Text(text, style: TextStyle(color: buttonColor))
           ),
           SizedBox(
             width: 130,
             child: Text(
               value, style: Get.textTheme.headline1.
-            merge(TextStyle(color: appColor, fontSize: 12)),
+            merge(TextStyle(color: buttonColor, fontSize: 12)),
             ),
           )
         ],

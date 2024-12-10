@@ -20,7 +20,7 @@ class _FadeInState extends State<FadeIn>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 700),
     );
 
     final curve = CurvedAnimation(

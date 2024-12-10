@@ -17,9 +17,15 @@ class MyUser {
   String birthday;
   String birthplace;
   String sex;
+  String vat;
   bool isTraveller ;
   String image;
+  bool isProfessional;
   var partnerAttachmentIds;
+  var deviceTokenIds;
+  var airTravelIds;
+  var roadTravelIds;
+  var bankIds;
 
 
   MyUser({
@@ -36,6 +42,12 @@ class MyUser {
      this.isTraveller,
     this.image,
     this.partnerAttachmentIds,
+    this.deviceTokenIds,
+    this.isProfessional,
+    this.vat,
+    this.airTravelIds,
+    this.roadTravelIds,
+    this.bankIds,
 
   });
 
@@ -51,6 +63,7 @@ class MyUser {
     birthplace: json["birthplace"],
     sex: json["sex"],
     isTraveller: json["is_traveller"],
+    isProfessional: json["is_company"],
     image: json["image_1920"],
   );
 
@@ -65,6 +78,7 @@ class MyUser {
     "birthplace": birthplace,
     "sex": sex,
     "is_traveller": isTraveller,
+    "is_company": isProfessional,
     "image_1920": isTraveller,
 
   };

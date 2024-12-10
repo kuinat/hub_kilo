@@ -4,69 +4,76 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../color_constants.dart';
+import '../../global_widgets/text_field_widget.dart';
 import '../controller/import_identity_files_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
-
-  var selectedPiece = "Select identity piece".obs;
-
-  var pieceList = [
-    'Select identity piece'.tr,
-    'CNI'.tr,
-    'Passport'.tr,
-  ];
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //Get.theme.colorScheme.secondary,
+        backgroundColor: Get.theme.colorScheme.secondary,
         appBar: AppBar(
-          backgroundColor: background,
+          backgroundColor: Get.theme.colorScheme.secondary,
+          elevation: 0,
           title:  Text(
-            "Identity files".tr,
-            style: Get.textTheme.headline6.merge(TextStyle(color: appColor)),
+            AppLocalizations.of(context).addIdentityFiles.tr,
+            style: Get.textTheme.headline6.merge(TextStyle(color: Colors.white)),
           ),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: appColor),
+            icon: Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => {Navigator.pop(context)},
           ),
         ),
         bottomSheet: SizedBox(
-          height: 40,
+          height: 80,
           child: Center(
-            child: MaterialButton(
-              onPressed: () async{
+            child: InkWell(
+              onTap: () async{
 
                 controller.buttonPressed.value = true;
                 await controller.createAttachment();
 
               },
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              color: interfaceColor,
-              child: Obx(() =>  !controller.buttonPressed.value ?
-              Text("Submit form".tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Get.theme.primaryColor)))
-              : SizedBox(height: 20,
-                  child: SpinKitThreeBounce(color: Colors.white, size: 20))
-              ),
-              elevation: 0,
-              highlightElevation: 0,
-              hoverElevation: 0,
-              focusElevation: 0,
-            ),
-          ),
-        ),
-        body: Obx(() => Theme(
-            data: ThemeData(
-              //canvasColor: Colors.yellow,
-                colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: Get.theme.colorScheme.secondary,
-                  background: Colors.red,
-                  secondary: validateColor,
+              child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(colors: [Colors.purple,Colors.blue ] )),
+
+                  width: Get.width/2,
+                height: 40,
+                margin: EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                child: Center(
+                  child: Obx(() =>  !controller.buttonPressed.value ?
+                  Text(AppLocalizations.of(context).submitForm.tr, style: Get.textTheme.bodyText2.merge(TextStyle(color: Colors.white)))
+                      : SizedBox(height: 20,
+                      child: SpinKitThreeBounce(color: Colors.white, size: 20))
+                  )
                 )
-            ),
+              )
+            )
+          )
+        ),
+        body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 0),
+        child: Obx(() => Theme(
+          data: ThemeData(
+            //canvasColor: Colors.yellow,
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                primary: Get.theme.colorScheme.secondary,
+                background: Colors.red,
+                secondary: validateColor,
+              )
+          ),
+          child: Container(
+            decoration: BoxDecoration(color: backgroundColor,
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(20.0),
+                  topLeft: Radius.circular(20.0)), ),
             child: Column(
               children: [
                 Container(
@@ -89,7 +96,7 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                         isExpanded: true,
                         alignment: Alignment.bottomCenter,
 
-                        style: TextStyle(color: labelColor),
+                        style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
                         value: controller.selectedPiece.value,
                         // Down Arrow Icon
                         icon: const Icon(Icons.keyboard_arrow_down),
@@ -105,7 +112,7 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                         // change button value to selected value
                         onChanged: (String newValue) {
                           controller.selectedPiece.value = newValue;
-                          if(controller.selectedPiece.value == "cni"){
+                          if(controller.selectedPiece.value == "CNI" ){
                             controller.identityPieceSelected.value= "cni";
                           }
                           else{
@@ -116,6 +123,17 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                         },).marginOnly(left: 20, right: 20, top: 10, bottom: 10).paddingOnly( top: 20, bottom: 14),
                     )
                 ).paddingOnly(left: 5, right: 5, top: 20, bottom: 14,
+                ),
+
+                TextFieldWidget(
+                  isLast: false,
+                  readOnly: false,
+                  onChanged: (input) => controller.number.value = input,
+                  onSaved: (input) => controller.number.value = input,
+                  validator: (input) => input.length < 3 ? AppLocalizations.of(context).validatorError.tr : null,
+                  hintText: "xxxxxxxxx".tr,
+                  labelText: AppLocalizations.of(context).cniPassport.tr,
+                  iconData: Icons.numbers,
                 ),
 
                 InkWell(
@@ -133,15 +151,13 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text("Delivery Date".tr,
-                            style: Get.textTheme.bodyText1,
-                            textAlign: TextAlign.start,
+                          Text(AppLocalizations.of(context).deliveryDate.tr, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black, fontSize: 14)),
                           ),
                           Obx(() =>
                               ListTile(
                                   leading: Icon(Icons.calendar_today),
                                   title: Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.dateOfDelivery.value)).toString(),
-                                    style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                    style: Get.textTheme.headline1.merge(TextStyle(color: Colors.grey.shade700, fontSize: 12)),
                                   )
                               )
                           )
@@ -164,15 +180,13 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text("Expiry Date".tr,
-                            style: Get.textTheme.bodyText1,
-                            textAlign: TextAlign.start,
+                          Text(AppLocalizations.of(context).expiryDate.tr, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black, fontSize: 14)),
                           ),
                           Obx(() =>
                               ListTile(
                                   leading: Icon(Icons.calendar_today),
                                   title: Text(DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.dateOfExpiration.value)).toString(),
-                                    style: Get.textTheme.headline1.merge(TextStyle(color: Colors.black, fontSize: 16)),
+                                    style: Get.textTheme.headline1.merge(TextStyle(color: Colors.grey.shade700, fontSize: 12)),
                                   )
                               ))
                         ],
@@ -185,9 +199,7 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text("CNI or Passport Image".tr,
-                        style: Get.textTheme.bodyText1,
-                        textAlign: TextAlign.start,
+                      Text(AppLocalizations.of(context).identityFileImage.tr, style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black, fontSize: 14)),
                       ),
                       SizedBox(height: 5),
                       Row(
@@ -227,13 +239,10 @@ class ImportIdentityFilesView extends GetView<ImportIdentityFilesController> {
                     ],
                   ),
                 ),
-
-
-
-
               ],
             ),
-            ),
+          ),
+        ))
         )
     );
   }

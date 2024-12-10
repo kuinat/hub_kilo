@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../services/my_auth_service.dart';
 import '../controllers/rating_controller.dart';
 
 class RatingBinding extends Bindings {
@@ -7,6 +8,9 @@ class RatingBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<RatingController>(
       () => RatingController(),
+    );
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
     );
   }
 }

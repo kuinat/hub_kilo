@@ -1,27 +1,75 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:hive_flutter/adapters.dart';
 
+import '../../color_constants.dart';
 import '../../common/ui.dart';
+import '../../main.dart';
 import '../models/booking_model.dart';
 import '../models/message_model.dart';
+import '../models/notification_model.dart';
 import '../modules/messages/controllers/messages_controller.dart';
+import '../modules/notifications/controllers/notifications_controller.dart';
 import '../modules/root/controllers/root_controller.dart';
 import '../routes/app_routes.dart';
 import 'auth_service.dart';
+import 'my_auth_service.dart';
 
 class FireBaseMessagingService extends GetxService {
   Future<FireBaseMessagingService> init() async {
-    FirebaseMessaging.instance.requestPermission(sound: true, badge: true, alert: true);
+    //`FirebaseMessaging.instance.requestPermission(sound: true, badge: true, alert: true);
+    await requestPermission();
+    await setDeviceToken();
     await fcmOnLaunchListeners();
     await fcmOnResumeListeners();
     await fcmOnMessageListeners();
     return this;
   }
+  void requestPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    final settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (kDebugMode) {
+        print("User permission granted");
+      }
+    } else if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (kDebugMode) {
+        print("user granted a provisional permission ");
+      }
+    } else {
+      if (kDebugMode) {
+        print("user did not granted permission");
+      }
+
+      showDialog(
+          context: Get.context,
+          builder: (_){
+            return AlertDialog(
+              content: Container(
+                height: 170,
+                padding: EdgeInsets.all(10),
+                child: Text('Allow your device to receive notifications from Hubkilo in the device settings', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15, color: buttonColor))),
+              ),
+            );
+          });
+    }
+  }
 
   Future fcmOnMessageListeners() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async{
       if (Get.isRegistered<RootController>()) {
         //Get.find<RootController>().getNotificationsCount();
       }
@@ -30,6 +78,23 @@ class FireBaseMessagingService extends GetxService {
       } else {
         _bookingNotification(message);
       }
+      var count = 0;
+      NotificationsController _notificationController = new NotificationsController();
+      var list = await _notificationController.getNotifications(Get.find<MyAuthService>().myUser.value.id);
+      for(int i =0; i<list.length; i++ ){
+        if(Get.find<MyAuthService>().myUser.value.id==list[i]['sender_partner_id'])
+        {
+          if(!list[i]['is_seen_sender']){
+            count = count +1;
+          }
+        }
+        else{
+          if(!list[i]['is_seen_receiver']){
+            count = count +1;
+          }
+        }
+      }
+      Get.find<RootController>().notificationsCount.value = count ;
     });
   }
 
@@ -41,7 +106,25 @@ class FireBaseMessagingService extends GetxService {
   }
 
   Future fcmOnResumeListeners() async {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      var count = 0;
+      NotificationsController _notificationController = new NotificationsController();
+      var list = await _notificationController.getNotifications(Get.find<MyAuthService>().myUser.value.id);
+      for(int i =0; i<list.length; i++ ){
+        if(Get.find<MyAuthService>().myUser.value.id==list[i]['sender_partner_id'])
+        {
+          if(!list[i]['is_seen_sender']){
+            count = count +1;
+          }
+        }
+        else{
+          if(!list[i]['is_seen_receiver']){
+            count = count +1;
+          }
+        }
+      }
+      Get.find<RootController>().notificationsCount.value = count ;
+
       _notificationsBackground(message);
     });
   }
@@ -67,7 +150,20 @@ class FireBaseMessagingService extends GetxService {
   }
 
   Future<void> setDeviceToken() async {
-    Get.find<AuthService>().user.value.deviceToken = await FirebaseMessaging.instance.getToken();
+    //Get.find<AuthService>().user.value.deviceToken =
+    getToken();
+  }
+
+  getToken() async {
+    await FirebaseMessaging.instance.getToken().then((token) {
+
+      var mtoken = token;
+      if (kDebugMode) {
+        print("my token is $mtoken");
+      }
+      Domain.deviceToken = token;
+    });
+
   }
 
   void _bookingNotification(RemoteMessage message) {
@@ -81,24 +177,11 @@ class FireBaseMessagingService extends GetxService {
     Get.showSnackbar(Ui.notificationSnackBar(
       title: notification.title,
       message: notification.body,
-      mainButton: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-        width: 52,
-        height: 52,
-        child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-          child: CachedNetworkImage(
-            width: double.infinity,
-            fit: BoxFit.cover,
-            imageUrl: message.data != null ? message.data['icon'] : "",
-            placeholder: (context, url) => Image.asset(
-              'assets/img/loading.gif',
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-            errorWidget: (context, url, error) => Icon(Icons.error_outline),
-          ),
-        ),
+      mainButton: Image.asset(
+        'assets/img/hubcolis.png',
+        fit: BoxFit.cover,
+        width: 30,
+        height: 30,
       ),
       onTap: (getBar) async {
         if (message.data['bookingId'] != null) {
@@ -118,24 +201,11 @@ class FireBaseMessagingService extends GetxService {
       Get.showSnackbar(Ui.notificationSnackBar(
         title: notification.title,
         message: notification.body,
-        mainButton: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-          width: 42,
-          height: 42,
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(42)),
-            child: CachedNetworkImage(
-              width: double.infinity,
-              fit: BoxFit.cover,
-              imageUrl: message.data != null ? message.data['icon'] : "",
-              placeholder: (context, url) => Image.asset(
-                'assets/img/loading.gif',
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
-              errorWidget: (context, url, error) => Icon(Icons.error_outline),
-            ),
-          ),
+        mainButton: Image.asset(
+          'assets/img/hubcolis.png',
+          fit: BoxFit.cover,
+          width: 30,
+          height: 30,
         ),
         onTap: (getBar) async {
           if (message.data['messageId'] != null) {

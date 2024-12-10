@@ -6,6 +6,7 @@ import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/notifications_button_widget.dart';
 import '../controllers/messages_controller.dart';
 import '../widgets/message_item_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MessagesView extends GetView<MessagesController> {
   Widget conversationsList() {
@@ -47,7 +48,7 @@ class MessagesView extends GetView<MessagesController> {
         } else {
           return CircularLoadingWidget(
             height: Get.height,
-            onCompleteText: "Messages List Empty".tr,
+            onCompleteText: AppLocalizations.of(Get.context).noMessageFoundError.tr,
           );
         }
       },
@@ -60,7 +61,7 @@ class MessagesView extends GetView<MessagesController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Chats".tr,
+          AppLocalizations.of(context).chat.tr,
           style: Get.textTheme.headline6,
         ),
         centerTitle: true,

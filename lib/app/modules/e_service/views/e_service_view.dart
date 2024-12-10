@@ -76,9 +76,9 @@ class EServiceView extends GetView<EServiceController> {
                             Get.toNamed(Routes.LOGIN);
                           } else {
                             if (_eService?.isFavorite ?? false) {
-                              controller.removeFromFavorite();
+                              //controller.removeFromFavorite();
                             } else {
-                              controller.addToFavorite();
+                              //controller.addToFavorite();
                             }
                           }
                         },
@@ -184,9 +184,6 @@ class EServiceView extends GetView<EServiceController> {
                                     );
                                   }),
                             ),
-                            actions: [
-                              // TODO View all galleries
-                            ],
                           ),
                         EServiceTilWidget(
                           title: Text("Reviews & Ratings".tr, style: Get.textTheme.subtitle2),
@@ -220,9 +217,6 @@ class EServiceView extends GetView<EServiceController> {
                               }),
                             ],
                           ),
-                          actions: [
-
-                          ],
                         ),
                       ],
                     ),
@@ -489,9 +483,6 @@ class EServiceView extends GetView<EServiceController> {
         child: EServiceTilWidget(
           title: Text("Service Provider".tr, style: Get.textTheme.subtitle2),
           content: EProviderItemWidget(provider: _eService.eProvider),
-          actions: [
-            Text("View More".tr, style: Get.textTheme.subtitle1),
-          ],
         ),
       );
     } else {
@@ -500,7 +491,6 @@ class EServiceView extends GetView<EServiceController> {
         content: SizedBox(
           height: 60,
         ),
-        actions: [],
       );
     }
   }

@@ -9,7 +9,7 @@ import '../../../../common/ui.dart';
 class EServiceTilWidget extends StatelessWidget {
   final Widget title;
   final Widget content;
-  final List<Widget> actions;
+  final Widget actions;
   final double horizontalPadding;
 
   const EServiceTilWidget({Key key, this.title, this.content, this.actions, this.horizontalPadding}) : super(key: key);
@@ -26,10 +26,7 @@ class EServiceTilWidget extends StatelessWidget {
           Row(
             children: [
               Expanded(child: title),
-              if (actions != null)
-                Wrap(
-                  children: actions,
-                )
+              actions
             ],
           ),
           Divider(

@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 
 import '../../../providers/laravel_provider.dart';
 import '../../global_widgets/circular_loading_widget.dart';
-import '../../global_widgets/home_search_bar_widget.dart';
 import '../controllers/categories_controller.dart';
 import '../widgets/category_grid_item_widget.dart';
 import '../widgets/category_list_item_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CategoriesView extends GetView<CategoriesController> {
   @override
@@ -30,13 +30,12 @@ class CategoriesView extends GetView<CategoriesController> {
         body: RefreshIndicator(
           onRefresh: () async {
             Get.find<LaravelApiClient>().forceRefresh();
-            controller.refreshCategories(showMessage: true);
+            //controller.refreshCategories(showMessage: true);
             Get.find<LaravelApiClient>().unForceRefresh();
           },
           child: ListView(
             primary: true,
             children: [
-              HomeSearchBarWidget(),
               Padding(
                 padding: const EdgeInsets.only(left: 20, right: 10),
                 child: Row(children: [

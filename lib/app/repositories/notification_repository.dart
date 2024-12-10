@@ -11,19 +11,15 @@ class NotificationRepository {
     this._laravelApiClient = Get.find<LaravelApiClient>();
   }
 
-  Future<List<Notification>> getAll() {
+  Future<List<NotificationModel>> getAll() {
     return _laravelApiClient.getNotifications();
   }
 
-  Future<int> getCount() {
-    return _laravelApiClient.getNotificationsCount();
-  }
-
-  Future<Notification> remove(Notification notification) {
+  Future<NotificationModel> remove(NotificationModel notification) {
     return _laravelApiClient.removeNotification(notification);
   }
 
-  Future<Notification> markAsRead(Notification notification) {
+  Future<NotificationModel> markAsRead(NotificationModel notification) {
     return _laravelApiClient.markAsReadNotification(notification);
   }
 

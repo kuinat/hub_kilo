@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart' hide OnTap;
 import 'package:get/get.dart';
 
 import '../app/services/settings_service.dart';
+import '../color_constants.dart';
 
 class Ui {
   static GetSnackBar SuccessSnackBar({String title = 'Success', String message}) {
@@ -15,10 +16,11 @@ class Ui {
       snackPosition: SnackPosition.BOTTOM,
       margin: EdgeInsets.all(20),
       backgroundColor: Colors.green,
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
       icon: Icon(Icons.check_circle_outline, size: 32, color: Get.theme.primaryColor),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       borderRadius: 8,
-      dismissDirection: DismissDirection.horizontal,
       duration: Duration(seconds: 2),
     );
   }
@@ -30,6 +32,8 @@ class Ui {
       messageText: Text(message.substring(0, min(message.length, 200)), style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
       snackPosition: SnackPosition.BOTTOM,
       margin: EdgeInsets.all(20),
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
       backgroundColor: Colors.redAccent,
       icon: Icon(Icons.remove_circle_outline, size: 32, color: Get.theme.primaryColor),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -45,6 +49,8 @@ class Ui {
       messageText: Text(message.substring(0, min(message.length, 200)), style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
       snackPosition: SnackPosition.BOTTOM,
       margin: EdgeInsets.all(20),
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
       backgroundColor: Colors.blue,
       icon: Icon(Icons.info_outline_rounded, size: 32, color: Get.theme.primaryColor),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -59,6 +65,8 @@ class Ui {
       titleText: Text(title.tr, style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor))),
       messageText: Text(message.substring(0, min(message.length, 200)), style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
       snackPosition: SnackPosition.BOTTOM,
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
       margin: EdgeInsets.all(20),
       backgroundColor: Colors.orangeAccent,
       icon: Icon(Icons.warning_amber_rounded, size: 32, color: Get.theme.primaryColor),
@@ -89,15 +97,17 @@ class Ui {
     return GetSnackBar(
       onTap: onTap,
       mainButton: mainButton,
-      titleText: Text(title.tr, style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.hintColor))),
-      messageText: Text(message, style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.focusColor))),
+      isDismissible: true,
+      dismissDirection: DismissDirection.vertical,
+      titleText: Text(title.tr, style: Get.textTheme.subtitle2),
+      messageText: Text(message, style: Get.textTheme.caption.merge(TextStyle(color: buttonColor, fontSize: 12)), maxLines: 2),
       snackPosition: SnackPosition.TOP,
-      margin: EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: 10),
       backgroundColor: Get.theme.primaryColor,
       borderColor: Get.theme.focusColor.withOpacity(0.1),
       icon: Icon(Icons.notifications_none, size: 32, color: Get.theme.hintColor),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      borderRadius: 8,
+      borderRadius: 5,
       duration: Duration(seconds: 5),
     );
   }
@@ -139,21 +149,21 @@ class Ui {
         maxLines: 1,
         text: _setting.setting.value.currencyRight != null && _setting.setting.value?.currencyRight == false
             ? TextSpan(
-                text: _setting.setting.value?.defaultCurrency,
-                style: getPriceStyle(style),
-                children: <TextSpan>[
-                  TextSpan(text: myPrice.toStringAsFixed(_setting.setting.value?.defaultCurrencyDecimalDigits) ?? '', style: style ?? Get.textTheme.subtitle2),
-                  if (unit != null) TextSpan(text: " " + unit + " ", style: getPriceStyle(style)),
-                ],
-              )
+          text: _setting.setting.value?.defaultCurrency,
+          style: getPriceStyle(style),
+          children: <TextSpan>[
+            TextSpan(text: myPrice.toStringAsFixed(_setting.setting.value?.defaultCurrencyDecimalDigits) ?? '', style: style ?? Get.textTheme.subtitle2),
+            if (unit != null) TextSpan(text: " " + unit + " ", style: getPriceStyle(style)),
+          ],
+        )
             : TextSpan(
-                text: myPrice.toStringAsFixed(_setting.setting.value?.defaultCurrencyDecimalDigits) ?? '',
-                style: style ?? Get.textTheme.subtitle2,
-                children: <TextSpan>[
-                  TextSpan(text: _setting.setting.value?.defaultCurrency, style: getPriceStyle(style)),
-                  if (unit != null) TextSpan(text: " " + unit + " ", style: getPriceStyle(style)),
-                ],
-              ),
+          text: myPrice.toStringAsFixed(_setting.setting.value?.defaultCurrencyDecimalDigits) ?? '',
+          style: style ?? Get.textTheme.subtitle2,
+          children: <TextSpan>[
+            TextSpan(text: _setting.setting.value?.defaultCurrency, style: getPriceStyle(style)),
+            if (unit != null) TextSpan(text: " " + unit + " ", style: getPriceStyle(style)),
+          ],
+        ),
       );
     } catch (e) {
       return Text('');

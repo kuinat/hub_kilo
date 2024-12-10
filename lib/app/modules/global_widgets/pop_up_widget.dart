@@ -36,7 +36,7 @@ class PopUpWidget extends StatelessWidget {
                 child: Text(cancel, style: TextStyle(color: inactive))),
             SizedBox(width: 10),
             TextButton(onPressed: onTap,
-                child: Text(confirm, style: TextStyle(color: specialColor)))
+                child: Text(confirm, style: TextStyle(color: interfaceColor, fontWeight: FontWeight.bold)))
           ],
         )
       ],

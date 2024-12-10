@@ -27,8 +27,8 @@ class SettingsService extends GetxService {
     address.listen((Address _address) {
       _box.write('current_address', _address.toJson());
     });
-    setting.value = await _settingsRepo.get();
-    setting.value.modules = await _settingsRepo.getModules();
+    //setting.value = await _settingsRepo.get();
+    //setting.value.modules = await _settingsRepo.getModules();
     await getAddress();
     return this;
   }
@@ -39,7 +39,8 @@ class SettingsService extends GetxService {
         floatingActionButtonTheme: FloatingActionButtonThemeData(elevation: 0, foregroundColor: Colors.white),
         brightness: Brightness.light,
         dividerColor: Ui.parseColor(setting.value.accentColor, opacity: 0.1),
-        focusColor: Ui.parseColor(setting.value.accentColor),
+        focusColor: inactive,
+        //Ui.parseColor(setting.value.accentColor),
         hintColor: Ui.parseColor(setting.value.secondColor),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(primary: Ui.parseColor(setting.value.mainColor)),
@@ -49,9 +50,9 @@ class SettingsService extends GetxService {
           secondary: interfaceColor,
         ),
         textTheme: GoogleFonts.getTextTheme(
-          _getLocale().startsWith('ar') ? 'Cairo' : 'Poppins',
+          'Poppins',
           TextTheme(
-            headline6: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: pink, height: 1.3),
+            headline6: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
             headline5: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
             headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400, color: interfaceColor, height: 1.3),
             headline3: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
@@ -85,9 +86,9 @@ class SettingsService extends GetxService {
           secondary: interfaceColor,
         ),
         textTheme: GoogleFonts.getTextTheme(
-            _getLocale().startsWith('ar') ? 'Cairo' : 'Poppins',
+            'Poppins',
             TextTheme(
-              headline6: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: pink, height: 1.3),
+              headline6: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
               headline5: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
               headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400, color: interfaceColor, height: 1.3),
               headline3: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700, color: interfaceColor, height: 1.3),
@@ -101,13 +102,13 @@ class SettingsService extends GetxService {
             )));
   }
 
-  String _getLocale() {
+  /*String _getLocale() {
     String _locale = GetStorage().read<String>('language');
     if (_locale == null || _locale.isEmpty) {
       _locale = setting.value.mobileLanguage;
     }
     return _locale;
-  }
+  }*/
 
   ThemeMode getThemeMode() {
     String _themeMode = GetStorage().read<String>('theme_mode');

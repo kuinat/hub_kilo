@@ -76,7 +76,7 @@ class ExpeditionOrderView extends GetView<ExpeditionOrderController> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       child: Image.asset(
-                        'assets/img/logohubkilo.png',
+                        'assets/img/hubcolis.png',
                         fit: BoxFit.cover,
                         width: 100,
                         height: 100,

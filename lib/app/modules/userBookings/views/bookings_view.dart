@@ -1,189 +1,453 @@
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+import '../../../../common/animation_controllers/animation.dart';
+import '../../../../common/animation_controllers/animatonFadeIn.dart';
+import '../../../../common/helper.dart';
 import '../../../../common/ui.dart';
 import '../../../../color_constants.dart';
 import '../../../../main.dart';
 import '../../../routes/app_routes.dart';
-import '../../account/widgets/account_link_widget.dart';
-import '../../global_widgets/block_button_widget.dart';
+import '../../../services/my_auth_service.dart';
+import '../../add_ravel_form/Views/add_travel_form.dart';
+import '../../add_ravel_form/controller/add_travel_controller.dart';
 import '../../global_widgets/card_widget.dart';
 import '../../global_widgets/loading_cards.dart';
-import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/pop_up_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
-import '../../global_widgets/user_widget.dart';
+import '../../root/controllers/root_controller.dart';
+import '../../travel_inspect/controllers/travel_inspect_controller.dart';
+import '../../userTravels/controllers/user_travels_controller.dart';
+import '../../userTravels/views/userTravels_view.dart';
+import '../../validate_transaction/controller/validation_controller.dart';
+import '../../validate_transaction/views/parcel_view.dart';
 import '../controllers/bookings_controller.dart';
 import '../widgets/bookings_list_loader_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookingsView extends GetView<BookingsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Get.theme.colorScheme.secondary,
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          title: Text(
-            "Shipping".tr,
-            style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
+
+    Get.lazyPut<MyAuthService>(
+          () => MyAuthService(),
+    );
+    Get.lazyPut<RootController>(
+          () => RootController(),
+    );
+    Get.lazyPut<UserTravelsController>(
+          () => UserTravelsController(),
+    );
+    Get.lazyPut<ValidationController>(
+          () => ValidationController(),
+    );
+    Get.lazyPut(()=>TravelInspectController());
+    Get.put(AddTravelsView());
+    Get.put(AddTravelController());
+
+
+    return WillPopScope(
+      onWillPop: Helper().onWillPop,
+      child: Scaffold(
+          backgroundColor:Get.theme.colorScheme.secondary,
+          resizeToAvoidBottomInset: true,
+          floatingActionButton: Obx(() =>
+          controller.currentPage.value == 1 ?
+          Container(
+            height: 44.0,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(colors: [Colors.purple,Colors.blue ] )),
+            child: FloatingActionButton.extended(
+                heroTag: null,
+                backgroundColor: Colors.transparent,
+                onPressed: () async =>{
+                  ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(Get.context).loadingData),
+                    duration: Duration(seconds: 3),
+                  )),
+
+                  Get.put(AddTravelController()),
+                  await controller.getAttachmentFiles(),
+                  Get.bottomSheet(
+                    Get.find<AddTravelsView>().airOrRoadTravel(context),
+                    isScrollControlled: true,
+                  ),
+
+                  // }else{
+                  //   Get.showSnackbar(Ui.notificationSnackBar(message: AppLocalizations.of(context).manyTravelsNegotiatingError))
+                  // }
+
+                },
+                label: Text(AppLocalizations.of(context).transport),
+                icon: Icon(Icons.add, color: Palette.background)
+            ),
+          ):
+          controller.currentPage.value == 0 ?
+          controller.myExpeditionsPage.value == 2?
+          Container(
+            height: 44.0,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(colors: [Colors.purple,Colors.blue ] )),
+            child: FloatingActionButton.extended(
+                heroTag: null,
+                backgroundColor: Colors.transparent,
+                onPressed: () async =>{
+                  Get.delete<TravelInspectController>(),
+                  Get.lazyPut<TravelInspectController>(
+                        () => TravelInspectController(),),
+                  controller.offerExpedition.value =true,
+                  //Get.find<TravelInspectController>().onInit(),
+                  Get.toNamed(Routes.CREATE_OFFER_EXPEDITION),
+                  await Get.find<TravelInspectController>().newShippingFunction(),
+                  //Get.toNamed(Routes.ADD_SHIPPING_FORM),
+
+                },
+
+                label: Text(AppLocalizations.of(context).createExpedition),
+                icon: Icon(Icons.add, color: Palette.background)
+            ),
+          )
+              :controller.myExpeditionsPage.value == 3?
+          Container(
+            height: 44.0,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(colors: [Colors.purple,Colors.blue ] )),
+            child: FloatingActionButton.extended(
+                heroTag: null,
+                backgroundColor: Colors.transparent,
+                onPressed: () async =>{
+                  Get.delete<TravelInspectController>(),
+                  Get.lazyPut<TravelInspectController>(
+                        () => TravelInspectController(),),
+                  controller.offerReception.value =true,
+                  //Get.find<TravelInspectController>().onInit(),
+                  Get.toNamed(Routes.CREATE_RECEPTION_OFFER),
+                  await Get.find<TravelInspectController>().newShippingFunction(),
+                  //Get.toNamed(Routes.ADD_SHIPPING_FORM),
+
+                },
+
+                label: Text('Reception Offer'),
+                icon: Icon(Icons.add, color: Palette.background)
+            ),
+          )
+          :SizedBox(): SizedBox(),
           ),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-        ),
-        body: RefreshIndicator(
-            onRefresh: () async {
-              controller.initValues();
-            },
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: Get.theme.primaryColor,
-                        border: Border.all(
-                          color: Get.theme.focusColor.withOpacity(0.2),
-                        ),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12, left: 0),
-                          child: Icon(Icons.search, color: Get.theme.colorScheme.secondary),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width /1.8,
-                          child: TextField(
-                            //controller: controller.textEditingController,
-                            style: Get.textTheme.bodyText2,
-                            onChanged: (value)=>{ controller.filterSearchResults(value) },
-                            autofocus: controller.heroTag.value == "search" ? true : false,
-                            cursorColor: Get.theme.focusColor,
-                            decoration: Ui.getInputDecoration(hintText: "Search for home service...".tr),
-                          ),
-                        ),
-                      ],
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor:Get.theme.colorScheme.secondary,
+            leading: Padding(
+                padding: EdgeInsets.all(10),
+                child: InkWell(
+                  onTap: ()async=> await Get.find<RootController>().changePage(3),
+                  child: ClipOval(
+                    child: FadeInImage(
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.cover,
+                      image: NetworkImage('${Domain.serverPort}/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920?unique=true&file_response=true',
+                          headers: Domain.getTokenHeaders()),
+                      placeholder: AssetImage(
+                          "assets/img/loading.gif"),
+                      imageErrorBuilder:
+                          (context, error, stackTrace) {
+                        return Image.asset("assets/img/téléchargement (3).png", width: 20, height: 20);
+                      },
                     ),
                   ),
-                  Obx(() => Container(
-                      height: MediaQuery.of(context).size.height/1.2,
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                      decoration: Ui.getBoxDecoration(color: backgroundColor),
-                      child:  controller.isLoading.value ? BookingsListLoaderWidget() :
-                      controller.items.isNotEmpty ? MyBookings(context)
-                          : SizedBox(
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(height: MediaQuery.of(context).size.height/4),
-                            FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
-                            Text('No Shipping found', style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3)))),
-                          ],
-                        ),
-                      )
-                  ),)
-
-                ],
-              ),
-            )
-
-        ));
-  }
-
-  /*Widget BottomFilterSheetWidget(BuildContext context){
-    return Container(
-      height: Get.height/2,
-      decoration: BoxDecoration(
-        color: Get.theme.primaryColor,
-        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
-        ],
-      ),
-      child: Stack(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 80),
-            child: ListView(
-              padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
+                )
+            ),
+            title: Row(
               children: [
-                ExpansionTile(
-                  title: Text("Travels".tr, style: Get.textTheme.bodyText2),
-                  children: List.generate(transportMeans.length, (index) {
-                    var _category = transportMeans.elementAt(index);
-                    return CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.trailing,
-                      value: false,
-                      onChanged: (value) {
-                        //controller.toggleCategory(value, _category);
-                      },
-                      title: Text(
-                        _category,
-                        style: Get.textTheme.bodyText1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        maxLines: 1,
+                Expanded(
+                    child: Obx(() =>
+                    controller.currentPage.value == 0 ?
+                    Text(
+                      "${AppLocalizations.of(context).my} ${AppLocalizations.of(context).shipping}, ${controller.allShippingItem.value.length}",
+                      overflow: TextOverflow.ellipsis,
+                      style: Get.textTheme.headline5.merge(TextStyle(color: Colors.white)),
+                    ) :
+                    controller.currentPage.value == 1 ?
+                    Text(
+                      "${AppLocalizations.of(context).myTravels}, ${Get.find<UserTravelsController>().items.length}",
+                      overflow: TextOverflow.ellipsis,
+                      style: Get.textTheme.headline5.merge(TextStyle(color: Colors.white)),
+                    ) :
+                    Text(
+                      "${AppLocalizations.of(context).parcels}, ${Get.find<ValidationController>().items.length}",
+                      overflow: TextOverflow.ellipsis,
+                      style: Get.textTheme.headline5.merge(TextStyle(color: Colors.white)),
+                    )
+                    )
+                ),
+                Obx(() =>
+                controller.currentPage.value == 1 ?
+                Container(
+                  key: Key('travelKey'),
+                    width: 150,
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                        color: Get.theme.primaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        boxShadow: [
+                          BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                        ],
+                        border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButtonFormField(
+                        decoration: InputDecoration.collapsed(
+                          hintText: '',
+
+                        ),
+                        isExpanded: true,
+                        alignment: Alignment.bottomRight,
+
+                        style: TextStyle(color: labelColor),
+                        value: Get.find<UserTravelsController>().status[0],
+                        // Down Arrow Icon
+                        icon: Icon(Icons.filter_list),
+
+                        items: Get.find<UserTravelsController>().status.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value == "NEGOTIATING" ? "PUBLISHED" : value,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          List filter = [];
+                          controller.items.value = Get.find<UserTravelsController>().origin;
+                          if(newValue != 'ALL'){
+                            for(var i in controller.items){
+
+                              if(i['state'] == newValue.toLowerCase()){
+                                filter.add(i);
+                              }
+                              Get.find<UserTravelsController>().items.value = filter;
+                            }
+                          }else{
+                            Get.find<UserTravelsController>().items.value = Get.find<UserTravelsController>().origin;
+                          }
+                        },
                       ),
-                    );
-                  }),
-                  initiallyExpanded: true,
+                    )
+                )
+                    :Container(
+                  key: Key('shippingKey'),
+                    width: 150,
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                        color: Get.theme.primaryColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        boxShadow: [
+                          BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                        ],
+                        border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButtonFormField(
+                        decoration: InputDecoration.collapsed(
+                          hintText: '',
+
+                        ),
+                        isExpanded: true,
+                        alignment: Alignment.bottomRight,
+
+                        style: TextStyle(color: labelColor),
+                        value: controller.status[0],
+                        // Down Arrow Icon
+                        icon: Icon(Icons.filter_list),
+
+                        items: controller.status.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value == "RECEIVED" ? AppLocalizations.of(context).delivered.toUpperCase() : value,
+                                style: TextStyle(fontSize: 14),
+                              )
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          List filter = [];
+                          controller.myExpeditionsPage.value == 1?
+                          controller.items.value = controller.originShippingRequest.value:
+                          controller.myExpeditionsPage.value == 2?
+                          controller.items.value = controller.originShippingOffer.value:
+                          controller.myExpeditionsPage.value == 3?
+                          controller.items.value = controller.originReceptionOffer.value:
+                          controller.items.value =[];
+                          // controller.allMyShippingList.value = controller.originShippingRequest:
+                          // controller.allMyShippingList.value = controller.originShippingOffer;
+                          if(newValue != 'ALL'){
+                            for(var i in controller.items){
+
+                              if(!i["disagree"]){
+                                if(i['state'] == newValue.toLowerCase()){
+                                  filter.add(i);
+                                }
+                              }else{
+                                if("cancel" == newValue.toLowerCase()){
+                                  filter.add(i);
+                                }
+                              }
+
+                              controller.items.value = filter;
+                            }
+                          }else{
+                            controller.myExpeditionsPage.value == 1?
+                            controller.items.value = controller.originShippingRequest.value:
+                            controller.myExpeditionsPage.value == 2?
+                            controller.items.value = controller.originShippingOffer.value:
+                            controller.myExpeditionsPage.value == 3?
+                            controller.items.value = controller.originReceptionOffer.value:
+                            controller.items.value =[];
+                          }
+                        },
+                      ),
+                    )
+                )
+
                 )
               ],
             ),
+            centerTitle: true,
+            //backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
           ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 45),
-            child: Row(
-              children: [
-                Expanded(child: Text("Filter".tr, style: Get.textTheme.headline5)),
-                MaterialButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  color: Get.theme.colorScheme.secondary.withOpacity(0.15),
-                  child: Text("Apply".tr, style: Get.textTheme.subtitle1),
-                  elevation: 0,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 30,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 13, horizontal: (Get.width / 2) - 30),
-            decoration: BoxDecoration(
-              color: Get.theme.focusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Get.theme.focusColor.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(3),
-              ),
-              //child: SizedBox(height: 1,),
-            ),
-          ),
-        ],
+          body: RefreshIndicator(
+              onRefresh: () async {
+                controller.refreshBookings();
+              },
+              color: Colors.transparent,
+              child: SingleChildScrollView(
+                  child: Obx(()=>
+                      Column(
+                          children: [
+                            Column(children: [
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    InkWell(
+                                        onTap: ()=> controller.currentPage.value = 0,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10),
+                                          width: controller.myExpeditionsPage == 1 ||controller.myExpeditionsPage == 2 ||controller.myExpeditionsPage == 3 ?Get.width/2:Get.width/3.3,
+                                          decoration: BoxDecoration(
+                                              border: controller.currentPage.value == 0 ? controller.myExpeditionsPage == 1 ||controller.myExpeditionsPage == 2 ||controller.myExpeditionsPage == 3?null :Border(bottom: BorderSide(color: Colors.white, width: 4)) : null
+                                          ),
+                                          child: controller.myExpeditionsPage == 1 ||controller.myExpeditionsPage == 2 ||controller.myExpeditionsPage == 3 ? Align(
+                                            //alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  IconButton(
+                                                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                                                    onPressed: () => {controller.myExpeditionsPage.value = 0},
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+
+                                                  controller.myExpeditionsPage == 1?Text(AppLocalizations.of(context).request, style: TextStyle(color: Colors.white),)
+                                                      :controller.myExpeditionsPage == 2?Text(AppLocalizations.of(context).offer, style: TextStyle(color: Colors.white))
+                                                  :Text('Reception Offer', style: TextStyle(color: Colors.white)),
+                                                ],
+                                              )
+
+                                          )
+                                              :Text('${AppLocalizations.of(context).my} ${AppLocalizations.of(context).shipping}',textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: controller.currentPage.value == 0 ?Colors.white: Colors.white.withOpacity(0.4)))),
+                                        )
+                                    ),
+                                    if( !(controller.myExpeditionsPage == 1 ||controller.myExpeditionsPage == 2 ||controller.myExpeditionsPage == 3 ) )...[
+                                      InkWell(
+                                        onTap: ()async {
+                                          controller.currentPage.value = 1;
+                                          Get.find<UserTravelsController>().refreshMyTravels();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(vertical: 10),
+                                          width: Get.width/3.3,
+                                          decoration: BoxDecoration(
+                                              border: controller.currentPage.value == 1 ? Border(bottom: BorderSide(color: Colors.white, width: 4)) : null
+                                          ),
+                                          child: Text(AppLocalizations.of(context).myTravels,textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: controller.currentPage.value == 1 ?Colors.white: Colors.white.withOpacity(0.4)))),
+                                        ),
+                                      ),
+                                    ],
+                                    if( !(controller.myExpeditionsPage == 1 ||controller.myExpeditionsPage == 2 ||controller.myExpeditionsPage == 3) )...[
+                                      InkWell(
+                                          onTap: ()=> {
+                                            controller.currentPage.value = 2,
+                                            Get.find<ValidationController>().refreshPage()
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(vertical: 10),
+                                            width: Get.width/3.3,
+                                            decoration: BoxDecoration(
+                                                border: controller.currentPage.value == 2 ? Border(bottom: BorderSide(color: Colors.white, width: 4)) : null
+                                            ),
+                                            child: Text(AppLocalizations.of(context).myParcels,textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: controller.currentPage.value == 2 ?Colors.white: Colors.white.withOpacity(0.4)))),
+                                          )
+                                      ),
+                                    ]
+
+
+                                  ]
+                              ),
+                              Visibility(child: SizedBox())
+                            ],),
+
+                            controller.currentPage.value == 0 ? MyBookings(context) :
+                            controller.currentPage.value == 1 ? MyTravelsView() :
+                            ParcelView()
+                          ]
+                      )
+                  )
+              )
+
+          )
       ),
     );
-  }*/
+  }
 
   Widget MyBookings(BuildContext context){
-    return Obx(() => Column(
+
+    return Obx(() => Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(color: backgroundColor,
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20.0),
+              topLeft: Radius.circular(20.0)), ),
+        height: Get.height,
+        width: Get.width,
+        child: controller.myExpeditionsPage == 0 ? DelayedAnimation(delay: 30,child: offersOrRequests()) :
+        controller.myExpeditionsPage == 1 ? shippingRequests() :
+        controller.myExpeditionsPage == 2?
+        shippingsOffers():
+            receptionOffers()
+    ));
+  }
+
+  Widget shippingRequests(){
+    return Column(
       children: [
+
         controller.isLoading.value ?
         Expanded(child: LoadingCardWidget()) :
         Expanded(
-            child: ListView.builder(
+            child: controller.items.isNotEmpty ?
+            ListView.builder(
                 physics: AlwaysScrollableScrollPhysics(),
                 itemCount: controller.items.length+1 ,
                 shrinkWrap: true,
@@ -191,858 +455,547 @@ class BookingsView extends GetView<BookingsController> {
                 itemBuilder: (context, index) {
 
                   if (index == controller.items.length) {
-                    return SizedBox(height: 80);
+                    return SizedBox(height: 120);
                   } else {
 
                     Future.delayed(Duration.zero, (){
                       controller.items.sort((a, b) => b["create_date"].compareTo(a["create_date"]));
                     });
-                    return CardWidget(
-                      owner: true,
-                      shippingDate: controller.items[index]['create_date'],
-                      code: controller.items[index]['name'],
-                      travelType: controller.items[index]['booking_type'],
-                      editable: controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
-                      transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
-                      bookingState: controller.items[index]['state'],
-                      price: controller.items[index]['shipping_price'],
-                      text: controller.items[index]['travel_partner_name'],
-                      luggageView: ElevatedButton(
-                          onPressed: ()async{
-                            List luggageIds = [];
-                            controller.shippingLoading.value = true;
-                            for(var a in controller.items[index]['luggage_ids']){
-                              if(!luggageIds.contains(a['id'])){
-                                luggageIds.add(a['id']);
-                              }
-                            }
-                            print(luggageIds);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("Loading data..."),
-                              duration: Duration(seconds: 2),
-                            ));
+                    return InkWell(
+                        onTap: ()async=>{
 
-                            await controller.getLuggageInfo(luggageIds);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(AppLocalizations.of(context).loadingData),
+                            duration: Duration(seconds: 2),
+                          )),
 
-                            if(!controller.shippingLoading.value)
-                              showDialog(
-                                  context: context,
-                                  builder: (_){
-                                    return Dialog(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(15.0),
-                                          )),
-                                      child: SizedBox(
-                                          height: MediaQuery.of(context).size.height/1.5,
-                                          child: Column(
-                                            children: [
-                                              SizedBox(height: 15),
-                                              Text("Luggage Info".tr, style: Get.textTheme.bodyText1.
-                                              merge(TextStyle(color: appColor, fontSize: 17))),
-                                              SizedBox(height: 15),
-                                              for(var a=0; a<controller.shippingLuggage.length; a++)...[
-                                                Obx(() => SizedBox(
-                                                    width: double.infinity,
-                                                    height: 170,
-                                                    child:  Column(
-                                                      children: [
-                                                        Expanded(
-                                                          child:controller.editPhotos.value?ListView.builder(
-                                                              scrollDirection: Axis.horizontal,
-                                                              itemCount: 3,
-                                                              itemBuilder: (context, index){
-                                                                return Card(
-                                                                    margin: EdgeInsets.symmetric(horizontal: 10),
-                                                                    child: ClipRRect(
-                                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                        child: FadeInImage(
-                                                                          width: 120,
-                                                                          height: 100,
-                                                                          image: NetworkImage('${Domain.serverPort}/image/m1st_hk_roadshipping.luggage/${controller.shippingLuggage[a]['id']}/luggage_image${index+1}?unique=true&file_response=true',
-                                                                              headers: Domain.getTokenHeaders()),
-                                                                          placeholder: AssetImage(
-                                                                              "assets/img/loading.gif"),
-                                                                          imageErrorBuilder:
-                                                                              (context, error, stackTrace) {
-                                                                            return Image.asset(
-                                                                                'assets/img/240_F_89551596_LdHAZRwz3i4EM4J0NHNHy2hEUYDfXc0j.jpg',
-                                                                                width: 50,
-                                                                                height: 50,
-                                                                                fit: BoxFit.fitWidth);
-                                                                          },
-                                                                        )
-                                                                    )
-                                                                );
-                                                              })
-                                                              : Container(
-                                                            decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                              color: Colors.white,
-                                                            ),
-                                                            padding: EdgeInsets.all(10),
-                                                            margin: EdgeInsets.only(top: 10, bottom: 10),
-                                                            child: Column(
-                                                              children: [
-                                                                Align(
-                                                                  child: Text('Input 3 Packet Files'.tr, style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
-                                                                  alignment: Alignment.topLeft,
-                                                                ),
-                                                                Spacer(),
-                                                                controller.imageFiles.length<=0?GestureDetector(
-                                                                    onTap: () {
-                                                                      showDialog(
-                                                                          context: Get.context,
-                                                                          builder: (_){
-                                                                            return AlertDialog(
-                                                                              content: Container(
-                                                                                  height: 170,
-                                                                                  padding: EdgeInsets.all(10),
-                                                                                  child: Column(
-                                                                                    children: [
-                                                                                      ListTile(
-                                                                                        onTap: ()async{
-                                                                                          await controller.pickImage(ImageSource.camera);
-                                                                                          Navigator.pop(Get.context);
-                                                                                        },
-                                                                                        leading: Icon(FontAwesomeIcons.camera),
-                                                                                        title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                      ),
-                                                                                      ListTile(
-                                                                                        onTap: ()async{
-                                                                                          await controller.pickImage(ImageSource.gallery);
-                                                                                          Navigator.pop(Get.context);
-                                                                                        },
-                                                                                        leading: Icon(FontAwesomeIcons.image),
-                                                                                        title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                      )
-                                                                                    ],
-                                                                                  )
-                                                                              ),
-                                                                            );
-                                                                          });
-                                                                    },
-                                                                    child: Container(
-                                                                      width: 100,
-                                                                      height: 100,
-                                                                      padding: EdgeInsets.all(20),
-                                                                      alignment: Alignment.center,
-                                                                      decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                                                                      child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                                                                    )
-                                                                )
-                                                                    :Column(
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height:80,
-                                                                      child: ListView.separated(
-                                                                          scrollDirection: Axis.horizontal,
-                                                                          padding: EdgeInsets.all(12),
-                                                                          itemBuilder: (context, index){
-                                                                            return Stack(
-                                                                              //mainAxisAlignment: MainAxisAlignment.end,
-                                                                              children: [
-                                                                                ClipRRect(
-                                                                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                                                  child: Image.file(
-                                                                                    controller.imageFiles[index],
-                                                                                    fit: BoxFit.cover,
-                                                                                    width: 80,
-                                                                                    height: 80,
-                                                                                  ),
-                                                                                ),
-                                                                                Positioned(
-                                                                                  top:0,
-                                                                                  right:0,
-                                                                                  child: Align(
-                                                                                    //alignment: Alignment.centerRight,
-                                                                                    child: IconButton(
-                                                                                        onPressed: (){
-                                                                                          controller.imageFiles.removeAt(index);
-                                                                                        },
-                                                                                        icon: Icon(FontAwesomeIcons.remove, color: Colors.red, size: 25, )
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            );
-                                                                          },
-                                                                          separatorBuilder: (context, index){
-                                                                            return SizedBox(width: 8);
-                                                                          },
-                                                                          itemCount: controller.imageFiles.length),
-                                                                    ),
-                                                                    Align(
-                                                                      alignment: Alignment.centerRight,
-                                                                      child: Visibility(
-                                                                          child: InkWell(
-                                                                            onTap: (){
-                                                                              showDialog(
-                                                                                  context: Get.context,
-                                                                                  builder: (_){
-                                                                                    return AlertDialog(
-                                                                                      content: Container(
-                                                                                          height: 170,
-                                                                                          padding: EdgeInsets.all(10),
-                                                                                          child: Column(
-                                                                                            children: [
-                                                                                              ListTile(
-                                                                                                onTap: ()async{
-                                                                                                  await controller.pickImage(ImageSource.camera);
-                                                                                                  Navigator.pop(Get.context);
-                                                                                                },
-                                                                                                leading: Icon(FontAwesomeIcons.camera),
-                                                                                                title: Text('Take a picture', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                              ),
-                                                                                              ListTile(
-                                                                                                onTap: ()async{
-                                                                                                  await controller.pickImage(ImageSource.gallery);
-                                                                                                  Navigator.pop(Get.context);
-                                                                                                },
-                                                                                                leading: Icon(FontAwesomeIcons.image),
-                                                                                                title: Text('Upload an image', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                                                                                              )
-                                                                                            ],
-                                                                                          )
-                                                                                      ),
-                                                                                    );
-                                                                                  });
-                                                                            },
-                                                                            child: Icon(FontAwesomeIcons.circlePlus),
-                                                                          )
-                                                                      ),
-                                                                    )
-                                                                  ],
+                          controller.items[index]['booking_type'] == 'By Road'?
+                          await controller.getRoadTravelInfo(controller.items[index]['travelbooking_id'][0])
+                              :await controller.getAirTravelInfo(controller.items[index]['travelbooking_id'][0]),
+                          controller.owner.value = true,
+                          controller.shippingDetails.value = controller.items[index],
+                          if(controller.shippingDetails != null){
 
-                                                                ),
-
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    )
-                                                )),
-                                                SizedBox(height: 15),
-                                                Obx(() => Align(
-                                                    alignment: Alignment.bottomRight,
-                                                    child: controller.editPhotos.value==true?TextButton(onPressed: (){
-                                                      controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                    },
-
-                                                        child: Text('Edit Photos')
-
-                                                    ): Row(
-                                                      children: [
-                                                        TextButton(onPressed: (){
-                                                          controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                        },
-                                                            child: Text('cancel')
-                                                        ),
-                                                        TextButton(
-                                                            onPressed: ()async{
-                                                              // controller.editPhotos.value = !controller.editPhotos.value;
-
-                                                              for(var i=1; i<4; i++){
-                                                                await controller.sendImages(i, controller.imageFiles[i-1], controller.shippingLuggage[a]['id']);
-                                                              }
-                                                              controller.buttonPressed.value = !controller.buttonPressed.value;
-                                                              //controller.assignLuggageToShipping(controller.items[index]);
-
-                                                            },
-
-                                                            child: Text('Edit')
-
-                                                        )
-                                                      ],
-                                                      mainAxisAlignment: MainAxisAlignment.end,
-                                                    )
-                                                ),),
-
-                                                AccountWidget(
-                                                  icon: FontAwesomeIcons.shoppingBag,
-                                                  text: Text('Name'),
-                                                  value: controller.shippingLuggage[a]['name'],
-                                                ),
-                                                AccountWidget(
-                                                  icon: FontAwesomeIcons.rulerHorizontal,
-                                                  text: Text('Dimensions'),
-                                                  value: "${controller.shippingLuggage[a]['average_width']} x ${controller.shippingLuggage[a]['average_height']}",
-                                                ),
-                                                AccountWidget(
-                                                  icon: FontAwesomeIcons.weightScale,
-                                                  text: Text('Average weight'),
-                                                  value: controller.shippingLuggage[a]['average_weight'].toString() + " Kg",
-                                                ),
-                                                Spacer(),
-                                                Align(
-                                                    alignment: Alignment.bottomRight,
-                                                    child: TextButton(onPressed: (){
-                                                      controller.editPhotos.value = true;
-                                                      Navigator.of(context).pop();
-
-                                                    },
-                                                        child: Text('Back'))
-                                                )
-                                              ],
-                                            ],
-                                          )
-                                      ),
-                                    );
-                                  });
-                          },
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text('View luggage info'),
-                          )
-                      ),
-                      negotiation:  GestureDetector(
-                          onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]}) ,
-                          child: Card(
-                              elevation: 10,
-                              color: interfaceColor,
-                              margin: EdgeInsets.symmetric( vertical: 15),
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Text('Negotiate', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: Colors.white))),
-                                      SizedBox(width: 10),
-                                      FaIcon(FontAwesomeIcons.solidMessage, color: Colors.white, size: 15),
-                                    ],
-                                  )
-                              )
-                          )
-                      ),
-                      button: TextButton(
-                          onPressed: ()async{
-
-                            var data = await controller.getTravelInfo(controller.items[index]['travelbooking_id'][0]['id']);
-                            Get.toNamed(Routes.TRAVEL_INSPECT, arguments: {'travelCard': data, 'heroTag': 'services_carousel'});
-
-                          },
-                          child: Text('View travel info', style: Get.textTheme.headline1.merge(
-                              TextStyle(fontSize: 18, decoration: TextDecoration.underline)))),
-                      imageUrl: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60',
-
-                      recName: controller.items[index]['receiver_partner_id'] != false ? controller.items[index]['receiver_partner_id'][0]['name'].toString() : "___",
-                      recAddress: controller.items[index]['receiver_address'].toString(),
-                      recEmail: controller.items[index]['receiver_email'].toString(),
-                      recPhone: controller.items[index]['receiver_phone'].toString(),
-                      edit: () {
-
-                        return Get.bottomSheet(
-                          buildEditingSheet(context,controller.items[index] ),
-                          isScrollControlled: true);
-
-                      },
-                      confirm: ()=> showDialog(
-                          context: context,
-                          builder: (_)=>
-                              PopUpWidget(
-                                title: "Do you really want to Cancel this shipping?",
-                                cancel: 'Back',
-                                confirm: 'Cancel',
-                                onTap: () async =>{
-
-                                  print(controller.items[index]['id']),
-                                  await controller.cancelShipping(controller.items[index]['id']),
-
-                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                              )
-                      ),
-                      transfer: ()=> showDialog(
-                          context: context,
-                          builder: (_)=>
-                              PopUpWidget(
-                                title: "Do you really want to transfer your shipping?",
-                                cancel: 'Cancel',
-                                confirm: 'Transfer',
-                                onTap: () async => {
-                                  Navigator.of(Get.context).pop(),
-                                  controller.transferShipping(controller.items[index]['id']),
-                                }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                              )
-                      ),
-                    );}
-                })
-        )
-      ],
-    ));
-  }
-
-  Widget buildEditingSheet(BuildContext context, var sampleBooking){
-
-    controller.shippingPrice.value = sampleBooking['shipping_price'];
-
-    return Container(
-      height: Get.height/1.2,
-      decoration: BoxDecoration(
-        color: background,
-        //Get.theme.primaryColor,
-        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(color: Get.theme.focusColor.withOpacity(0.4), blurRadius: 30, offset: Offset(0, -30)),
-        ],
-      ),
-      child: Obx(() => Stack(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 45),
-            child: Row(
-              children: [
-                controller.bookingStep.value != 0 ?
-                MaterialButton(
-                  onPressed: () =>{
-                    for(var i=0; i<controller.luggageId.length; i++)
-                      controller.deleteShippingLuggage(controller.luggageId[i])
-                  },
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  color: Get.theme.colorScheme.secondary.withOpacity(0.15),
-                  child: Text("Back".tr, style: Get.textTheme.subtitle1),
-                  elevation: controller.elevation.toDouble(),
-                ) : SizedBox(width: 60),
-                Spacer(),
-                controller.bookingStep.value == 0 ?
-                Text('Shipping Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))) :
-                Text('Receiver Details', style: Get.textTheme.headline1.merge(TextStyle(fontSize: 16))),
-                Spacer(),
-                controller.bookingStep.value == 0 ?
-                MaterialButton(
-                  onPressed: () =>{
-                    if(controller.luggageSelected.isNotEmpty){
-                      controller.errorField.value = false,
-                      controller.bookingStep.value++,
-                      for(var i=0; i<controller.luggageSelected.length; i++)
-                        controller.createShippingLuggage(controller.luggageSelected[i])
-                    }else{
-                      controller.errorField.value = true
-                    }
-                  },
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  color: Get.theme.colorScheme.secondary.withOpacity(0.15),
-                  child: Text("Next".tr, style: Get.textTheme.subtitle1),
-                  elevation: 0,
-                ) : Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: BlockButtonWidget(
-                        text: Container(
-                          height: 24,
-                          alignment: Alignment.center,
-                          child: !controller.buttonPressed.value ? Text(
-                            "Edit".tr,
-                            style: Get.textTheme.headline5.merge(TextStyle(color: Get.theme.primaryColor)),
-                          ) : SizedBox(height: 20,
-                              child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                        ),
-                        color: Get.theme.colorScheme.secondary,
-                        onPressed: ()async{
-                          if(controller.selected.value){
-                            await controller.editShipping(sampleBooking);
-                            controller.buttonPressed.value = false;
-                          }
-
-                        }
-                    )
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 100, left: 20, right: 20),
-            child: ListView(
-              padding: EdgeInsets.only(top: 20, bottom: 15, left: 4, right: 4),
-              children: [
-                controller.bookingStep.value == 0 ?
-                build_Book_travel(context, sampleBooking)
-                    : build_Receiver_details(context,sampleBooking )
-              ],
-            ),
-          ),
-          Container(
-            height: 30,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 13, horizontal: (Get.width / 2) - 30),
-            decoration: BoxDecoration(
-              color: Get.theme.focusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Get.theme.focusColor.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(3),
-              ),
-              //child: SizedBox(height: 1,),
-            ),
-          ),
-        ],
-      )
-      ),
-    );
-  }
-
-  Widget build_Book_travel(BuildContext context, var sampleBooking) {
-    controller.errorField.value = false;
-    controller.luggageSelected.value = [];
-    return Wrap(
-      direction: Axis.horizontal,
-      runSpacing: 20,
-      children: <Widget>[
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-
-            Obx(() => Container(
-              height: 200,
-              padding: EdgeInsets.all( 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                border: controller.errorField.value ? Border.all(color: specialColor) : null,
-                color: Colors.white,
-              ),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Select Luggage Type", style: Get.textTheme.headline1.merge(TextStyle(color: appColor, fontSize: 15))),
-                  SizedBox(height: 10),
-                  Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          if(!controller.luggageLoading.value)...[
-                            for(var i=0; i< controller.luggageModels.length; i++)...[
-                              GestureDetector(
-                                  onTap: () {
-                                    if(controller.luggageSelected.contains(controller.luggageModels[i])){
-                                      controller.luggageSelected.remove(controller.luggageModels[i]);
-                                    }else{
-                                      controller.luggageSelected.add(controller.luggageModels[i]);
-                                    }
-
-                                    print(controller.luggageSelected);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(5),
-                                    margin: EdgeInsets.only(right: 10),
-                                    height: 150,
-                                    width: 130,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                                        border: controller.luggageSelected.contains(controller.luggageModels[i])
-                                            ? Border.all(color: interfaceColor, width: 3) : Border.all(),
-                                        color: backgroundColor
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        controller.luggageModels[i]['type'] == "envelope" ?
-                                        Text("${controller.luggageModels[i]['type']} ${controller.luggageModels[i]['nature']}") : Text("${controller.luggageModels[i]['type']}"),
-                                        SizedBox(width: 10),
-                                        controller.luggageModels[i]['type'] == "envelope" ?
-                                        Icon(FontAwesomeIcons.envelope, size: 30) : Icon(FontAwesomeIcons.briefcase, size: 30),
-                                        SizedBox(height: 10),
-                                        ListTile(
-                                            title: Text("${controller.luggageModels[i]['average_height']} x ${controller.luggageModels[i]['average_width']}", style: TextStyle(color: appColor)),
-                                            subtitle: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text("${controller.luggageModels[i]['amount_to_deduct']} EUR", style: TextStyle(color: Colors.red)),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  children: [
-                                                    Icon(FontAwesomeIcons.shoppingBag, size: 13,),
-                                                    SizedBox(width: 10),
-                                                    Text('${controller.luggageModels[i]['average_weight']} Kg'),
-                                                  ],
-                                                )
-                                              ],
-                                            )
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                              )
-                            ]
-                          ]else...[
-                            Row(
-                              children: [
-                                SizedBox(width: MediaQuery.of(context).size.width/2.7),
-                                SizedBox(
-                                    height: 20,
-                                    child: SpinKitThreeBounce(color: interfaceColor, size: 20)),
-                              ],
-                            )
-                          ]
-                        ],
-                      ))
-                ],
-              ),
-            )),
-
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget build_Receiver_details(BuildContext context, var sampleBooking) {
-    return Wrap(
-      direction: Axis.horizontal,
-      runSpacing: 20,
-      children: <Widget>[
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SwitchListTile( //switch at right side of label
-                value: controller.selectUser.value,
-                onChanged: (bool value){
-                  controller.selectUser.value = value;
-                },
-                title: Text("Receiver not in the system ?", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 18, color: appColor)))
-            ),
-            controller.selectUser.value ?
-            Column(
-              children: [
-                TextFieldWidget(
-                  keyboardType: TextInputType.text,
-                  readOnly: false,
-                  validator: (input) => input.isEmpty ? "field required!".tr : null,
-                  onChanged: (input) => controller.name.value = input,
-                  labelText: "Full Name".tr,
-                  iconData: FontAwesomeIcons.person,
-                ),
-                Obx(() =>
-                    Column(
-                      children: [
-                        TextFieldWidget(
-                          readOnly: false,
-                          keyboardType: TextInputType.text,
-                          validator: (input) => input.isEmpty ? "field required!".tr : null,
-                          onChanged: (input) =>{
-                            if(input.length > 3){
-                              controller.searchUser(input)
-                            }
-                          },
-                          labelText: "Email".tr,
-                          iconData: Icons.alternate_email,
-                        ),
-                        controller.typing.value ?
-                        !controller.userExist.value ?
-                        Text("Email Available", style: TextStyle(color: validateColor)) :
-                        Row(
-                          children: [
-                            SizedBox(width: 10),
-                            Text("Email exist", style: TextStyle(color: specialColor)),
-                            TextButton(onPressed: ()=> {
-                              showDialog(context: context,
-                                  builder: (_){
-                                    return AlertDialog(
-                                      title: Text("Related User"),
-                                      content: Obx(() => SizedBox(
-                                          height: Get.height/3 - 100,
-                                          child: Column(
-                                              children: [
-                                                for(var a=0; a< controller.viewUsers.length; a++)...[
-                                                  InkWell(
-                                                      onTap: ()=>{
-                                                        controller.receiverId.value = controller.viewUsers[a]['partner_id'][0],
-                                                        controller.selectUser.value = false,
-                                                        controller.selectedUser.value = true,
-                                                        controller.selectedUserIndex.value = a,
-
-                                                        //add method here...
-                                                      },
-                                                      child: Container(
-                                                        decoration: BoxDecoration(
-                                                            border: controller.selectedUser.value && controller.selectedUserIndex.value == a ? Border.all(color: interfaceColor,width: 2) : null,
-                                                            borderRadius: BorderRadius.all(Radius.circular(10))
-                                                        ),
-                                                        child: UserWidget(
-                                                          user: controller.viewUsers[a]['name'],
-                                                          selected: false,
-                                                          imageUrl: '${Domain.serverPort}/image/res.users/${controller.viewUsers[a]['id']}/image_1920?unique=true&file_response=true',
-                                                        ),
-                                                      )
-                                                  )
-                                                ]
-                                              ]
-                                          )
-                                      )),
-                                      actions: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            TextButton(onPressed: ()=> Navigator.pop(context), child: Text("Back", style: Get.textTheme.headline4.merge(TextStyle(color: inactive)))),
-                                            SizedBox(width: 10),
-                                            TextButton(onPressed: ()=> controller.editShipping(sampleBooking['id']), child: Text("Edit now", style: Get.textTheme.headline4))
-                                          ],
-                                        )
-                                      ],
-                                    );
-                                  })
+                            if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                              controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                              //"assets/img/istockphoto-1421193265-612x612.jpg";
+                            }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                              controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                              //"assets/img/pexels-julius-silver-753331.jpg";
+                            }else{
+                              controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                              //"assets/img/istockphoto-859916128-612x612.jpg";
                             },
-                                child: Text("View", style: TextStyle(decoration: TextDecoration.underline, color: interfaceColor)))
-                          ],
-                        ) : SizedBox(height: 10)
-                      ],
-                    )
-                ),
-                Container(
-                  padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                  margin: EdgeInsets.only(left: 5, right: 5),
-                  decoration: BoxDecoration(
-                      color: Get.theme.primaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      boxShadow: [
-                        BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                      ],
-                      border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                  child: IntlPhoneField(
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(5),
-                      labelStyle: TextStyle(
-                        color: Colors.grey,
-                      ),
-                      hintText: '032655333333',
-                      labelText: 'Phone Number',
-                      suffixIcon: Icon(Icons.phone_android_outlined),
-                    ),
-                    initialCountryCode: 'BE',
-                    onSaved: (phone) {
-                      return controller.phone.value = phone.completeNumber;
-                    },
-                    onChanged: (phone) {
-                      String phoneNumber = phone.completeNumber;
-                      controller.phone.value = phoneNumber;
-                    },
-                  ),
-                ),
 
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text("Profile Image".tr,
-                        style: Get.textTheme.bodyText1,
-                        textAlign: TextAlign.start,
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Obx(() {
-                            if(!controller.loadProfileImage.value)
-                              return buildLoader();
-                            else return ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              child: Image.file(
-                                controller.profileImage,
-                                fit: BoxFit.cover,
-                                width: 100,
-                                height: 100,
-                              ),
-                            );
-                          }
-                          ),
-                          SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () async {
-
-                              await controller.selectCameraOrGalleryProfileImage();
-                              controller.loadProfileImage.value = false;
-
-                            },
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(color: Get.theme.focusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                              child: Icon(Icons.add_photo_alternate_outlined, size: 42, color: Get.theme.focusColor.withOpacity(0.4)),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                // TextFieldWidget(
-                //   keyboardType: TextInputType.text,
-                //   validator: (input) => input.isEmpty ? "field required!".tr : null,
-                //   onChanged: (input) => controller.address.value = input,
-                //   labelText: "Address".tr,
-                //   iconData: FontAwesomeIcons.addressCard,
-                // ),
-              ],
-            ) :
-            TextFieldWidget(
-              keyboardType: TextInputType.text,
-              validator: (input) => input.isEmpty ? "field required!".tr : null,
-              readOnly: false,
-              //onChanged: (input) => controller.selectUser.value = input,
-              labelText: "Select User".tr,
-              iconData: FontAwesomeIcons.userGroup,
-              onChanged: (value)=>{
-                controller.filterSearchResults(value)
-              },
-            ),
-
-            controller.users.isNotEmpty ?
-            Container(
-                margin: EdgeInsetsDirectional.only(end: 10, start: 10, top: 10, bottom: 10),
-                // padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                  ],
-                ),
-
-                child: ListView.separated(
-                  //physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: controller.users.length,
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 5);
-                    },
-                    shrinkWrap: true,
-                    primary: false,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: (){
-                          controller.receiverId.value = controller.users[index]['id'];
-                          print(controller.receiverId.value.toString());
-                          controller.selectedIndex.value = index;
-                          controller.selected.value = true;
+                            Get.toNamed(Routes.SHIPPING_DETAILS,arguments: {'shippingType':'shippingRequest'}),
+                            print(controller.items[index]['average_rating']),
+                            print(controller.items[index]['id']),
+                          },
                         },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            border: controller.selectedIndex.value == index && controller.selected.value ? Border.all(color: interfaceColor) : null ,
-                            color: Get.theme.primaryColor,
+                        child: CardWidget(
+                          owner: true,
+                          homePage: false,
+                          travellerDisagree: controller.items[index]['booking_type']== 'By Road'?controller.items[index]['disagree']:false,
+                          shippingDate: controller.items[index]['create_date'],
+                          code: controller.items[index]['name'],
+                          travelType: controller.items[index]['booking_type']=='By Road'?'road':'air',
+                          transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
+                          bookingState: controller.items[index]['state'],
+                          price: controller.items[index]['shipping_price'],
+                          text: "${controller.items[index]['travel_departure_city_name'].split(" ").first} > ${controller.items[index]['travel_arrival_city_name'].split(" ").first}",
+                          detailsView: TextButton(
+                            onPressed: ()async=> {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppLocalizations.of(context).loadingData),
+                                duration: Duration(seconds: 3),
+                              )),
+                              controller.items[index]['booking_type'] == 'By Road'?
+                              await controller.getRoadTravelInfo(controller.items[index]['travelbooking_id'][0])
+                                  :await controller.getAirTravelInfo(controller.items[index]['travelbooking_id'][0]),
+                              controller.shippingDetails.value = controller.items[index],
+                              controller.owner.value = true,
+                              if(controller.shippingDetails != null){
 
+                                if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                                  controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                                  //"assets/img/istockphoto-1421193265-612x612.jpg";
+                                }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                                  controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                                  //"assets/img/pexels-julius-silver-753331.jpg";
+                                }else{
+                                  controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                                  //"assets/img/istockphoto-859916128-612x612.jpg";
+                                },
+
+                                Get.toNamed(Routes.SHIPPING_DETAILS, arguments: {'shippingType':'shippingRequest'})
+                              }
+                            },
+                            child: Text(AppLocalizations.of(context).moreInfo, style: Get.textTheme.headline2.merge(TextStyle(fontSize: 14, color: interfaceColor))),
                           ),
-                          child: UserWidget(
-                              user: controller.users[index]['display_name'],
-                              selected: false,
-                              imageUrl: 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-unknown-social-media-user-photo-default-avatar-profile-icon-vector-unknown-social-media-user-184816085.jpg'
-                            //'${Domain.serverPort}/web/image/res.partner/${controller.users[index]['id']}/image_1920',
-                          ),
-                        ),
-                      );
-                    })
-            ) : Container(
-                child: Text('No other user than you', style: TextStyle(color: inactive, fontSize: 18))
-                    .marginOnly(top:MediaQuery.of(Get.context).size.height*0.2))
-          ],
-        ),
+                          negotiation: controller.items[index]['booking_type'].toString() == 'By Road'?!controller.items[index]['disagree']  ? controller.items[index]['msg_shipping_accepted'] ?
+                          GestureDetector(
+                              onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]}) ,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).chat, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.solidMessage, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ) : SizedBox() : GestureDetector(
+                              onTap: ()=> showDialog(
+                                  context: context,
+                                  builder: (_)=>
+                                      PopUpWidget(
+                                        title: "Do you really want to transfer your shipping?",
+                                        cancel: AppLocalizations.of(context).cancel,
+                                        confirm: AppLocalizations.of(context).transfer,
+                                        onTap: () async => {
+                                          Navigator.of(Get.context).pop(),
+                                          controller.transferShipping(controller.items[index]['id']),
+                                        }, icon: Icon(FontAwesomeIcons.warning, size: 50),
+                                      )
+                              ),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).transfer, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.forward, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ):SizedBox(),
+
+                        )
+                    );}
+                }).marginOnly(bottom: 180) :
+            Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(Get.context).size.height /4),
+                  FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                  Text(AppLocalizations.of(Get.context).noShippingFound, style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                ]
+            )
+        )
+
       ],
+    );
+  }
+
+  Widget shippingsOffers(){
+    return Column(
+      children: [
+        controller.isLoading.value ?
+        Expanded(child: LoadingCardWidget()) :
+        Expanded(
+            child: controller.items.isNotEmpty ?
+            ListView.builder(
+                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: controller.items.length+1 ,
+                shrinkWrap: true,
+                primary: false,
+                itemBuilder: (context, index) {
+
+                  if (index == controller.items.length) {
+                    return SizedBox(height: 120);
+                  } else {
+
+                    Future.delayed(Duration.zero, (){
+                      controller.items.sort((a, b) => b["create_date"].compareTo(a["create_date"]));
+                    });
+                    return InkWell(
+                        onTap: ()async=>{
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(AppLocalizations.of(context).loadingData),
+                            duration: Duration(seconds: 2),
+                          )),
+                          //await controller.getTravelInfo(controller.itemsShippingOffer[index]['travelbooking_id'][0]),
+                          controller.owner.value = true,
+                          controller.shippingDetails.value = controller.items[index],
+                          if(controller.shippingDetails != null){
+                            if(controller.travelDetails.isNotEmpty){
+                              if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                                controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                                //"assets/img/istockphoto-1421193265-612x612.jpg";
+                              }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                                controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                                //"assets/img/pexels-julius-silver-753331.jpg";
+                              }else{
+                                controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                                //"assets/img/istockphoto-859916128-612x612.jpg";
+                              },
+                            }
+                            else{
+
+                            },
+                            print('Travel Details: ${controller.shippingDetails['travelbooking_id']}'),
+                            Get.toNamed(Routes.SHIPPING_DETAILS, arguments: {'shippingType':'shippingOffer'})
+                          },
+                        },
+                        child: CardWidget(
+                          owner: true,
+                          homePage: false,
+                          travellerDisagree: controller.items[index]['disagree'],
+                          shippingDate: controller.items[index]['create_date'],
+                          code: controller.items[index]['name'],
+                          travelType: controller.items[index]['booking_type'],
+                          transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
+                          bookingState: controller.items[index]['state'],
+                          price: controller.items[index]['shipping_price'],
+                          text:  "${controller.items[index]['shipping_departure_city_id'][1].split(" ").first} > ${controller.items[index]['shipping_arrival_city_id'][1].split(" ").first}",
+                          detailsView: TextButton(
+                            onPressed: ()async=> {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppLocalizations.of(context).loadingData),
+                                duration: Duration(seconds: 3),
+                              )),
+                              //await controller.getTravelInfo(controller.itemsShippingOffer[index]['travelbooking_id'][0]),
+                              controller.shippingDetails.value = controller.items[index],
+                              controller.owner.value = true,
+                              if(controller.shippingDetails != null){
+                                if(controller.travelDetails.isNotEmpty){
+                                  if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                                    controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                                    //"assets/img/istockphoto-1421193265-612x612.jpg";
+                                  }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                                    controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                                    //"assets/img/pexels-julius-silver-753331.jpg";
+                                  }else{
+                                    controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                                    //"assets/img/istockphoto-859916128-612x612.jpg";
+                                  },
+                                }else{
+
+                                },
+
+
+
+                                Get.toNamed(Routes.SHIPPING_DETAILS, arguments: {'shippingType':'shippingOffer'})
+
+
+                              }
+                            },
+                            child: Text(AppLocalizations.of(context).moreInfo, style: Get.textTheme.headline2.merge(TextStyle(fontSize: 14, color: interfaceColor))),
+                          ),
+                          negotiation: !controller.items[index]['disagree']  ? controller.items[index]['msg_shipping_accepted'] ?
+                          GestureDetector(
+                              onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]}) ,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).chat, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.solidMessage, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ) : SizedBox() : GestureDetector(
+                              onTap: ()=> showDialog(
+                                  context: context,
+                                  builder: (_)=>
+                                      PopUpWidget(
+                                        title: "Do you really want to transfer your shipping?",
+                                        cancel: AppLocalizations.of(context).cancel,
+                                        confirm: AppLocalizations.of(context).transfer,
+                                        onTap: () async => {
+                                          Navigator.of(Get.context).pop(),
+                                          controller.transferShipping(controller.items[index]['id']),
+                                        }, icon: Icon(FontAwesomeIcons.warning, size: 50),
+                                      )
+                              ),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).transfer, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.forward, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ),
+
+                        )
+                    );}
+                }).marginOnly(bottom: 180) :
+            Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(Get.context).size.height /4),
+                  FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                  Text(AppLocalizations.of(Get.context).noShippingFound, style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                ]
+            )
+        )
+
+      ],);
+
+  }
+
+  Widget receptionOffers(){
+    return Column(
+      children: [
+        controller.isLoading.value ?
+        Expanded(child: LoadingCardWidget()) :
+        Expanded(
+            child: controller.items.isNotEmpty ?
+            ListView.builder(
+                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: controller.items.length+1 ,
+                shrinkWrap: true,
+                primary: false,
+                itemBuilder: (context, index) {
+
+                  if (index == controller.items.length) {
+                    return SizedBox(height: 120);
+                  } else {
+
+                    Future.delayed(Duration.zero, (){
+                      controller.items.sort((a, b) => b["create_date"].compareTo(a["create_date"]));
+                    });
+                    return InkWell(
+                        onTap: ()async=>{
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(AppLocalizations.of(context).loadingData),
+                            duration: Duration(seconds: 2),
+                          )),
+                          //await controller.getTravelInfo(controller.itemsShippingOffer[index]['travelbooking_id'][0]),
+                          controller.owner.value = true,
+                           controller.items[index]['travelbooking_id'] != false?
+                          await controller.getRoadTravelInfo(controller.items[index]['travelbooking_id'][0]):(){},
+                          controller.shippingDetails.value = controller.items[index],
+
+                          if(controller.shippingDetails != null){
+                            if(controller.travelDetails.isNotEmpty){
+                              if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                                controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                                //"assets/img/istockphoto-1421193265-612x612.jpg";
+                              }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                                controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                                //"assets/img/pexels-julius-silver-753331.jpg";
+                              }else{
+                                controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                                //"assets/img/istockphoto-859916128-612x612.jpg";
+                              },
+                            }
+                            else{
+
+                            },
+                            print('Travel Details: ${controller.shippingDetails['travelbooking_id']}'),
+                            Get.toNamed(Routes.SHIPPING_DETAILS, arguments: {'shippingType':'receptionOffer'})
+                          },
+                          print(controller.items[index]['booking_type']),
+                        },
+                        child: CardWidget(
+                          homePage: false,
+                          owner: true,
+                          travellerDisagree: controller.items[index]['disagree'],
+                          shippingDate: controller.items[index]['create_date'],
+                          code: controller.items[index]['name'],
+                          travelType: controller.items[index]['booking_type'],
+                          transferable: controller.items[index]['state'].toLowerCase()=='rejected' || controller.items[index]['state'].toLowerCase()=='pending' ? true:false,
+                          bookingState: controller.items[index]['state'],
+                          price: controller.items[index]['shipping_price'],
+                          text: "${controller.items[index]['shipping_departure_city_id'][1].split(" ").first} > ${controller.items[index]['shipping_arrival_city_id'][1].split(" ").first}",
+                          detailsView: TextButton(
+                            onPressed: ()async=> {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppLocalizations.of(context).loadingData),
+                                duration: Duration(seconds: 3),
+                              )),
+                              //await controller.getTravelInfo(controller.itemsShippingOffer[index]['travelbooking_id'][0]),
+                              controller.shippingDetails.value = controller.items[index],
+                              controller.items[index]['travelbooking_id'] != false?
+                              await controller.getRoadTravelInfo(controller.items[index]['travelbooking_id'][0]):(){},
+                              //await controller.getRoadTravelInfo(controller.items[index]['travelbooking_id'][0]),
+                              controller.owner.value = true,
+                              if(controller.shippingDetails != null){
+                                if(controller.travelDetails.isNotEmpty){
+                                  if(controller.travelDetails['booking_type'].toLowerCase() == "air"){
+                                    controller.imageUrl.value = "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2FyZ28lMjBwbGFuZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+                                    //"assets/img/istockphoto-1421193265-612x612.jpg";
+                                  }else if(controller.travelDetails['booking_type'].toLowerCase() == "sea"){
+                                    controller.imageUrl.value = "https://media.istockphoto.com/id/591986620/fr/photo/porte-conteneurs-de-fret-générique-en-mer.jpg?b=1&s=170667a&w=0&k=20&c=gZmtr0Gv5JuonEeGmXDfss_yg0eQKNedwEzJHI-OCE8="
+                                    //"assets/img/pexels-julius-silver-753331.jpg";
+                                  }else{
+                                    controller.imageUrl.value = "https://media.istockphoto.com/id/859916128/photo/truck-driving-on-the-asphalt-road-in-rural-landscape-at-sunset-with-dark-clouds.jpg?s=612x612&w=0&k=20&c=tGF2NgJP_Y_vVtp4RWvFbRUexfDeq5Qrkjc4YQlUdKc="
+                                    //"assets/img/istockphoto-859916128-612x612.jpg";
+                                  },
+                                }else{
+
+                                },
+
+
+
+                                Get.toNamed(Routes.SHIPPING_DETAILS, arguments: {'shippingType':'receptionOffer'})
+                              }
+                            },
+                            child: Text(AppLocalizations.of(context).moreInfo, style: Get.textTheme.headline2.merge(TextStyle(fontSize: 14, color: interfaceColor))),
+                          ),
+                          negotiation: !controller.items[index]['disagree']  ? controller.items[index]['msg_shipping_accepted'] ?
+                          GestureDetector(
+                              onTap: ()=> Get.toNamed(Routes.CHAT, arguments: {'shippingCard': controller.items[index]}) ,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).chat, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.solidMessage, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ) : SizedBox() : GestureDetector(
+                              onTap: ()=> showDialog(
+                                  context: context,
+                                  builder: (_)=>
+                                      PopUpWidget(
+                                        title: "Do you really want to transfer your shipping?",
+                                        cancel: AppLocalizations.of(context).cancel,
+                                        confirm: AppLocalizations.of(context).transfer,
+                                        onTap: () async => {
+                                          Navigator.of(Get.context).pop(),
+                                          controller.transferShipping(controller.items[index]['id']),
+                                        }, icon: Icon(FontAwesomeIcons.warning, size: 50),
+                                      )
+                              ),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                                      border: Border.all(color: buttonColor.withOpacity(0.4))
+                                  ),
+                                  margin: EdgeInsets.symmetric( vertical: 10),
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(AppLocalizations.of(context).transfer, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 13,color: buttonColor))),
+                                          SizedBox(width: 10),
+                                          FaIcon(FontAwesomeIcons.forward, color: buttonColor, size: 15),
+                                        ],
+                                      )
+                                  )
+                              )
+                          ),
+
+                        )
+                    );}
+                }).marginOnly(bottom: 180):
+            Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(Get.context).size.height /4),
+                  FaIcon(FontAwesomeIcons.folderOpen, color: inactive.withOpacity(0.3),size: 80),
+                  Text(AppLocalizations.of(Get.context).noShippingFound, style: Get.textTheme.headline5.merge(TextStyle(color: inactive.withOpacity(0.3))))
+                ]
+            )
+        )
+
+      ],);
+
+  }
+
+  Widget offersOrRequests(){
+    return  Column(
+      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+
+        children: [
+
+          SizedBox(height: 20,),
+          Obx(() => InkWell(
+              onTap: (){
+                controller.items.value = controller.listShippingRequest;
+                controller.myExpeditionsPage.value = 1;
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: SizedBox(
+                  height: Get.height*0.2,
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Text('${AppLocalizations.of(Get.context).myShippingRequest}(${controller.itemsMyShippingRequest.length})',textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: interfaceColor)))),
+                ),
+              ))),
+          SizedBox(height: 20,),
+          Obx(() => InkWell(
+              onTap: () {
+                controller.items.value = controller.listShippingOffer;
+                controller.myExpeditionsPage.value = 2;
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: SizedBox(
+                    height: Get.height*0.2,
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: Text('${AppLocalizations.of(Get.context).myShippingOffer} (${controller.itemsMyShippingOffer.length})',textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: interfaceColor))))),
+              )
+          )),
+          SizedBox(height: 20,),
+          Obx(() => InkWell(
+              onTap: () {
+                controller.items.value = controller.listReceptionOffer;
+                controller.myExpeditionsPage.value = 3;
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: SizedBox(
+                    height: Get.height*0.2,
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: Text('Reception Offer (${controller.itemsMyReceptionOffer.length})',textAlign: TextAlign.center, style: Get.textTheme.headline5.merge(TextStyle(color: interfaceColor))))),
+              )
+          )),
+
+        ]
     );
   }
 
@@ -1060,5 +1013,4 @@ class BookingsView extends GetView<BookingsController> {
           ),
         ));
   }
-
 }

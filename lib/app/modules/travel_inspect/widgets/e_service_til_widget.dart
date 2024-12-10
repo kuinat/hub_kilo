@@ -18,8 +18,8 @@ class EServiceTilWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding ?? 20, vertical: 15),
+      margin: EdgeInsets.only(bottom: 10, right: 10, left: 10),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding ?? 10, vertical: 15),
       decoration: Ui.getBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

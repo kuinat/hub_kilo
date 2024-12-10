@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio_http_cache/dio_http_cache.dart';
@@ -16,6 +17,7 @@ import '../models/my_user_model.dart';
 import '../services/my_auth_service.dart';
 import 'api_provider.dart';
 import 'dio_client.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OdooApiClient extends GetxService with ApiClient {
   DioClient _httpClient;
@@ -40,15 +42,13 @@ class OdooApiClient extends GetxService with ApiClient {
   Future<MyUser>getUser(int id) async {
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=df049345298adb6bd819fec22deab9a63cffc38e'
+      'Authorization': Domain.authorization
     };
     var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/res.partner?ids=$id'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
-
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
@@ -63,9 +63,16 @@ class OdooApiClient extends GetxService with ApiClient {
           name: data['name'],
           birthplace: data['birth_city_id']==false?'--':data['birth_city_id'][1],
           id: data['id'],
-          userId: data['related_user_id'][0],
+          userId: data['user_ids'][0],
           image: data['image_1920'].toString(),
-          partnerAttachmentIds: data['partner_attachment_ids']
+          partnerAttachmentIds: data['partner_attachment_ids'],
+          deviceTokenIds: data['fcm_token_ids'],
+          isProfessional: data['is_company'],
+          vat: data['vat'].toString(),
+          airTravelIds: data['air_travelbooking_ids'],
+          roadTravelIds: data['travelbooking_ids'],
+          bankIds: data['bank_ids']
+
       );
       print('user:  '+myuser.toString());
 
@@ -73,7 +80,7 @@ class OdooApiClient extends GetxService with ApiClient {
 
     } else {
       var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
   }
 
@@ -105,38 +112,36 @@ class OdooApiClient extends GetxService with ApiClient {
         return partnerId;
       }
       else{
-        Get.showSnackbar(Ui.ErrorSnackBar(message: "User credentials not matching or existing"));
+        Get.showSnackbar(Ui.ErrorSnackBar(message: AppLocalizations.of(Get.context).loginError));
+        return 0;
         //throw new Exception(response.reasonPhrase);
       }
     }
-    else {Get.showSnackbar(Ui.ErrorSnackBar(message: "An error occurred, please try to login again"));
+    else {Get.showSnackbar(Ui.ErrorSnackBar(message: AppLocalizations.of(Get.context).unknownError));
     }
 
   }
 
 
   Future <bool> register(MyUser myUser) async {
-    print(myUser.name.toString());
-    print(myUser.email.toString());
-    print(myUser.password.toString());
-    print(myUser.phone.toString());
-    print(myUser.sex.toString());
-    print(myUser.birthplace.toString());
-    print(myUser.birthday.toString());
-    print(myUser.street.toString());
+
+    Random random = Random();
+    var _randomNumber = random.nextInt(9999);
+    print(_randomNumber);
+
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+      'Authorization': Domain.authorization
     };
-    var request = http.Request('POST',Uri.parse('https://preprod.hubkilo.com/api/v1/create/res.users?values={ '
+    var request = http.Request('POST',Uri.parse('${Domain.serverPort}/create/res.users?values={ '
         '"name": "${myUser.name}",'
         '"login": "${myUser.email}",'
+        '"image_1920": false,'
         '"email": "${myUser.email}",'
         '"password": "${myUser.password}",'
         '"phone": "${myUser.phone}",'
+        '"verification_code": "$_randomNumber",'
         '"sel_groups_1_9_10": 10}'
-
     ));
 
   request.headers.addAll(headers);
@@ -149,7 +154,6 @@ class OdooApiClient extends GetxService with ApiClient {
     //await updatePartnerEmail(data[0], myUser.email);
     //await updatePartnerGender(data[0], myUser.sex);
     await updateToPortalUser(data[0]);
-
 
     return true;
   }
@@ -182,8 +186,7 @@ class OdooApiClient extends GetxService with ApiClient {
    updateUser(MyUser myUser) async {
      var headers = {
        'Accept': 'application/json',
-       'Authorization': Domain.authorization,
-       'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
+       'Authorization': Domain.authorization
      };
 
      var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.users?ids=${myUser.userId}&values={'
@@ -207,14 +210,11 @@ class OdooApiClient extends GetxService with ApiClient {
   }
 
   updatePartner(MyUser myUser) async {
-
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=c2f0577a02cbfee7322f6f0e233e301745a03c03'
+      'Authorization': Domain.authorization
     };
-
-    var request = http.Request('PUT', Uri.parse('https://preprod.hubkilo.com/api/v1/write/res.partner?ids=25&values={'
+    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=${myUser.id}&values={'
         '"phone": "${myUser.phone}",'
         '"birth_city_id": "${myUser.birthplace}",'
         '"residence_city_id": "${myUser.street}",'
@@ -225,47 +225,17 @@ class OdooApiClient extends GetxService with ApiClient {
 
     http.StreamedResponse response = await request.send();
 
-
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
       print(myUser.birthplace);
       print(myUser.street);
-      // await updateToPortalUser(myUser);
 
     }
     else {
       var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
-
   }
-
-  // updatePartnerEmail(int id, String email) async {
-  //   var headers = {
-  //     'Accept': 'application/json',
-  //     'Authorization': Domain.authorization,
-  //     'Cookie': 'session_id=dc69145b99f377c902d29e0b11e6ea9bb1a6a1ba'
-  //   };
-  //
-  //   var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/res.partner?ids=$id&values={'
-  //       '"email": "$email"}'
-  //   ));
-  //
-  //   request.headers.addAll(headers);
-  //
-  //   http.StreamedResponse response = await request.send();
-  //
-  //   if (response.statusCode == 200) {
-  //     print(await response.stream.bytesToString());
-  //
-  //
-  //   }
-  //   else {
-  //     print(response.reasonPhrase);
-  //   }
-  //
-  // }
-
 
   updateToTraveler(bool value, MyUser myser) async {
     var headers = {
@@ -284,8 +254,6 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-
-
     }
     else {
       print(response.reasonPhrase);
@@ -310,17 +278,11 @@ class OdooApiClient extends GetxService with ApiClient {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-
-
     }
     else {
       print(response.reasonPhrase);
     }
-
   }
-
-
-
 
   updateToPortalUser(int id) async {
     var headers = {
@@ -339,13 +301,11 @@ class OdooApiClient extends GetxService with ApiClient {
   if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
 
-
     }
     else {
     var data = await response.stream.bytesToString();
-    Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+    Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message']));
     }
-
   }
 
   Future<String> uploadImage(File file, MyUser myUser) async {
@@ -377,8 +337,6 @@ class OdooApiClient extends GetxService with ApiClient {
     else {
       print(response.reasonPhrase);
     }
-
-
   }
 
 
@@ -410,8 +368,6 @@ class OdooApiClient extends GetxService with ApiClient {
     else {
       print(response.reasonPhrase);
     }
-
-
   }
 
 
@@ -444,9 +400,6 @@ class OdooApiClient extends GetxService with ApiClient {
     else {
       print(response.reasonPhrase);
     }
-
-
-
   }
 
 

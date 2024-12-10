@@ -34,7 +34,7 @@ class AddressesView extends GetView<AddressController> {
         body: RefreshIndicator(
           onRefresh: () async {
             Get.find<LaravelApiClient>().forceRefresh();
-            await controller.refreshAddresses(showMessage: true);
+            //await controller.refreshAddresses(showMessage: true);
             Get.find<LaravelApiClient>().unForceRefresh();
           },
           child: Obx(() {

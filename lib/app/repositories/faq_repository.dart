@@ -19,11 +19,4 @@ class FaqRepository {
     return _apiClient.getCategoriesWithFaqs();
   }
 
-  Future<List<FaqCategory>> getFaqCategories() {
-    return _laravelApiClient.getFaqCategories();
-  }
-
-  Future<List<Faq>> getFaqs(String categoryId) {
-    return _laravelApiClient.getFaqs(categoryId);
-  }
 }

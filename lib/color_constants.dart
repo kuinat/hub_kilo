@@ -21,7 +21,7 @@ const fond = Color(0xebeef7);
 const barMenu = Color(0xFF181D00);
 const doneStatus = Color(0xFF411DA0);
 const newStatus = Color.fromRGBO(91,152,253,1);
-const buttonColor = Color.fromRGBO(57,74,206, 1);
+const buttonColor = Color.fromRGBO(26,25,31, 1);
 const pendingStatus = CupertinoColors.activeOrange;
 const interfaceColor = Color.fromRGBO(33,122,255, 1);
 

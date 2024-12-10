@@ -43,13 +43,15 @@ class TranslationService extends GetxService {
 
   // get list of supported local in the application
   List<Locale> supportedLocales() {
-    return TranslationService.languages.map((_locale) {
+    print("result : $languages");
+    return languages.map((_locale) {
       return fromStringToLocale(_locale);
     }).toList();
   }
 
   // Convert string code to local object
   Locale fromStringToLocale(String _locale) {
+
     if (_locale.contains('_')) {
       // en_US
       return Locale(_locale.split('_').elementAt(0), _locale.split('_').elementAt(1));

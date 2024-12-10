@@ -1,17 +1,20 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-
 import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../../main.dart';
-import '../../../models/my_user_model.dart';
 import '../../../providers/odoo_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/my_auth_service.dart';
+import '../../add_ravel_form/controller/add_travel_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../home/controllers/home_controller.dart';
+import '../../userBookings/controllers/bookings_controller.dart';
 
 class UserTravelsController extends GetxController {
 
@@ -22,18 +25,23 @@ class UserTravelsController extends GetxController {
   var myTravelsList = [];
   var roadTravels = [];
   var listAttachment = [];
-  var travelList = [];
+  var roadTravelList = [];
+  var airTravelList = [];
   var inNegotiation = false.obs;
   var listForProfile = [].obs;
-  var listInvoice = [];
+  var listOfAllAirTravelsLuggages = [];
   var isConform = false.obs;
-  var buttonPressed = false.obs;
   final selectedState = <String>[].obs;
+  var origin = [].obs;
+  var status = ["ALL".tr, "PENDING".tr, "ACCEPTED".tr, "NEGOTIATING".tr, "COMPLETED".tr, "REJECTED".tr];
+  //var travel_booking_id = 0.obs;
 
   ScrollController scrollController = ScrollController();
+  var valueDropDownTravel = ''.obs;
 
   @override
   void onInit() {
+    valueDropDownTravel.value = status[0];
     initValues();
     super.onInit();
 
@@ -47,28 +55,52 @@ class UserTravelsController extends GetxController {
   }
 
   initValues()async{
+    isLoading.value = true;
     Get.lazyPut(()=>UserTravelsController());
+
+
     Get.lazyPut<MyAuthService>(
           () => MyAuthService(),
     );
     Get.lazyPut<OdooApiClient>(
           () => OdooApiClient(),
     );
-    await getUser(Get.find<MyAuthService>().myUser.value.id);
-    myTravelsList = await myTravels();
-    items.clear();
 
+    Get.lazyPut(()=>AddTravelController());
+
+    Get.lazyPut(()=>BookingsController());
+
+    Get.lazyPut(() => HomeController());
+
+
+    await getUser(Get.find<MyAuthService>().myUser.value.id);
+    myTravelsList = await myRoadTravels();
+    myTravelsList.addAll(await myAirTravels());
+
+
+
+    items.value = [];
+    origin.value = [];
+    origin.value = myTravelsList;
     items.value = myTravelsList;
 
-    print(items);
+    await Get.find<BookingsController>().getAttachmentFiles();
+
+
+
+
   }
 
   Future refreshMyTravels() async {
+    isLoading.value = true;
     items.clear();
+    origin.clear();
     await getUser(Get.find<MyAuthService>().myUser.value.id);
-    myTravelsList = await myTravels();
+    myTravelsList = await myRoadTravels();
+    myTravelsList.addAll(await myAirTravels());
+    origin.value = myTravelsList;
     items.value = myTravelsList;
-    print(listForProfile.length.toString());
+
   }
 
   void toggleTravels(bool value, String type) {
@@ -94,89 +126,21 @@ class UserTravelsController extends GetxController {
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       var data = json.decode(result)[0];
-      travelList = data['travelbooking_ids'];
+      roadTravelList = data['travelbooking_ids'];
+      airTravelList = data['air_travelbooking_ids'];
       listAttachment = data['partner_attachment_ids'];
-      listInvoice = data['invoice_ids'];
     } else {
       print(response.reasonPhrase);
     }
   }
 
-  getAttachmentFiles(int travelId)async{
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/ir.attachment?ids=$listAttachment&fields=%5B%22conformity%22%5D&with_context=%7B%7D&with_company=1'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var result = await response.stream.bytesToString();
-      List list = [];
-      List data = json.decode(result);
-      print(data);
-      list = data.where((element) => element['conformity'].toString().contains("true")).toList();
-      if(list.isNotEmpty){
-        publishTravel(travelId);
-      }else{
-        showDialog(
-            context: Get.context,
-            builder: (_){
-              return AlertDialog(
-                title: Text("Identity files not conform!"),
-                content: Text('Your identity could not be verified, please make sure to register your personal identity information and try again', style: Get.textTheme.headline4),
-                actions: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(Get.context),
-                          child: Text("Cancel", style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
-                          )
-                      ),
-                      SizedBox(width: 10),
-                      TextButton(
-                          onPressed: () => {
-                            Navigator.pop(Get.context),
-                            Get.toNamed(Routes.IDENTITY_FILES),
-                          },
-                          child: Text("Upload files", style: Get.textTheme.headline4
-                          )
-                      ),
-                    ],
-                  )
-                ],
-              );
-            });
-      }
-    }
-    else {
-      var result = await response.stream.bytesToString();
-      ScaffoldMessenger.of(Get.context).showSnackBar(SnackBar(
-        content: Text(json.decode(result)['message']),
-        backgroundColor: specialColor.withOpacity(0.4),
-        duration: Duration(seconds: 2),
-      ));
-      print(response.reasonPhrase);
-    }
-  }
-
-  getInvoice() async{
-
-  }
-
-  Future myTravels()async{
-
-    print("travel ids are: $travelList");
+  Future myRoadTravels()async{
 
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
+      'Authorization': Domain.authorization
     };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$travelList'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m1st_hk_roadshipping.travelbooking?ids=$roadTravelList'));
 
     request.headers.addAll(headers);
 
@@ -184,6 +148,47 @@ class UserTravelsController extends GetxController {
 
     if (response.statusCode == 200) {
       var data = await response.stream.bytesToString();
+      var result = json.decode(data);
+      for(var travel in result){
+        if(travel['state'] == 'negotiating'){
+          Get.find<HomeController>().existingPublishedRoadTravel.value = true;
+        }
+      }
+
+      return json.decode(data);
+    }
+    else {
+      var data = await response.stream.bytesToString();
+
+      print(data);
+    }
+  }
+  Future myAirTravels()async{
+
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m2st_hk_airshipping.travelbooking?ids=$airTravelList'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      // var result = json.decode(data);
+      // for(var item in result){
+      //   var luggages = await getSpecificAirTravelLuggages(item['luggage_types']);
+      //   listOfAllAirTravelsLuggages.addAll(luggages);
+      // }
+      var result = json.decode(data);
+      for(var travel in result){
+        if(travel['state'] == 'negotiating'){
+          Get.find<HomeController>().existingPublishedAirTravel.value = true;
+        }
+      }
+
       isLoading.value = false;
       return json.decode(data);
     }
@@ -194,28 +199,192 @@ class UserTravelsController extends GetxController {
     }
   }
 
-  publishTravel(int travelId)async{
+  getSpecificAirTravelLuggages(List luggageIds)async{
     var headers = {
       'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7884fbe019046ffc1379f17c73f57a9e344a6d8a'
+      'Authorization': Domain.authorization
     };
-    var request = http.Request('PUT', Uri.parse('${Domain.serverPort}/write/m1st_hk_roadshipping.travelbooking?values='
-        '{"state": "negotiating"}&ids=$travelId'));
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m2st_hk_airshipping.flight.luggage?ids=$luggageIds'));
+
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      //var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.SuccessSnackBar(message: "Travel opened to the public".tr));
+      var data = await response.stream.bytesToString();
+      print('specific : ${json.decode(data)}');
+
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+      return [];
+    }
+
+
+  }
+
+  publishTravel(int travelId)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('POST', Uri.parse('${Domain.serverPort}/call/m1st_hk_roadshipping.travelbooking/set_to_negotiating/?ids=$travelId'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      Get.showSnackbar(Ui.SuccessSnackBar(message: AppLocalizations.of(Get.context).travelPublished));
+      showDialog(
+          context: Get.context,
+          builder: (context) {
+            return SizedBox(height: 30,
+                child: SpinKitThreeBounce(color: Colors.white, size: 20));
+          },
+      );
       await getUser(Get.find<MyAuthService>().myUser.value.id);
-      myTravelsList = await myTravels();
+      myTravelsList = await myRoadTravels();
+      myTravelsList.addAll(await myAirTravels());
+      items.value = [];
+      origin.value = [];
+      origin.value = myTravelsList;
       items.value = myTravelsList;
+      Navigator.of(Get.context).pop();
+      showDialog(
+          context: Get.context,
+          builder: (_){
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))
+              ),
+              icon: Icon(Icons.warning_amber_rounded, size: 40),
+              title: Text('Add a Shipping to your travel!', style: Get.textTheme.headline2.merge(TextStyle(color: interfaceColor, fontSize: 14))),
+              content: Text('Do you want to join your travel to a shipping offer or a reception offer?', style: Get.textTheme.headline4.merge(TextStyle(color: Colors.black, fontSize: 12))),
+              actions: [
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: Get.width/3,
+                          height: 40,
+                          child: TextButton(
+                              onPressed: () => {
+                                Navigator.pop(Get.context),
+                                Get.lazyPut(()=>AddTravelController()),
+                                Get.find<AddTravelController>().travel_booking_id.value = travelId,
+                                Get.toNamed(Routes.EXPEDITIONS_OFFERS_VIEW),
+                              },
+                              child: Text('Shippings Offers', style: Get.textTheme.headline4
+                              )
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        SizedBox(
+                          width: Get.width/3,
+                          height: 40,
+                          child: TextButton(
+                              onPressed: () => {
+                                Navigator.pop(Get.context),
+                                Get.lazyPut(()=>AddTravelController()),
+                                Get.find<AddTravelController>().travel_booking_id.value = travelId,
+                                Get.toNamed(Routes.RECEPTIONS_OFFERS_VIEW),
+                              },
+                              child: Text('Receptions Offers', style: Get.textTheme.headline4
+                              )
+                          ),
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                          onPressed: () => Navigator.pop(Get.context),
+                          child: Text(AppLocalizations.of(Get.context).cancel, style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
+                          )
+                      ),
+                    ),
+
+                ],)
+              ],
+            );
+          });
+      myTravelsList = await myRoadTravels();
+      myTravelsList.addAll(await myAirTravels());
+      items.value = myTravelsList;
+
     }
     else {
       var data = await response.stream.bytesToString();
-      Get.showSnackbar(Ui.ErrorSnackBar(message: json.decode(data)['message'].tr));
+
+      if(Get.find<AddTravelController>().isIdentityFileUnderAnalysis.value){
+        showDialog(
+            context: Get.context,
+            builder: (_){
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                icon: Icon(Icons.warning_amber_rounded, size: 40),
+                title: Text(AppLocalizations.of(Get.context).identityFilesNonConform, style: Get.textTheme.headline2.merge(TextStyle(color: interfaceColor, fontSize: 14))),
+                content: Text('You have already uploaded an identity file, it is under analysis, when it will be confirmed'
+                    'you can publish your travel', style: Get.textTheme.headline4.merge(TextStyle(color: Colors.black, fontSize: 12))),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(Get.context),
+                          child: Text(AppLocalizations.of(Get.context).back, style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
+                          )
+                      ),
+
+                    ],
+                  )
+                ],
+              );
+            });
+      }
+      else{
+        showDialog(
+            context: Get.context,
+            builder: (_){
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                icon: Icon(Icons.warning_amber_rounded, size: 40),
+                title: Text(AppLocalizations.of(Get.context).identityFilesNonConform, style: Get.textTheme.headline2.merge(TextStyle(color: interfaceColor, fontSize: 14))),
+                content: Text(json.decode(data)['message']+"\n${AppLocalizations.of(Get.context).wantUploadNewFile}", style: Get.textTheme.headline4.merge(TextStyle(color: Colors.black, fontSize: 12))),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(Get.context),
+                          child: Text(AppLocalizations.of(Get.context).back, style: Get.textTheme.headline4.merge(TextStyle(color: specialColor))
+                          )
+                      ),
+                      SizedBox(width: 10),
+                      TextButton(
+                          onPressed: () => {
+                            Navigator.pop(Get.context),
+                            Get.toNamed(Routes.IDENTITY_FILES),
+                          },
+                          child: Text(AppLocalizations.of(Get.context).uploadFile, style: Get.textTheme.headline4
+                          )
+                      ),
+                    ],
+                  )
+                ],
+              );
+            });
+      }
+
+
     }
   }
 
@@ -237,5 +406,6 @@ class UserTravelsController extends GetxController {
   void onClose() {
     //chatTextController.dispose();
   }
+
 
 }

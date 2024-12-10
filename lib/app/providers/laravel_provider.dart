@@ -1123,7 +1123,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     return _uri.toString();
   }
 
-  Future<List<Notification>> getNotifications() async {
+  Future<List<NotificationModel>> getNotifications() async {
     if (!authService.isAuth) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ getNotifications() ]");
     }
@@ -1141,13 +1141,13 @@ class LaravelApiClient extends GetxService with ApiClient {
     Get.log(_uri.toString());
     var response = await _httpClient.getUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
-      return response.data['data'].map<Notification>((obj) => Notification.fromJson(obj)).toList();
+      return response.data['data'].map<NotificationModel>((obj) => NotificationModel.fromJson(obj)).toList();
     } else {
       throw new Exception(response.data['message']);
     }
   }
 
-  Future<Notification> markAsReadNotification(Notification notification) async {
+  Future<NotificationModel> markAsReadNotification(NotificationModel notification) async {
     if (!authService.isAuth) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ markAsReadNotification() ]");
     }
@@ -1156,12 +1156,12 @@ class LaravelApiClient extends GetxService with ApiClient {
     };
     Uri _uri = getApiBaseUri("notifications/${notification.id}").replace(queryParameters: _queryParameters);
     Get.log(_uri.toString());
-    var response = await _httpClient.putUri(_uri, data: notification.markReadMap(), options: _optionsNetwork);
-    if (response.data['success'] == true) {
-      return Notification.fromJson(response.data['data']);
-    } else {
-      throw new Exception(response.data['message']);
-    }
+    // var response = await _httpClient.putUri(_uri, data: notification.markReadMap(), options: _optionsNetwork);
+    // if (response.data['success'] == true) {
+    //   return Notification.fromJson(response.data['data']);
+    // } else {
+    //   throw new Exception(response.data['message']);
+    // }
   }
 
   Future<bool> sendNotification(List<User> users, User from, String type, String text, String id) async {
@@ -1189,7 +1189,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     }
   }
 
-  Future<Notification> removeNotification(Notification notification) async {
+  Future<NotificationModel> removeNotification(NotificationModel notification) async {
     if (!authService.isAuth) {
       throw new Exception("You don't have the permission to access to this area!".tr + "[ removeNotification() ]");
     }
@@ -1200,7 +1200,7 @@ class LaravelApiClient extends GetxService with ApiClient {
     Get.log(_uri.toString());
     var response = await _httpClient.deleteUri(_uri, options: _optionsNetwork);
     if (response.data['success'] == true) {
-      return Notification.fromJson(response.data['data']);
+      return NotificationModel.fromJson(response.data['data']);
     } else {
       throw new Exception(response.data['message']);
     }

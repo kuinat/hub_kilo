@@ -16,11 +16,11 @@ class AddressController extends GetxController {
 
   @override
   void onInit() async {
-    await refreshAddresses();
+    //await refreshAddresses();
     super.onInit();
   }
 
-  Future refreshAddresses({bool showMessage}) async {
+/*Future refreshAddresses({bool showMessage}) async {
     await getAddresses();
     if (showMessage == true) {
       Get.showSnackbar(Ui.SuccessSnackBar(message: "List of addresses refreshed successfully".tr));
@@ -35,5 +35,5 @@ class AddressController extends GetxController {
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
-  }
+  }*/
 }

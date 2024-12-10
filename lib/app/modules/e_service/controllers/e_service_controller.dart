@@ -8,8 +8,6 @@ import '../../../models/option_group_model.dart';
 import '../../../models/option_model.dart';
 import '../../../models/review_model.dart';
 import '../../../repositories/e_service_repository.dart';
-import '../../../services/auth_service.dart';
-import '../../favorites/controllers/favorites_controller.dart';
 
 class EServiceController extends GetxController {
   final eService = EService().obs;
@@ -39,15 +37,15 @@ class EServiceController extends GetxController {
   }
 
   Future refreshEService({bool showMessage = false}) async {
-    await getEService();
+    /*await getEService();
     await getReviews();
-    await getOptionGroups();
+    await getOptionGroups();*/
     if (showMessage) {
       Get.showSnackbar(Ui.SuccessSnackBar(message: eService.value.name + " " + "page refreshed successfully".tr));
     }
   }
 
-  Future getEService() async {
+  /*Future getEService() async {
     try {
       eService.value = await _eServiceRepository.get(eService.value.id);
     } catch (e) {
@@ -112,7 +110,7 @@ class EServiceController extends GetxController {
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
-  }
+  }*/
 
   void selectOption(OptionGroup optionGroup, Option option) {
     optionGroup.options.forEach((e) {

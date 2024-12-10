@@ -16,7 +16,7 @@ class CategoriesController extends GetxController {
     _categoryRepository = new CategoryRepository();
   }
 
-  @override
+/*@override
   Future<void> onInit() async {
     await refreshCategories();
     super.onInit();
@@ -35,5 +35,5 @@ class CategoriesController extends GetxController {
     } catch (e) {
       Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
-  }
+  }*/
 }

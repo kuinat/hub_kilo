@@ -14,7 +14,7 @@ class HelpController extends GetxController {
     _faqRepository = new FaqRepository();
   }
 
-  @override
+/*@override
   Future<void> onInit() async {
     await refreshFaqs();
     super.onInit();
@@ -47,5 +47,5 @@ class HelpController extends GetxController {
     } catch (e) {
       //Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
     }
-  }
+  }*/
 }

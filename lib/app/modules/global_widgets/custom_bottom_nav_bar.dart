@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-const Color PRIMARY_COLOR = Colors.blueAccent;
+import '../../../color_constants.dart';
+
+const Color PRIMARY_COLOR = inactive;
 const Color BACKGROUND_COLOR = Color(0xffE2E7F2);
 
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -57,7 +59,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                   Icon(
                     icon,
                     size: 20,
-                    color: widget.currentIndex == index ? color : color.withOpacity(0.5),
+                    color: widget.currentIndex == index ? color : inactive,
                   ),
                   widget.currentIndex == index
                       ? Expanded(

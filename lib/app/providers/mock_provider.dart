@@ -281,10 +281,10 @@ class MockApiClient {
     }
   }
 
-  Future<List<Notification>> getNotifications() async {
+  Future<List<NotificationModel>> getNotifications() async {
     var response = await httpClient.get(baseUrl + "notifications/all.json", options: _options);
     if (response.statusCode == 200) {
-      return response.data['data'].map<Notification>((obj) => Notification.fromJson(obj)).toList();
+      return response.data['data'].map<NotificationModel>((obj) => NotificationModel.fromJson(obj)).toList();
     } else {
       throw new Exception(response.statusMessage);
     }

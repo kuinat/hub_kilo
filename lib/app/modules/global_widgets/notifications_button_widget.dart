@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../color_constants.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
+import '../../services/my_auth_service.dart';
 import '../root/controllers/root_controller.dart';
 
 class NotificationsButtonWidget extends GetView<RootController> {
@@ -21,24 +22,25 @@ class NotificationsButtonWidget extends GetView<RootController> {
       hoverElevation: 0,
       highlightElevation: 0,
       elevation: 0,
-      onPressed: () {
-        if (Get.find<AuthService>().isAuth == true) {
-          Get.toNamed(Routes.NOTIFICATIONS);
+      onPressed: () async {
+        print(Get.find<MyAuthService>().myUser.value.email.toString());
+        if (Get.find<MyAuthService>().myUser.value.email != null ) {
+          await Get.toNamed(Routes.NOTIFICATIONS);
         } else {
-          Get.toNamed(Routes.LOGIN);
+          await Get.toNamed(Routes.LOGIN);
         }
       },
-      child: Stack(
+      child: Obx(() => Stack(
         alignment: AlignmentDirectional.bottomEnd,
         children: <Widget>[
           Icon(
             Icons.notifications_outlined,
-            color: iconColor ?? Get.theme.hintColor,
+            color: Colors.white,
             size: 28,
           ),
-          Container(
-            child: Obx(() {
-              return Center(
+          if(controller.notificationsCount.value != 0)
+            Container(
+              child: Center(
                 child: Text(
                   controller.notificationsCount.value.toString(),
                   textAlign: TextAlign.center,
@@ -46,13 +48,13 @@ class NotificationsButtonWidget extends GetView<RootController> {
                     TextStyle(color: Get.theme.primaryColor, fontSize: 11, height: 1.4),
                   ),
                 ),
-              );
-            }),
-            padding: EdgeInsets.all(0),
-            decoration: BoxDecoration(color: labelColor ?? specialColor, borderRadius: BorderRadius.all(Radius.circular(10))),
-            constraints: BoxConstraints(minWidth: 16, maxWidth: 16, minHeight: 16, maxHeight: 16),
-          ),
+              ),
+              padding: EdgeInsets.all(0),
+              decoration: BoxDecoration(color: labelColor ?? specialColor, borderRadius: BorderRadius.all(Radius.circular(10))),
+              constraints: BoxConstraints(minWidth: 16, maxWidth: 16, minHeight: 16, maxHeight: 16),
+            ),
         ],
+      )
       ),
       color: Colors.transparent,
     );

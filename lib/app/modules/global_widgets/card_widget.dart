@@ -1,70 +1,66 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:app/app/modules/global_widgets/pop_up_widget.dart';
+import 'package:intl/intl.dart';
 
 import '../../../color_constants.dart';
 import '../../../main.dart';
+import '../../routes/app_routes.dart';
+import '../../services/my_auth_service.dart';
 import '../account/widgets/account_link_widget.dart';
 import '../userBookings/controllers/bookings_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CardWidget extends StatelessWidget {
-  const CardWidget({Key key,
+   CardWidget({Key key,
 
+    this.selected,
+    this.imageUrl,
     this.editable,
     this.transferable,
     this.accept,
     this.transfer,
-    this.departureTown,
-    this.arrivalTown,
-    this.reject,
     this.packetImageUrl,
     this.negotiation,
+    this.markReceived,
+    this.travellerDisagree,
+    this.user,
+    this.homePage,
     @required this.owner,
-    @required this.luggageView,
+    @required this.detailsView,
     @required this.shippingDate,
     @required this.code,
-    @required this.imageUrl,
-    @required this.recName,
-    @required this.recEmail,
-    @required this.recAddress,
-    @required this.recPhone,
-    this.edit,
-    this.confirm,
-    @required this.button,
     @required this.price,
     @required this.travelType,
     @required this.text,
-    @required this.bookingState
+    @required this.bookingState,
+
+
   }) : super(key: key);
 
   final Widget negotiation;
   final String text;
   final bool owner;
-  final String departureTown;
-  final String arrivalTown;
   final String code;
-  final String recName;
-  final Widget luggageView;
+  final Widget detailsView;
   final String shippingDate;
+  final bool selected;
   final bool transferable;
   final bool editable;
-  final String recEmail;
-  final String recAddress;
-  final String recPhone;
+  final bool travellerDisagree;
   final String bookingState;
   final String travelType;
-  final Widget button;
   final double price;
-  final String imageUrl;
   final String packetImageUrl;
-  final Function edit;
-  final Function confirm;
   final Function accept;
-  final Function reject;
   final Function transfer;
-
+  final Function markReceived;
+  final String imageUrl;
+  final String user;
+  var homePage;
 
   @override
   Widget build(BuildContext context) {
@@ -72,207 +68,225 @@ class CardWidget extends StatelessWidget {
           () => BookingsController(),
     );
     //var selected = Get.find<BookingsController>().currentState.value ;
-    return Card(
-      elevation: 10,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        //side: BorderSide(color: interfaceColor.withOpacity(0.4), width: 2),
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-      ),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          //alignment: AlignmentDirectional.topStart,
-          children: [
-            SizedBox(height: 10),
-            Row(
-              children: [
-                RichText(
-                    text: TextSpan(
-                        children: [
-                          TextSpan(text: shippingDate.split("T").first, style: Get.textTheme.headline1.merge(TextStyle(fontSize: 15))),
-                          TextSpan(text: "\n${shippingDate.split("T").last.split(".").first}", style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: appColor)))
-                        ]
-                    )
-                ),
-                Spacer(),
-                Text(code, style: TextStyle(color: appColor, fontSize: 15)),
-              ],
+    return ClipRRect(
+      child: Banner(
+        location: BannerLocation.topEnd,
+        message: !travellerDisagree ? bookingState == "received" ? AppLocalizations.of(context).delivered : bookingState == "confirm" ? AppLocalizations.of(context).received : bookingState == 'rejected' ? AppLocalizations.of(context).cancelled : bookingState : AppLocalizations.of(context).rejected,
+        color: !travellerDisagree ? bookingState == 'accepted' ? pendingStatus : bookingState == 'rejected' ? specialColor :
+        bookingState == 'received' ? interfaceColor : bookingState == "paid" ? validateColor : bookingState == "confirm" ? doneStatus : inactive : specialColor,
+        child: Card(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              side: selected == null? BorderSide.none:selected? BorderSide(color: interfaceColor):BorderSide.none,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-              ),
+
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          child: Icon(FontAwesomeIcons.planeCircleCheck, size: 20),
-                        ),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 12),
-                          width: 1,
-                          height: 24,
-                          color: Get.theme.focusColor.withOpacity(0.3),
-                        ),
-                        Expanded(child: Text("From: $text", overflow: TextOverflow.ellipsis,style: Get.textTheme.headline1.
-                        merge(TextStyle(color: appColor, fontSize: 17)))),
-                        SizedBox(width: 40),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                          alignment: Alignment.center,
-                          child: Text(bookingState, style: Get.textTheme.headline2.merge(TextStyle(color: bookingState == 'accepted' ? interfaceColor : bookingState == 'rejected' ? specialColor :
-                          bookingState == 'received' ? doneStatus : inactive, fontSize: 12))),
-                          decoration: BoxDecoration(
-                              color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.3) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
-                              bookingState == 'received' ? doneStatus.withOpacity(0.3) : inactive.withOpacity(0.3),
-                              border: Border.all(
-                                color: bookingState == 'accepted' ? interfaceColor.withOpacity(0.2) : bookingState == 'rejected' ? specialColor.withOpacity(0.2) :
-                                bookingState == 'received' ? doneStatus.withOpacity(0.2) : inactive.withOpacity(0.2),
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(20))),
-                        )
-                      ]
-                  ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if(bookingState == 'pending')
-                      negotiation,
-                      SizedBox(width: 10),
-                      SizedBox(width: 150,
-                          child: luggageView),
-                    ],
-                  ),
                   Align(
-                    alignment: Alignment.bottomRight,
-                    child: button,
-                  ),
-                  ExpansionTile(
-                    leading: Icon(FontAwesomeIcons.userCheck, size: 20),
-                    title: Text("Receiver Info".tr, style: Get.textTheme.bodyText1.
-                    merge(TextStyle(color: appColor, fontSize: 17))),
-                    children: [
-                      AccountWidget(
-                        icon: FontAwesomeIcons.person,
-                        text: Text('Full Name'),
-                        value: recName,
-                      ),
-                      AccountWidget(
-                        icon: Icons.alternate_email,
-                        text: Text('Email'),
-                        value: recEmail,
-                      ),
-                      AccountWidget(
-                        icon: FontAwesomeIcons.addressCard,
-                        text: Text('Address'),
-                        value: recAddress,
-                      ),
-                      AccountWidget(
-                        icon: FontAwesomeIcons.phone,
-                        text: Text('Phone'),
-                        value: recPhone,
-                      )
-                    ],
-                    initiallyExpanded: false,
-                  ),
-                  if(owner)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                          onTap: editable ? edit :
-                              (){
-                            showDialog(
-                                context: context,
-                                builder: (_)=>
-                                    PopUpWidget(
-                                      title: "You cannot edit a shipping accepted, confirmed or cancelled",
-                                      cancel: 'Cancel',
-                                      confirm: 'Ok',
-                                      onTap: ()=>{
-                                        Navigator.of(Get.context).pop(),
-                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                    )
-                            );
-                          },
-                          child: Card(
-                              elevation: 10,
-                              color: editable?Colors.blue:inactive,
-                              margin: EdgeInsets.symmetric( vertical: 15),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal:30, vertical: 10),
-                                child: Text(" Edit ".tr, style: TextStyle(color: Colors.white),),)
-                          )
-                      ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                          onTap: transferable ? transfer:
-                              (){
-                            showDialog(
-                                context: context,
-                                builder: (_)=>
-                                    PopUpWidget(
-                                      title: "You can transfer your shipping only if it was rejected or is pending validation",
-                                      cancel: 'Cancel',
-                                      confirm: 'Ok',
-                                      onTap: ()=>{
-                                        Navigator.of(Get.context).pop(),
-                                      }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                    )
-                            );
-                          },
-                          child: Card(
-                              elevation: 10,
-                              color: transferable? validateColor:inactive,
-                              margin: EdgeInsets.symmetric( vertical: 15),
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric( horizontal:20, vertical: 10),
-                                  child: Text("Transfer".tr, style: TextStyle(color: Colors.white)))
-                          )
-                      ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                          onTap: editable ? confirm:(){
-                          showDialog(
-                              context: context,
-                              builder: (_)=>
-                                  PopUpWidget(
-                                    title: "You cannot cancel a Shipping accepted or confirmed or that has already been cancelled",
-                                    cancel: 'Cancel',
-                                    confirm: 'Ok',
-                                    onTap: ()=>{
-                                      Navigator.of(Get.context).pop(),
-                                    }, icon: Icon(FontAwesomeIcons.warning, size: 40,color: specialColor),
-                                  )
-                          );},
+                    alignment: Alignment.centerLeft,
+                      child: Text(code, style: TextStyle(color: appColor, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.bold, fontSize: 12))
+                  ).paddingOnly(top: 10),
+                  ListTile(
+                    leading: travelType!=''?travelType=='road' || travelType=='By Road'?
+                    Icon(FontAwesomeIcons.bus, size: 30, color: background)
+                        :Icon(FontAwesomeIcons.planeUp, size: 30, color: background)
+                        :Icon(FontAwesomeIcons.bus, size: 30, color: background),
+                    title: Text(text, overflow: TextOverflow.ellipsis,style: Get.textTheme.headline1.
+                    merge(TextStyle(color: appColor, fontSize: 12))),
+                    subtitle: Text("${DateFormat("dd MMM yyyy").format(DateTime.parse(shippingDate))} ",
+                        style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: Colors.black))) ,
 
-                          child: Card(
-                              elevation: 10,
-                              color: editable?specialColor:inactive,
-                              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  child: Text("Cancel".tr, style: TextStyle(color: Colors.white)))
-                          )
+                  ),
+                  Container(
+                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
                       ),
-                    ],
-                  )
-            ])
-            ),
-          ],
-        ),
-      )
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            !owner? Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                bookingState != 'received' ?
+                                negotiation : SizedBox(),
+                              ],
+                            ):SizedBox(),
+                            Row(
+                              children: [
+                                if(bookingState == 'pending' && !owner )...[
+                                  InkWell(
+                                    onTap: () => showDialog(
+                                        context: context, builder: (_){
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Material(
+                                              child: IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(Icons.close, size: 20))
+                                          ),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            child: FadeInImage(
+                                              width: Get.width,
+                                              height: Get.height/2,
+                                              fit: BoxFit.cover,
+                                              image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
+                                              placeholder: AssetImage(
+                                                  "assets/img/loading.gif"),
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Center(
+                                                    child: Container(
+                                                        width: Get.width/1.5,
+                                                        height: Get.height/3,
+                                                        color: Colors.white,
+                                                        child: Center(
+                                                            child: Icon(Icons.person, size: 150)
+                                                        )
+                                                    )
+                                                );
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    }),
+                                    child: ClipOval(
+                                        child: FadeInImage(
+                                          width: 40,
+                                          height: 40,
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(this.imageUrl, headers: Domain.getTokenHeaders()),
+                                          placeholder: AssetImage(
+                                              "assets/img/loading.gif"),
+                                          imageErrorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                                "assets/img/téléchargement (1).png",
+                                                width: 40,
+                                                height: 40,
+                                                fit: BoxFit.fitWidth);
+                                          },
+                                        )
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  SizedBox(
+                                    //width: 80,
+                                    child: Text(this.user,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: Colors.black)))
+                                  )
+                                ]else ...[
+                                  if(homePage == null || homePage == true)...[
+                                    InkWell(
+                                      onTap: () => showDialog(
+                                          context: context, builder: (_){
+                                        return Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Material(
+                                                child: IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(Icons.close, size: 20))
+                                            ),
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              child: FadeInImage(
+                                                width: Get.width,
+                                                height: Get.height/2,
+                                                fit: BoxFit.cover,
+                                                image: NetworkImage('${Domain.serverPort}/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                                                placeholder: AssetImage(
+                                                    "assets/img/loading.gif"),
+                                                imageErrorBuilder:
+                                                    (context, error, stackTrace) {
+                                                  return Center(
+                                                      child: Container(
+                                                          width: Get.width/1.5,
+                                                          height: Get.height/3,
+                                                          color: Colors.white,
+                                                          child: Center(
+                                                              child: Icon(Icons.person, size: 150)
+                                                          )
+                                                      )
+                                                  );
+                                                },
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      }),
+                                      child: ClipOval(
+                                          child: FadeInImage(
+                                            width: 40,
+                                            height: 40,
+                                            fit: BoxFit.cover,
+                                            image: NetworkImage('${Domain.serverPort}/image/res.partner/${Get.find<MyAuthService>().myUser.value.id}/image_1920?unique=true&file_response=true', headers: Domain.getTokenHeaders()),
+                                            placeholder: AssetImage(
+                                                "assets/img/loading.gif"),
+                                            imageErrorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                  "assets/img/téléchargement (1).png",
+                                                  width: 40,
+                                                  height: 40,
+                                                  fit: BoxFit.fitWidth);
+                                            },
+                                          )
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    SizedBox(
+                                        //width: 115,
+                                        child: Text(Get.find<MyAuthService>().myUser.value.name,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Get.textTheme.headline1.merge(TextStyle(fontSize: 12, color: Colors.black)))
+                                    )
+
+                                  ]
+
+                                ],
+                                owner?bookingState != 'received' ?
+                                negotiation : SizedBox():SizedBox(),
+                                Spacer(),
+                                detailsView
+                              ],
+                            ),
+                            if(!owner)...[
+                              if(bookingState == "paid")
+                                ElevatedButton(
+                                    onPressed: markReceived,
+                                    style: ElevatedButton.styleFrom(backgroundColor: interfaceColor),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(AppLocalizations.of(context).setToReceived),
+                                    )
+                                ),
+                              if(bookingState == "confirm")
+                                ElevatedButton(
+                                    onPressed: ()=> Get.offNamed(Routes.VALIDATE_TRANSACTION),
+                                    style: ElevatedButton.styleFrom(backgroundColor: inactive),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(AppLocalizations.of(context).deliverParcel),
+                                    )
+                                )
+                            ]
+                          ])
+                  ),
+                ],
+              ),
+            )
+        )
+      ),
     );
   }
 }

@@ -2,12 +2,13 @@ class Routes {
   static const LOGIN = '/login';
   static const REGISTER = '/register';
   static const FORGOT_PASSWORD = '/forgot_password';
-  static const PHONE_VERIFICATION = '/phone_verification';
+  static const VERIFICATION = '/verification_view';
 
   static const ROOT = '/root';
   static const RATING = '/rating';
   static const CHAT = '/chat';
   static const MY_TRAVELS = '/my_travels';
+  static const SPLASH_VIEW = '/splash_view';
 
   static const SETTINGS = '/settings';
   static const SETTINGS_THEME_MODE = '/settings/theme_mode';
@@ -15,9 +16,25 @@ class Routes {
   static const SETTINGS_ADDRESSES = '/settings/addresses';
   static const SETTINGS_ADDRESS_PICKER = '/settings/address_picker';
 
+  static const INVOICE = '/invoice';
+  static const SHIPPING_DETAILS = '/shipping_details';
+  static const TRAVEL_SHIPPING = '/travel_shipping';
+
   static const PROFILE = '/profile';
-  static const IDENTITY_FILES = '/import_identity_files_form';
+  static const IDENTITY_FILES = '/attachment_list';
+  static const RATING_LIST = '/ratings_view';
+  static const ADD_IDENTITY_FILES = '/import_identity_files_form';
+  static const SIGNAL_INCIDENT = '/signal_incident';
+  static const INCIDENTS_VIEW= '/incidents_view';
   static const ADD_TRAVEL_FORM = '/add_travel_form';
+  static const ADD_AIR_TRAVEL_FORM = '/add_travel_form/add_air_travel_form';
+  static const ADD_SHIPPING_FORM = '/add_shipping_form';
+  static const ADD_RECEPTION_OFFER_FORM = '/add_reception_offer_form';
+  static const CREATE_OFFER_EXPEDITION = '/create_offer_expedition';
+  static const CREATE_RECEPTION_OFFER = '/create_reception_offer';
+  static const EXPEDITIONS_OFFERS_VIEW = '/expeditions_offers_view';
+  static const RECEPTIONS_OFFERS_VIEW = '/reception_offers_view';
+  static const USER_TRAVEL_SELECTION = '/user_travel_selection_view';
   static const AVAILABLE_TRAVELS = '/available_travels';
   static const TRAVEL_INSPECT = "/travel_inspect";
   static const CATEGORY = '/category';
@@ -37,6 +54,7 @@ class Routes {
   static const E_PROVIDER = '/e_provider';
   static const E_PROVIDER_E_SERVICES = '/e_provider/e_services';
   static const BOOKING = '/booking';
+  static const INVOICE_PDF = '/invoice_pdf';
   static const PAYPAL = '/paypal';
   static const RAZORPAY = '/razorpay';
   static const STRIPE = '/stripe';

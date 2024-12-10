@@ -1,207 +1,171 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../../color_constants.dart';
-import '../../../../common/helper.dart';
 import '../../../../common/ui.dart';
 import '../../../models/setting_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
-import '../../global_widgets/phone_field_widget.dart';
-import '../../global_widgets/text_field_widget.dart';
+import '../../global_widgets/text_field_transparent_widget.dart';
 import '../controllers/auth_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegisterView extends GetView<AuthController> {
   final Setting _settings = Get.find<SettingsService>().setting.value;
-  String dropdownvalueGender = 'Select your gender'.tr;
-  String dropdownvaluePiece = 'Select an identity piece'.tr;
+  String dropdownvalueGender = AppLocalizations.of(Get.context).gender;
 
-  var selectedPiece = "Select an identity piece".obs;
-  var selectedGender = "Select your gender".obs;
+  var selectedGender = AppLocalizations.of(Get.context).gender.obs;
 
 
   var genderList = [
-    'Select your gender'.tr,
-    'Male'.tr,
-    'Female'.tr,
-  ];
-  var identityPieceList = [
-    'Select an identity piece'.tr,
-    'CNI'.tr,
-    'Passeport'.tr,
+    AppLocalizations.of(Get.context).gender.tr,
+    AppLocalizations.of(Get.context).male.tr,
+    AppLocalizations.of(Get.context).female.tr,
   ];
 
-  var birthDay= DateTime.now().obs ;
-
-
-
- 
-  
   @override
   Widget build(BuildContext context) {
     controller.registerFormKey = new GlobalKey<FormState>();
-    return WillPopScope(
-      onWillPop: Helper().onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Register".tr,
-            style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
-          ),
-          centerTitle: true,
-          backgroundColor: Get.theme.colorScheme.secondary,
-          automaticallyImplyLeading: false,
-          elevation: 0,
-          leading: new IconButton(
-            icon: new Icon(Icons.arrow_back_ios, color: Get.theme.primaryColor),
-            onPressed: () => {Get.offNamed(Routes.ROOT)},
-          )
-        ),
+    return Scaffold(
         body: Form(
           key: controller.registerFormKey,
-          child: ListView(
-            primary: true,
-            children: [
-              Stack(
-                alignment: AlignmentDirectional.bottomCenter,
-                children: [
-                  Container(
-                    height: 120,
-                    width: Get.width,
-                    decoration: BoxDecoration(
-                      color: Get.theme.colorScheme.secondary,
-                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-                      boxShadow: [
-                        BoxShadow(color: Get.theme.focusColor.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5)),
-                      ],
-                    ),
-                    margin: EdgeInsets.only(bottom: 50),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        "Welcome to the best Packages transport service!".tr,
-                        style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor)),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: Ui.getBoxDecoration(
-                      radius: 20,
-                      border: Border.all(width: 5, color: Get.theme.primaryColor),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: Image.asset(
-                        'assets/img/logohubkilo.png',
-                        fit: BoxFit.cover,
-                        width: 100,
-                        height: 100,
-                      ),
-                    ),
-                  ),
-                ],
+          child: Container(
+            constraints: BoxConstraints.expand(),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken),
+                image: AssetImage("assets/img/photo_2023-12-27_05-59-14.jpg"),
+                fit: BoxFit.cover,
               ),
-              Obx(() {
-                 return Container(
-                   padding: EdgeInsets.symmetric(horizontal: 10),
-                   child: Column(
+            ),
+            child: ListView(
+              primary: true,
+              children: [
+                Stack(
+                  alignment: AlignmentDirectional.bottomCenter,
+                  children: [
+                    Container(
+                      decoration: Ui.getBoxDecoration(
+                        radius: 14,
+                        color: Colors.transparent,
+                        border: Border.all(width: 5, color: Colors.transparent),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: Image.asset(
+                          'assets/img/hubcolis.png',
+                          fit: BoxFit.cover,
+                          width: 100,
+                          height: 100,
+                        ),
+                      ),
+                    ).marginOnly(top: Get.height/13, bottom: 30),
+                    Text(
+                      AppLocalizations.of(context).register,
+                      style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
+                    )
+                  ],
+                ),
+                Obx(() {
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        TextFieldWidget(
-                          labelText: "Full Name".tr,
+                        TextFieldTransparentWidget(
+                          labelText: AppLocalizations.of(context).fullName,
                           hintText: "John Doe".tr,
                           readOnly: false,
                           initialValue: controller.currentUser?.value?.name,
                           onSaved: (input) => controller.currentUser?.value?.name = input,
-                          validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                          validator: (input) => input.length < 3 ? AppLocalizations.of(context).validatorError.tr : null,
                           iconData: Icons.person_outline,
                         ),
-                        TextFieldWidget(
-                          labelText: "Email Address".tr,
+                        TextFieldTransparentWidget(
+                          labelText: AppLocalizations.of(context).emailAddress,
                           hintText: "johndoe@gmail.com".tr,
                           readOnly: false,
                           initialValue: controller.currentUser?.value?.email,
+                          onChanged: (value) => controller.email.value = value,
                           onSaved: (input) => controller.currentUser?.value?.email = input,
-                          validator: (input) => !input.contains('@') ? "Should be a valid email".tr : null,
+                          validator: (input) => !input.contains('@') ? AppLocalizations.of(context).validEmailError.tr : null,
                           iconData: Icons.alternate_email,
                         ),
 
                         Container(
-                          decoration: BoxDecoration(
-                              color: Get.theme.primaryColor,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
-                              ],
-                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
-                          child: DropdownButtonHideUnderline(
+                            decoration: BoxDecoration(
+                                color:  Colors.transparent.withOpacity(0.4),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                boxShadow: [
+                                  BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
+                                ],
+                                border: Border.all(color: Get.theme.focusColor.withOpacity(0.5))),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButtonFormField(
+                                dropdownColor: Colors.transparent.withOpacity(0.1),
+                                decoration: InputDecoration.collapsed(
+                                    hintText: '',
 
-                            child: DropdownButtonFormField(
-                              decoration: InputDecoration.collapsed(
-                                hintText: ''
+                                ),
+                                validator:(input) => input == AppLocalizations.of(context).emailAddress ? AppLocalizations.of(context).emailAddress : null,
+                                onSaved: (input) => (selectedGender.value == "Male"||selectedGender.value == "Homme")?controller.currentUser?.value?.sex = "male":controller.currentUser?.value?.sex = "female",
+                                isExpanded: true,
+                                alignment: Alignment.bottomCenter,
 
-                              ),
-                              validator:(input) => input == "Select your gender" ? "Select a gender".tr : null,
-                              onSaved: (input) => selectedGender.value == "Male"?controller.currentUser?.value?.sex = "M":controller.currentUser?.value?.sex = "F",
-                              isExpanded: true,
-                              alignment: Alignment.bottomCenter,
+                                style: TextStyle(color: labelColor),
+                                value: selectedGender.value,
+                                // Down Arrow Icon
+                                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white,),
 
-                              style: TextStyle(color: labelColor),
-                              value: selectedGender.value,
-                              // Down Arrow Icon
-                              icon: const Icon(Icons.keyboard_arrow_down),
-
-                              // Array list of items
-                              items: genderList.map((String items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items, style: TextStyle(color: labelColor),),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                              onChanged: (String newValue) {
-                                selectedGender.value = newValue;
-                                if(selectedGender.value == "Male"){
-                                  controller.currentUser?.value?.sex = "male";
-                                }
-                                else{
-                                  controller.currentUser?.value?.sex = "female";
-                                }
+                                // Array list of items
+                                items: genderList.map((String items) {
+                                  return DropdownMenuItem(
+                                    value: items,
+                                    child: Text(items, style: TextStyle(color: Colors.white),),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String newValue) {
+                                  selectedGender.value = newValue;
+                                  if(selectedGender.value == "Male"||selectedGender.value == "Homme"){
+                                    controller.currentUser?.value?.sex = "male";
+                                  }
+                                  else{
+                                    controller.currentUser?.value?.sex = "female";
+                                  }
 
 
-                              },).marginOnly(left: 20, right: 20, top: 10, bottom: 10).paddingOnly( top: 20, bottom: 14),
-                          )
+                                },).marginOnly(left: 20, right: 20, top: 10, bottom: 10).paddingOnly( top: 20, bottom: 14),
+                            )
                         ).paddingOnly(left: 5, right: 5, top: 20, bottom: 14,
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
                           margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
                           decoration: BoxDecoration(
-                              color: Get.theme.primaryColor,
+                              color: Colors.transparent.withOpacity(0.4),
                               borderRadius: BorderRadius.all(Radius.circular(10)),
                               boxShadow: [
                                 BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
                               ],
-                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.05))),
+                              border: Border.all(color: Get.theme.focusColor.withOpacity(0.5))),
                           child: IntlPhoneField(
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
                               labelStyle: TextStyle(
-                                color: Colors.grey,
+                                color: Colors.white,
                               ),
                               hintText: '032655333333',
-                              labelText: 'Phone Number',
-                              suffixIcon: Icon(Icons.phone_android_outlined),
+
+                              labelText: AppLocalizations.of(context).phoneNumber,
+                              suffixIcon: Icon(Icons.phone_android_outlined, color: Colors.white,),
                             ),
                             initialCountryCode: 'BE',
-
+                            style: TextStyle( color: Colors.white),
                             onSaved: (phone) {
                               return controller.currentUser?.value?.phone = phone.completeNumber;
                             },
@@ -209,16 +173,16 @@ class RegisterView extends GetView<AuthController> {
                         ),
 
                         Obx(() {
-                          return TextFieldWidget(
+                          return TextFieldTransparentWidget(
                             onChanged: (newValue){
                               controller.password.value = newValue;
                             },
-                            labelText: "Password".tr,
+                            labelText: AppLocalizations.of(context).password,
                             hintText: "••••••••••••".tr,
                             readOnly: false,
                             initialValue: controller.currentUser?.value?.password,
                             onSaved: (input) => controller.currentUser?.value?.password = input,
-                            validator: (input) => input.length < 3 ? "Should be more than 3 characters".tr : null,
+                            validator: (input) => input.length < 3 ? AppLocalizations.of(context).validatorError.tr : null,
                             obscureText: controller.hidePassword.value,
                             iconData: Icons.lock_outline,
                             keyboardType: TextInputType.visiblePassword,
@@ -233,18 +197,18 @@ class RegisterView extends GetView<AuthController> {
                         }),
 
                         Obx(() {
-                          return TextFieldWidget(
+                          return TextFieldTransparentWidget(
                             onChanged: (newValue){
                               if(newValue!=controller.password.value){
 
-                                controller.confirmPassword.value = 'password not matching';
+                                controller.confirmPassword.value = AppLocalizations.of(context).passwordNotMatchingError;
                               }
                               else{
                                 controller.confirmPassword.value = controller.password.value;
                               }
                             },
-                            labelText: "Confirm Password".tr,
-                            errorText: controller.confirmPassword.value == 'password not matching'?'password not matching':null,
+                            labelText: AppLocalizations.of(context).confirmPassword,
+                            errorText: (controller.confirmPassword.value == 'password not matching'||controller.confirmPassword.value == 'mot de passe non correspondant')?AppLocalizations.of(context).passwordNotMatchingError:null,
                             hintText: "••••••••••••".tr,
                             readOnly: false,
                             obscureText: controller.hidePassword.value,
@@ -263,59 +227,61 @@ class RegisterView extends GetView<AuthController> {
                         }),
                       ],
                     ),
-                 );
+                  );
                 }
-              )
-            ],
-          ),
-        ),
-        bottomNavigationBar: Obx(() => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              direction: Axis.vertical,
-              children: [
-                SizedBox(
-                  width: Get.width,
-                  child: BlockButtonWidget(
-                    onPressed: () {
-
-                      if(controller.password.value==controller.confirmPassword.value)
-                      {
-                        controller.register();
-                      }
-
-                    },
-                    color: Get.theme.colorScheme.secondary,
-                    text: !controller.loading.value?Text(
-                      "Register".tr,
-                      style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                    ): SizedBox(height: 20,
-                        child: SpinKitThreeBounce(color: Colors.white, size: 20)),
-                  ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("You already have an account?".tr),
-                    TextButton(
-                      onPressed: () {
-                        Get.toNamed(Routes.LOGIN);
-                      },
-                      child: Text("Login".tr),
-                    ),
-
-                  ],).paddingOnly(bottom: 10)
-
-
+                )
               ],
             ),
-          ],
-        ),)
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        bottomNavigationBar: SizedBox(
+          child: Obx(() => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                direction: Axis.vertical,
+                children: [
+                  SizedBox(
+                    width: Get.width,
+                    child: BlockButtonWidget(
+                      onPressed: () {
 
-      ),
+                        if(controller.password.value==controller.confirmPassword.value)
+                        {
+                          controller.register();
+                        }
+
+                      },
+                      color: Get.theme.colorScheme.secondary,
+                      text: !controller.loading.value?Text(
+                        AppLocalizations.of(context).register,
+                        style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
+                      ): SizedBox(height: 20,
+                          child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                    ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(AppLocalizations.of(context).noAccount.tr, style: TextStyle(color: Colors.black),),
+                      TextButton(
+                        onPressed: () {
+                          Get.toNamed(Routes.LOGIN);
+                        },
+                        child: Text(AppLocalizations.of(context).login, style: TextStyle(color: interfaceColor, fontWeight: FontWeight.bold)),
+                      ),
+
+                    ],).paddingOnly(bottom: 10)
+
+
+                ],
+              ),
+            ],
+          ),),
+        )
     );
   }
 }

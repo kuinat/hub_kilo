@@ -11,7 +11,10 @@ class BlockButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: this.onPressed != null
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(colors: [Colors.purple,Colors.blue ] )),
+      /*decoration: this.onPressed != null
           ? BoxDecoration(
               boxShadow: [
                 BoxShadow(color: this.color.withOpacity(0.3), blurRadius: 40, offset: Offset(0, 15)),
@@ -19,11 +22,11 @@ class BlockButtonWidget extends StatelessWidget {
               ],
               // borderRadius: BorderRadius.all(Radius.circular(20)),
             )
-          : null,
+          : null,*/
       child: MaterialButton(
         onPressed: this.onPressed,
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        color: this.color,
+        //color: this.color,
         disabledElevation: 0,
         disabledColor: Get.theme.focusColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

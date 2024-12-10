@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
+import '../../../../color_constants.dart';
 import '../../../../common/ui.dart';
 import '../../../models/setting_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/settings_service.dart';
 import '../../global_widgets/block_button_widget.dart';
-import '../../global_widgets/circular_loading_widget.dart';
+import '../../global_widgets/text_field_transparent_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../controllers/auth_controller.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ForgotPasswordView extends GetView<AuthController> {
   final Setting _settings = Get.find<SettingsService>().setting.value;
@@ -17,124 +20,110 @@ class ForgotPasswordView extends GetView<AuthController> {
   Widget build(BuildContext context) {
     controller.forgotPasswordFormKey = new GlobalKey<FormState>();
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Forgot Password".tr,
-            style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
-          ),
-          centerTitle: true,
-          backgroundColor: Get.theme.colorScheme.secondary,
-          automaticallyImplyLeading: false,
-          elevation: 0,
-        ),
+
         body: Form(
           key: controller.forgotPasswordFormKey,
-          child: ListView(
-            primary: true,
-            children: [
-              Stack(
-                alignment: AlignmentDirectional.bottomCenter,
-                children: [
-                  Container(
-                    height: 180,
-                    width: Get.width,
-                    decoration: BoxDecoration(
-                      color: Get.theme.colorScheme.secondary,
-                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-                      boxShadow: [
-                        BoxShadow(color: Get.theme.focusColor.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5)),
-                      ],
-                    ),
-                    margin: EdgeInsets.only(bottom: 50),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          Text(
-                            _settings.appName,
-                            style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor, fontSize: 24)),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "Welcome to the best service provider system!".tr,
-                            style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor)),
-                            textAlign: TextAlign.center,
-                          ),
-                          // Text("Fill the following credentials to login your account", style: Get.textTheme.caption.merge(TextStyle(color: Get.theme.primaryColor))),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: Ui.getBoxDecoration(
-                      radius: 14,
-                      border: Border.all(width: 5, color: Get.theme.primaryColor),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: Image.asset(
-                        'assets/icon/icon.png',
-                        fit: BoxFit.cover,
-                        width: 100,
-                        height: 100,
-                      ),
-                    ),
-                  ),
-                ],
+          child: Container(
+            constraints: BoxConstraints.expand(),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken),
+                image: AssetImage("assets/img/photo_2023-12-27_05-59-14.jpg"),
+                fit: BoxFit.cover,
               ),
-              Obx(() {
-                if (controller.loading.isTrue)
-                  return CircularLoadingWidget(height: 300);
-                else {
+            ),
+            child: ListView(
+              primary: true,
+              children: [
+
+                Stack(
+                  alignment: AlignmentDirectional.bottomCenter,
+                  children: [
+                    Container(
+                      decoration: Ui.getBoxDecoration(
+                        color: Colors.transparent,
+                        radius: 14,
+                        border: Border.all(width: 5, color: Colors.transparent),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: Image.asset(
+                          'assets/img/hubcolis.png',
+                          fit: BoxFit.cover,
+                          width: 100,
+                          height: 100,
+                        ),
+                      ),
+                    ).marginOnly(top: Get.height/10),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    AppLocalizations.of(context).forgotPassword.tr,
+                    style: Get.textTheme.headline6.merge(TextStyle(color: context.theme.primaryColor)),
+                  ),
+                ),
+                Obx(() {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextFieldWidget(
-                        labelText: "Email Address".tr,
+                      TextFieldTransparentWidget(
+                        labelText: AppLocalizations.of(context).emailAddress.tr,
+                        readOnly: false,
                         hintText: "johndoe@gmail.com".tr,
                         initialValue: controller.currentUser?.value?.email,
+                        onChanged: (value)=> controller.email.value = value,
                         onSaved: (input) => controller.currentUser.value.email = input,
-                        validator: (input) => !GetUtils.isEmail(input) ? "Should be a valid email".tr : null,
+                        validator: (input) => !GetUtils.isEmail(input) ? AppLocalizations.of(context).validEmailError.tr : null,
                         iconData: Icons.alternate_email,
                       ),
-                      BlockButtonWidget(
-                        onPressed: controller.sendResetLink,
+                      Obx(() => BlockButtonWidget(
+                        onPressed: ()async=> {
+
+                          controller.onClick.value = true,
+                          await controller.getUserByEmail(controller.email.value),
+
+                        },
                         color: Get.theme.colorScheme.secondary,
-                        text: Text(
-                          "Send Reset Link".tr,
-                          style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                        ),
-                      ).paddingSymmetric(vertical: 35, horizontal: 20),
+                        text: !controller.onClick.value? Text(
+                          AppLocalizations.of(context).resetLink,
+                          style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor, ),),
+                          textAlign: TextAlign.center,
+                        ): SizedBox(height: 30,
+                            child: SpinKitThreeBounce(color: Colors.white, size: 20)),
+                      ).paddingSymmetric(vertical: 35, horizontal: 20)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("You don't have an account?".tr),
+                          Text(AppLocalizations.of(context).noAccount.tr, style: TextStyle(color: Colors.white60)),
                           TextButton(
                             onPressed: () {
                               Get.offAllNamed(Routes.REGISTER);
                             },
-                            child: Text("Register".tr),
+                            child: Text(AppLocalizations.of(context).register.tr, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                           ),
                         ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("You remember your password!".tr),
+                          Text(AppLocalizations.of(context).rememberPassword.tr, style: TextStyle(color: Colors.white60)),
                           TextButton(
                             onPressed: () {
-                              Get.offAllNamed(Routes.REGISTER);
+                              Get.offAllNamed(Routes.LOGIN);
                             },
-                            child: Text("Login".tr),
+                            child: Text(AppLocalizations.of(context).login.tr, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                           ),
                         ],
                       ),
                     ],
                   );
-                }
-              }),
-            ],
+                }),
+              ],
+            ),
           ),
-        ));
+        )
+    );
   }
 }

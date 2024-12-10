@@ -35,9 +35,7 @@ class CustomPagesView extends GetView<CustomPagesController> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            Get.find<LaravelApiClient>().forceRefresh();
-            controller.refreshCustomPage(showMessage: true);
-            Get.find<LaravelApiClient>().unForceRefresh();
+
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),

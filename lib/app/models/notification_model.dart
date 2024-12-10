@@ -1,43 +1,47 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 
 import 'parents/model.dart';
 
-class Notification extends Model {
+class NotificationModel {
+  String myId;
   String id;
-  String type;
-  Map<String, dynamic> data;
-  bool read;
-  DateTime createdAt;
+  String title;
+  String message;
+  bool isSeen;
+  bool disable;
+  DateTime timestamp;
 
-  Notification();
+  NotificationModel(
+      {this.id, this.title, this.message, this.isSeen, this.timestamp, this.myId, this.disable});
 
-  Notification.fromJson(Map<String, dynamic> json) {
-    super.fromJson(json);
-    type = stringFromJson(json, 'type');
-    data = mapFromJson(json, 'data', defaultValue: {});
-    read = boolFromJson(json, 'read_at');
-    createdAt = dateFromJson(json, 'created_at', defaultValue: DateTime.now().toLocal());
-  }
+  factory NotificationModel.fromRawJson(String str) =>
+      NotificationModel.fromJson(json.decode(str) as Map<String, dynamic>);
 
-  Map markReadMap() {
-    var map = new Map<String, dynamic>();
-    map["id"] = id;
-    map["read_at"] = !read;
-    return map;
-  }
+  String toRawJson() => json.encode(toJson());
 
-  @override
+  factory NotificationModel.fromJson(Map<String, dynamic> json) =>
+      NotificationModel(
+        id: json['id'] == null ? "00000-0000" : json['id'] as String,
+        title: json['title'] == null ? "No title" : json['title'] as String,
+        message:
+        json['message'] == null ? "No data" : json['message'] as String,
+        isSeen: json['isSeen'] == null ? false : json['isSeen'] as bool,
+        disable: json['disable'] == null ? false : json['disable'] as bool,
+        timestamp: json['timestamp'] == null
+            ? DateTime.now()
+            : DateTime.parse(json['timestamp']),
+      );
+
   Map<String, dynamic> toJson() {
-    throw UnimplementedError();
-  }
-
-  String getMessage() {
-    if (type == 'App\\Notifications\\NewMessage' && data['from'] != null) {
-      return data['from'] + ' ' + type.tr;
-    } else if (data['booking_id'] != null) {
-      return '#' + data['booking_id'].toString() + ' ' + type.tr;
-    } else {
-      return type.tr;
-    }
+    return {
+      'id': id == null ? null : id,
+      'title': title == null ? null : title,
+      'message': message == null ? null : message,
+      'isSeen': isSeen == null ? null : isSeen,
+      'disable': disable == null ? null : disable,
+      'timestamp': timestamp == null ? null : timestamp?.toIso8601String(),
+    };
   }
 }

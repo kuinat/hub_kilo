@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:math';
 import '../../../../main.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ import 'package:http/http.dart' as http;
 import '../../userBookings/controllers/bookings_controller.dart';
 
 class AvailableTravelsController extends GetxController {
-  //var user = new User().obs;
+
   final heroTag = "".obs;
   final hidePassword = true.obs;
   final oldPassword = "".obs;
@@ -28,23 +29,35 @@ class AvailableTravelsController extends GetxController {
   var travelItem = {};
   var airTravels = [];
   var landTravels = [];
+  var _channel;
+  var listOfAllAirTravelsLuggages = [];
   /*Rx<List<Map<String, dynamic>>> items =
   Rx<List<Map<String, dynamic>>>([]);*/
+  ScrollController scrollController = ScrollController();
   GlobalKey<FormState> profileForm;
-
 
   AvailableTravelsController() {
     Get.lazyPut<BookingsController>(
           () => BookingsController(),
     );
-
   }
-
 
   @override
   void onInit() {
     super.onInit();
     initValues();
+    // _channel = WebSocketChannel.connect(
+    //   Uri.parse('wss://preprod.hubkilo.com:9090/all_rooms'),
+    // );
+    //
+    //
+    // _channel.stream.listen(
+    //         (message) {
+    //       print('heyy');
+    //       //print(message.toString());
+    //       items.value.add(json.decode(message.toString())["data"]);
+    //
+    //     });
   }
 
   @override
@@ -56,14 +69,7 @@ class AvailableTravelsController extends GetxController {
 
   initValues()async{
     list = await getAllTravels();
-    landTravels = [];
-    for(var a=0; a < list.length; a++){
-      if(list[a]['state'] == "negotiating"){
-        landTravels.add(list[a]);
-      }
-    }
-    final seen = Set();
-    items.value = landTravels.where((str) => seen.add(str)).toList();
+    items.value = list;
         //landTravels.toSet().toList();
   }
 
@@ -83,24 +89,87 @@ class AvailableTravelsController extends GetxController {
   }
 
   Future getAllTravels() async {
-    var headers = {
-      'Accept': 'application/json',
-      'Authorization': Domain.authorization,
-      'Cookie': 'session_id=7c27b4e93f894c9b8b48cad4e00bb4892b5afd83'
-    };
-    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/search_read/m1st_hk_roadshipping.travelbooking'));
+    List mixedTravels = await getAllRoadTravels();
+    List list = await getAllAirTravels();
+    mixedTravels.addAll(list);
+    return mixedTravels;
 
+  }
+
+  Future getAllRoadTravels()async{
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; session_id=52d594da9dde293f734bbc823c22ed471f482459'
+    };
+    var request = http.Request('GET', Uri.parse('https://preprod.hubkilo.com/frontend/all/travels'));
+    request.body = '''{\n    "jsonrpc": "2.0"\n}''';
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       final data = await response.stream.bytesToString();
-      isLoading.value = false;
-      return json.decode(data);
+      return json.decode(data)['travels'];
     }
     else {
       print(response.reasonPhrase);
     }
   }
+
+  Future getAllAirTravels()async{
+    var headers = {
+      'Cookie': 'frontend_lang=en_US; session_id=52d594da9dde293f734bbc823c22ed471f482459'
+    };
+    var request = http.Request('GET', Uri.parse('https://preprod.hubkilo.com/air/'
+        'frontend/all/travels'));
+    request.body = '''{\n    "jsonrpc": "2.0"\n}''';
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final data = await response.stream.bytesToString();
+      var result = json.decode(data)['travels'];
+      for(var item in result){
+        var luggages = await getSpecificAirTravelLuggages(item['luggage_types']);
+        print(luggages);
+        listOfAllAirTravelsLuggages.addAll(luggages);
+
+      }
+      isLoading.value = false;
+      print('air traveil list isssssssssssssss: ${json.decode(data)['travels']}');
+      return json.decode(data)['travels'];
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  getSpecificAirTravelLuggages(List luggageIds)async{
+    var headers = {
+      'Accept': 'application/json',
+      'Authorization': Domain.authorization
+    };
+    var request = http.Request('GET', Uri.parse('${Domain.serverPort}/read/m2st_hk_airshipping.flight.luggage?ids=$luggageIds'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var data = await response.stream.bytesToString();
+      print('specific : ${json.decode(data)}');
+
+      return json.decode(data);
+    }
+    else {
+      print(response.reasonPhrase);
+      return [];
+    }
+
+
+
+
+
+  }
+
 }

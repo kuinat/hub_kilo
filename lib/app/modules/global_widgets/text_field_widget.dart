@@ -30,7 +30,9 @@ class TextFieldWidget extends StatelessWidget {
     this.suffix,
     this.onTap,
     this.readOnly,
-    this.maxLines
+    this.maxLines,
+    this.controller,
+    this.containerColor,
   }) : super(key: key);
 
   final FormFieldSetter<String> onSaved;
@@ -53,14 +55,16 @@ class TextFieldWidget extends StatelessWidget {
   final Widget suffixIcon;
   final Widget suffix;
   final int maxLines;
+  final containerColor;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Container( 
       padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
       margin: EdgeInsets.only(left: 5, right: 5, top: topMargin, bottom: bottomMargin),
       decoration: BoxDecoration(
-          color: Get.theme.primaryColor,
+          color: containerColor!= null? containerColor:Get.theme.primaryColor,
           borderRadius: buildBorderRadius,
           boxShadow: [
             BoxShadow(color: Get.theme.focusColor.withOpacity(0.1), blurRadius: 10, offset: Offset(0, 5)),
@@ -71,10 +75,11 @@ class TextFieldWidget extends StatelessWidget {
         children: [
           Text(
             labelText ?? "",
-            style: Get.textTheme.bodyText1.merge(TextStyle(color: labelColor)),
+            style: Get.textTheme.bodyText1.merge(TextStyle(color: Colors.black, fontSize: 14)),
             textAlign: textAlign ?? TextAlign.start,
           ),
           TextFormField(
+            controller: controller,
             initialValue: initialValue,
             maxLines: keyboardType == TextInputType.multiline ? null : 1,
             key: key,
@@ -86,7 +91,7 @@ class TextFieldWidget extends StatelessWidget {
             minLines: maxLines,
             validator: validator,
             enabled: editable,
-            style: style ?? Get.textTheme.bodyText2.merge(TextStyle(color: labelColor)),
+            style: style ?? Get.textTheme.bodyText1.merge(TextStyle(color: Colors.grey.shade700)),
             obscureText: obscureText ?? false,
             textAlign: textAlign ?? TextAlign.start,
             decoration: Ui.getInputDecoration(

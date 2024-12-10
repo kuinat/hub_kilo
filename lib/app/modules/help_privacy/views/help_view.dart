@@ -29,7 +29,7 @@ class HelpView extends GetView<HelpController> {
                       text: _category.name.tr,
                       id: _category.id,
                       onSelected: (id) {
-                        controller.getFaqs(categoryId: id);
+                        //controller.getFaqs(categoryId: id);
                       },
                     );
                   }),
@@ -46,12 +46,12 @@ class HelpView extends GetView<HelpController> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            Get.find<LaravelApiClient>().forceRefresh();
+            /*Get.find<LaravelApiClient>().forceRefresh();
             controller.refreshFaqs(
               showMessage: true,
               categoryId: Get.find<TabBarController>(tag: '/help').selectedId.value,
             );
-            Get.find<LaravelApiClient>().unForceRefresh();
+            Get.find<LaravelApiClient>().unForceRefresh();*/
           },
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
